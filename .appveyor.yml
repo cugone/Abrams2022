@@ -1,0 +1,20 @@
+image: Visual Studio 2019
+
+configuration: Release
+
+platform:
+  - x64
+
+install:
+  - nuget restore
+build:
+  project: Engine.sln
+
+before_test:
+  - echo -----------------------ABOUT TO RUN TEST.EXE---------------------------------
+
+test_script:
+  - '%APPVEYOR_BUILD_FOLDER%\Temporary\Tests_%Platform%_%Configuration%\Tests.exe'
+
+after_test:
+  - echo -----------------------DONE RUNNING TEST.EXE-----------------------------------

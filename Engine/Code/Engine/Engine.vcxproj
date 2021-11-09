@@ -1,0 +1,609 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugProfile|x64">
+      <Configuration>DebugProfile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="FinalBuild|x64">
+      <Configuration>FinalBuild</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Thirdparty\ImGui\imgui.cpp" />
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="..\Thirdparty\Imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Thirdparty\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
+    <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\binary.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\contrib\graphbuilder.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\contrib\graphbuilderadapter.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\convert.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\depthguard.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\directives.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\emit.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\emitfromevents.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\emitter.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\emitterstate.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\emitterutils.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\exceptions.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\exp.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\memory.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\node.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\nodebuilder.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\nodeevents.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\node_data.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\null.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\ostream_wrapper.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\parse.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\parser.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\regex_yaml.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\scanner.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\scanscalar.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\scantag.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\scantoken.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\simplekey.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\singledocparser.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\stream.cpp" />
+    <ClCompile Include="..\Thirdparty\yaml-cpp\src\tag.cpp" />
+    <ClCompile Include="Audio\Audio3DCone.cpp" />
+    <ClCompile Include="Audio\Audio3DEmitter.cpp" />
+    <ClCompile Include="Audio\Audio3DListener.cpp" />
+    <ClCompile Include="Audio\AudioSystem.cpp" />
+    <ClCompile Include="Audio\Wav.cpp" />
+    <ClCompile Include="Audio\XAudio.cpp" />
+    <ClCompile Include="Core\App.cpp" />
+    <ClCompile Include="Core\Argb.cpp" />
+    <ClCompile Include="Core\ArgumentParser.cpp" />
+    <ClCompile Include="Core\Base64.cpp" />
+    <ClCompile Include="Core\BuildConfig.hpp" />
+    <ClCompile Include="Core\EngineCommon.cpp" />
+    <ClCompile Include="Core\EngineConfig.cpp" />
+    <ClCompile Include="Core\JobTypes.cpp" />
+    <ClCompile Include="Core\MtlReader.cpp" />
+    <ClCompile Include="Core\OrthographicCameraController.cpp" />
+    <ClCompile Include="Core\Clipboard.cpp" />
+    <ClCompile Include="Core\Config.cpp" />
+    <ClCompile Include="Core\Console.cpp" />
+    <ClCompile Include="Core\DataUtils.cpp" />
+    <ClCompile Include="Core\EngineBase.cpp" />
+    <ClCompile Include="Core\EngineSubsystem.cpp" />
+    <ClCompile Include="Core\ErrorWarningAssert.cpp" />
+    <ClCompile Include="Core\FileLogger.cpp" />
+    <ClCompile Include="Core\FileUtils.cpp" />
+    <ClCompile Include="Core\Image.cpp" />
+    <ClCompile Include="Core\JobSystem.cpp" />
+    <ClCompile Include="Core\KerningFont.cpp" />
+    <ClCompile Include="Core\KeyValueParser.cpp" />
+    <ClCompile Include="Core\Obj.cpp" />
+    <ClCompile Include="Core\Rgba.cpp" />
+    <ClCompile Include="Core\Riff.cpp" />
+    <ClCompile Include="Core\Stopwatch.cpp" />
+    <ClCompile Include="Core\StringUtils.cpp" />
+    <ClCompile Include="Core\ThreadUtils.cpp" />
+    <ClCompile Include="Core\TimeUtils.cpp" />
+    <ClCompile Include="Core\Utilities.cpp" />
+    <ClCompile Include="Core\UUID.cpp" />
+    <ClCompile Include="Game\GameBase.cpp" />
+    <ClCompile Include="Game\GameSettings.cpp" />
+    <ClCompile Include="Input\InputSystem.cpp" />
+    <ClCompile Include="Input\KeyCode.cpp" />
+    <ClCompile Include="Input\XboxController.cpp" />
+    <ClCompile Include="Math\AABB2.cpp" />
+    <ClCompile Include="Math\AABB3.cpp" />
+    <ClCompile Include="Math\Capsule2.cpp" />
+    <ClCompile Include="Math\Capsule3.cpp" />
+    <ClCompile Include="Math\Disc2.cpp" />
+    <ClCompile Include="Math\Frustum.cpp" />
+    <ClCompile Include="Math\IntVector2.cpp" />
+    <ClCompile Include="Math\IntVector3.cpp" />
+    <ClCompile Include="Math\IntVector4.cpp" />
+    <ClCompile Include="Math\LineSegment2.cpp" />
+    <ClCompile Include="Math\LineSegment3.cpp" />
+    <ClCompile Include="Math\MathUtils.cpp" />
+    <ClCompile Include="Math\Matrix4.cpp" />
+    <ClCompile Include="Math\Noise.cpp" />
+    <ClCompile Include="Math\OBB2.cpp" />
+    <ClCompile Include="Math\Plane2.cpp" />
+    <ClCompile Include="Math\Plane3.cpp" />
+    <ClCompile Include="Math\Polygon2.cpp" />
+    <ClCompile Include="Math\Quaternion.cpp" />
+    <ClCompile Include="Math\Ray2.cpp" />
+    <ClCompile Include="Math\Ray3.cpp" />
+    <ClCompile Include="Math\Rotator.cpp" />
+    <ClCompile Include="Math\Sphere3.cpp" />
+    <ClCompile Include="Math\Vector2.cpp" />
+    <ClCompile Include="Math\Vector3.cpp" />
+    <ClCompile Include="Math\Vector4.cpp" />
+    <ClCompile Include="Networking\Address.cpp" />
+    <ClCompile Include="Networking\NetUtils.cpp" />
+    <ClCompile Include="Physics\CableJoint.cpp" />
+    <ClCompile Include="Physics\Collider.cpp" />
+    <ClCompile Include="Physics\DragForceGenerator.cpp" />
+    <ClCompile Include="Physics\ForceGenerator.cpp" />
+    <ClCompile Include="Physics\GravityForceGenerator.cpp" />
+    <ClCompile Include="Physics\Joint.cpp" />
+    <ClCompile Include="Physics\Particles\Particle.cpp" />
+    <ClCompile Include="Physics\Particles\ParticleEffect.cpp" />
+    <ClCompile Include="Physics\Particles\ParticleEffectDefinition.cpp" />
+    <ClCompile Include="Physics\Particles\ParticleEmitter.cpp" />
+    <ClCompile Include="Physics\Particles\ParticleEmitterDefinition.cpp" />
+    <ClCompile Include="Physics\Particles\ParticleSystem.cpp" />
+    <ClCompile Include="Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="Physics\PhysicsTypes.cpp" />
+    <ClCompile Include="Physics\PhysicsUtils.cpp" />
+    <ClCompile Include="Physics\RigidBody.cpp" />
+    <ClCompile Include="Physics\RodJoint.cpp" />
+    <ClCompile Include="Physics\SpringJoint.cpp" />
+    <ClCompile Include="Platform\DirectX\DirectX11FrameBuffer.cpp" />
+    <ClCompile Include="Platform\Win.cpp" />
+    <ClCompile Include="Profiling\AllocationTracker.cpp" />
+    <ClCompile Include="Profiling\ProfileLogScope.cpp" />
+    <ClCompile Include="Profiling\StackTrace.cpp" />
+    <ClCompile Include="Renderer\AnimatedSprite.cpp" />
+    <ClCompile Include="Renderer\ArrayBuffer.cpp" />
+    <ClCompile Include="Renderer\BlendState.cpp" />
+    <ClCompile Include="Renderer\Buffer.cpp" />
+    <ClCompile Include="Renderer\Camera.cpp" />
+    <ClCompile Include="Renderer\Camera2D.cpp" />
+    <ClCompile Include="Renderer\Camera3D.cpp" />
+    <ClCompile Include="Renderer\ConstantBuffer.cpp" />
+    <ClCompile Include="Renderer\DepthStencilState.cpp" />
+    <ClCompile Include="Renderer\DirectX\DX11.cpp" />
+    <ClCompile Include="Renderer\DrawInstruction.cpp" />
+    <ClCompile Include="Renderer\FrameBuffer.cpp" />
+    <ClCompile Include="Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="Renderer\InputLayout.cpp" />
+    <ClCompile Include="Renderer\InputLayoutInstanced.cpp" />
+    <ClCompile Include="Renderer\Material.cpp" />
+    <ClCompile Include="Renderer\Mesh.cpp" />
+    <ClCompile Include="Renderer\MeshInstanced.cpp" />
+    <ClCompile Include="Renderer\Model.cpp" />
+    <ClCompile Include="Renderer\RasterState.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="Renderer\RenderTargetStack.cpp" />
+    <ClCompile Include="Renderer\Sampler.cpp" />
+    <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="Renderer\ShaderProgram.cpp" />
+    <ClCompile Include="Renderer\SpriteSheet.cpp" />
+    <ClCompile Include="Renderer\StructuredBuffer.cpp" />
+    <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\Texture1D.cpp" />
+    <ClCompile Include="Renderer\Texture2D.cpp" />
+    <ClCompile Include="Renderer\Texture3D.cpp" />
+    <ClCompile Include="Renderer\TextureArray2D.cpp" />
+    <ClCompile Include="Renderer\VertexBuffer.cpp" />
+    <ClCompile Include="Renderer\VertexBufferInstanced.cpp" />
+    <ClCompile Include="Renderer\Window.cpp" />
+    <ClCompile Include="RHI\RHIDevice.cpp" />
+    <ClCompile Include="RHI\RHIDeviceContext.cpp" />
+    <ClCompile Include="RHI\RHIFactory.cpp" />
+    <ClCompile Include="RHI\RHIInstance.cpp" />
+    <ClCompile Include="RHI\RHIOutput.cpp" />
+    <ClCompile Include="RHI\RHITypes.cpp" />
+    <ClCompile Include="Scene\Components.cpp" />
+    <ClCompile Include="Scene\ECS.cpp" />
+    <ClCompile Include="Scene\Entity.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Scene\World.cpp" />
+    <ClCompile Include="Services\ServiceLocator.cpp" />
+    <ClCompile Include="System\Cpu.cpp" />
+    <ClCompile Include="System\OS.cpp" />
+    <ClCompile Include="System\Ram.cpp" />
+    <ClCompile Include="System\System.cpp" />
+    <ClCompile Include="UI\UICanvas.cpp" />
+    <ClCompile Include="UI\UIElement.cpp" />
+    <ClCompile Include="UI\UIPanelSlot.cpp" />
+    <ClCompile Include="UI\UIPictureBox.cpp" />
+    <ClCompile Include="UI\UIPanel.cpp" />
+    <ClCompile Include="UI\UILabel.cpp" />
+    <ClCompile Include="UI\UITypes.cpp" />
+    <ClCompile Include="UI\UISystem.cpp" />
+    <ClCompile Include="UI\UIWidget.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Thirdparty\EnTT\EnTT.hpp" />
+    <ClInclude Include="..\Thirdparty\ImGui\imconfig.h" />
+    <ClInclude Include="..\Thirdparty\ImGui\imgui.h" />
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\Thirdparty\ImGui\imgui_internal.h" />
+    <ClInclude Include="..\Thirdparty\Imgui\imgui_stdlib.h" />
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_textedit.h" />
+    <ClInclude Include="..\Thirdparty\ImGui\imstb_truetype.h" />
+    <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp" />
+    <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
+    <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
+    <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\anchor.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\binary.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\depthguard.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\dll.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\emitfromevents.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\emitter.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\emitterdef.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\emittermanip.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\emitterstyle.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\eventhandler.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\exceptions.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\mark.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\convert.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\impl.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\iterator.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\iterator_fwd.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\memory.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\node.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\node_data.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\node_iterator.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\detail\node_ref.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\emit.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\impl.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\iterator.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\node.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\parse.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\ptr.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\node\type.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\noexcept.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\null.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\ostream_wrapper.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\parser.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\stlemitter.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\traits.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\collectionstack.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\contrib\graphbuilderadapter.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\directives.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\emitterstate.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\emitterutils.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\exp.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\indentation.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\nodebuilder.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\nodeevents.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\ptr_vector.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\regeximpl.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\regex_yaml.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\scanner.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\scanscalar.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\scantag.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\setting.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\singledocparser.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\stream.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\streamcharsource.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\stringsource.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\tag.h" />
+    <ClInclude Include="..\Thirdparty\yaml-cpp\src\token.h" />
+    <ClInclude Include="Audio\Audio3DCone.hpp" />
+    <ClInclude Include="Audio\Audio3DEmitter.hpp" />
+    <ClInclude Include="Audio\Audio3DListener.hpp" />
+    <ClInclude Include="Audio\AudioSystem.hpp" />
+    <ClInclude Include="Audio\Wav.hpp" />
+    <ClInclude Include="Audio\XAudio.hpp" />
+    <ClInclude Include="Core\App.hpp" />
+    <ClInclude Include="Core\Argb.hpp" />
+    <ClInclude Include="Core\ArgumentParser.hpp" />
+    <ClInclude Include="Core\Base64.hpp" />
+    <ClInclude Include="Core\EngineCommon.hpp" />
+    <ClInclude Include="Core\EngineConfig.hpp" />
+    <ClInclude Include="Core\JobTypes.hpp" />
+    <ClInclude Include="Core\MtlReader.hpp" />
+    <ClInclude Include="Core\OrthographicCameraController.hpp" />
+    <ClInclude Include="Core\Clipboard.hpp" />
+    <ClInclude Include="Core\Config.hpp" />
+    <ClInclude Include="Core\Console.hpp" />
+    <ClInclude Include="Core\DataUtils.hpp" />
+    <ClInclude Include="Core\EngineBase.hpp" />
+    <ClInclude Include="Core\EngineSubsystem.hpp" />
+    <ClInclude Include="Core\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Core\Event.hpp" />
+    <ClInclude Include="Core\FileLogger.hpp" />
+    <ClInclude Include="Core\FileUtils.hpp" />
+    <ClInclude Include="Core\Image.hpp" />
+    <ClInclude Include="Core\JobSystem.hpp" />
+    <ClInclude Include="Core\KerningFont.hpp" />
+    <ClInclude Include="Core\KeyValueParser.hpp" />
+    <ClInclude Include="Core\Obj.hpp" />
+    <ClInclude Include="Core\Rgba.hpp" />
+    <ClInclude Include="Core\Riff.hpp" />
+    <ClInclude Include="Core\Stopwatch.hpp" />
+    <ClInclude Include="Core\StringUtils.hpp" />
+    <ClInclude Include="Core\ThreadUtils.hpp" />
+    <ClInclude Include="Core\ThreadSafeQueue.hpp" />
+    <ClInclude Include="Core\TimeUtils.hpp" />
+    <ClInclude Include="Core\TypeUtils.hpp" />
+    <ClInclude Include="Core\Utilities.hpp" />
+    <ClInclude Include="Core\UUID.hpp" />
+    <ClInclude Include="Game\GameBase.hpp" />
+    <ClInclude Include="Game\GameSettings.hpp" />
+    <ClInclude Include="Input\InputSystem.hpp" />
+    <ClInclude Include="Input\KeyCode.hpp" />
+    <ClInclude Include="Input\XboxController.hpp" />
+    <ClInclude Include="Math\AABB2.hpp" />
+    <ClInclude Include="Math\AABB3.hpp" />
+    <ClInclude Include="Math\Capsule2.hpp" />
+    <ClInclude Include="Math\Capsule3.hpp" />
+    <ClInclude Include="Math\Disc2.hpp" />
+    <ClInclude Include="Math\Frustum.hpp" />
+    <ClInclude Include="Math\IntVector2.hpp" />
+    <ClInclude Include="Math\IntVector3.hpp" />
+    <ClInclude Include="Math\IntVector4.hpp" />
+    <ClInclude Include="Math\LineSegment2.hpp" />
+    <ClInclude Include="Math\LineSegment3.hpp" />
+    <ClInclude Include="Math\MathUtils.hpp" />
+    <ClInclude Include="Math\Matrix4.hpp" />
+    <ClInclude Include="Math\Noise.hpp" />
+    <ClInclude Include="Math\OBB2.hpp" />
+    <ClInclude Include="Math\Plane2.hpp" />
+    <ClInclude Include="Math\Plane3.hpp" />
+    <ClInclude Include="Math\Polygon2.hpp" />
+    <ClInclude Include="Math\Quaternion.hpp" />
+    <ClInclude Include="Math\Ray2.hpp" />
+    <ClInclude Include="Math\Ray3.hpp" />
+    <ClInclude Include="Math\Rotator.hpp" />
+    <ClInclude Include="Math\Sphere3.hpp" />
+    <ClInclude Include="Math\Vector2.hpp" />
+    <ClInclude Include="Math\Vector3.hpp" />
+    <ClInclude Include="Math\Vector4.hpp" />
+    <ClInclude Include="Memory\MemoryPool.hpp" />
+    <ClInclude Include="Networking\Address.hpp" />
+    <ClInclude Include="Networking\NetUtils.hpp" />
+    <ClInclude Include="Physics\CableJoint.hpp" />
+    <ClInclude Include="Physics\Collider.hpp" />
+    <ClInclude Include="Physics\DragForceGenerator.hpp" />
+    <ClInclude Include="Physics\ForceGenerator.hpp" />
+    <ClInclude Include="Physics\GravityForceGenerator.hpp" />
+    <ClInclude Include="Physics\Joint.hpp" />
+    <ClInclude Include="Physics\Particles\Particle.hpp" />
+    <ClInclude Include="Physics\Particles\ParticleEffect.hpp" />
+    <ClInclude Include="Physics\Particles\ParticleEffectDefinition.hpp" />
+    <ClInclude Include="Physics\Particles\ParticleEmitter.hpp" />
+    <ClInclude Include="Physics\Particles\ParticleEmitterDefinition.hpp" />
+    <ClInclude Include="Physics\Particles\ParticleSystem.hpp" />
+    <ClInclude Include="Physics\PhysicsSystem.hpp" />
+    <ClInclude Include="Physics\PhysicsTypes.hpp" />
+    <ClInclude Include="Physics\PhysicsUtils.hpp" />
+    <ClInclude Include="Physics\QuadTree.hpp" />
+    <ClInclude Include="Physics\RigidBody.hpp" />
+    <ClInclude Include="Physics\RodJoint.hpp" />
+    <ClInclude Include="Physics\SpringJoint.hpp" />
+    <ClInclude Include="Platform\DirectX\DirectX11FrameBuffer.hpp" />
+    <ClInclude Include="Platform\PlatformUtils.hpp" />
+    <ClInclude Include="Platform\Win.hpp" />
+    <ClInclude Include="Profiling\AllocationTracker.hpp" />
+    <ClInclude Include="Profiling\ProfileLogScope.hpp" />
+    <ClInclude Include="Profiling\StackTrace.hpp" />
+    <ClInclude Include="Renderer\AnimatedSprite.hpp" />
+    <ClInclude Include="Renderer\ArrayBuffer.hpp" />
+    <ClInclude Include="Renderer\BlendState.hpp" />
+    <ClInclude Include="Renderer\Buffer.hpp" />
+    <ClInclude Include="Renderer\Camera.hpp" />
+    <ClInclude Include="Renderer\Camera2D.hpp" />
+    <ClInclude Include="Renderer\Camera3D.hpp" />
+    <ClInclude Include="Renderer\ConstantBuffer.hpp" />
+    <ClInclude Include="Renderer\DepthStencilState.hpp" />
+    <ClInclude Include="Renderer\DirectX\DX11.hpp" />
+    <ClInclude Include="Renderer\DrawInstruction.hpp" />
+    <ClInclude Include="Renderer\FrameBuffer.hpp" />
+    <ClInclude Include="Renderer\IndexBuffer.hpp" />
+    <ClInclude Include="Renderer\InputLayout.hpp" />
+    <ClInclude Include="Renderer\InputLayoutInstanced.hpp" />
+    <ClInclude Include="Renderer\Material.hpp" />
+    <ClInclude Include="Renderer\Mesh.hpp" />
+    <ClInclude Include="Renderer\MeshInstanced.hpp" />
+    <ClInclude Include="Renderer\Model.hpp" />
+    <ClInclude Include="Renderer\RasterState.hpp" />
+    <ClInclude Include="Renderer\Renderer.hpp" />
+    <ClInclude Include="Renderer\RenderTargetStack.hpp" />
+    <ClInclude Include="Renderer\Sampler.hpp" />
+    <ClInclude Include="Renderer\Shader.hpp" />
+    <ClInclude Include="Renderer\ShaderProgram.hpp" />
+    <ClInclude Include="Renderer\SpriteSheet.hpp" />
+    <ClInclude Include="Renderer\StructuredBuffer.hpp" />
+    <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Renderer\Texture1D.hpp" />
+    <ClInclude Include="Renderer\Texture2D.hpp" />
+    <ClInclude Include="Renderer\Texture3D.hpp" />
+    <ClInclude Include="Renderer\TextureArray2D.hpp" />
+    <ClInclude Include="Renderer\Vertex3D.hpp" />
+    <ClInclude Include="Renderer\Vertex3DInstanced.hpp" />
+    <ClInclude Include="Renderer\VertexBuffer.hpp" />
+    <ClInclude Include="Renderer\VertexBufferInstanced.hpp" />
+    <ClInclude Include="Renderer\Window.hpp" />
+    <ClInclude Include="RHI\RHI.hpp" />
+    <ClInclude Include="RHI\RHIDevice.hpp" />
+    <ClInclude Include="RHI\RHIDeviceContext.hpp" />
+    <ClInclude Include="RHI\RHIFactory.hpp" />
+    <ClInclude Include="RHI\RHIInstance.hpp" />
+    <ClInclude Include="RHI\RHIOutput.hpp" />
+    <ClInclude Include="RHI\RHITypes.hpp" />
+    <ClInclude Include="Scene\Components.hpp" />
+    <ClInclude Include="Scene\ECS.hpp" />
+    <ClInclude Include="Scene\Entity.hpp" />
+    <ClInclude Include="Scene\Scene.hpp" />
+    <ClInclude Include="Scene\World.hpp" />
+    <ClInclude Include="Services\IAppService.hpp" />
+    <ClInclude Include="Services\IAudioService.hpp" />
+    <ClInclude Include="Services\IConfigService.hpp" />
+    <ClInclude Include="Services\IConsoleService.hpp" />
+    <ClInclude Include="Services\IFileLoggerService.hpp" />
+    <ClInclude Include="Services\IInputService.hpp" />
+    <ClInclude Include="Services\IJobSystemService.hpp" />
+    <ClInclude Include="Services\IPhysicsService.hpp" />
+    <ClInclude Include="Services\IRendererService.hpp" />
+    <ClInclude Include="Services\IService.hpp" />
+    <ClInclude Include="Services\ServiceLocator.hpp" />
+    <ClInclude Include="System\Cpu.hpp" />
+    <ClInclude Include="System\OS.hpp" />
+    <ClInclude Include="System\Ram.hpp" />
+    <ClInclude Include="System\System.hpp" />
+    <ClInclude Include="UI\UICanvas.hpp" />
+    <ClInclude Include="UI\UIElement.hpp" />
+    <ClInclude Include="UI\UIPanelSlot.hpp" />
+    <ClInclude Include="UI\UIPictureBox.hpp" />
+    <ClInclude Include="UI\UIPanel.hpp" />
+    <ClInclude Include="UI\UILabel.hpp" />
+    <ClInclude Include="UI\UITypes.hpp" />
+    <ClInclude Include="UI\UISystem.hpp" />
+    <ClInclude Include="UI\UIWidget.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\Thirdparty\yaml-cpp\src\contrib\yaml-cpp.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Thirdparty\yaml-cpp\src\contrib\yaml-cpp.natvis.md" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{ACBDA225-83DE-4FBA-A746-0135429FB391}</ProjectGuid>
+    <RootNamespace>Engine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="Abrams2022.Default.props" />
+    <Import Project="Abrams2022.Debug.Default.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="Abrams2022.Default.props" />
+    <Import Project="Abrams2022.Release.Default.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'" Label="PropertySheets">
+    <Import Project="Abrams2022.Default.props" />
+    <Import Project="Abrams2022.FinalBuild.Default.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'" Label="PropertySheets">
+    <Import Project="Abrams2022.Default.props" />
+    <Import Project="Abrams2022.DebugProfile.Default.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)../</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <EnablePREfast>false</EnablePREfast>
+      <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)../</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <EnablePREfast>false</EnablePREfast>
+      <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)../</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <PreprocessorDefinitions>FINAL_BUILD;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+      <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)../</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+      <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,84 @@
+Language: Cpp
+AccessModifierOffset: -4
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllConstructorInitializersOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: true
+BinPackParameters: false
+BreakBeforeBraces: Attach
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+BreakStringLiterals: false
+ColumnLimit: 0
+CompactNamespaces: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 0
+ContinuationIndentWidth: 0
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+IncludeCategories:
+# Prefer project-specific includes first
+#i.e. Prefer "my" includes before other libraries
+#First local multi-folder (usually not in the same directory) includes
+# e.g. #include "Engine/Renderer/Renderer.hpp"
+    - Regex: '\"([[:alnum:]_]+\/)+[[:alnum:]_]+\.(h|c)(pp)?\"'
+    - Priority: 4
+#Then local project-specific includes
+# e.g. #include "Example.hpp"
+    - Regex: '\"[[:alnum:]_]+\.(h|c)(pp)?\"'
+    - Priority: 3
+#Followed by global STL and Library headers
+# e.g. #include <iostream>
+    - Regex: '\<[[:alnum:]_]+\>'
+    - Priority: 2
+#Lastly, global linked libraries and C and OS-specific headers.
+# e.g. #include <windows.h>
+    - Regex: '\<[[:alnum:]_]+\.h(pp)?\>'
+    - Priority: 1
+
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+IndentWrappedFunctionNames: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+PointerAlignment: Left
+ReflowComments: false
+SortIncludes : true
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Never
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Standard: c++17
+TabWidth: 4
+UseTab: Never
