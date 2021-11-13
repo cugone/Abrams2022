@@ -124,10 +124,11 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
         _dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
         context = device_info.dx_context;
     }
-
+    
     _dxgi_swapchain = CreateSwapChain(*window);
     _allow_tearing_supported = _rhi_factory.QueryForAllowTearingSupport(*this);
-    _rhi_factory.RestrictAltEnterToggle(*this);
+    //TODO(casey): Allow Alt+Enter until resizing is stable
+    //_rhi_factory.RestrictAltEnterToggle(*this);
 
     SetupDebuggingInfo();
 
