@@ -12,6 +12,11 @@ public:
     [[nodiscard]] virtual bool HasFocus() const = 0;
     [[nodiscard]] virtual bool LostFocus() const = 0;
     [[nodiscard]] virtual bool GainedFocus() const = 0;
+
+    virtual void Minimize() const = 0;
+    virtual void Restore() const = 0;
+    virtual void Maximize() const = 0;
+
 protected:
 private:
     
@@ -28,6 +33,9 @@ public:
     [[nodiscard]] virtual bool HasFocus() const  override { return false; };
     [[nodiscard]] virtual bool LostFocus() const override { return false; };
     [[nodiscard]] virtual bool GainedFocus() const   override { return false; };
+    virtual void Minimize() const override {};
+    virtual void Restore() const override {};
+    virtual void Maximize() const override {};
 
 protected:
 private:
