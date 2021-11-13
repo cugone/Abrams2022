@@ -10,6 +10,9 @@
 #include "Engine/Platform/Win.hpp"
 
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Renderer/Window.hpp"
+
+#include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Scene/Scene.hpp"
 
@@ -131,6 +134,15 @@ void Editor::ShowMainMenu(TimeUtils::FPSeconds deltaSeconds) noexcept {
                 DoFileOpen();
             }
             ImGui::Separator();
+            if(ImGui::MenuItem("Minimize")) {
+                auto& app = ServiceLocator::get<IAppService>();
+                app.Minimize();
+            }
+            if(ImGui::MenuItem("Maximize")) {
+                auto& app = ServiceLocator::get<IAppService>();
+                app.Maximize();
+            }
+            ImGui::Separator();
             if(ImGui::MenuItem("Save", "Ctrl+S", nullptr, m_ActiveScene.get())) {
                 DoFileSave();
             }
@@ -179,8 +191,50 @@ void Editor::ShowMainMenu(TimeUtils::FPSeconds deltaSeconds) noexcept {
             }
             ImGui::EndMenu();
         }
+        //TODO: Implement custom minimize, maximize, and close buttons
+        //ShowMinMaxCloseButtons();
         ImGui::EndMainMenuBar();
     }
+}
+
+void Editor::ShowMinMaxCloseButtons() noexcept {
+    static float nc_button_offset = 40.0f;
+    static float close_button_offset = ImGui::GetWindowWidth() - nc_button_offset;
+    static float maximize_button_offset = close_button_offset - nc_button_offset;
+    static float minimize_button_offset = maximize_button_offset - nc_button_offset;
+    static float nc_button_sizes = 32.0f;
+    ImGui::SameLine(close_button_offset);
+    ImGui::PushStyleColor(ImGuiCol_Button, Rgba::NoAlpha.GetAsRawValue());
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, Rgba::NoAlpha.GetAsRawValue());
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::Red.GetAsRawValue());
+
+    if(ImGui::ImageButton(GetAssetTextureFromType(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/CloseButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+        auto& app = ServiceLocator::get<IAppService>();
+        app.SetIsQuitting(true);
+    }
+    ImGui::PopStyleColor();
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::LightGray.GetAsRawValue());
+    ImGui::SameLine(maximize_button_offset);
+    const auto max_or_restore_down_button_path = []() {
+        auto& renderer = ServiceLocator::get<IRendererService>();
+        if(const auto is_fullscreen = renderer.GetOutput()->GetWindow()->IsFullscreen(); !is_fullscreen) {
+            return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MaximizeButtonAsset.png";
+        }
+        return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/RestoreDownButtonAsset.png";
+    }(); //IIIL
+    if(ImGui::ImageButton(GetAssetTextureFromType(max_or_restore_down_button_path), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+        auto& renderer = ServiceLocator::get<IRendererService>();
+        auto& app = ServiceLocator::get<IAppService>();
+        !renderer.GetOutput()->GetWindow()->IsFullscreen() ? app.Maximize() : app.Restore();
+    }
+    ImGui::SameLine(minimize_button_offset);
+    if(ImGui::ImageButton(GetAssetTextureFromType(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MinimizeButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+        auto& app = ServiceLocator::get<IAppService>();
+        app.SetIsQuitting(true);
+    }
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
 }
 
 void Editor::ShowWorldInspectorWindow(TimeUtils::FPSeconds deltaSeconds) noexcept {
