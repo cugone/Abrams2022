@@ -260,6 +260,12 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) noexcept {
         break;
     }
     case RHIOutputMode::Borderless_Fullscreen: {
+#ifdef IN_EDITOR
+        ::SetWindowLongPtr(_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+        ::SetWindowPlacement(_hWnd, &g_wpPrev);
+        ::SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0,
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+#else
         MONITORINFO mi = {sizeof(mi)};
         if(::GetWindowPlacement(_hWnd, &g_wpPrev) && ::GetMonitorInfo(::MonitorFromWindow(_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
             ::SetWindowLongPtr(_hWnd, GWL_STYLE,
@@ -276,6 +282,7 @@ void Window::SetDisplayMode(const RHIOutputMode& display_mode) noexcept {
                            mi.rcMonitor.right - mi.rcMonitor.left,
                            mi.rcMonitor.bottom - mi.rcMonitor.top,
                            SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+#endif
 #endif
         }
         break;
