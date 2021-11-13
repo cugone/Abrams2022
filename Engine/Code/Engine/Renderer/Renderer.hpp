@@ -648,7 +648,8 @@ private:
     std::filesystem::path _last_screenshot_location{};
     bool _vsync = false;
     bool _materials_need_updating = true;
-    bool _sizemove_in_progress = false;
+    bool _enteredSizeMove = false;
+    bool _doneSizeMove = false;
     bool _is_minimized = false;
 
     friend class Shader;

@@ -223,7 +223,6 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             return true; // Disable screen saver from activating
         }
         case SC_SIZE: {
-            UnbindAllResourcesAndBuffers();
             return false; //App needs to respond
         }
         case SC_TASKLIST: break;
@@ -256,15 +255,19 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         }
     }
     case WindowsSystemMessage::Window_EnterSizeMove: {
-        _sizemove_in_progress = true;
+        _enteredSizeMove = true;
         return false; //UI needs to respond
     }
     case WindowsSystemMessage::Window_ExitSizeMove: {
-        _sizemove_in_progress = false;
-        return false; //UI needs to respond
+        if(_enteredSizeMove) {
+            _doneSizeMove = true;
+            return false;
+        }
+        return false;
     }
     case WindowsSystemMessage::Window_Size: {
         LPARAM lp = msg.lparam;
+        _is_minimized = false;
         const auto resize_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
         if(auto* window = GetOutput()->GetWindow(); window != nullptr) {
             switch(resize_type) {
@@ -280,20 +283,23 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                     const auto new_position = IntVector2{GetScreenCenter()} - new_size / 2;
                     window->SetDisplayMode(RHIOutputMode::Windowed);
                 } else {
-                    const auto w = LOWORD(lp);
-                    const auto h = HIWORD(lp);
-                    const auto new_size = IntVector2{w, h};
-                    window->SetDimensions(new_size);
+                    if(_enteredSizeMove && _doneSizeMove) {
+                        _enteredSizeMove = false;
+                        _doneSizeMove = false;
+                        const auto w = LOWORD(lp);
+                        const auto h = HIWORD(lp);
+                        const auto new_size = IntVector2{w, h};
+                        window->SetDimensions(new_size);
+                    }
                 }
-
                 break;
             }
             case WindowResizeType::Minimized: {
+                _is_minimized = true;
                 return false; //App must be able to respond.
             }
             }
             ResizeBuffers();
-            ReloadMaterials();
         }
         return false; //App must be able to respond.
     }
