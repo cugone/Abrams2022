@@ -15,6 +15,7 @@
 #include "Engine/RHI/RHI.hpp"
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
+#include "Engine/Renderer/FrameBuffer.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/RenderTargetStack.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
@@ -627,6 +628,7 @@ private:
     Material* _current_material = nullptr;
     IntVector2 _window_dimensions = IntVector2::Zero;
     RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
+    std::unique_ptr<FrameBuffer> _backbuffer{};
     std::unique_ptr<VertexBuffer> _temp_vbo = nullptr;
     std::unique_ptr<VertexBufferInstanced> _temp_vbio = nullptr;
     std::unique_ptr<IndexBuffer> _temp_ibo = nullptr;
