@@ -21,6 +21,8 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
 
+#include "Engine/RHI/RHIOutput.hpp"
+
 #include "Engine/Services/IAudioService.hpp"
 #include "Engine/Services/IAppService.hpp"
 #include "Engine/Services/IConfigService.hpp"
@@ -69,6 +71,12 @@ public:
     bool HasFocus() const override;
     bool LostFocus() const override;
     bool GainedFocus() const override;
+
+
+    void Minimize() const override;
+    void Restore() const override;
+    void Maximize() const override;
+
 
 protected:
 private:
@@ -339,26 +347,41 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     case WindowsSystemMessage::Window_EnterSizeMove:
     {
         _enteredSizeMove = true;
-        return true;
+        return false;
     }
     case WindowsSystemMessage::Window_ExitSizeMove:
     {
         if(_enteredSizeMove) {
             _doneSizeMove = true;
-            return true;
+            return false;
         }
         return false;
     }
     case WindowsSystemMessage::Window_Size:
     {
-        if(_enteredSizeMove && _doneSizeMove) {
-            _enteredSizeMove = false;
-            _doneSizeMove = false;
-            LPARAM lp = msg.lparam;
-            const auto w = HIWORD(lp);
-            const auto h = LOWORD(lp);
-            HandleResize(w, h);
+        const auto size_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
+        switch(size_type) {
+        case WindowResizeType::Maximized:
             return true;
+        case WindowResizeType::Minimized:
+            return true;
+        case WindowResizeType::Restored:
+            if(_enteredSizeMove && _doneSizeMove) {
+                _enteredSizeMove = false;
+                _doneSizeMove = false;
+                LPARAM lp = msg.lparam;
+                const auto w = HIWORD(lp);
+                const auto h = LOWORD(lp);
+                HandleResize(w, h);
+                return true;
+            }
+            break;
+        case WindowResizeType::MaxHide:
+            return false;
+        case WindowResizeType::MaxShow:
+            return false;
+        default:
+            break;
         }
         return false;
     }
@@ -424,6 +447,30 @@ bool App<T>::LostFocus() const {
 template<typename T>
 bool App<T>::GainedFocus() const {
     return !_previous_focus && _current_focus;
+}
+
+template<typename T>
+void App<T>::Minimize() const {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    renderer.SetWindowedMode();
+    auto* hwnd = reinterpret_cast<HWND*>(renderer.GetOutput()->GetWindow()->GetWindowHandle());
+    ::SendMessageA(*hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
+}
+
+template<typename T>
+void App<T>::Restore() const {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    renderer.SetWindowedMode();
+}
+
+template<typename T>
+void App<T>::Maximize() const {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    renderer.SetWindowedMode();
+    auto* window = renderer.GetOutput()->GetWindow();
+    auto* hwnd = reinterpret_cast<HWND*>(window->GetWindowHandle());
+    const auto desktop_resolution = window->GetDesktopResolution();
+    ::SendMessageA(*hwnd, WM_SIZE, SIZE_MAXIMIZED, MAKELPARAM(desktop_resolution.x, desktop_resolution.y));
 }
 
 template<typename T>
