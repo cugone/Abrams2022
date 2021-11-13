@@ -498,26 +498,22 @@ bool HasReadPermissions(const std::filesystem::path& p) noexcept {
 }
 
 bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
-    namespace FS = std::filesystem;
     //Check for any write permissions on the file and parent directory
     if(!(HasWritePermissions(p) || HasDeletePermissions(p))) {
         return false;
     }
 
     try {
-        if(bool is_in_working_dir = IsChildOf(p, GetWorkingDirectory())) {
-            return true;
-        }
-        if(bool is_in_data_dir = IsChildOf(p, FS::path{"Data/"})) {
-            return true;
-        }
-        if(bool is_next_to_exe = IsSiblingOf(p, GetExePath())) {
-            return true;
-        }
-        if(bool is_temp_dir = IsChildOf(p, GetTempDirectory())) {
-            return true;
-        }
-        return false;
+        const auto is_in_working_dir = IsChildOf(p, GetWorkingDirectory());
+        const auto is_in_gamedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::GameData));
+        const auto is_in_enginedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EngineData));
+        const auto is_in_editorcontent_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EditorContent));
+        const auto is_temp_dir = IsChildOf(p, GetTempDirectory());
+        const auto is_next_to_exe = IsSiblingOf(p, GetExePath());
+        const auto is_known_OS_dir = false;
+
+        const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_temp_dir || is_next_to_exe || is_known_OS_dir;
+        return safe;
     } catch(const std::filesystem::filesystem_error& e) {
         DebuggerPrintf("\nFilesystem Error:\nWhat: %s\nCode: %i\nPath1: %s\nPath2: %s\n", e.what(), e.code().value(), e.path1().string().c_str(), e.path2().string().c_str());
         return false;
@@ -532,7 +528,7 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
     if(!FS::exists(p)) {
         return false;
     }
-    //Check for any write permissions on the file and parent directory
+    //Check for any read permissions on the file and parent directory
     if(!(HasReadPermissions(p) || HasExecuteOrSearchPermissions(p))) {
         return false;
     }
@@ -541,15 +537,19 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         const auto is_in_working_dir = IsChildOf(p, GetWorkingDirectory());
         const auto is_in_gamedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::GameData));
         const auto is_in_enginedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EngineData));
+        const auto is_in_editorcontent_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EditorContent));
         const auto is_known_OS_dir = false;
 
         const auto is_next_to_exe = IsSiblingOf(p, GetExePath());
-        const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_next_to_exe || is_known_OS_dir;
+        const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_next_to_exe || is_known_OS_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
         const auto path1_str = e.path1().string();
         const auto path2_str = e.path1().string();
         DebuggerPrintf("\nFilesystem Error:\nWhat: %s\nCode: %i\nPath1: %s\nPath2: %s\n", e.what(), e.code().value(), path1_str.c_str(), path2_str.c_str());
+        return false;
+    } catch(...) {
+        DebuggerPrintf("\nUnspecified error trying to determine if path:\n%s\n is a safe read path.", p.string().c_str());
         return false;
     }
 }
