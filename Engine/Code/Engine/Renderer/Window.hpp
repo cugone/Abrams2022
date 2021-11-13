@@ -81,7 +81,7 @@ private:
     unsigned long _styleFlagsEx{};
     bool _hasMenu{};
     static inline std::size_t _refCount{0u};
-    static inline constexpr unsigned long _defaultWindowedStyleFlags{WS_CAPTION | WS_SIZEBOX | WS_MINIMIZEBOX | WS_BORDER | WS_SYSMENU | WS_OVERLAPPED};
+    static inline constexpr unsigned long _defaultWindowedStyleFlags{WS_OVERLAPPEDWINDOW | WS_BORDER /* WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX */};
     static inline constexpr unsigned long _defaultBorderlessStyleFlags{WS_POPUP};
     static inline constexpr unsigned long _defaultStyleFlagsEx{WS_EX_APPWINDOW | WS_EX_ACCEPTFILES};
 };
