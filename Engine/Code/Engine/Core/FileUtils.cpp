@@ -54,7 +54,10 @@ std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::pa
     if(path_not_exist) {
         return {};
     }
-    filepath = FS::canonical(filepath);
+    std::error_code ec{};
+    if(filepath = FS::canonical(filepath, ec); ec) {
+        return {};
+    }
     filepath.make_preferred();
     const auto path_is_directory = FS::is_directory(filepath);
     const auto not_valid_path = path_is_directory || path_not_exist;
@@ -77,7 +80,10 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    filepath = FS::canonical(filepath);
+    std::error_code ec{};
+    if(filepath = FS::canonical(filepath); ec) {
+        return {};
+    }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
     const auto path_is_directory = FS::is_directory(filepath);
@@ -100,7 +106,10 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    filepath = FS::canonical(filepath);
+    std::error_code ec{};
+    if(filepath = FS::canonical(filepath); ec) {
+        return {};
+    }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
     const auto path_is_directory = FS::is_directory(filepath);
@@ -140,7 +149,10 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    filepath = FS::canonical(filepath);
+    std::error_code ec{};
+    if(filepath = FS::canonical(filepath); ec) {
+        return {};
+    }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
     const auto path_is_directory = FS::is_directory(filepath);
@@ -330,9 +342,11 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         }
     } else if(pathid == KnownPathID::EditorContent) {
         p = GetWorkingDirectory() / FS::path{"Content"};
-        FileUtils::CreateFolders(p);
         if(FS::exists(p)) {
             p = FS::canonical(p);
+        } else {
+            FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{ "Content" });
+            p = GetKnownFolderPath(pathid);
         }
     } else {
 #ifdef PLATFORM_WINDOWS
@@ -556,13 +570,16 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
 
 bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child) noexcept {
     namespace FS = std::filesystem;
-    const auto p_canon = FS::canonical(p);
-    const auto child_canon = FS::canonical(child);
-    for(auto iter = FS::recursive_directory_iterator{p_canon}; iter != FS::recursive_directory_iterator{}; ++iter) {
-        const auto& entry = *iter;
-        const std::filesystem::path sub_p = entry.path();
-        if(sub_p == child_canon) {
-            return true;
+    std::error_code ec{};
+    if(const auto p_canon = FS::canonical(p, ec); ec) {
+        if(const auto child_canon = FS::canonical(child, ec); ec) {
+            for(auto iter = FS::recursive_directory_iterator{ p_canon }; iter != FS::recursive_directory_iterator{}; ++iter) {
+                const auto& entry = *iter;
+                const std::filesystem::path sub_p = entry.path();
+                if(sub_p == child_canon) {
+                    return true;
+                }
+            }
         }
     }
     return false;
@@ -570,20 +587,27 @@ bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& chi
 
 bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling) noexcept {
     namespace FS = std::filesystem;
-    const auto my_parent_path = FS::canonical(p.parent_path());
-    const auto sibling_parent_path = FS::canonical(sibling.parent_path());
-    return my_parent_path == sibling_parent_path;
+    std::error_code ec{};
+    if(const auto my_parent_path = FS::canonical(p.parent_path(), ec); ec) {
+        if(const auto sibling_parent_path = FS::canonical(sibling.parent_path(), ec); ec) {
+            return my_parent_path == sibling_parent_path;
+        }
+    }
+    return false;
 }
 
 bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent) noexcept {
     namespace FS = std::filesystem;
-    const auto parent_canon = FS::canonical(parent);
-    const auto p_canon = FS::canonical(p);
-    for(auto iter = FS::recursive_directory_iterator{parent_canon}; iter != FS::recursive_directory_iterator{}; ++iter) {
-        const auto& entry = *iter;
-        const std::filesystem::path sub_p = entry.path();
-        if(sub_p == p_canon) {
-            return true;
+    std::error_code ec{};
+    if(const auto parent_canon = FS::canonical(parent, ec); ec) {
+        if(const auto p_canon = FS::canonical(p, ec); ec) {
+            for(auto iter = FS::recursive_directory_iterator{parent_canon}; iter != FS::recursive_directory_iterator{}; ++iter) {
+                const auto& entry = *iter;
+                const std::filesystem::path sub_p = entry.path();
+                if(sub_p == p_canon) {
+                    return true;
+                }
+            }
         }
     }
     return false;
