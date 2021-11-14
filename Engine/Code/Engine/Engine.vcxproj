@@ -420,6 +420,7 @@
     <ClInclude Include="Renderer\Texture2D.hpp" />
     <ClInclude Include="Renderer\Texture3D.hpp" />
     <ClInclude Include="Renderer\TextureArray2D.hpp" />
+    <ClInclude Include="Renderer\Vertex2D.hpp" />
     <ClInclude Include="Renderer\Vertex3D.hpp" />
     <ClInclude Include="Renderer\Vertex3DInstanced.hpp" />
     <ClInclude Include="Renderer\VertexBuffer.hpp" />

@@ -1431,6 +1431,9 @@
     <ClInclude Include="Platform\DirectX\DirectX11FrameBuffer.hpp">
       <Filter>Platform\DirectX</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\Vertex2D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Thirdparty\yaml-cpp\src\contrib\yaml-cpp.natvis">
