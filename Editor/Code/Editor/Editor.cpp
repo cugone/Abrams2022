@@ -28,7 +28,7 @@
 #include <numeric>
 #include <sstream>
 
-void Editor::ShowSelectedEntityComponents(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void Editor::ShowSelectedEntityComponents([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     /* DO NOTHING */
 }
 
@@ -123,7 +123,7 @@ void Editor::ShowUI(TimeUtils::FPSeconds deltaSeconds) noexcept {
     ShowMainViewport(deltaSeconds);
 }
 
-void Editor::ShowMainMenu(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void Editor::ShowMainMenu([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     ImGui::BeginMainMenuBar();
     {
         if(ImGui::BeginMenu("File")) {
@@ -237,7 +237,7 @@ void Editor::ShowMinMaxCloseButtons() noexcept {
     ImGui::PopStyleColor();
 }
 
-void Editor::ShowWorldInspectorWindow(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void Editor::ShowWorldInspectorWindow([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     ImGui::Begin("World Inspector");
     {
         
@@ -261,7 +261,7 @@ void Editor::ShowPropertiesWindow([[maybe_unused]] TimeUtils::FPSeconds deltaSec
     ImGui::End();
 }
 
-void Editor::ShowMainViewport(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void Editor::ShowMainViewport([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     {
         std::ostringstream ss{};
         if(IsSceneLoaded()) {
@@ -287,7 +287,7 @@ void Editor::ShowContentBrowserWindow(TimeUtils::FPSeconds deltaSeconds) noexcep
     m_ContentBrowser.Update(deltaSeconds);
 }
 
-void Editor::HandleMenuKeyboardInput(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void Editor::HandleMenuKeyboardInput([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     auto& input = ServiceLocator::get<IInputService>();
     if(input.IsKeyDown(KeyCode::Ctrl)) {
         if(input.WasKeyJustPressed(KeyCode::N)) {

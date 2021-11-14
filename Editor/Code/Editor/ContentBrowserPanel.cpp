@@ -16,7 +16,7 @@
 
 #include <string>
 
-void ContentBrowserPanel::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     if(m_CacheNeedsImmediateUpdate) {
         UpdateContentBrowserPaths();
     } else {
