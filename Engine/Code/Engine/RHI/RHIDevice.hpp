@@ -9,6 +9,7 @@
 #include "Engine/Renderer/DirectX/DX11.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
+#include "Engine/Renderer/ArrayBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 
@@ -40,7 +41,10 @@ public:
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::Zero) noexcept;
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const WindowDesc& desc) noexcept;
 
-    [[nodiscard]] std::unique_ptr<VertexBuffer> CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept;
+    template<typename ArrayBufferType>
+    [[nodiscard]] std::unique_ptr<ArrayBufferType> CreateVertexBuffer(const typename ArrayBufferType::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept {
+        return std::make_unique<ArrayBufferType>(*this, vbo, usage, bindusage);
+    }
     [[nodiscard]] std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept;
     [[nodiscard]] std::unique_ptr<IndexBuffer> CreateIndexBuffer(const IndexBuffer::buffer_t& ibo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept;
 

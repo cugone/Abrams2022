@@ -50,9 +50,9 @@ bool RHIDevice::IsAllowTearingSupported() const noexcept {
     return _allow_tearing_supported;
 }
 
-std::unique_ptr<VertexBuffer> RHIDevice::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept {
-    return std::make_unique<VertexBuffer>(*this, vbo, usage, bindusage);
-}
+//std::unique_ptr<VertexBuffer> RHIDevice::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept {
+//    return std::make_unique<VertexBuffer>(*this, vbo, usage, bindusage);
+//}
 
 std::unique_ptr<VertexBufferInstanced> RHIDevice::CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept {
     return std::make_unique<VertexBufferInstanced>(*this, vbio, usage, bindusage);
