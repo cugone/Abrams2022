@@ -694,6 +694,9 @@
     <ClCompile Include="Platform\DirectX\DirectX11FrameBuffer.cpp">
       <Filter>Platform\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\VertexCircleBuffer.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1432,6 +1435,12 @@
       <Filter>Platform\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Vertex2D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\VertexCircle2D.hpp">
+      <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\VertexCircleBuffer.hpp">
       <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>

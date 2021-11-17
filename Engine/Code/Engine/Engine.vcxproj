@@ -188,6 +188,7 @@
     <ClCompile Include="Renderer\TextureArray2D.cpp" />
     <ClCompile Include="Renderer\VertexBuffer.cpp" />
     <ClCompile Include="Renderer\VertexBufferInstanced.cpp" />
+    <ClCompile Include="Renderer\VertexCircleBuffer.cpp" />
     <ClCompile Include="Renderer\Window.cpp" />
     <ClCompile Include="RHI\RHIDevice.cpp" />
     <ClCompile Include="RHI\RHIDeviceContext.cpp" />
@@ -425,6 +426,8 @@
     <ClInclude Include="Renderer\Vertex3DInstanced.hpp" />
     <ClInclude Include="Renderer\VertexBuffer.hpp" />
     <ClInclude Include="Renderer\VertexBufferInstanced.hpp" />
+    <ClInclude Include="Renderer\VertexCircle2D.hpp" />
+    <ClInclude Include="Renderer\VertexCircleBuffer.hpp" />
     <ClInclude Include="Renderer\Window.hpp" />
     <ClInclude Include="RHI\RHI.hpp" />
     <ClInclude Include="RHI\RHIDevice.hpp" />
