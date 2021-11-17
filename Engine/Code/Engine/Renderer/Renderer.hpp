@@ -24,6 +24,7 @@
 #include "Engine/Renderer/Vertex3D.hpp"
 #include "Engine/Renderer/Vertex3DInstanced.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
+#include "Engine/Renderer/VertexCircleBuffer.hpp"
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 
 #include "Engine/Services/IRendererService.hpp"
@@ -157,6 +158,13 @@ struct lighting_buffer_t {
     float padding[3] = {0.0f, 0.0f, 0.0f};
 };
 
+struct circles_buffer_t {
+    Vector4 position{};
+    Vector4 color{1.0f, 1.0f, 1.0f, 1.0f};
+    Vector2 thickness_fade{1.0f, 0.00025f};
+    float padding[2] = {0.0f, 0.0f};
+};
+
 struct ComputeJob {
     Renderer& renderer;
     std::size_t uavCount = 0;
@@ -222,6 +230,7 @@ public:
     void SetWindowIcon(void* iconResource) noexcept;
 
     [[nodiscard]] std::unique_ptr<VertexBuffer> CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept override;
+    [[nodiscard]] std::unique_ptr<VertexCircleBuffer> CreateVertexCircleBuffer(const VertexCircleBuffer::buffer_t& vbco) const noexcept override;
     [[nodiscard]] std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio) const noexcept override;
     [[nodiscard]] std::unique_ptr<IndexBuffer> CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept override;
     [[nodiscard]] std::unique_ptr<ConstantBuffer> CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept override;
@@ -324,7 +333,10 @@ public:
     void DrawDebugSphere(const Rgba& color) noexcept override;
 
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept override;
+    void Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo) noexcept override;
     void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept override;
+    void Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo, std::size_t vertex_count) noexcept;
+
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept override;
     void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept override;
     void DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept override;
@@ -446,7 +458,7 @@ public:
     void DrawQuad2D(const Vector4& texCoords) noexcept override;
     void DrawQuad2D(const Rgba& color, const Vector4& texCoords) noexcept override;
     void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::White) noexcept override;
-    void DrawCircle2D(const Matrix4& transform, float thickness, const Rgba& color = Rgba::White) noexcept override;
+    void DrawCircle2D(const Matrix4& transform, float thickness, const Rgba& color = Rgba::White, float fade = 0.00025f) noexcept override;
     void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept override;
     void DrawCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept override;
     void DrawFilledCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept override;
@@ -505,7 +517,9 @@ private:
 
     void CreateDefaultConstantBuffers() noexcept;
     void CreateWorkingVboAndIbo() noexcept;
+
     void UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept;
+    void UpdateVbco(const VertexCircleBuffer::buffer_t& vbco) noexcept;
     void UpdateVbio(const VertexBufferInstanced::buffer_t& vbio) noexcept;
     void UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept;
 
@@ -640,7 +654,9 @@ private:
     matrix_buffer_t _matrix_data{};
     time_buffer_t _time_data{};
     lighting_buffer_t _lighting_data{};
+    circles_buffer_t _circles_data{};
     std::size_t _current_vbo_size = 0;
+    std::size_t _current_vbco_size = 0;
     std::size_t _current_vbio_size = 0;
     std::size_t _current_ibo_size = 0;
     RHIInstance* _rhi_instance = nullptr;
@@ -658,11 +674,13 @@ private:
     RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
     std::unique_ptr<FrameBuffer> _backbuffer{};
     std::unique_ptr<VertexBuffer> _temp_vbo = nullptr;
+    std::unique_ptr<VertexCircleBuffer> _circle_vbo = nullptr;
     std::unique_ptr<VertexBufferInstanced> _temp_vbio = nullptr;
     std::unique_ptr<IndexBuffer> _temp_ibo = nullptr;
     std::unique_ptr<ConstantBuffer> _matrix_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _time_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _lighting_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> _circles_cb = nullptr;
     std::vector<std::pair<std::string, std::unique_ptr<Texture>>> _textures{};
     std::vector<std::pair<std::string, std::unique_ptr<ShaderProgram>>> _shader_programs;
     std::vector<std::pair<std::string, std::unique_ptr<Shader>>> _shaders;

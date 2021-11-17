@@ -13,6 +13,7 @@
 #include "Engine/Renderer/Vertex3D.hpp"
 #include "Engine/Renderer/Vertex3DInstanced.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
+#include "Engine/Renderer/VertexCircleBuffer.hpp"
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/ConstantBuffer.hpp"
@@ -67,6 +68,7 @@ public:
     virtual void SetWindowIcon(void* iconResource) noexcept = 0;
 
     [[nodiscard]] virtual std::unique_ptr<VertexBuffer> CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept = 0;
+    [[nodiscard]] virtual std::unique_ptr<VertexCircleBuffer> CreateVertexCircleBuffer(const VertexCircleBuffer::buffer_t& vbco) const noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio) const noexcept =0;
     [[nodiscard]] virtual std::unique_ptr<IndexBuffer> CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<ConstantBuffer> CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept = 0;
@@ -170,6 +172,8 @@ public:
 
     virtual void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept = 0;
     virtual void Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept = 0;
+    virtual void Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo) noexcept = 0;
+    virtual void Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo, std::size_t vertex_count) noexcept = 0;
     virtual void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept = 0;
     virtual void DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept = 0;
     virtual void DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept = 0;
@@ -289,7 +293,7 @@ public:
     virtual void DrawQuad2D(const Vector4& texCoords) noexcept = 0;
     virtual void DrawQuad2D(const Rgba& color, const Vector4& texCoords) noexcept = 0;
     virtual void DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void DrawCircle2D(const Matrix4& transform, float thickness, const Rgba& color /*= Rgba::WHITE*/) noexcept = 0;
+    virtual void DrawCircle2D(const Matrix4& transform, float thickness, const Rgba& color = Rgba::White, float fade = 0.00025f) noexcept = 0;
     virtual void DrawCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawFilledCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept = 0;
@@ -358,6 +362,7 @@ public:
     void SetWindowIcon([[maybe_unused]] void* iconResource) noexcept override {}
 
     [[nodiscard]] std::unique_ptr<VertexBuffer> CreateVertexBuffer([[maybe_unused]] const VertexBuffer::buffer_t& vbo) const noexcept override {}
+    [[nodiscard]] std::unique_ptr<VertexCircleBuffer> CreateVertexCircleBuffer([[maybe_unused]] const VertexCircleBuffer::buffer_t& vbco) const noexcept override {};
     [[nodiscard]] std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced([[maybe_unused]] const VertexBufferInstanced::buffer_t& vbio) const noexcept override {};
     [[nodiscard]] std::unique_ptr<IndexBuffer> CreateIndexBuffer([[maybe_unused]] const IndexBuffer::buffer_t& ibo) const noexcept override {}
     [[nodiscard]] std::unique_ptr<ConstantBuffer> CreateConstantBuffer([[maybe_unused]] void* const& buffer, [[maybe_unused]] const std::size_t& buffer_size) const noexcept override {}
@@ -461,6 +466,8 @@ public:
 
     void Draw([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<Vertex3D>& vbo) noexcept override {}
     void Draw([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<Vertex3D>& vbo, [[maybe_unused]] std::size_t vertex_count) noexcept override {}
+    void Draw([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<VertexCircle2D>& vbo) noexcept override {}
+    void Draw([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<VertexCircle2D>& vbo, [[maybe_unused]] std::size_t vertex_count) noexcept override {}
     void DrawIndexed([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<Vertex3D>& vbo, [[maybe_unused]] const std::vector<unsigned int>& ibo) noexcept override {}
     void DrawIndexed([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<Vertex3D>& vbo, [[maybe_unused]] const std::vector<unsigned int>& ibo, [[maybe_unused]] std::size_t index_count, [[maybe_unused]] std::size_t startVertex = 0, [[maybe_unused]] std::size_t baseVertexLocation = 0) noexcept override {}
     void DrawInstanced([[maybe_unused]] const PrimitiveType& topology, [[maybe_unused]] const std::vector<Vertex3D>& vbo, [[maybe_unused]] const std::vector<Vertex3DInstanced>& vbio, [[maybe_unused]] std::size_t instanceCount) noexcept override {};
@@ -580,7 +587,7 @@ public:
     void DrawQuad2D([[maybe_unused]] const Vector4& texCoords) noexcept override {}
     void DrawQuad2D([[maybe_unused]] const Rgba& color, [[maybe_unused]] const Vector4& texCoords) noexcept override {}
     void DrawCircle2D([[maybe_unused]] float centerX, [[maybe_unused]] float centerY, [[maybe_unused]] float radius, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void DrawCircle2D([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] float thickness, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void DrawCircle2D([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] float thickness, [[maybe_unused]] const Rgba& color = Rgba::White, [[maybe_unused]] float fade = 0.00025f) noexcept override {}
     void DrawCircle2D([[maybe_unused]] const Vector2& center, [[maybe_unused]] float radius, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawCircle2D([[maybe_unused]] const Disc2& circle, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawFilledCircle2D([[maybe_unused]] const Disc2& circle, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
