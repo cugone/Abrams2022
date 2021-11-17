@@ -3,6 +3,7 @@
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
@@ -508,9 +509,36 @@ private:
     void UpdateVbio(const VertexBufferInstanced::buffer_t& vbio) noexcept;
     void UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept;
 
-    void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) noexcept;
+    //void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) noexcept;
+    template<typename ArrayBufferType>
+    void Draw(const PrimitiveType& topology, ArrayBufferType* vbo, std::size_t vertex_count) noexcept {
+        GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+        D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
+        _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+        unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
+        unsigned int offsets = 0;
+        const auto dx_vbo_buffer = vbo->GetDxBuffer();
+        _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
+        _rhi_context->Draw(vertex_count);
+    }
+
     void DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, std::size_t vertexPerInstanceCount, std::size_t instanceCount, std::size_t startVertexLocation, std::size_t startInstanceLocation) noexcept;
-    void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept;
+
+    //void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept;
+    template<typename ArrayBufferType>
+    void DrawIndexed(const PrimitiveType& topology, ArrayBufferType* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept {
+        GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+        D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
+        _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+        unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
+        unsigned int offsets = 0;
+        const auto dx_vbo_buffer = vbo->GetDxBuffer();
+        auto dx_ibo_buffer = ibo->GetDxBuffer();
+        _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
+        _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer.Get(), DXGI_FORMAT_R32_UINT, offsets);
+        _rhi_context->DrawIndexed(index_count, startVertex, baseVertexLocation);
+    }
+
     void DrawIndexedInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, IndexBuffer* ibo, std::size_t indexPerInstanceCount, std::size_t instanceCount, std::size_t startIndexLocation, std::size_t baseVertexLocation, std::size_t startInstanceLocation) noexcept;
 
     [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh) noexcept;
