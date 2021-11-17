@@ -68,12 +68,23 @@ void Editor::Render() const noexcept {
     renderer.SetOrthoProjectionFromCamera(Camera3D{m_editorCamera.GetCamera()});
     renderer.SetCamera(m_editorCamera.GetCamera());
 
-    const auto S = Matrix4::I;
-    const auto R = Matrix4::I;
-    const auto T = Matrix4::I;
-    const auto M = Matrix4::MakeSRT(S, R, T);
-    renderer.SetMaterial("__2D");
-    renderer.DrawQuad2D(M, Rgba::Green);
+    {
+        const auto S = Matrix4::I;
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::I;
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        renderer.SetMaterial("__2D");
+        renderer.DrawQuad2D(M, Rgba::Green);
+    }
+
+    {
+        const auto S = Matrix4::CreateScaleMatrix(Vector2::One * 5.0f);
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::I;
+        const auto M = Matrix4::MakeSRT(S, R, T);
+
+        renderer.DrawCircle2D(Vector2{M.GetTranslation()}, 5.0f, Rgba::Orange);
+    }
 
     renderer.BeginRenderToBackbuffer();
 
