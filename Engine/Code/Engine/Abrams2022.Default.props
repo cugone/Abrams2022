@@ -28,6 +28,9 @@
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
