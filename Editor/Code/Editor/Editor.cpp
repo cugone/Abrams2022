@@ -83,7 +83,7 @@ void Editor::Render() const noexcept {
         const auto T = Matrix4::I;
         const auto M = Matrix4::MakeSRT(S, R, T);
 
-        renderer.DrawCircle2D(Vector2{M.GetTranslation()}, 5.0f, Rgba::Orange);
+        renderer.DrawCircle2D(M, 5.0f, Rgba::Orange);
     }
 
     renderer.BeginRenderToBackbuffer();

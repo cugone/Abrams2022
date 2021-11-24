@@ -9,10 +9,11 @@ class InputLayout;
 
 struct VertexCircle2D {
     // clang-format off
-    VertexCircle2D(const Vector3& pos = Vector3::Zero
+    VertexCircle2D(
+        const Vector3& localPos = Vector3::Zero
         , const Rgba& color = Rgba::White
         , const Vector2& thickness_fade = Vector2{1.0f, 0.00025f}) noexcept
-        : position(pos)
+        : localPosition(localPos)
         , thickness_fade(thickness_fade) {
         const auto&& [r, g, b, a] = color.GetAsFloats();
         this->color.x = r;
@@ -26,7 +27,7 @@ struct VertexCircle2D {
     VertexCircle2D& operator=(const VertexCircle2D& other) = default;
     VertexCircle2D& operator=(VertexCircle2D&& other) = default;
 
-    Vector3 position{Vector3::Zero};
+    Vector3 localPosition{Vector3::Zero};
     Vector4 color{Vector4::One};
     Vector2 thickness_fade{ 1.0f, 0.00025f };
 

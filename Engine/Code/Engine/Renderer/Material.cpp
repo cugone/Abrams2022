@@ -257,8 +257,7 @@ void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noe
 void Material::SetTextureSlotToInvalid(const TextureID& slotId) noexcept {
     auto& rs = ServiceLocator::get<IRendererService>();
     auto* const invalid_tex = rs.GetTexture("__invalid");
-    using underlying = std::underlying_type_t<TextureID>;
-    const auto slotAsIndex = static_cast<underlying>(slotId);
+    const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
     _textures[slotAsIndex] = invalid_tex;
 }
 
@@ -268,6 +267,17 @@ void Material::AddTextureSlots(std::size_t count) noexcept {
     _textures.resize(new_size);
     for(std::size_t i = old_size; i < new_size; ++i) {
         _textures[i] = nullptr;
+    }
+}
+
+void Material::ClearTextureSlot(const TextureID& slotId) noexcept {
+    const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
+    _textures[slotAsIndex] = nullptr;
+}
+
+void Material::ClearAllTextureSlots() noexcept {
+    for(auto* t : _textures) {
+        t = nullptr;
     }
 }
 

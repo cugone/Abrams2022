@@ -158,13 +158,6 @@ struct lighting_buffer_t {
     float padding[3] = {0.0f, 0.0f, 0.0f};
 };
 
-struct circles_buffer_t {
-    Vector4 position{};
-    Vector4 color{1.0f, 1.0f, 1.0f, 1.0f};
-    Vector2 thickness_fade{1.0f, 0.00025f};
-    float padding[2] = {0.0f, 0.0f};
-};
-
 struct ComputeJob {
     Renderer& renderer;
     std::size_t uavCount = 0;
@@ -654,7 +647,6 @@ private:
     matrix_buffer_t _matrix_data{};
     time_buffer_t _time_data{};
     lighting_buffer_t _lighting_data{};
-    circles_buffer_t _circles_data{};
     std::size_t _current_vbo_size = 0;
     std::size_t _current_vbco_size = 0;
     std::size_t _current_vbio_size = 0;
@@ -680,7 +672,6 @@ private:
     std::unique_ptr<ConstantBuffer> _matrix_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _time_cb = nullptr;
     std::unique_ptr<ConstantBuffer> _lighting_cb = nullptr;
-    std::unique_ptr<ConstantBuffer> _circles_cb = nullptr;
     std::vector<std::pair<std::string, std::unique_ptr<Texture>>> _textures{};
     std::vector<std::pair<std::string, std::unique_ptr<ShaderProgram>>> _shader_programs;
     std::vector<std::pair<std::string, std::unique_ptr<Shader>>> _shaders;

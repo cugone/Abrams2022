@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Core/DataUtils.hpp"
+#include "Engine/Core/TypeUtils.hpp"
+
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 #include <filesystem>
@@ -84,6 +86,7 @@ public:
         , Custom58
     };
     // clang-format on
+
     Material() noexcept;
     explicit Material(const XMLElement& element) noexcept;
     ~Material() = default;
@@ -101,6 +104,8 @@ public:
     void SetFilepath(const std::filesystem::path& p) noexcept;
     [[nodiscard]] const std::filesystem::path& GetFilepath() const noexcept;
     void SetTextureSlot(const TextureID& slotId, Texture* texture) noexcept;
+    void ClearTextureSlot(const TextureID& slotId) noexcept;
+    void ClearAllTextureSlots() noexcept;
 
 protected:
 private:
