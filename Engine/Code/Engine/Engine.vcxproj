@@ -151,6 +151,7 @@
     <ClCompile Include="Physics\SpringJoint.cpp" />
     <ClCompile Include="Platform\DirectX\DirectX11FrameBuffer.cpp" />
     <ClCompile Include="Platform\Win.cpp" />
+    <ClCompile Include="Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="Profiling\AllocationTracker.cpp" />
     <ClCompile Include="Profiling\ProfileLogScope.cpp" />
     <ClCompile Include="Profiling\StackTrace.cpp" />
@@ -386,6 +387,7 @@
     <ClInclude Include="Platform\DirectX\DirectX11FrameBuffer.hpp" />
     <ClInclude Include="Platform\PlatformUtils.hpp" />
     <ClInclude Include="Platform\Win.hpp" />
+    <ClInclude Include="Platform\Windows\WindowsWindow.hpp" />
     <ClInclude Include="Profiling\AllocationTracker.hpp" />
     <ClInclude Include="Profiling\ProfileLogScope.hpp" />
     <ClInclude Include="Profiling\StackTrace.hpp" />

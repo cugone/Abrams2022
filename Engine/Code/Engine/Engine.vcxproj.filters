@@ -697,6 +697,9 @@
     <ClCompile Include="Renderer\VertexCircleBuffer.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1442,6 +1445,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\VertexCircleBuffer.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Windows\WindowsWindow.hpp">
+      <Filter>Platform\Windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
