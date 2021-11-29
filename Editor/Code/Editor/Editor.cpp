@@ -69,6 +69,11 @@ void Editor::Render() const noexcept {
     renderer.SetCamera(m_editorCamera.GetCamera());
 
     {
+        renderer.SetModelMatrix();
+        renderer.SetMaterial("__2D");
+        renderer.DrawFilledCircle2D(Vector2::X_Axis * -1.0f, 0.5f, Rgba::Red);
+    }
+    {
         const auto S = Matrix4::I;
         const auto R = Matrix4::I;
         const auto T = Matrix4::I;
@@ -76,13 +81,17 @@ void Editor::Render() const noexcept {
         renderer.SetMaterial("__2D");
         renderer.DrawQuad2D(M, Rgba::Green);
     }
-
+    {
+        renderer.SetModelMatrix();
+        renderer.SetMaterial("__2D");
+        renderer.DrawCircle2D(Vector2::X_Axis * 1.0f, 0.5f, Rgba::Red);
+    }
     {
         const auto S = Matrix4::CreateScaleMatrix(Vector2::One * 5.0f);
         const auto R = Matrix4::I;
-        const auto T = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(Vector2::Y_Axis * 1.0f);
         const auto M = Matrix4::MakeSRT(S, R, T);
-
+        renderer.SetMaterial("__2D");
         renderer.DrawCircle2D(M, 5.0f, Rgba::Orange);
     }
 
