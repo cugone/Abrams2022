@@ -601,7 +601,10 @@ bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& pare
     std::error_code ec{};
     if(const auto parent_canon = FS::canonical(parent, ec); !ec) {
         if(const auto p_canon = FS::canonical(p, ec); !ec) {
-            for(auto iter = FS::recursive_directory_iterator{parent_canon}; iter != FS::recursive_directory_iterator{}; ++iter) {
+            for(auto iter = FS::recursive_directory_iterator{parent_canon}; iter != FS::recursive_directory_iterator{}; iter = iter.increment(ec)) {
+                if(ec) {
+                    continue;
+                }
                 const auto& entry = *iter;
                 const std::filesystem::path sub_p = entry.path();
                 if(sub_p == p_canon) {
