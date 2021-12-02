@@ -24,8 +24,7 @@ Window* GetWindowFromHwnd(HWND hwnd) {
 //-----------------------------------------------------------------------------------------------
 LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessageCode, WPARAM wParam, LPARAM lParam) {
     //Handles application-specific window setup such as icons.
-    Window* window = GetWindowFromHwnd(windowHandle);
-    if(window && window->custom_message_handler) {
+    if(Window* window = GetWindowFromHwnd(windowHandle); window && window->custom_message_handler) {
         const auto wasProcessed = window->custom_message_handler(windowHandle, wmMessageCode, wParam, lParam);
         if(wasProcessed) {
             return 0;
