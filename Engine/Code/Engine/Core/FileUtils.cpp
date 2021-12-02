@@ -571,8 +571,8 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
 bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& child) noexcept {
     namespace FS = std::filesystem;
     std::error_code ec{};
-    if(const auto p_canon = FS::canonical(p, ec); ec) {
-        if(const auto child_canon = FS::canonical(child, ec); ec) {
+    if(const auto p_canon = FS::canonical(p, ec); !ec) {
+        if(const auto child_canon = FS::canonical(child, ec); !ec) {
             for(auto iter = FS::recursive_directory_iterator{ p_canon }; iter != FS::recursive_directory_iterator{}; ++iter) {
                 const auto& entry = *iter;
                 const std::filesystem::path sub_p = entry.path();
@@ -588,8 +588,8 @@ bool IsParentOf(const std::filesystem::path& p, const std::filesystem::path& chi
 bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& sibling) noexcept {
     namespace FS = std::filesystem;
     std::error_code ec{};
-    if(const auto my_parent_path = FS::canonical(p.parent_path(), ec); ec) {
-        if(const auto sibling_parent_path = FS::canonical(sibling.parent_path(), ec); ec) {
+    if(const auto my_parent_path = FS::canonical(p.parent_path(), ec); !ec) {
+        if(const auto sibling_parent_path = FS::canonical(sibling.parent_path(), ec); !ec) {
             return my_parent_path == sibling_parent_path;
         }
     }
@@ -599,8 +599,8 @@ bool IsSiblingOf(const std::filesystem::path& p, const std::filesystem::path& si
 bool IsChildOf(const std::filesystem::path& p, const std::filesystem::path& parent) noexcept {
     namespace FS = std::filesystem;
     std::error_code ec{};
-    if(const auto parent_canon = FS::canonical(parent, ec); ec) {
-        if(const auto p_canon = FS::canonical(p, ec); ec) {
+    if(const auto parent_canon = FS::canonical(parent, ec); !ec) {
+        if(const auto p_canon = FS::canonical(p, ec); !ec) {
             for(auto iter = FS::recursive_directory_iterator{parent_canon}; iter != FS::recursive_directory_iterator{}; ++iter) {
                 const auto& entry = *iter;
                 const std::filesystem::path sub_p = entry.path();
