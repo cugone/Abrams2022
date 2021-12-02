@@ -552,9 +552,9 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         const auto is_in_gamedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::GameData));
         const auto is_in_enginedata_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EngineData));
         const auto is_in_editorcontent_dir = IsChildOf(p, GetKnownFolderPath(KnownPathID::EditorContent));
+        const auto is_next_to_exe = IsSiblingOf(p, GetExePath());
         const auto is_known_OS_dir = false;
 
-        const auto is_next_to_exe = IsSiblingOf(p, GetExePath());
         const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_next_to_exe || is_known_OS_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
