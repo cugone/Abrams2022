@@ -236,9 +236,9 @@ void App<T>::Initialize() noexcept {
 
     g_theRenderer->Initialize();
     g_theRenderer->SetVSync(vsync);
+    g_theRenderer->SetWinProc(detail::WindowProc);
     auto* output = g_theRenderer->GetOutput();
     output->SetTitle(_title);
-    output->GetWindow()->custom_message_handler = detail::WindowProc;
 
     g_theUISystem->Initialize();
     g_theInputSystem->Initialize();
