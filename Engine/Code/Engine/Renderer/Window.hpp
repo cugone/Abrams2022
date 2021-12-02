@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Platform/Win.hpp"
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/RHI/RHITypes.hpp"
 
@@ -8,80 +7,54 @@
 #include <string>
 
 struct WindowDesc {
+    std::string title{"Created with Abrams 2022 (c) Casey Ugone"};
     IntVector2 position{};
     IntVector2 dimensions{1600, 900};
-    RHIOutputMode mode = RHIOutputMode::Windowed;
+    RHIOutputMode mode{RHIOutputMode::Windowed};
 };
 
 class Window {
 public:
-    Window() noexcept;
-    explicit Window(const IntVector2& position, const IntVector2& dimensions) noexcept;
-    explicit Window(const WindowDesc& desc) noexcept;
-    ~Window() noexcept;
+    virtual ~Window() noexcept = default;
 
-    void Open() noexcept;
-    void Close() noexcept;
+    static std::unique_ptr<Window> Create(const WindowDesc& desc = WindowDesc());
 
-    void Show() noexcept;
-    void Hide() noexcept;
-    void UnHide() noexcept;
-    [[nodiscard]] bool IsOpen() const noexcept;
-    [[nodiscard]] bool IsClosed() const noexcept;
-    [[nodiscard]] bool IsWindowed() const noexcept;
-    [[nodiscard]] bool IsFullscreen() const noexcept;
+    virtual void Open() noexcept = 0;
+    virtual void Close() noexcept = 0;
 
-    [[nodiscard]] IntVector2 GetDimensions() const noexcept;
-    [[nodiscard]] IntVector2 GetClientDimensions() const noexcept;
-    [[nodiscard]] IntVector2 GetPosition() const noexcept;
+    virtual void Show() noexcept = 0;
+    virtual void Hide() noexcept = 0;
+    virtual void UnHide() noexcept = 0;
+    [[nodiscard]] virtual bool IsOpen() const noexcept = 0;
+    [[nodiscard]] virtual bool IsClosed() const noexcept = 0;
+    [[nodiscard]] virtual bool IsWindowed() const noexcept = 0;
+    [[nodiscard]] virtual bool IsFullscreen() const noexcept = 0;
+
+    [[nodiscard]] virtual IntVector2 GetDimensions() const noexcept = 0;
+    [[nodiscard]] virtual IntVector2 GetClientDimensions() const noexcept = 0;
+    [[nodiscard]] virtual IntVector2 GetPosition() const noexcept = 0;
 
     [[nodiscard]] static IntVector2 GetDesktopResolution() noexcept;
 
-    void SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size) noexcept;
-    void SetPosition(const IntVector2& new_position) noexcept;
-    void SetDimensions(const IntVector2& new_dimensions) noexcept;
-    void SetForegroundWindow() noexcept;
-    void SetFocus() noexcept;
+    virtual void SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size) noexcept = 0;
+    virtual void SetPosition(const IntVector2& new_position) noexcept = 0;
+    virtual void SetDimensions(const IntVector2& new_dimensions) noexcept = 0;
+    virtual void SetForegroundWindow() noexcept = 0;
+    virtual void SetFocus() noexcept = 0;
 
-    [[nodiscard]] void* GetWindowHandle() const noexcept;
-    void SetWindowHandle(void* hWnd) noexcept;
+    [[nodiscard]] virtual void* GetWindowHandle() const noexcept = 0;
+    virtual void SetWindowHandle(void* hWnd) noexcept = 0;
 
-    [[nodiscard]] HDC GetWindowDeviceContext() const noexcept;
+    [[nodiscard]] virtual void* GetWindowDeviceContext() const noexcept = 0;
 
-    [[nodiscard]] const RHIOutputMode& GetDisplayMode() const noexcept;
-    void SetDisplayMode(const RHIOutputMode& display_mode) noexcept;
+    [[nodiscard]] virtual const RHIOutputMode& GetDisplayMode() const noexcept = 0;
+    virtual void SetDisplayMode(const RHIOutputMode& display_mode) noexcept = 0;
 
     std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)> custom_message_handler;
 
-    void SetTitle(const std::string& title) noexcept;
-    [[nodiscard]] const std::string& GetTitle() const noexcept;
+    virtual void SetTitle(const std::string& title) noexcept = 0;
+    [[nodiscard]] virtual const std::string& GetTitle() const noexcept = 0;
 
 protected:
-    [[nodiscard]] bool Register() noexcept;
-    [[nodiscard]] bool Unregister() noexcept;
-    [[nodiscard]] bool Create() noexcept;
-
 private:
-    RHIOutputMode _currentDisplayMode = RHIOutputMode::Windowed;
-    HWND _hWnd{};
-    HDC _hdc{};
-    HINSTANCE _hInstance{};
-    std::string _title{"Created with Abrams 2022 (c) Casey Ugone "};
-    INT _cmdShow{};
-    WNDCLASSEX _wc{};
-    int _positionX{};
-    int _positionY{};
-    unsigned int _width{1600u};
-    unsigned int _height{900u};
-    unsigned int _oldclientWidth{1600u};
-    unsigned int _oldclientHeight{900u};
-    unsigned int _clientWidth{1600u};
-    unsigned int _clientHeight{900u};
-    unsigned long _styleFlags{};
-    unsigned long _styleFlagsEx{};
-    bool _hasMenu{};
-    static inline std::size_t _refCount{0u};
-    static inline constexpr unsigned long _defaultWindowedStyleFlags{WS_OVERLAPPEDWINDOW | WS_BORDER /* WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX */};
-    static inline constexpr unsigned long _defaultBorderlessStyleFlags{WS_POPUP};
-    static inline constexpr unsigned long _defaultStyleFlagsEx{WS_EX_APPWINDOW | WS_EX_ACCEPTFILES};
 };

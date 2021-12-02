@@ -7,6 +7,9 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/Platform/Windows/WindowsWindow.hpp"
+
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIFactory.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
@@ -25,12 +28,14 @@
 #include <numeric>
 
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/) noexcept {
-    auto window = std::make_unique<Window>(clientPosition, clientSize);
-    return CreateOutputAndContextFromWindow(std::move(window));
+    WindowDesc desc{};
+    desc.dimensions = clientSize;
+    desc.position = clientPosition;
+    return CreateOutputAndContext(desc);
 }
 
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContext(const WindowDesc& desc) noexcept {
-    auto window = std::make_unique<Window>(desc);
+    auto window = Window::Create(desc);
     return CreateOutputAndContextFromWindow(std::move(window));
 }
 

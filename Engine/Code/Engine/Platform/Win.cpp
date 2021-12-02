@@ -70,4 +70,15 @@ std::string FileDialogs::SaveFile(const char* filter = "All Files (*.*)\0*.*\0\0
     return {};
 }
 
+[[nodiscard]] IntVector2 Window::GetDesktopResolution() noexcept {
+    const auto desktop = ::GetDesktopWindow();
+    RECT desktop_rect{};
+    const auto error_msg = []() {
+        const auto err = ::GetLastError();
+        return StringUtils::FormatWindowsMessage(err);
+    };
+    GUARANTEE_OR_DIE(!::GetClientRect(desktop, &desktop_rect), error_msg().c_str());
+    return IntVector2{desktop_rect.right - desktop_rect.left, desktop_rect.bottom - desktop_rect.top};
+}
+
 #endif
