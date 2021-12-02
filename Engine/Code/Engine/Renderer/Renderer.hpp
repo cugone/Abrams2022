@@ -488,6 +488,8 @@ public:
     /* END SERVICE INTERFACE */
     /*************************/
 
+    void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>& windowProcedure) noexcept;
+
 protected:
 private:
 
@@ -495,8 +497,6 @@ private:
 
     [[nodiscard]] static std::vector<std::unique_ptr<ConstantBuffer>> CreateConstantBuffersFromShaderProgram(RHIDevice& device, const ShaderProgram* _shader_program) noexcept;
     [[nodiscard]] static std::vector<std::unique_ptr<ConstantBuffer>> CreateComputeConstantBuffersFromShaderProgram(RHIDevice& device, const ShaderProgram* shaderProgram) noexcept;
-
-    void SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>& windowProcedure) noexcept;
 
     void UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept;
     [[nodiscard]] bool RegisterTexture(const std::filesystem::path& filepath) noexcept;
