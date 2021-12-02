@@ -338,7 +338,7 @@ Texture* Editor::GetAssetTextureFromType(const std::filesystem::path& path) cons
         std::filesystem::path p{};
         const auto BuildPath = [&](const char* pathSuffix) -> std::filesystem::path {
             auto p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / std::filesystem::path{pathSuffix};
-            p = std::filesystem::canonical(p);
+            p = std::filesystem::canonical(p); //Intentionally throw uncaught exception if path does not exist.
             p = p.make_preferred();
             return p;
         };

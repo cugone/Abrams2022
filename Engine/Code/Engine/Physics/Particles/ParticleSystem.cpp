@@ -26,7 +26,14 @@ void ParticleSystem::RegisterEffectsFromFolder(std::filesystem::path folderpath,
         DebuggerPrintf("Attempting to Register Materials from unknown path: %s\n", FS::absolute(folderpath).string().c_str());
         return;
     }
-    folderpath = FS::canonical(folderpath);
+    {
+        std::error_code ec{};
+        folderpath = FS::canonical(folderpath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(folderpath)) {
+            DebuggerPrintf("File: %s is inaccessible.\n", folderpath.c_str());
+            return;
+        }
+    }
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {

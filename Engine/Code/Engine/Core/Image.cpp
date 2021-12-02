@@ -31,7 +31,14 @@ Image::Image(std::filesystem::path filepath) noexcept
         GUARANTEE_OR_DIE(FS::exists(filepath), error_msg.c_str());
     }
 
-    filepath = FS::canonical(filepath);
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath);
+        if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+            const auto error_msg = std::string{ "File: " } + filepath.string() + std::string{ " is inaccessible." };
+            ERROR_AND_DIE(error_msg.c_str());
+        }
+    }
     filepath.make_preferred();
     if(const auto& buf = FileUtils::ReadBinaryBufferFromFile(filepath); buf.has_value()) {
         int comp = 0;
@@ -45,6 +52,7 @@ Image::Image(std::filesystem::path filepath) noexcept
         GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
     }
 }
+
 Image::Image(unsigned int width, unsigned int height) noexcept
 : m_dimensions(width, height)
 , m_bytesPerTexel(4)

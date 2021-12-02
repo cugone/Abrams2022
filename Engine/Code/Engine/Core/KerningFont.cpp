@@ -95,7 +95,14 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
             DebuggerPrintf("Failed to read file: %s \nDoes not exist.\n", _filepath.string().c_str());
             return false;
         }
-        filepath = FS::canonical(filepath);
+        {
+            std::error_code ec{};
+            filepath = FS::canonical(filepath, ec);
+            if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+                DebuggerPrintf("File: %s is inaccessible.\n", filepath.string().c_str());
+                return false;
+            }
+        }
         filepath.make_preferred();
         const auto is_not_directory = !FS::is_directory(filepath);
         const auto is_file = FS::is_regular_file(filepath);

@@ -280,7 +280,15 @@ void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, b
         logger.LogErrorLine("Attempting to Register Wav Files from unknown path: " + FS::absolute(folderpath).string());
         return;
     }
-    folderpath = FS::canonical(folderpath);
+    {
+        std::error_code ec{};
+        folderpath = FS::canonical(folderpath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(folderpath)) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("Attempting to Register Wav Files from inaccessible path: " + FS::absolute(folderpath).string());
+            return;
+        }
+    }
     folderpath.make_preferred();
     if(!FS::is_directory(folderpath)) {
         return;
@@ -377,7 +385,15 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noe
         return nullptr;
     }
 
-    filepath = FS::canonical(filepath);
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return nullptr;
+        }
+    }
     filepath.make_preferred();
     const auto finder = [&filepath](const auto& a) { return a.first == filepath; };
     auto found_iter = std::find_if(std::begin(_sounds), std::end(_sounds), finder);
@@ -395,7 +411,15 @@ AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filep
         logger.LogErrorLine("Could not find file: " + filepath.string());
         return nullptr;
     }
-    filepath = FS::canonical(filepath);
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return nullptr;
+        }
+    }
     filepath.make_preferred();
     _sounds.emplace_back(std::make_pair(filepath, std::move(std::make_unique<Sound>(*this, filepath))));
     return _sounds.back().second.get();
@@ -408,7 +432,14 @@ void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
         logger.LogErrorLine("Attempting to register wav file that does not exist: " + filepath.string());
         return;
     }
-    filepath = FS::canonical(filepath);
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+        }
+    }
     if(const auto found = std::find_if(std::cbegin(_wave_files), std::cend(_wave_files), [&filepath](const auto& wav) { return wav.first == filepath; }); found != std::cend(_wave_files)) {
         return;
     }
@@ -646,7 +677,14 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepa
 : _audio_system(&audiosystem) {
     namespace FS = std::filesystem;
     GUARANTEE_OR_DIE(FS::exists(filepath), "Attempting to create sound that does not exist.\n");
-    filepath = FS::canonical(filepath);
+    {
+        std::error_code ec{};
+        filepath = FS::canonical(filepath, ec);
+        if(ec || !FileUtils::IsSafeReadPath(filepath)) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+        }
+    }
     filepath.make_preferred();
     const auto pred = [&filepath](const auto& wav) { return wav.first == filepath; };
     auto found = std::find_if(std::begin(_audio_system->_wave_files), std::end(_audio_system->_wave_files), pred);

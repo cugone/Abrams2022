@@ -146,9 +146,19 @@ template<typename Callable>
 void ForEachFileInFolder(
 const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, Callable&& callback = [](const std::filesystem::path&) {}, bool recursive = false) noexcept {
     namespace FS = std::filesystem;
-    auto preferred_folderpath = FS::canonical(folderpath);
+    const auto exists = FS::exists(folderpath);
+    if(!exists) {
+        return;
+    }
+    auto preferred_folderpath = folderpath;
+    {
+        std::error_code ec{};
+        preferred_folderpath = FS::canonical(preferred_folderpath, ec);
+        if(ec) {
+            return;
+        }
+    }
     preferred_folderpath.make_preferred();
-    const auto exists = FS::exists(preferred_folderpath);
     const auto is_directory = FS::is_directory(preferred_folderpath);
     const auto is_folder = exists && is_directory;
     if(!is_folder) {

@@ -3,7 +3,14 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-#include <ShlObj.h>
+#include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IFileLoggerService.hpp"
+
+#ifdef PLATFORM_WINDOWS
+#include <KnownFolders.h>
+#include <Shobjidl.h>
+#endif
+
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -54,9 +61,13 @@ std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::pa
     if(path_not_exist) {
         return {};
     }
-    std::error_code ec{};
-    if(filepath = FS::canonical(filepath, ec); ec) {
-        return {};
+    {
+        std::error_code ec{};
+        if(filepath = FS::canonical(filepath, ec); ec) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return {};
+        }
     }
     filepath.make_preferred();
     const auto path_is_directory = FS::is_directory(filepath);
@@ -80,9 +91,13 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    std::error_code ec{};
-    if(filepath = FS::canonical(filepath); ec) {
-        return {};
+    {
+        std::error_code ec{};
+        if(filepath = FS::canonical(filepath, ec); ec) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return {};
+        }
     }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
@@ -106,9 +121,13 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    std::error_code ec{};
-    if(filepath = FS::canonical(filepath); ec) {
-        return {};
+    {
+        std::error_code ec{};
+        if(filepath = FS::canonical(filepath, ec); ec) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return {};
+        }
     }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
@@ -149,9 +168,13 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     if(initial_path_not_exist) {
         return {};
     }
-    std::error_code ec{};
-    if(filepath = FS::canonical(filepath); ec) {
-        return {};
+    {
+        std::error_code ec{};
+        if(filepath = FS::canonical(filepath, ec); ec) {
+            auto& logger = ServiceLocator::get<IFileLoggerService>();
+            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            return {};
+        }
     }
     filepath.make_preferred();
     const auto canonical_path_not_exist = !FS::exists(filepath);
@@ -351,13 +374,25 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
     } else {
 #ifdef PLATFORM_WINDOWS
         {
-            PWSTR ppszPath = nullptr;
-            const auto hr_path = ::SHGetKnownFolderPath(GetKnownPathIdForOS(pathid), KF_FLAG_DEFAULT, nullptr, &ppszPath);
-            const auto success = SUCCEEDED(hr_path);
-            if(success) {
-                p = FS::path(ppszPath);
-                ::CoTaskMemFree(ppszPath);
-                p = FS::canonical(p);
+            IKnownFolderManager* knownfoldermgr = nullptr;
+            if(const auto kfmhr = ::CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_IKnownFolderManager, reinterpret_cast<void**>(&knownfoldermgr)); SUCCEEDED(kfmhr)) {
+                IKnownFolder* knownfolder = nullptr;
+                if(const auto kfhr = knownfoldermgr->GetFolder(GetKnownPathIdForOS(pathid), &knownfolder); SUCCEEDED(kfhr)) {
+                    PWSTR ppszPath = nullptr;
+                    if(const auto hr_path = knownfolder->GetPath(0, &ppszPath); SUCCEEDED(hr_path)) {
+                        p = FS::path(ppszPath);
+                        ::CoTaskMemFree(ppszPath);
+                        p = FS::canonical(p);
+                        if(knownfolder) {
+                            knownfolder->Release();
+                            knownfolder = nullptr;
+                        }
+                    }
+                    if(knownfoldermgr) {
+                        knownfoldermgr->Release();
+                        knownfoldermgr = nullptr;
+                    }
+                }
             }
         }
 #endif
