@@ -1,5 +1,7 @@
 #include "Engine/Platform/Windows/WindowsWindow.hpp"
 
+#if defined(PLATFORM_WINDOWS)
+
 #include "Engine/Core/EngineBase.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
@@ -8,6 +10,76 @@
 #include "Engine/RHI/RHITypes.hpp"
 
 #include <algorithm>
+
+
+[[nodiscard]] Window* GetWindowFromHwnd(HWND hwnd);
+LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessageCode, WPARAM wParam, LPARAM lParam);
+
+
+Window* GetWindowFromHwnd(HWND hwnd) {
+    Window* wnd = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    return wnd;
+}
+
+//-----------------------------------------------------------------------------------------------
+LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessageCode, WPARAM wParam, LPARAM lParam) {
+    //Handles application-specific window setup such as icons.
+    Window* window = GetWindowFromHwnd(windowHandle);
+    if(window && window->custom_message_handler) {
+        const auto wasProcessed = window->custom_message_handler(windowHandle, wmMessageCode, wParam, lParam);
+        if(wasProcessed) {
+            return 0;
+        }
+    }
+
+    switch(wmMessageCode) {
+    case WM_CREATE: {
+        CREATESTRUCT* cp = (CREATESTRUCT*)lParam;
+        Window* wnd = (Window*)cp->lpCreateParams;
+        ::SetWindowLongPtr(windowHandle, GWLP_USERDATA, (LONG_PTR)wnd);
+        return 0;
+    }
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        ::BeginPaint(windowHandle, &ps);
+        ::EndPaint(windowHandle, &ps);
+        return 1;
+    }
+    case WM_SETICON: {
+        switch(wParam) {
+        case ICON_BIG: {
+            std::cout << "\nCalling SetIcon with ICON_BIG" << std::endl;
+            break;
+        }
+        case ICON_SMALL: {
+            std::cout << "\nCalling SetIcon with ICON_SMALL" << std::endl;
+            break;
+        }
+        }
+        return DefWindowProc(windowHandle, wmMessageCode, wParam, lParam);
+    }
+    case WM_GETICON: {
+        switch(wParam) {
+        case ICON_BIG: {
+            std::cout << "\nCalling GetIcon with ICON_BIG" << std::endl;
+            break;
+        }
+        case ICON_SMALL: {
+            std::cout << "\nCalling GetIcon with ICON_SMALL" << std::endl;
+            break;
+        }
+        case ICON_SMALL2: {
+            std::cout << "\nCalling GetIcon with ICON_SMALL2" << std::endl;
+            break;
+        }
+        }
+        return DefWindowProc(windowHandle, wmMessageCode, wParam, lParam);
+    }
+    default: {
+        return DefWindowProc(windowHandle, wmMessageCode, wParam, lParam);
+    }
+    }
+}
 
 
 std::unique_ptr<Window> Window::Create(const WindowDesc& desc) {
@@ -343,3 +415,5 @@ bool WindowsWindow::Create() noexcept {
 
     return _hWnd != nullptr;
 }
+
+#endif

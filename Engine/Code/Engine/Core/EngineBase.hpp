@@ -10,12 +10,6 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IAppService.hpp"
 
-[[nodiscard]] Window* GetWindowFromHwnd(HWND hwnd);
-
-LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessageCode, WPARAM wParam, LPARAM lParam);
-
-void RunMessagePump() noexcept;
-
 template<typename GameType>
 class Engine {
 public:

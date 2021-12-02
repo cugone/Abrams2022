@@ -1,7 +1,12 @@
 #pragma once
 
-#include "Engine/Math/IntVector2.hpp"
+#include "Engine/Core/BuildConfig.hpp"
+
+#if defined(PLATFORM_WINDOWS)
+
 #include "Engine/Platform/Win.hpp"
+
+#include "Engine/Math/IntVector2.hpp"
 #include "Engine/RHI/RHITypes.hpp"
 
 #include "Engine/Renderer/Window.hpp"
@@ -79,3 +84,5 @@ private:
     static inline constexpr unsigned long _defaultBorderlessStyleFlags{WS_POPUP};
     static inline constexpr unsigned long _defaultStyleFlagsEx{WS_EX_APPWINDOW | WS_EX_ACCEPTFILES};
 };
+
+#endif
