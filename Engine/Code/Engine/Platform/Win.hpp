@@ -10,6 +10,7 @@
     #define NOMINMAX
     #include <windows.h>
     #include <windowsx.h>
+    #include <KnownFolders.h>
     #include <ShObjIdl.h>
 
     #ifdef NETWORKING
@@ -21,5 +22,7 @@
 
 AABB2 RectToAABB2(const RECT& rect) noexcept;
 RECT AABB2ToRect(const AABB2& aabb2) noexcept;
+
+#include "Engine/Platform/Windows/WindowsWindow.hpp"
 
 #endif

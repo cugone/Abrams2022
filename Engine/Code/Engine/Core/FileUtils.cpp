@@ -3,13 +3,10 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Engine/Platform/Win.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
-
-#ifdef PLATFORM_WINDOWS
-#include <KnownFolders.h>
-#include <Shobjidl.h>
-#endif
 
 #include <algorithm>
 #include <chrono>
