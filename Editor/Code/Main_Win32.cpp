@@ -1,3 +1,7 @@
+#include "Engine/Core/BuildConfig.hpp"
+
+#if defined(PLATFORM_WINDOWS)
+
 #include "Engine/Core/EngineBase.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Platform/Win.hpp"
@@ -23,4 +27,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 #ifdef _MSC_VER
     #pragma warning(pop)
+#endif
+
 #endif
