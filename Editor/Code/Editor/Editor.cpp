@@ -44,6 +44,7 @@ bool Editor::IsSceneLoaded() const noexcept {
 void Editor::Initialize() noexcept {
     auto& renderer = ServiceLocator::get<IRendererService>();
     m_ContentBrowser.currentDirectory = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData);
+    renderer.RegisterTexturesFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / std::filesystem::path{"Images"}, true);
     renderer.RegisterTexturesFromFolder(m_ContentBrowser.currentDirectory / std::filesystem::path{"Resources/Icons"}, true);
     m_ContentBrowser.currentDirectory = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EditorContent);
     m_ContentBrowser.UpdateContentBrowserPaths();
@@ -93,6 +94,17 @@ void Editor::Render() const noexcept {
         const auto M = Matrix4::MakeSRT(S, R, T);
         renderer.SetMaterial("__2D");
         renderer.DrawCircle2D(M, 5.0f, Rgba::Orange);
+    }
+
+    {
+        const auto S = Matrix4::CreateScaleMatrix(Vector2::One);
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(Vector2::Y_Axis * -1.0f);
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        renderer.SetMaterial("__2D");
+        renderer.SetTexture(renderer.GetTexture("Data/Images/image_binary.ppm"));
+        renderer.DrawQuad2D(M);
+        renderer.SetTexture(nullptr);
     }
 
     renderer.BeginRenderToBackbuffer();
