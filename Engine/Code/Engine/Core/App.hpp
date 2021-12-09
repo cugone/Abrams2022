@@ -21,6 +21,8 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
 
+#include "Engine/Platform/Win.hpp"
+
 #include "Engine/RHI/RHIOutput.hpp"
 
 #include "Engine/Services/IAudioService.hpp"
@@ -76,7 +78,6 @@ public:
     void Minimize() const override;
     void Restore() const override;
     void Maximize() const override;
-
 
 protected:
 private:
@@ -481,7 +482,11 @@ void App<T>::RunMessagePump() const {
         if(!hasMsg) {
             break;
         }
-        if(!::TranslateAcceleratorA(reinterpret_cast<HWND>(g_theRenderer->GetOutput()->GetWindow()->GetWindowHandle()), reinterpret_cast<HACCEL>(g_theConsole->GetAcceleratorTable()), &msg)) {
+        const auto* output = g_theRenderer->GetOutput();
+        const auto* window = output->GetWindow();
+        auto hwnd = reinterpret_cast<HWND>(window->GetWindowHandle());
+        auto console_accel_table = reinterpret_cast<HACCEL>(g_theConsole->GetAcceleratorTable());
+        if(!::TranslateAcceleratorA(hwnd, console_accel_table, &msg)) {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
         }
