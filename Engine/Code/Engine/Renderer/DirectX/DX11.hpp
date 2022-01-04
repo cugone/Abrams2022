@@ -39,7 +39,20 @@ enum class AdapterPreference {
     MinimumPower
 };
 
-[[nodiscard]] DXGI_GPU_PREFERENCE AdapterPreferenceToDxgiGpuPreference(const AdapterPreference& preference);
+
+[[nodiscard]] constexpr DXGI_GPU_PREFERENCE AdapterPreferenceToDxgiGpuPreference(const AdapterPreference& preference) noexcept {
+    switch(preference) {
+    case AdapterPreference::None: /* Also AdapterPreference::Unspecified */
+        return DXGI_GPU_PREFERENCE_UNSPECIFIED;
+    case AdapterPreference::HighPerformance:
+        return DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
+    case AdapterPreference::MinimumPower:
+        return DXGI_GPU_PREFERENCE_MINIMUM_POWER;
+    default:
+        return DXGI_GPU_PREFERENCE_UNSPECIFIED;
+    }
+}
+
 
 [[nodiscard]] GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept;
 

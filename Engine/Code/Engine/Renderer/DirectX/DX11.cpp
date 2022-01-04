@@ -115,19 +115,6 @@ D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const Filter
     return D3D11_FILTER_MIN_MAG_MIP_POINT;
 }
 
-DXGI_GPU_PREFERENCE AdapterPreferenceToDxgiGpuPreference(const AdapterPreference& preference) {
-    switch(preference) {
-    case AdapterPreference::None: /* Also AdapterPreference::Unspecified */
-        return DXGI_GPU_PREFERENCE_UNSPECIFIED;
-    case AdapterPreference::HighPerformance:
-        return DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
-    case AdapterPreference::MinimumPower:
-        return DXGI_GPU_PREFERENCE_MINIMUM_POWER;
-    default:
-        return DXGI_GPU_PREFERENCE_UNSPECIFIED;
-    }
-}
-
 GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept {
     GraphicsCardDesc desc{};
     desc.Description = StringUtils::ConvertUnicodeToMultiByte(std::wstring(adapterInfo.desc.Description));
