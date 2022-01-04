@@ -109,8 +109,36 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
-[[nodiscard]] D3D11_COMPARISON_FUNC ComparisonFunctionToD3DComparisonFunction(const ComparisonFunction& compareFunc) noexcept;
-[[nodiscard]] ComparisonFunction D3DComparisonFunctionToComparisonFunction(D3D11_COMPARISON_FUNC d3dcompareFunc) noexcept;
+
+[[nodiscard]] constexpr D3D11_COMPARISON_FUNC ComparisonFunctionToD3DComparisonFunction(const ComparisonFunction& compareFunc) noexcept {
+    switch(compareFunc) {
+    case ComparisonFunction::Never: return D3D11_COMPARISON_NEVER;
+    case ComparisonFunction::Less: return D3D11_COMPARISON_LESS;
+    case ComparisonFunction::Equal: return D3D11_COMPARISON_EQUAL;
+    case ComparisonFunction::Less_Equal: return D3D11_COMPARISON_LESS_EQUAL;
+    case ComparisonFunction::Greater: return D3D11_COMPARISON_GREATER;
+    case ComparisonFunction::Not_Equal: return D3D11_COMPARISON_NOT_EQUAL;
+    case ComparisonFunction::Greater_Equal: return D3D11_COMPARISON_GREATER_EQUAL;
+    case ComparisonFunction::Always: return D3D11_COMPARISON_ALWAYS;
+    default: return D3D11_COMPARISON_NEVER;
+    }
+}
+
+
+[[nodiscard]] constexpr ComparisonFunction D3DComparisonFunctionToComparisonFunction(D3D11_COMPARISON_FUNC d3dcompareFunc) noexcept {
+    switch(d3dcompareFunc) {
+    case D3D11_COMPARISON_NEVER: return ComparisonFunction::Never;
+    case D3D11_COMPARISON_LESS: return ComparisonFunction::Less;
+    case D3D11_COMPARISON_EQUAL: return ComparisonFunction::Equal;
+    case D3D11_COMPARISON_LESS_EQUAL: return ComparisonFunction::Less_Equal;
+    case D3D11_COMPARISON_GREATER: return ComparisonFunction::Greater;
+    case D3D11_COMPARISON_NOT_EQUAL: return ComparisonFunction::Not_Equal;
+    case D3D11_COMPARISON_GREATER_EQUAL: return ComparisonFunction::Greater_Equal;
+    case D3D11_COMPARISON_ALWAYS: return ComparisonFunction::Always;
+    default: return ComparisonFunction::Never;
+    }
+}
+
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
 
