@@ -106,6 +106,17 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
+[[nodiscard]] constexpr TextureAddressMode D3DAddressModeToAddressMode(D3D11_TEXTURE_ADDRESS_MODE d3daddress_mode) noexcept {
+    switch(d3daddress_mode) {
+    case D3D11_TEXTURE_ADDRESS_WRAP: return TextureAddressMode::Wrap;
+    case D3D11_TEXTURE_ADDRESS_MIRROR: return TextureAddressMode::Mirror;
+    case D3D11_TEXTURE_ADDRESS_CLAMP: return TextureAddressMode::Clamp;
+    case D3D11_TEXTURE_ADDRESS_BORDER: return TextureAddressMode::Border;
+    case D3D11_TEXTURE_ADDRESS_MIRROR_ONCE: return TextureAddressMode::Mirror_Once;
+    default: return TextureAddressMode::Wrap;
+    }
+}
+
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
