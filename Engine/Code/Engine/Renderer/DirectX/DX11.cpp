@@ -298,17 +298,6 @@ StencilOperation StencilOperationFromString(std::string str) noexcept {
     }
 }
 
-D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) noexcept {
-    switch(usage) {
-    case BufferUsage::Default: return D3D11_USAGE_DEFAULT;
-    case BufferUsage::Gpu: return D3D11_USAGE_DEFAULT;
-    case BufferUsage::Static: return D3D11_USAGE_IMMUTABLE;
-    case BufferUsage::Dynamic: return D3D11_USAGE_DYNAMIC;
-    case BufferUsage::Staging: return D3D11_USAGE_STAGING;
-    default: return D3D11_USAGE_DEFAULT;
-    }
-}
-
 D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept {
     return static_cast<D3D11_BIND_FLAG>(bindFlags);
 }

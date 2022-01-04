@@ -171,7 +171,18 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] StencilOperation StencilOperationFromString(const char* str) noexcept;
 [[nodiscard]] StencilOperation StencilOperationFromString(std::string str) noexcept;
 
-[[nodiscard]] D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) noexcept;
+
+[[nodiscard]] constexpr D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) noexcept {
+    switch(usage) {
+    case BufferUsage::Default: return D3D11_USAGE_DEFAULT;
+    case BufferUsage::Gpu: return D3D11_USAGE_DEFAULT;
+    case BufferUsage::Static: return D3D11_USAGE_IMMUTABLE;
+    case BufferUsage::Dynamic: return D3D11_USAGE_DYNAMIC;
+    case BufferUsage::Staging: return D3D11_USAGE_STAGING;
+    default: return D3D11_USAGE_DEFAULT;
+    }
+}
+
 [[nodiscard]] D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept;
 [[nodiscard]] D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept;
 
