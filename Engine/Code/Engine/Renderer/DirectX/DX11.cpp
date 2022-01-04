@@ -312,54 +312,6 @@ D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept 
     }
 }
 
-D3D11_PRIMITIVE_TOPOLOGY PrimitiveTypeToD3dTopology(const PrimitiveType& topology) noexcept {
-    switch(topology) {
-    case PrimitiveType::None: return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
-    case PrimitiveType::Points: return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
-    case PrimitiveType::Lines: return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-    case PrimitiveType::Lines_Adj: return D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-    case PrimitiveType::LinesStrip: return D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
-    case PrimitiveType::LinesStrip_Adj: return D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
-    case PrimitiveType::Triangles: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    case PrimitiveType::Triangles_Adj: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
-    case PrimitiveType::TriangleStrip: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-    case PrimitiveType::TriangleStrip_Adj: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
-    case PrimitiveType::Control_Point_PatchList_1: return D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_2: return D3D11_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_3: return D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_4: return D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_5: return D3D11_PRIMITIVE_TOPOLOGY_5_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_6: return D3D11_PRIMITIVE_TOPOLOGY_6_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_7: return D3D11_PRIMITIVE_TOPOLOGY_7_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_8: return D3D11_PRIMITIVE_TOPOLOGY_8_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_9: return D3D11_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_10: return D3D11_PRIMITIVE_TOPOLOGY_10_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_11: return D3D11_PRIMITIVE_TOPOLOGY_11_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_12: return D3D11_PRIMITIVE_TOPOLOGY_12_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_13: return D3D11_PRIMITIVE_TOPOLOGY_13_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_14: return D3D11_PRIMITIVE_TOPOLOGY_14_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_15: return D3D11_PRIMITIVE_TOPOLOGY_15_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_16: return D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_17: return D3D11_PRIMITIVE_TOPOLOGY_17_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_18: return D3D11_PRIMITIVE_TOPOLOGY_18_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_19: return D3D11_PRIMITIVE_TOPOLOGY_19_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_20: return D3D11_PRIMITIVE_TOPOLOGY_20_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_21: return D3D11_PRIMITIVE_TOPOLOGY_21_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_22: return D3D11_PRIMITIVE_TOPOLOGY_22_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_23: return D3D11_PRIMITIVE_TOPOLOGY_23_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_24: return D3D11_PRIMITIVE_TOPOLOGY_24_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_25: return D3D11_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_26: return D3D11_PRIMITIVE_TOPOLOGY_26_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_27: return D3D11_PRIMITIVE_TOPOLOGY_27_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_28: return D3D11_PRIMITIVE_TOPOLOGY_28_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_29: return D3D11_PRIMITIVE_TOPOLOGY_29_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_30: return D3D11_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_31: return D3D11_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST;
-    case PrimitiveType::Control_Point_PatchList_32: return D3D11_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST;
-    default: return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
-    }
-}
-
 D3D11_BLEND BlendFactorToD3DBlendFactor(const BlendFactor& factor) noexcept {
     switch(factor) {
     case BlendFactor::Zero: return D3D11_BLEND_ZERO;
