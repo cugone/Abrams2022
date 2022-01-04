@@ -94,7 +94,18 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept;
 
-[[nodiscard]] D3D11_TEXTURE_ADDRESS_MODE AddressModeToD3DAddressMode(const TextureAddressMode& address_mode) noexcept;
+
+[[nodiscard]] constexpr D3D11_TEXTURE_ADDRESS_MODE AddressModeToD3DAddressMode(const TextureAddressMode& address_mode) noexcept {
+    switch(address_mode) {
+    case TextureAddressMode::Wrap: return D3D11_TEXTURE_ADDRESS_WRAP;
+    case TextureAddressMode::Mirror: return D3D11_TEXTURE_ADDRESS_MIRROR;
+    case TextureAddressMode::Clamp: return D3D11_TEXTURE_ADDRESS_CLAMP;
+    case TextureAddressMode::Border: return D3D11_TEXTURE_ADDRESS_BORDER;
+    case TextureAddressMode::Mirror_Once: return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+    default: return D3D11_TEXTURE_ADDRESS_WRAP;
+    }
+}
+
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
