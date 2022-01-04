@@ -21,6 +21,7 @@
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3dcompiler.lib")
 
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/RHI/RHITypes.hpp"
 
 #include <cstdint>
@@ -54,7 +55,20 @@ enum class AdapterPreference {
 }
 
 
-[[nodiscard]] GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept;
+[[nodiscard]] constexpr GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept {
+    GraphicsCardDesc desc{};
+    desc.Description = StringUtils::ConvertUnicodeToMultiByte(std::wstring(adapterInfo.desc.Description));
+    desc.DeviceId = adapterInfo.desc.DeviceId;
+    desc.VendorId = adapterInfo.desc.VendorId;
+    desc.SubSysId = adapterInfo.desc.SubSysId;
+    desc.Revision = adapterInfo.desc.Revision;
+    desc.DedicatedSystemMemory = adapterInfo.desc.DedicatedSystemMemory;
+    desc.DedicatedVideoMemory = adapterInfo.desc.DedicatedVideoMemory;
+    desc.SharedSystemMemory = adapterInfo.desc.SharedSystemMemory;
+    desc.is_software = (adapterInfo.desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE) != 0;
+    desc.is_unspecified = (adapterInfo.desc.Flags | DXGI_ADAPTER_FLAG3_NONE) == 0;
+    return desc;
+}
 
 struct OutputInfo {
     Microsoft::WRL::ComPtr<IDXGIOutput6> output{};

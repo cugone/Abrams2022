@@ -1,7 +1,6 @@
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
-#include "Engine/Core/StringUtils.hpp"
 
 constexpr const bitfield8_t MIP_MASK_BITS = 0b0000'0001;
 constexpr const bitfield8_t MAG_MASK_BITS = 0b0000'0010;
@@ -114,21 +113,21 @@ D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const Filter
     }
     return D3D11_FILTER_MIN_MAG_MIP_POINT;
 }
-
-GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept {
-    GraphicsCardDesc desc{};
-    desc.Description = StringUtils::ConvertUnicodeToMultiByte(std::wstring(adapterInfo.desc.Description));
-    desc.DeviceId = adapterInfo.desc.DeviceId;
-    desc.VendorId = adapterInfo.desc.VendorId;
-    desc.SubSysId = adapterInfo.desc.SubSysId;
-    desc.Revision = adapterInfo.desc.Revision;
-    desc.DedicatedSystemMemory = adapterInfo.desc.DedicatedSystemMemory;
-    desc.DedicatedVideoMemory = adapterInfo.desc.DedicatedVideoMemory;
-    desc.SharedSystemMemory = adapterInfo.desc.SharedSystemMemory;
-    desc.is_software = (adapterInfo.desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE) != 0;
-    desc.is_unspecified = (adapterInfo.desc.Flags | DXGI_ADAPTER_FLAG3_NONE) == 0;
-    return desc;
-}
+//
+//GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept {
+//    GraphicsCardDesc desc{};
+//    desc.Description = StringUtils::ConvertUnicodeToMultiByte(std::wstring(adapterInfo.desc.Description));
+//    desc.DeviceId = adapterInfo.desc.DeviceId;
+//    desc.VendorId = adapterInfo.desc.VendorId;
+//    desc.SubSysId = adapterInfo.desc.SubSysId;
+//    desc.Revision = adapterInfo.desc.Revision;
+//    desc.DedicatedSystemMemory = adapterInfo.desc.DedicatedSystemMemory;
+//    desc.DedicatedVideoMemory = adapterInfo.desc.DedicatedVideoMemory;
+//    desc.SharedSystemMemory = adapterInfo.desc.SharedSystemMemory;
+//    desc.is_software = (adapterInfo.desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE) != 0;
+//    desc.is_unspecified = (adapterInfo.desc.Flags | DXGI_ADAPTER_FLAG3_NONE) == 0;
+//    return desc;
+//}
 
 //Dragons be here!! Look at your own risk!
 bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) noexcept {
