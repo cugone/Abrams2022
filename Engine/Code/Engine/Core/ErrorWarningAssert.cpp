@@ -242,6 +242,8 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
             exit(0);
         } else if(answerCode == -1) // "CANCEL"
         {
+            logger.Flush();
+            logger.SaveLog();
             __debugbreak();
         }
     } else {
