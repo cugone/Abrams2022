@@ -153,7 +153,21 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
 
-[[nodiscard]] D3D11_STENCIL_OP StencilOperationToD3DStencilOperation(const StencilOperation& stencil_operation) noexcept;
+
+[[nodiscard]] constexpr D3D11_STENCIL_OP StencilOperationToD3DStencilOperation(const StencilOperation& stencil_operation) noexcept {
+    switch(stencil_operation) {
+    case StencilOperation::Keep: return D3D11_STENCIL_OP_KEEP;
+    case StencilOperation::Zero: return D3D11_STENCIL_OP_ZERO;
+    case StencilOperation::Replace: return D3D11_STENCIL_OP_REPLACE;
+    case StencilOperation::Increment_Clamp: return D3D11_STENCIL_OP_INCR_SAT;
+    case StencilOperation::Decrement_Clamp: return D3D11_STENCIL_OP_DECR_SAT;
+    case StencilOperation::Invert: return D3D11_STENCIL_OP_INVERT;
+    case StencilOperation::Increment_Wrap: return D3D11_STENCIL_OP_INCR;
+    case StencilOperation::Decrement_Wrap: return D3D11_STENCIL_OP_DECR;
+    default: return D3D11_STENCIL_OP_KEEP;
+    }
+}
+
 [[nodiscard]] StencilOperation StencilOperationFromString(const char* str) noexcept;
 [[nodiscard]] StencilOperation StencilOperationFromString(std::string str) noexcept;
 
