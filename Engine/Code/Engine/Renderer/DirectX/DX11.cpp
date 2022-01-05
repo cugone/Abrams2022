@@ -397,15 +397,6 @@ BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept 
     return result;
 }
 
-D3D11_CULL_MODE CullModeToD3DCullMode(const CullMode& cullmode) noexcept {
-    switch(cullmode) {
-    case CullMode::None: return D3D11_CULL_NONE;
-    case CullMode::Front: return D3D11_CULL_FRONT;
-    case CullMode::Back: return D3D11_CULL_BACK;
-    default: return D3D11_CULL_BACK;
-    }
-}
-
 FillMode FillModeFromString(std::string str) noexcept {
     str = StringUtils::ToLowerCase(str);
     if(str == "solid") {

@@ -519,7 +519,15 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] D3D11_CULL_MODE CullModeToD3DCullMode(const CullMode& fillmode) noexcept;
+[[nodiscard]] constexpr D3D11_CULL_MODE CullModeToD3DCullMode(const CullMode& cullmode) noexcept {
+    switch(cullmode) {
+    case CullMode::None: return D3D11_CULL_NONE;
+    case CullMode::Front: return D3D11_CULL_FRONT;
+    case CullMode::Back: return D3D11_CULL_BACK;
+    default: return D3D11_CULL_BACK;
+    }
+}
+
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
