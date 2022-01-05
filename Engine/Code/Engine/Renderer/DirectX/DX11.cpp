@@ -283,10 +283,6 @@ StencilOperation StencilOperationFromString(std::string str) noexcept {
     }
 }
 
-UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept {
-    return static_cast<UINT8>(rt_mask);
-}
-
 BlendFactor BlendFactorFromString(std::string str) noexcept {
     str = StringUtils::ToLowerCase(str);
     if(str == "zero") {

@@ -516,7 +516,9 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept;
+[[nodiscard]] constexpr UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept {
+    return static_cast<UINT8>(rt_mask);
+}
 
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
