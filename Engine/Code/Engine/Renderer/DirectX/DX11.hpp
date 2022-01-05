@@ -189,6 +189,28 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
+[[nodiscard]] constexpr ComparisonFunction ComparisonFunctionFromString(std::string_view sv) noexcept {
+    if(sv == "never" || sv == "0") {
+        return ComparisonFunction::Never;
+    } else if(sv == "less" || sv == "<") {
+        return ComparisonFunction::Less;
+    } else if(sv == "equal" || sv == "==") {
+        return ComparisonFunction::Equal;
+    } else if(sv == "lessequal" || sv == "le" || sv == "leq" || sv == "<=") {
+        return ComparisonFunction::Less_Equal;
+    } else if(sv == "greater" || sv == ">") {
+        return ComparisonFunction::Greater;
+    } else if(sv == "notequal" || sv == "ne" || sv == "neq" || sv == "!=") {
+        return ComparisonFunction::Not_Equal;
+    } else if(sv == "greaterequal" || sv == "ge" || sv == "geq" || sv == ">=") {
+        return ComparisonFunction::Greater_Equal;
+    } else if(sv == "always" || sv == "1") {
+        return ComparisonFunction::Always;
+    } else {
+        return ComparisonFunction::Never;
+    }
+}
+
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 
