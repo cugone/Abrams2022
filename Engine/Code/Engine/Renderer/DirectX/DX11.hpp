@@ -142,6 +142,22 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
+[[nodiscard]] constexpr TextureAddressMode TextureAddressModeFromString(std::string_view sv) noexcept {
+    if(sv == "wrap") {
+        return TextureAddressMode::Wrap;
+    } else if(sv == "mirror") {
+        return TextureAddressMode::Mirror;
+    } else if(sv == "clamp") {
+        return TextureAddressMode::Clamp;
+    } else if(sv == "border") {
+        return TextureAddressMode::Border;
+    } else if(sv == "once" || sv == "mirror_once") {
+        return TextureAddressMode::Mirror_Once;
+    } else {
+        return TextureAddressMode::Wrap;
+    }
+}
+
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
