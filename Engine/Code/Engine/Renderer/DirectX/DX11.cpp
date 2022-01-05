@@ -173,7 +173,7 @@ bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const Filter
 }
 
 FilterMode FilterModeFromString(const char* str) noexcept {
-    return FilterModeFromString(std::string(str ? str : ""));
+    return FilterModeFromString(std::string_view{str});
 }
 
 FilterMode FilterModeFromString(std::string str) noexcept {
@@ -190,7 +190,7 @@ FilterMode FilterModeFromString(std::string str) noexcept {
 }
 
 FilterComparisonMode FilterComparisonModeFromString(const char* str) noexcept {
-    return FilterComparisonModeFromString(std::string(str ? str : ""));
+    return FilterComparisonModeFromString(std::string_view{str});
 }
 
 FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept {
@@ -209,7 +209,7 @@ FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept {
 }
 
 TextureAddressMode TextureAddressModeFromString(const char* str) noexcept {
-    return TextureAddressModeFromString(std::string(str ? str : ""));
+    return TextureAddressModeFromString(std::string_view{str});
 }
 
 TextureAddressMode TextureAddressModeFromString(std::string str) noexcept {
@@ -230,7 +230,7 @@ TextureAddressMode TextureAddressModeFromString(std::string str) noexcept {
 }
 
 ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept {
-    return ComparisonFunctionFromString(std::string(str ? str : ""));
+    return ComparisonFunctionFromString(std::string_view{str});
 }
 
 ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept {
@@ -257,7 +257,7 @@ ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept {
 }
 
 StencilOperation StencilOperationFromString(const char* str) noexcept {
-    return StencilOperationFromString(std::string(str ? str : ""));
+    return StencilOperationFromString(std::string_view{str});
 }
 
 StencilOperation StencilOperationFromString(std::string str) noexcept {
