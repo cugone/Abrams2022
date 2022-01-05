@@ -331,7 +331,7 @@ D3D11_BLEND BlendFactorToD3DBlendFactor(const BlendFactor& factor) noexcept {
     case BlendFactor::Inv_Src1_Color: return D3D11_BLEND_INV_SRC1_COLOR;
     case BlendFactor::Src1_Alpha: return D3D11_BLEND_SRC1_ALPHA;
     case BlendFactor::Inv_Src1_Alpha: return D3D11_BLEND_INV_SRC1_ALPHA;
-    default: ERROR_AND_DIE("BlendFactor not defined.");
+    default: return D3D11_BLEND_ONE;
     }
 }
 
