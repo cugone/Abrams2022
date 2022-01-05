@@ -342,7 +342,7 @@ D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept {
     case BlendOperation::Reverse_Subtract: return D3D11_BLEND_OP_REV_SUBTRACT;
     case BlendOperation::Min: return D3D11_BLEND_OP_MIN;
     case BlendOperation::Max: return D3D11_BLEND_OP_MAX;
-    default: ERROR_AND_DIE("BlendOperation not defined.");
+    default: return D3D11_BLEND_OP_ADD;
     }
 }
 
