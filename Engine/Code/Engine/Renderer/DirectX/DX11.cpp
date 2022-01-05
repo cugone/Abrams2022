@@ -283,10 +283,6 @@ StencilOperation StencilOperationFromString(std::string str) noexcept {
     }
 }
 
-D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept {
-    return static_cast<D3D11_BIND_FLAG>(bindFlags);
-}
-
 D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept {
     switch(usage) {
     case BufferUsage::Gpu: return D3D11_CPU_ACCESS_READ;

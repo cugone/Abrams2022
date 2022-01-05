@@ -176,7 +176,10 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept;
+[[nodiscard]] constexpr D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept {
+    return static_cast<D3D11_BIND_FLAG>(bindFlags);
+}
+
 [[nodiscard]] D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept;
 
 [[nodiscard]] constexpr D3D11_PRIMITIVE_TOPOLOGY PrimitiveTypeToD3dTopology(const PrimitiveType& topology) noexcept {
