@@ -40,7 +40,6 @@ enum class AdapterPreference {
     MinimumPower
 };
 
-
 [[nodiscard]] constexpr DXGI_GPU_PREFERENCE AdapterPreferenceToDxgiGpuPreference(const AdapterPreference& preference) noexcept {
     switch(preference) {
     case AdapterPreference::None: /* Also AdapterPreference::Unspecified */
@@ -53,7 +52,6 @@ enum class AdapterPreference {
         return DXGI_GPU_PREFERENCE_UNSPECIFIED;
     }
 }
-
 
 [[nodiscard]] constexpr GraphicsCardDesc AdapterInfoToGraphicsCardDesc(const AdapterInfo& adapterInfo) noexcept {
     GraphicsCardDesc desc{};
@@ -94,7 +92,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept;
 
-
 [[nodiscard]] constexpr D3D11_TEXTURE_ADDRESS_MODE AddressModeToD3DAddressMode(const TextureAddressMode& address_mode) noexcept {
     switch(address_mode) {
     case TextureAddressMode::Wrap: return D3D11_TEXTURE_ADDRESS_WRAP;
@@ -120,7 +117,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
-
 [[nodiscard]] constexpr D3D11_COMPARISON_FUNC ComparisonFunctionToD3DComparisonFunction(const ComparisonFunction& compareFunc) noexcept {
     switch(compareFunc) {
     case ComparisonFunction::Never: return D3D11_COMPARISON_NEVER;
@@ -134,7 +130,6 @@ using bitfield64_t = std::uint64_t;
     default: return D3D11_COMPARISON_NEVER;
     }
 }
-
 
 [[nodiscard]] constexpr ComparisonFunction D3DComparisonFunctionToComparisonFunction(D3D11_COMPARISON_FUNC d3dcompareFunc) noexcept {
     switch(d3dcompareFunc) {
@@ -153,7 +148,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
 
-
 [[nodiscard]] constexpr D3D11_STENCIL_OP StencilOperationToD3DStencilOperation(const StencilOperation& stencil_operation) noexcept {
     switch(stencil_operation) {
     case StencilOperation::Keep: return D3D11_STENCIL_OP_KEEP;
@@ -171,7 +165,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] StencilOperation StencilOperationFromString(const char* str) noexcept;
 [[nodiscard]] StencilOperation StencilOperationFromString(std::string str) noexcept;
 
-
 [[nodiscard]] constexpr D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) noexcept {
     switch(usage) {
     case BufferUsage::Default: return D3D11_USAGE_DEFAULT;
@@ -185,7 +178,6 @@ using bitfield64_t = std::uint64_t;
 
 [[nodiscard]] D3D11_BIND_FLAG BufferBindUsageToD3DBindFlags(const BufferBindUsage& bindFlags) noexcept;
 [[nodiscard]] D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept;
-
 
 [[nodiscard]] constexpr D3D11_PRIMITIVE_TOPOLOGY PrimitiveTypeToD3dTopology(const PrimitiveType& topology) noexcept {
     switch(topology) {
@@ -234,8 +226,6 @@ using bitfield64_t = std::uint64_t;
     default: return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
     }
 }
-
-
 
 [[nodiscard]] constexpr DXGI_FORMAT ImageFormatToDxgiFormat(const ImageFormat& format) noexcept {
     switch(format) {
@@ -504,7 +494,6 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-
 [[nodiscard]] constexpr D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept {
     switch(op) {
     case BlendOperation::Add: return D3D11_BLEND_OP_ADD;
@@ -521,7 +510,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
 [[nodiscard]] BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept;
-
 
 [[nodiscard]] constexpr D3D11_FILL_MODE FillModeToD3DFillMode(const FillMode& fillmode) noexcept {
     switch(fillmode) {
