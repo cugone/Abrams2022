@@ -103,6 +103,20 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] FilterMode FilterModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterMode FilterModeFromString(std::string str) noexcept;
 
+[[nodiscard]] constexpr FilterComparisonMode FilterComparisonModeFromString(std::string_view sv) noexcept {
+    if(sv == "none") {
+        return FilterComparisonMode::None;
+    } else if(sv == "min" || sv == "minimum") {
+        return FilterComparisonMode::Minimum;
+    } else if(sv == "max" || sv == "maximum") {
+        return FilterComparisonMode::Maximum;
+    } else if(sv == "comp" || sv == "comparison") {
+        return FilterComparisonMode::Comparison;
+    } else {
+        return FilterComparisonMode::None;
+    }
+}
+
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept;
 
