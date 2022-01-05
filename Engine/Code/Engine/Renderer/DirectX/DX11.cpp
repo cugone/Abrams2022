@@ -283,16 +283,6 @@ StencilOperation StencilOperationFromString(std::string str) noexcept {
     }
 }
 
-D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept {
-    switch(usage) {
-    case BufferUsage::Gpu: return D3D11_CPU_ACCESS_READ;
-    case BufferUsage::Dynamic: return D3D11_CPU_ACCESS_WRITE;
-    case BufferUsage::Static: return static_cast<D3D11_CPU_ACCESS_FLAG>(0U);
-    case BufferUsage::Staging: return static_cast<D3D11_CPU_ACCESS_FLAG>(D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE);
-    default: return static_cast<D3D11_CPU_ACCESS_FLAG>(0U);
-    }
-}
-
 UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept {
     return static_cast<UINT8>(rt_mask);
 }

@@ -180,7 +180,15 @@ using bitfield64_t = std::uint64_t;
     return static_cast<D3D11_BIND_FLAG>(bindFlags);
 }
 
-[[nodiscard]] D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept;
+[[nodiscard]] constexpr D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept {
+    switch(usage) {
+    case BufferUsage::Gpu: return D3D11_CPU_ACCESS_READ;
+    case BufferUsage::Dynamic: return D3D11_CPU_ACCESS_WRITE;
+    case BufferUsage::Static: return static_cast<D3D11_CPU_ACCESS_FLAG>(0U);
+    case BufferUsage::Staging: return static_cast<D3D11_CPU_ACCESS_FLAG>(D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE);
+    default: return static_cast<D3D11_CPU_ACCESS_FLAG>(0U);
+    }
+}
 
 [[nodiscard]] constexpr D3D11_PRIMITIVE_TOPOLOGY PrimitiveTypeToD3dTopology(const PrimitiveType& topology) noexcept {
     switch(topology) {
