@@ -189,8 +189,8 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
+[[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_STENCIL_OP StencilOperationToD3DStencilOperation(const StencilOperation& stencil_operation) noexcept {
     switch(stencil_operation) {
