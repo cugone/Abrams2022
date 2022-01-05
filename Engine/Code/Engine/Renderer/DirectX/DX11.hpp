@@ -228,6 +228,28 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
+[[nodiscard]] constexpr StencilOperation StencilOperationFromString(std::string_view sv) noexcept {
+    if(sv == "keep") {
+        return StencilOperation::Keep;
+    } else if(sv == "zero") {
+        return StencilOperation::Zero;
+    } else if(sv == "replace") {
+        return StencilOperation::Replace;
+    } else if(sv == "incrementandclamp" || sv == "ic" || sv == "incc" || sv == "inc") {
+        return StencilOperation::Increment_Clamp;
+    } else if(sv == "decrementandclamp" || sv == "dc" || sv == "decc" || sv == "dec") {
+        return StencilOperation::Decrement_Clamp;
+    } else if(sv == "invert" || sv == "inv") {
+        return StencilOperation::Invert;
+    } else if(sv == "incrementandwrap" || sv == "iw" || sv == "incw" || sv == "inw") {
+        return StencilOperation::Increment_Wrap;
+    } else if(sv == "decrementandwrap" || sv == "dw" || sv == "decw" || sv == "dew") {
+        return StencilOperation::Decrement_Wrap;
+    } else {
+        return StencilOperation::Keep;
+    }
+}
+
 [[nodiscard]] StencilOperation StencilOperationFromString(const char* str) noexcept;
 [[nodiscard]] StencilOperation StencilOperationFromString(std::string str) noexcept;
 
