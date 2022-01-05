@@ -403,10 +403,6 @@ WindingOrder WindingOrderFromString(std::string str) noexcept {
     }
 }
 
-D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) noexcept {
-    return static_cast<D3D11_RESOURCE_MISC_FLAG>(flags);
-}
-
 std::string PipelineStageToString(const PipelineStage& stage) noexcept {
     switch(stage) {
     case PipelineStage::None: return std::string{};

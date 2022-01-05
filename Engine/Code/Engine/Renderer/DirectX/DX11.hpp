@@ -539,7 +539,9 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) noexcept;
+[[nodiscard]] constexpr D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) noexcept {
+    return static_cast<D3D11_RESOURCE_MISC_FLAG>(flags);
+}
 
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
