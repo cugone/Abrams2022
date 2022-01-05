@@ -86,6 +86,20 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) noexcept;
 
 [[nodiscard]] D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) noexcept;
+
+
+[[nodiscard]] constexpr FilterMode FilterModeFromString(std::string_view sv) noexcept {
+    if(sv == "point" || sv == "pt") {
+        return FilterMode::Point;
+    } else if(sv == "linear" || sv == "ln") {
+        return FilterMode::Linear;
+    } else if(sv == "anisotropic" || sv == "af") {
+        return FilterMode::Anisotropic;
+    } else {
+        return FilterMode::Point;
+    }
+}
+
 [[nodiscard]] FilterMode FilterModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterMode FilterModeFromString(std::string str) noexcept;
 
