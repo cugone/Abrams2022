@@ -9,10 +9,7 @@
 #include "Engine/System/Cpu.hpp"
 #include "Engine/System/System.hpp"
 
-#include <algorithm>
 #include <cstdarg>
-#include <cwctype>
-#include <locale>
 #include <numeric>
 #include <sstream>
 

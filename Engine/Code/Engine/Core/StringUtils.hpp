@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <cwctype>
+#include <locale>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -28,8 +31,33 @@ namespace StringUtils {
 [[nodiscard]] std::string Join(const std::vector<std::string>& strings, bool skip_empty = true) noexcept;
 [[nodiscard]] std::wstring Join(const std::vector<std::wstring>& strings, bool skip_empty = true) noexcept;
 
+[[nodiscard]] constexpr std::string ToUpperCase(std::string_view stringview) noexcept {
+    std::string copy{stringview};
+    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c, std::locale("")); });
+    return copy;
+}
+
+[[nodiscard]] constexpr std::wstring ToUpperCase(std::wstring_view stringview) noexcept {
+    std::wstring copy{stringview};
+    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](wchar_t c) -> wchar_t { return std::towupper(static_cast<std::wint_t>(c)); });
+    return copy;
+}
+
 [[nodiscard]] std::string ToUpperCase(std::string string) noexcept;
 [[nodiscard]] std::wstring ToUpperCase(std::wstring string) noexcept;
+
+[[nodiscard]] constexpr std::string ToLowerCase(std::string_view stringview) noexcept {
+    std::string copy{stringview};
+    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](unsigned char c) -> unsigned char { return std::tolower(c, std::locale("")); });
+    return copy;
+}
+
+[[nodiscard]] constexpr std::wstring ToLowerCase(std::wstring_view stringview) noexcept {
+    std::wstring copy{stringview};
+    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](wchar_t c) -> wchar_t { return std::towlower(static_cast<std::wint_t>(c)); });
+    return copy;
+}
+
 [[nodiscard]] std::string ToLowerCase(std::string string) noexcept;
 [[nodiscard]] std::wstring ToLowerCase(std::wstring string) noexcept;
 
