@@ -539,11 +539,11 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
+[[nodiscard]] D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) noexcept;
+
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
-
-[[nodiscard]] D3D11_RESOURCE_MISC_FLAG ResourceMiscFlagToD3DMiscFlag(const ResourceMiscFlag& flags) noexcept;
 
 [[nodiscard]] std::string PipelineStageToString(const PipelineStage& stage) noexcept;
 [[nodiscard]] PipelineStage PipelineStageFromString(std::string stage) noexcept;
