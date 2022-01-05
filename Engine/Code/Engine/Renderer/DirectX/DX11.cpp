@@ -312,17 +312,6 @@ D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept 
     }
 }
 
-D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept {
-    switch(op) {
-    case BlendOperation::Add: return D3D11_BLEND_OP_ADD;
-    case BlendOperation::Subtract: return D3D11_BLEND_OP_SUBTRACT;
-    case BlendOperation::Reverse_Subtract: return D3D11_BLEND_OP_REV_SUBTRACT;
-    case BlendOperation::Min: return D3D11_BLEND_OP_MIN;
-    case BlendOperation::Max: return D3D11_BLEND_OP_MAX;
-    default: return D3D11_BLEND_OP_ADD;
-    }
-}
-
 UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept {
     return static_cast<UINT8>(rt_mask);
 }

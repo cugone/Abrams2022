@@ -504,7 +504,18 @@ using bitfield64_t = std::uint64_t;
     }
 }
 
-[[nodiscard]] D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept;
+
+[[nodiscard]] constexpr D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept {
+    switch(op) {
+    case BlendOperation::Add: return D3D11_BLEND_OP_ADD;
+    case BlendOperation::Subtract: return D3D11_BLEND_OP_SUBTRACT;
+    case BlendOperation::Reverse_Subtract: return D3D11_BLEND_OP_REV_SUBTRACT;
+    case BlendOperation::Min: return D3D11_BLEND_OP_MIN;
+    case BlendOperation::Max: return D3D11_BLEND_OP_MAX;
+    default: return D3D11_BLEND_OP_ADD;
+    }
+}
+
 [[nodiscard]] UINT8 BlendColorWriteEnableToD3DBlendColorWriteEnable(const BlendColorWriteEnable& rt_mask) noexcept;
 
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
