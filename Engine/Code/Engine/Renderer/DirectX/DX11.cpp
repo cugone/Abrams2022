@@ -312,29 +312,6 @@ D3D11_CPU_ACCESS_FLAG CPUAccessFlagFromUsage(const BufferUsage& usage) noexcept 
     }
 }
 
-D3D11_BLEND BlendFactorToD3DBlendFactor(const BlendFactor& factor) noexcept {
-    switch(factor) {
-    case BlendFactor::Zero: return D3D11_BLEND_ZERO;
-    case BlendFactor::One: return D3D11_BLEND_ONE;
-    case BlendFactor::Src_Color: return D3D11_BLEND_SRC_COLOR;
-    case BlendFactor::Inv_Src_Color: return D3D11_BLEND_INV_SRC_COLOR;
-    case BlendFactor::Src_Alpha: return D3D11_BLEND_SRC_ALPHA;
-    case BlendFactor::Inv_Src_Alpha: return D3D11_BLEND_INV_SRC_ALPHA;
-    case BlendFactor::Dest_Alpha: return D3D11_BLEND_DEST_ALPHA;
-    case BlendFactor::Inv_Dest_Alpha: return D3D11_BLEND_INV_DEST_ALPHA;
-    case BlendFactor::Dest_Color: return D3D11_BLEND_DEST_COLOR;
-    case BlendFactor::Inv_Dest_Color: return D3D11_BLEND_INV_DEST_COLOR;
-    case BlendFactor::Src_Alpha_Sat: return D3D11_BLEND_SRC_ALPHA_SAT;
-    case BlendFactor::Blend_Factor: return D3D11_BLEND_BLEND_FACTOR;
-    case BlendFactor::Inv_Blend_Factor: return D3D11_BLEND_INV_BLEND_FACTOR;
-    case BlendFactor::Src1_Color: return D3D11_BLEND_SRC1_COLOR;
-    case BlendFactor::Inv_Src1_Color: return D3D11_BLEND_INV_SRC1_COLOR;
-    case BlendFactor::Src1_Alpha: return D3D11_BLEND_SRC1_ALPHA;
-    case BlendFactor::Inv_Src1_Alpha: return D3D11_BLEND_INV_SRC1_ALPHA;
-    default: return D3D11_BLEND_ONE;
-    }
-}
-
 D3D11_BLEND_OP BlendOpToD3DBlendOp(const BlendOperation& op) noexcept {
     switch(op) {
     case BlendOperation::Add: return D3D11_BLEND_OP_ADD;
