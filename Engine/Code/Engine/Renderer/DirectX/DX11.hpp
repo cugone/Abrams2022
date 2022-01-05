@@ -522,7 +522,15 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
 [[nodiscard]] BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept;
 
-[[nodiscard]] D3D11_FILL_MODE FillModeToD3DFillMode(const FillMode& fillmode) noexcept;
+
+[[nodiscard]] constexpr D3D11_FILL_MODE FillModeToD3DFillMode(const FillMode& fillmode) noexcept {
+    switch(fillmode) {
+    case FillMode::Solid: return D3D11_FILL_SOLID;
+    case FillMode::Wireframe: return D3D11_FILL_WIREFRAME;
+    default: return D3D11_FILL_SOLID;
+    }
+}
+
 [[nodiscard]] D3D11_CULL_MODE CullModeToD3DCullMode(const CullMode& fillmode) noexcept;
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
