@@ -608,6 +608,46 @@ using bitfield64_t = std::uint64_t;
     return static_cast<UINT8>(rt_mask);
 }
 
+[[nodiscard]] constexpr BlendFactor BlendFactorFromString(std::string_view sv) noexcept {
+    if(sv == "zero") {
+        return BlendFactor::Zero;
+    } else if(sv == "one") {
+        return BlendFactor::One;
+    } else if(sv == "src_color") {
+        return BlendFactor::Src_Color;
+    } else if(sv == "inv_src_color") {
+        return BlendFactor::Inv_Src_Color;
+    } else if(sv == "src_alpha") {
+        return BlendFactor::Src_Alpha;
+    } else if(sv == "inv_src_alpha") {
+        return BlendFactor::Inv_Src_Alpha;
+    } else if(sv == "dest_alpha") {
+        return BlendFactor::Dest_Alpha;
+    } else if(sv == "inv_dest_alpha") {
+        return BlendFactor::Inv_Dest_Alpha;
+    } else if(sv == "dest_color") {
+        return BlendFactor::Dest_Color;
+    } else if(sv == "inv_dest_color") {
+        return BlendFactor::Inv_Dest_Color;
+    } else if(sv == "src_alpha_sat") {
+        return BlendFactor::Src_Alpha_Sat;
+    } else if(sv == "blend_factor") {
+        return BlendFactor::Blend_Factor;
+    } else if(sv == "inv_blend_factor") {
+        return BlendFactor::Inv_Blend_Factor;
+    } else if(sv == "src1_color") {
+        return BlendFactor::Src1_Color;
+    } else if(sv == "inv_src1_color") {
+        return BlendFactor::Inv_Src1_Color;
+    } else if(sv == "src1_alpha") {
+        return BlendFactor::Src1_Alpha;
+    } else if(sv == "inv_src1_alpha") {
+        return BlendFactor::Inv_Src1_Alpha;
+    } else {
+        return BlendFactor::Zero;
+    }
+}
+
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
 [[nodiscard]] BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept;
