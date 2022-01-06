@@ -712,6 +712,16 @@ using bitfield64_t = std::uint64_t;
     return static_cast<D3D11_RESOURCE_MISC_FLAG>(flags);
 }
 
+[[nodiscard]] constexpr FillMode FillModeFromString(std::string_view sv) noexcept {
+    if(sv == "solid") {
+        return FillMode::Solid;
+    } else if(sv == "wire" || sv == "wireframe") {
+        return FillMode::Wireframe;
+    } else {
+        return FillMode::Solid;
+    }
+}
+
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
