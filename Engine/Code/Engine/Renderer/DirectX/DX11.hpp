@@ -667,6 +667,28 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
+
+[[nodiscard]] constexpr BlendColorWriteEnable BlendColorWriteEnableFromString(std::string_view sv) noexcept {
+    if(sv.empty()) {
+        return BlendColorWriteEnable::All;
+    }
+
+    BlendColorWriteEnable result = BlendColorWriteEnable::None;
+    if(sv.find('r') != std::string_view::npos) {
+        result |= BlendColorWriteEnable::Red;
+    }
+    if(sv.find('g') != std::string_view::npos) {
+        result |= BlendColorWriteEnable::Green;
+    }
+    if(sv.find('b') != std::string_view::npos) {
+        result |= BlendColorWriteEnable::Blue;
+    }
+    if(sv.find('a') != std::string_view::npos) {
+        result |= BlendColorWriteEnable::Alpha;
+    }
+    return result;
+}
+
 [[nodiscard]] BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_FILL_MODE FillModeToD3DFillMode(const FillMode& fillmode) noexcept {
