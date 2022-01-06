@@ -89,35 +89,37 @@ using bitfield64_t = std::uint64_t;
 
 
 [[nodiscard]] constexpr FilterMode FilterModeFromString(std::string_view sv) noexcept {
-    if(sv == "point" || sv == "pt") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "point"sv || sv == "pt"sv) {
         return FilterMode::Point;
-    } else if(sv == "linear" || sv == "ln") {
+    } else if(sv == "linear"sv || sv == "ln"sv) {
         return FilterMode::Linear;
-    } else if(sv == "anisotropic" || sv == "af") {
+    } else if(sv == "anisotropic"sv || sv == "af"sv) {
         return FilterMode::Anisotropic;
     } else {
         return FilterMode::Point;
     }
 }
 
-[[nodiscard]] FilterMode FilterModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterMode FilterModeFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr FilterComparisonMode FilterComparisonModeFromString(std::string_view sv) noexcept {
-    if(sv == "none") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "none"sv) {
         return FilterComparisonMode::None;
-    } else if(sv == "min" || sv == "minimum") {
+    } else if(sv == "min"sv || sv == "minimum"sv) {
         return FilterComparisonMode::Minimum;
-    } else if(sv == "max" || sv == "maximum") {
+    } else if(sv == "max"sv || sv == "maximum"sv) {
         return FilterComparisonMode::Maximum;
-    } else if(sv == "comp" || sv == "comparison") {
+    } else if(sv == "comp"sv || sv == "comparison"sv) {
         return FilterComparisonMode::Comparison;
     } else {
         return FilterComparisonMode::None;
     }
 }
 
-[[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(const char* str) noexcept;
 [[nodiscard]] FilterComparisonMode FilterComparisonModeFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_TEXTURE_ADDRESS_MODE AddressModeToD3DAddressMode(const TextureAddressMode& address_mode) noexcept {
@@ -143,22 +145,23 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] constexpr TextureAddressMode TextureAddressModeFromString(std::string_view sv) noexcept {
-    if(sv == "wrap") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "wrap"sv) {
         return TextureAddressMode::Wrap;
-    } else if(sv == "mirror") {
+    } else if(sv == "mirror"sv) {
         return TextureAddressMode::Mirror;
-    } else if(sv == "clamp") {
+    } else if(sv == "clamp"sv) {
         return TextureAddressMode::Clamp;
-    } else if(sv == "border") {
+    } else if(sv == "border"sv) {
         return TextureAddressMode::Border;
-    } else if(sv == "once" || sv == "mirror_once") {
+    } else if(sv == "once"sv || sv == "mirror_once"sv) {
         return TextureAddressMode::Mirror_Once;
     } else {
         return TextureAddressMode::Wrap;
     }
 }
 
-[[nodiscard]] TextureAddressMode TextureAddressModeFromString(const char* str) noexcept;
 [[nodiscard]] TextureAddressMode TextureAddressModeFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_COMPARISON_FUNC ComparisonFunctionToD3DComparisonFunction(const ComparisonFunction& compareFunc) noexcept {
@@ -190,28 +193,29 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] constexpr ComparisonFunction ComparisonFunctionFromString(std::string_view sv) noexcept {
-    if(sv == "never" || sv == "0") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "never"sv || sv == "0"sv) {
         return ComparisonFunction::Never;
-    } else if(sv == "less" || sv == "<") {
+    } else if(sv == "less"sv || sv == "<"sv) {
         return ComparisonFunction::Less;
-    } else if(sv == "equal" || sv == "==") {
+    } else if(sv == "equal"sv || sv == "=="sv) {
         return ComparisonFunction::Equal;
-    } else if(sv == "lessequal" || sv == "le" || sv == "leq" || sv == "<=") {
+    } else if(sv == "lessequal"sv || sv == "le"sv || sv == "leq"sv || sv == "<="sv) {
         return ComparisonFunction::Less_Equal;
-    } else if(sv == "greater" || sv == ">") {
+    } else if(sv == "greater"sv || sv == ">"sv) {
         return ComparisonFunction::Greater;
-    } else if(sv == "notequal" || sv == "ne" || sv == "neq" || sv == "!=") {
+    } else if(sv == "notequal"sv || sv == "ne"sv || sv == "neq"sv || sv == "!="sv) {
         return ComparisonFunction::Not_Equal;
-    } else if(sv == "greaterequal" || sv == "ge" || sv == "geq" || sv == ">=") {
+    } else if(sv == "greaterequal"sv || sv == "ge"sv || sv == "geq"sv || sv == ">="sv) {
         return ComparisonFunction::Greater_Equal;
-    } else if(sv == "always" || sv == "1") {
+    } else if(sv == "always"sv || sv == "1"sv) {
         return ComparisonFunction::Always;
     } else {
         return ComparisonFunction::Never;
     }
 }
 
-[[nodiscard]] ComparisonFunction ComparisonFunctionFromString(const char* str) noexcept;
 [[nodiscard]] ComparisonFunction ComparisonFunctionFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_STENCIL_OP StencilOperationToD3DStencilOperation(const StencilOperation& stencil_operation) noexcept {
@@ -229,28 +233,29 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] constexpr StencilOperation StencilOperationFromString(std::string_view sv) noexcept {
-    if(sv == "keep") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "keep"sv) {
         return StencilOperation::Keep;
-    } else if(sv == "zero") {
+    } else if(sv == "zero"sv) {
         return StencilOperation::Zero;
-    } else if(sv == "replace") {
+    } else if(sv == "replace"sv) {
         return StencilOperation::Replace;
-    } else if(sv == "incrementandclamp" || sv == "ic" || sv == "incc" || sv == "inc") {
+    } else if(sv == "incrementandclamp"sv || sv == "ic"sv || sv == "incc"sv || sv == "inc"sv) {
         return StencilOperation::Increment_Clamp;
-    } else if(sv == "decrementandclamp" || sv == "dc" || sv == "decc" || sv == "dec") {
+    } else if(sv == "decrementandclamp"sv || sv == "dc"sv || sv == "decc"sv || sv == "dec"sv) {
         return StencilOperation::Decrement_Clamp;
-    } else if(sv == "invert" || sv == "inv") {
+    } else if(sv == "invert"sv || sv == "inv"sv) {
         return StencilOperation::Invert;
-    } else if(sv == "incrementandwrap" || sv == "iw" || sv == "incw" || sv == "inw") {
+    } else if(sv == "incrementandwrap"sv || sv == "iw"sv || sv == "incw"sv || sv == "inw"sv) {
         return StencilOperation::Increment_Wrap;
-    } else if(sv == "decrementandwrap" || sv == "dw" || sv == "decw" || sv == "dew") {
+    } else if(sv == "decrementandwrap"sv || sv == "dw"sv || sv == "decw"sv || sv == "dew"sv) {
         return StencilOperation::Decrement_Wrap;
     } else {
         return StencilOperation::Keep;
     }
 }
 
-[[nodiscard]] StencilOperation StencilOperationFromString(const char* str) noexcept;
 [[nodiscard]] StencilOperation StencilOperationFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr D3D11_USAGE BufferUsageToD3DUsage(const BufferUsage& usage) noexcept {
@@ -609,39 +614,41 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] constexpr BlendFactor BlendFactorFromString(std::string_view sv) noexcept {
-    if(sv == "zero") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "zero"sv) {
         return BlendFactor::Zero;
-    } else if(sv == "one") {
+    } else if(sv == "one"sv) {
         return BlendFactor::One;
-    } else if(sv == "src_color") {
+    } else if(sv == "src_color"sv) {
         return BlendFactor::Src_Color;
-    } else if(sv == "inv_src_color") {
+    } else if(sv == "inv_src_color"sv) {
         return BlendFactor::Inv_Src_Color;
-    } else if(sv == "src_alpha") {
+    } else if(sv == "src_alpha"sv) {
         return BlendFactor::Src_Alpha;
-    } else if(sv == "inv_src_alpha") {
+    } else if(sv == "inv_src_alpha"sv) {
         return BlendFactor::Inv_Src_Alpha;
-    } else if(sv == "dest_alpha") {
+    } else if(sv == "dest_alpha"sv) {
         return BlendFactor::Dest_Alpha;
-    } else if(sv == "inv_dest_alpha") {
+    } else if(sv == "inv_dest_alpha"sv) {
         return BlendFactor::Inv_Dest_Alpha;
-    } else if(sv == "dest_color") {
+    } else if(sv == "dest_color"sv) {
         return BlendFactor::Dest_Color;
-    } else if(sv == "inv_dest_color") {
+    } else if(sv == "inv_dest_color"sv) {
         return BlendFactor::Inv_Dest_Color;
-    } else if(sv == "src_alpha_sat") {
+    } else if(sv == "src_alpha_sat"sv) {
         return BlendFactor::Src_Alpha_Sat;
-    } else if(sv == "blend_factor") {
+    } else if(sv == "blend_factor"sv) {
         return BlendFactor::Blend_Factor;
-    } else if(sv == "inv_blend_factor") {
+    } else if(sv == "inv_blend_factor"sv) {
         return BlendFactor::Inv_Blend_Factor;
-    } else if(sv == "src1_color") {
+    } else if(sv == "src1_color"sv) {
         return BlendFactor::Src1_Color;
-    } else if(sv == "inv_src1_color") {
+    } else if(sv == "inv_src1_color"sv) {
         return BlendFactor::Inv_Src1_Color;
-    } else if(sv == "src1_alpha") {
+    } else if(sv == "src1_alpha"sv) {
         return BlendFactor::Src1_Alpha;
-    } else if(sv == "inv_src1_alpha") {
+    } else if(sv == "inv_src1_alpha"sv) {
         return BlendFactor::Inv_Src1_Alpha;
     } else {
         return BlendFactor::Zero;
@@ -651,15 +658,17 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr BlendOperation BlendOperationFromString(std::string_view sv) noexcept {
-    if(sv == "add") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "add"sv) {
         return BlendOperation::Add;
-    } else if(sv == "subtract" || sv == "sub") {
+    } else if(sv == "subtract"sv || sv == "sub"sv) {
         return BlendOperation::Subtract;
-    } else if(sv == "rev_sub" || sv == "rev_subtract" || sv == "reverse_sub" || sv == "reverse_subtract") {
+    } else if(sv == "rev_sub"sv || sv == "rev_subtract"sv || sv == "reverse_sub"sv || sv == "reverse_subtract"sv) {
         return BlendOperation::Reverse_Subtract;
-    } else if(sv == "min" || sv == "minimum") {
+    } else if(sv == "min"sv || sv == "minimum"sv) {
         return BlendOperation::Min;
-    } else if(sv == "max" || sv == "maximum") {
+    } else if(sv == "max"sv || sv == "maximum"sv) {
         return BlendOperation::Max;
     } else {
         return BlendOperation::Add;
@@ -713,9 +722,11 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] constexpr FillMode FillModeFromString(std::string_view sv) noexcept {
-    if(sv == "solid") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "solid"sv) {
         return FillMode::Solid;
-    } else if(sv == "wire" || sv == "wireframe") {
+    } else if(sv == "wire"sv || sv == "wireframe"sv) {
         return FillMode::Wireframe;
     } else {
         return FillMode::Solid;
@@ -725,11 +736,13 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr CullMode CullModeFromString(std::string_view sv) noexcept {
-    if(sv == "none") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "none"sv) {
         return CullMode::None;
-    } else if(sv == "front") {
+    } else if(sv == "front"sv) {
         return CullMode::Front;
-    } else if(sv == "back") {
+    } else if(sv == "back"sv) {
         return CullMode::Back;
     } else {
         return CullMode::Back;
@@ -739,9 +752,11 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
 
 [[nodiscard]] constexpr WindingOrder WindingOrderFromString(std::string_view sv) noexcept {
-    if(sv == "cw" || sv == "clockwise") {
+    using namespace std::literals::string_view_literals;
+
+    if(sv == "cw"sv || sv == "clockwise"sv) {
         return WindingOrder::CW;
-    } else if(sv == "ccw" || sv == "counterclockwise") {
+    } else if(sv == "ccw"sv || sv == "counterclockwise"sv) {
         return WindingOrder::CCW;
     } else {
         return WindingOrder::CW;
@@ -753,19 +768,21 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] std::string PipelineStageToString(const PipelineStage& stage) noexcept;
 
 [[nodiscard]] constexpr PipelineStage PipelineStageFromString(std::string_view sv) noexcept {
+    using namespace std::literals::string_view_literals;
+
     if(sv.empty()) {
         return PipelineStage::None;
-    } else if(sv == "vs") {
+    } else if(sv == "vs"sv) {
         return PipelineStage::Vs;
-    } else if(sv == "hs") {
+    } else if(sv == "hs"sv) {
         return PipelineStage::Hs;
-    } else if(sv == "ds") {
+    } else if(sv == "ds"sv) {
         return PipelineStage::Ds;
-    } else if(sv == "gs") {
+    } else if(sv == "gs"sv) {
         return PipelineStage::Gs;
-    } else if(sv == "ps") {
+    } else if(sv == "ps"sv) {
         return PipelineStage::Ps;
-    } else if(sv == "cs") {
+    } else if(sv == "cs"sv) {
         return PipelineStage::Cs;
     } else {
         return PipelineStage::None;
