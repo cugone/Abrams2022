@@ -649,6 +649,23 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] BlendFactor BlendFactorFromString(std::string str) noexcept;
+
+[[nodiscard]] constexpr BlendOperation BlendOperationFromString(std::string_view sv) noexcept {
+    if(sv == "add") {
+        return BlendOperation::Add;
+    } else if(sv == "subtract" || sv == "sub") {
+        return BlendOperation::Subtract;
+    } else if(sv == "rev_sub" || sv == "rev_subtract" || sv == "reverse_sub" || sv == "reverse_subtract") {
+        return BlendOperation::Reverse_Subtract;
+    } else if(sv == "min" || sv == "minimum") {
+        return BlendOperation::Min;
+    } else if(sv == "max" || sv == "maximum") {
+        return BlendOperation::Max;
+    } else {
+        return BlendOperation::Add;
+    }
+}
+
 [[nodiscard]] BlendOperation BlendOperationFromString(std::string str) noexcept;
 [[nodiscard]] BlendColorWriteEnable BlendColorWriteEnableFromString(std::string str) noexcept;
 
