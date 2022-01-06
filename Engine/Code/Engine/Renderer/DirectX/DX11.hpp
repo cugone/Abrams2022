@@ -723,6 +723,19 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] FillMode FillModeFromString(std::string str) noexcept;
+
+[[nodiscard]] constexpr CullMode CullModeFromString(std::string_view sv) noexcept {
+    if(sv == "none") {
+        return CullMode::None;
+    } else if(sv == "front") {
+        return CullMode::Front;
+    } else if(sv == "back") {
+        return CullMode::Back;
+    } else {
+        return CullMode::Back;
+    }
+}
+
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
 
