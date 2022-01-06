@@ -1004,8 +1004,6 @@ Vector3 Matrix4::CalcEulerAngles() const noexcept {
 }
 
 Matrix4 Matrix4::operator*(const Matrix4& rhs) const noexcept {
-    using namespace MathUtils;
-
     const auto myX = GetXComponents();
     const auto myY = GetYComponents();
     const auto myZ = GetZComponents();
@@ -1016,22 +1014,22 @@ Matrix4 Matrix4::operator*(const Matrix4& rhs) const noexcept {
     const auto rhsK = rhs.GetKBasis();
     const auto rhsT = rhs.GetTBasis();
 
-    const auto m00 = DotProduct(myX, rhsI);
-    const auto m01 = DotProduct(myX, rhsJ);
-    const auto m02 = DotProduct(myX, rhsK);
-    const auto m03 = DotProduct(myX, rhsT);
-    const auto m04 = DotProduct(myY, rhsI);
-    const auto m05 = DotProduct(myY, rhsJ);
-    const auto m06 = DotProduct(myY, rhsK);
-    const auto m07 = DotProduct(myY, rhsT);
-    const auto m08 = DotProduct(myZ, rhsI);
-    const auto m09 = DotProduct(myZ, rhsJ);
-    const auto m10 = DotProduct(myZ, rhsK);
-    const auto m11 = DotProduct(myZ, rhsT);
-    const auto m12 = DotProduct(myW, rhsI);
-    const auto m13 = DotProduct(myW, rhsJ);
-    const auto m14 = DotProduct(myW, rhsK);
-    const auto m15 = DotProduct(myW, rhsT);
+    const auto m00 = MathUtils::DotProduct(myX, rhsI);
+    const auto m01 = MathUtils::DotProduct(myX, rhsJ);
+    const auto m02 = MathUtils::DotProduct(myX, rhsK);
+    const auto m03 = MathUtils::DotProduct(myX, rhsT);
+    const auto m04 = MathUtils::DotProduct(myY, rhsI);
+    const auto m05 = MathUtils::DotProduct(myY, rhsJ);
+    const auto m06 = MathUtils::DotProduct(myY, rhsK);
+    const auto m07 = MathUtils::DotProduct(myY, rhsT);
+    const auto m08 = MathUtils::DotProduct(myZ, rhsI);
+    const auto m09 = MathUtils::DotProduct(myZ, rhsJ);
+    const auto m10 = MathUtils::DotProduct(myZ, rhsK);
+    const auto m11 = MathUtils::DotProduct(myZ, rhsT);
+    const auto m12 = MathUtils::DotProduct(myW, rhsI);
+    const auto m13 = MathUtils::DotProduct(myW, rhsJ);
+    const auto m14 = MathUtils::DotProduct(myW, rhsK);
+    const auto m15 = MathUtils::DotProduct(myW, rhsT);
 
     Matrix4 result(m00, m01, m02, m03, m04, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15);
     return result;
@@ -1105,8 +1103,6 @@ Vector2 operator*(const Vector2& lhs, const Matrix4& rhs) noexcept {
 }
 
 Matrix4& Matrix4::operator*=(const Matrix4& rhs) noexcept {
-    using namespace MathUtils;
-
     const auto myX = GetXComponents();
     const auto myY = GetYComponents();
     const auto myZ = GetZComponents();
@@ -1117,22 +1113,22 @@ Matrix4& Matrix4::operator*=(const Matrix4& rhs) noexcept {
     const auto rhsK = rhs.GetKBasis();
     const auto rhsT = rhs.GetTBasis();
 
-    m_indicies[0] = DotProduct(myX, rhsI);
-    m_indicies[1] = DotProduct(myX, rhsJ);
-    m_indicies[2] = DotProduct(myX, rhsK);
-    m_indicies[3] = DotProduct(myX, rhsT);
-    m_indicies[4] = DotProduct(myY, rhsI);
-    m_indicies[5] = DotProduct(myY, rhsJ);
-    m_indicies[6] = DotProduct(myY, rhsK);
-    m_indicies[7] = DotProduct(myY, rhsT);
-    m_indicies[8] = DotProduct(myZ, rhsI);
-    m_indicies[9] = DotProduct(myZ, rhsJ);
-    m_indicies[10] = DotProduct(myZ, rhsK);
-    m_indicies[11] = DotProduct(myZ, rhsT);
-    m_indicies[12] = DotProduct(myW, rhsI);
-    m_indicies[13] = DotProduct(myW, rhsJ);
-    m_indicies[14] = DotProduct(myW, rhsK);
-    m_indicies[15] = DotProduct(myW, rhsT);
+    m_indicies[0] = MathUtils::DotProduct(myX, rhsI);
+    m_indicies[1] = MathUtils::DotProduct(myX, rhsJ);
+    m_indicies[2] = MathUtils::DotProduct(myX, rhsK);
+    m_indicies[3] = MathUtils::DotProduct(myX, rhsT);
+    m_indicies[4] = MathUtils::DotProduct(myY, rhsI);
+    m_indicies[5] = MathUtils::DotProduct(myY, rhsJ);
+    m_indicies[6] = MathUtils::DotProduct(myY, rhsK);
+    m_indicies[7] = MathUtils::DotProduct(myY, rhsT);
+    m_indicies[8] = MathUtils::DotProduct(myZ, rhsI);
+    m_indicies[9] = MathUtils::DotProduct(myZ, rhsJ);
+    m_indicies[10] = MathUtils::DotProduct(myZ, rhsK);
+    m_indicies[11] = MathUtils::DotProduct(myZ, rhsT);
+    m_indicies[12] = MathUtils::DotProduct(myW, rhsI);
+    m_indicies[13] = MathUtils::DotProduct(myW, rhsJ);
+    m_indicies[14] = MathUtils::DotProduct(myW, rhsK);
+    m_indicies[15] = MathUtils::DotProduct(myW, rhsT);
 
     return *this;
 }

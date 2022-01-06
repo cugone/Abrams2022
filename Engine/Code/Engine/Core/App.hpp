@@ -403,19 +403,17 @@ void App<T>::SetIsQuitting(bool value) {
 
 template<typename T>
 void App<T>::RunFrame() {
-    using namespace TimeUtils;
-
     RunMessagePump();
 
     BeginFrame();
 
-    static FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
-    FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
-    FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
+    static TimeUtils::FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    TimeUtils::FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
+    TimeUtils::FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
 
 #ifdef DEBUG_BUILD
-    deltaSeconds = (std::min)(FPSeconds{FPFrames{1}}, deltaSeconds);
+    deltaSeconds = (std::min)(TimeUtils::FPSeconds{TimeUtils::FPFrames{1}}, deltaSeconds);
 #endif
 
     Update(deltaSeconds);

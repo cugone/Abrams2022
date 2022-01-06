@@ -11,42 +11,24 @@
 #include <string>
 
 std::string StringUtils::to_string(const System::Cpu::ProcessorArchitecture& architecture) noexcept {
-    using namespace System::Cpu;
     switch(architecture) {
-    case ProcessorArchitecture::Unknown:
-        return "Unknown";
-    case ProcessorArchitecture::x64: //Also Amd64
-        return "x64";
-    case ProcessorArchitecture::Arm:
-        return "ARM";
-    case ProcessorArchitecture::Arm64:
-        return "ARM 64";
-    case ProcessorArchitecture::Ia64:
-        return "Intel Itanium 64";
-    case ProcessorArchitecture::x86: //Also Intel
-        return "x86";
-    case ProcessorArchitecture::Mips:
-        return "Mips";
-    case ProcessorArchitecture::Alpha:
-        return "Alpha";
-    case ProcessorArchitecture::Ppc:
-        return "PPC";
-    case ProcessorArchitecture::Shx:
-        return "SHX";
-    case ProcessorArchitecture::Alpha64:
-        return "Alpha 64";
-    case ProcessorArchitecture::Msil:
-        return "MSIL";
-    case ProcessorArchitecture::Ia32OnWin64:
-        return "Intel Itanium on Win64";
-    case ProcessorArchitecture::Neutral:
-        return "Neutral";
-    case ProcessorArchitecture::Arm32OnWin64:
-        return "ARM32 on Win64";
-    case ProcessorArchitecture::Ia32OnArm64:
-        return "Intel Itanium on ARM64";
-    default:
-        return "";
+    case System::Cpu::ProcessorArchitecture::Unknown: return "Unknown";
+    case System::Cpu::ProcessorArchitecture::x64: return "x64"; //Also Amd64
+    case System::Cpu::ProcessorArchitecture::Arm: return "ARM";
+    case System::Cpu::ProcessorArchitecture::Arm64: return "ARM 64";
+    case System::Cpu::ProcessorArchitecture::Ia64: return "Intel Itanium 64";
+    case System::Cpu::ProcessorArchitecture::x86: return "x86"; //Also Intel
+    case System::Cpu::ProcessorArchitecture::Mips: return "Mips";
+    case System::Cpu::ProcessorArchitecture::Alpha: return "Alpha";
+    case System::Cpu::ProcessorArchitecture::Ppc: return "PPC";
+    case System::Cpu::ProcessorArchitecture::Shx: return "SHX";
+    case System::Cpu::ProcessorArchitecture::Alpha64: return "Alpha 64";
+    case System::Cpu::ProcessorArchitecture::Msil: return "MSIL";
+    case System::Cpu::ProcessorArchitecture::Ia32OnWin64: return "Intel Itanium on Win64";
+    case System::Cpu::ProcessorArchitecture::Neutral: return "Neutral";
+    case System::Cpu::ProcessorArchitecture::Arm32OnWin64: return "ARM32 on Win64";
+    case System::Cpu::ProcessorArchitecture::Ia32OnArm64: return "Intel Itanium on ARM64";
+    default: return "";
     }
 }
 
@@ -95,26 +77,25 @@ SYSTEM_INFO GetSystemInfo() noexcept {
 }
 
 System::Cpu::ProcessorArchitecture GetProcessorArchitecture() noexcept {
-    using namespace System::Cpu;
     const auto info = GetSystemInfo();
     switch(info.wProcessorArchitecture) {
-    case PROCESSOR_ARCHITECTURE_INTEL: return ProcessorArchitecture::Intel;
-    case PROCESSOR_ARCHITECTURE_MIPS: return ProcessorArchitecture::Mips;
-    case PROCESSOR_ARCHITECTURE_ALPHA: return ProcessorArchitecture::Alpha;
-    case PROCESSOR_ARCHITECTURE_PPC: return ProcessorArchitecture::Ppc;
-    case PROCESSOR_ARCHITECTURE_SHX: return ProcessorArchitecture::Shx;
-    case PROCESSOR_ARCHITECTURE_ARM: return ProcessorArchitecture::Arm;
-    case PROCESSOR_ARCHITECTURE_IA64: return ProcessorArchitecture::Ia64;
-    case PROCESSOR_ARCHITECTURE_ALPHA64: return ProcessorArchitecture::Alpha64;
-    case PROCESSOR_ARCHITECTURE_MSIL: return ProcessorArchitecture::Msil;
-    case PROCESSOR_ARCHITECTURE_AMD64: return ProcessorArchitecture::Amd64;
-    case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64: return ProcessorArchitecture::Ia32OnWin64;
-    case PROCESSOR_ARCHITECTURE_NEUTRAL: return ProcessorArchitecture::Neutral;
-    case PROCESSOR_ARCHITECTURE_ARM64: return ProcessorArchitecture::Arm64;
-    case PROCESSOR_ARCHITECTURE_ARM32_ON_WIN64: return ProcessorArchitecture::Arm32OnWin64;
-    case PROCESSOR_ARCHITECTURE_IA32_ON_ARM64: return ProcessorArchitecture::Ia32OnArm64;
-    case PROCESSOR_ARCHITECTURE_UNKNOWN: return ProcessorArchitecture::Unknown;
-    default: return ProcessorArchitecture::Unknown;
+    case PROCESSOR_ARCHITECTURE_INTEL: return System::Cpu::ProcessorArchitecture::Intel;
+    case PROCESSOR_ARCHITECTURE_MIPS: return System::Cpu::ProcessorArchitecture::Mips;
+    case PROCESSOR_ARCHITECTURE_ALPHA: return System::Cpu::ProcessorArchitecture::Alpha;
+    case PROCESSOR_ARCHITECTURE_PPC: return System::Cpu::ProcessorArchitecture::Ppc;
+    case PROCESSOR_ARCHITECTURE_SHX: return System::Cpu::ProcessorArchitecture::Shx;
+    case PROCESSOR_ARCHITECTURE_ARM: return System::Cpu::ProcessorArchitecture::Arm;
+    case PROCESSOR_ARCHITECTURE_IA64: return System::Cpu::ProcessorArchitecture::Ia64;
+    case PROCESSOR_ARCHITECTURE_ALPHA64: return System::Cpu::ProcessorArchitecture::Alpha64;
+    case PROCESSOR_ARCHITECTURE_MSIL: return System::Cpu::ProcessorArchitecture::Msil;
+    case PROCESSOR_ARCHITECTURE_AMD64: return System::Cpu::ProcessorArchitecture::Amd64;
+    case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64: return System::Cpu::ProcessorArchitecture::Ia32OnWin64;
+    case PROCESSOR_ARCHITECTURE_NEUTRAL: return System::Cpu::ProcessorArchitecture::Neutral;
+    case PROCESSOR_ARCHITECTURE_ARM64: return System::Cpu::ProcessorArchitecture::Arm64;
+    case PROCESSOR_ARCHITECTURE_ARM32_ON_WIN64: return System::Cpu::ProcessorArchitecture::Arm32OnWin64;
+    case PROCESSOR_ARCHITECTURE_IA32_ON_ARM64: return System::Cpu::ProcessorArchitecture::Ia32OnArm64;
+    case PROCESSOR_ARCHITECTURE_UNKNOWN: return System::Cpu::ProcessorArchitecture::Unknown;
+    default: return System::Cpu::ProcessorArchitecture::Unknown;
     }
 }
 

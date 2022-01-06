@@ -20,8 +20,7 @@ void AppendMilliseconds(std::ostringstream& msg, const DateTimeStampOptions& opt
 void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now);
 
 std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    using namespace std::chrono;
-    auto now = Now<system_clock>();
+    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
     AppendStamp(msg, options, now);
     AppendMilliseconds(msg, options, now);
@@ -35,8 +34,7 @@ std::chrono::nanoseconds GetCurrentTimeElapsed() noexcept {
 }
 
 std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    using namespace std::chrono;
-    auto now = Now<system_clock>();
+    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
     AppendStamp(msg, options, now);
     AppendMilliseconds(msg, options, now);
@@ -44,16 +42,14 @@ std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTime
 }
 
 std::string GetDateStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    using namespace std::chrono;
-    auto now = Now<system_clock>();
+    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
     AppendStamp(msg, options, now);
     return msg.str();
 }
 
 void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now) {
-    using namespace std::chrono;
-    auto t = system_clock::to_time_t(now);
+    auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm;
     ::localtime_s(&tm, &t);
     const auto fmt = GetFormatStringFromOptions(options, FormatType::Both);
@@ -74,9 +70,9 @@ std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options,
 }
 
 void AppendMilliseconds(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now) {
-    using namespace std::chrono;
+    using namespace std::literals::chrono_literals;
     if(options.include_milliseconds) {
-        auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1s;
+        auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1s;
         if(options.use_separator) {
             msg << (options.is_filename ? "_" : ".");
         }
