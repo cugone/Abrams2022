@@ -737,6 +737,17 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] CullMode CullModeFromString(std::string str) noexcept;
+
+[[nodiscard]] constexpr WindingOrder WindingOrderFromString(std::string_view sv) noexcept {
+    if(sv == "cw" || sv == "clockwise") {
+        return WindingOrder::CW;
+    } else if(sv == "ccw" || sv == "counterclockwise") {
+        return WindingOrder::CCW;
+    } else {
+        return WindingOrder::CW;
+    }
+}
+
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
 
 [[nodiscard]] std::string PipelineStageToString(const PipelineStage& stage) noexcept;
