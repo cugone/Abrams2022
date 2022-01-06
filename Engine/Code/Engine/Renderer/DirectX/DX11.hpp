@@ -751,4 +751,25 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] WindingOrder WindingOrderFromString(std::string str) noexcept;
 
 [[nodiscard]] std::string PipelineStageToString(const PipelineStage& stage) noexcept;
+
+[[nodiscard]] constexpr PipelineStage PipelineStageFromString(std::string_view sv) noexcept {
+    if(sv.empty()) {
+        return PipelineStage::None;
+    } else if(sv == "vs") {
+        return PipelineStage::Vs;
+    } else if(sv == "hs") {
+        return PipelineStage::Hs;
+    } else if(sv == "ds") {
+        return PipelineStage::Ds;
+    } else if(sv == "gs") {
+        return PipelineStage::Gs;
+    } else if(sv == "ps") {
+        return PipelineStage::Ps;
+    } else if(sv == "cs") {
+        return PipelineStage::Cs;
+    } else {
+        return PipelineStage::None;
+    }
+}
+
 [[nodiscard]] PipelineStage PipelineStageFromString(std::string stage) noexcept;
