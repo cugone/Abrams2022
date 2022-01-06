@@ -15,9 +15,7 @@
 namespace FileUtils {
 
 enum class KnownPathID {
-    None
-#ifdef PLATFORM_WINDOWS
-    ,
+    None,
     Windows_AppDataRoaming,
     Windows_AppDataLocal,
     Windows_AppDataLocalLow,
@@ -30,9 +28,7 @@ enum class KnownPathID {
     Windows_UserProfile,
     Windows_CommonProfile,
     Windows_CurrentUserDesktop,
-    Windows_CommonDesktop
-#elif PLATFORM_LINUX
-    ,
+    Windows_CommonDesktop,
     Linux_RootUser,
     Linux_Home,
     Linux_Etc,
@@ -64,9 +60,7 @@ enum class KnownPathID {
     Linux_Media,
     Linux_RemovableDevices = Linux_Media,
     Linux_Src,
-    Linux_ServiceData = Linux_Src
-#endif
-    ,
+    Linux_ServiceData = Linux_Src,
     GameData,
     GameConfig,
     GameFonts,
