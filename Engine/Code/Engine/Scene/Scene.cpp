@@ -14,7 +14,7 @@ Entity Scene::CreateEntity(const std::string& name) noexcept {
 }
 
 Entity Scene::CreateEntityWithUUID(a2de::UUID uuid, const std::string& name) noexcept {
-    Entity entity = {static_cast<std::uint32_t>(m_registry.create()), weak_from_this()};
+    auto entity = Entity(static_cast<std::uint32_t>(m_registry.create()), get());
     entity.AddComponent<IdComponent>(uuid);
     entity.AddComponent<TagComponent>(name);
     return entity;
