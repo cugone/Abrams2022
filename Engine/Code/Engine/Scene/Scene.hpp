@@ -8,7 +8,7 @@
 
 class Entity;
 
-class Scene : std::enable_shared_from_this<Scene> {
+class Scene : public std::enable_shared_from_this<Scene> {
 public:
     Scene() = default;
     Scene(const Scene& other) = default;
