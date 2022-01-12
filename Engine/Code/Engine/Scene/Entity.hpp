@@ -52,7 +52,8 @@ public:
 
     template<typename Component>
     [[nodiscard]] bool HasComponent() const noexcept {
-        return HasAllOfComponents<Component>();
+        GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
+        return m_Scene.lock()->m_registry.size<Component>() > 0;
     }
 
     template<typename Component, typename... Args>
