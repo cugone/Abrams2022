@@ -5,6 +5,10 @@
 
 #include <memory>
 
+Scene::~Scene() noexcept {
+    m_registry.clear();
+}
+
 Entity Scene::CreateEntity() noexcept {
     return CreateEntity("Entity");
 }

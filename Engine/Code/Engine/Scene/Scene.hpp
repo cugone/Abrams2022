@@ -15,7 +15,7 @@ public:
     Scene(Scene&& other) = default;
     Scene& operator=(const Scene& other) = default;
     Scene& operator=(Scene&& other) = default;
-    ~Scene() = default;
+    virtual ~Scene() noexcept;
 
     Entity CreateEntity() noexcept;
     Entity CreateEntity(const std::string& name) noexcept;
