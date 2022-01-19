@@ -44,7 +44,7 @@ Entity* Entity::GetParent() const noexcept {
 
 Entity Entity::AddChild(Entity&& entity) noexcept {
     m_children.emplace_back(std::move(entity));
-    return {m_children.back()};
+    return Entity{m_children.back()};
 }
 
 Entity Entity::AddChild(const Entity& entity) noexcept {
