@@ -26,6 +26,7 @@ public:
 
     [[nodiscard]] bool HasParent() const noexcept;
     [[nodiscard]] Entity* GetParent() const noexcept;
+    void SetParent(Entity* newParent) noexcept;
 
     Entity AddChild(Entity&& entity) noexcept;
     Entity AddChild(const Entity& entity) noexcept;

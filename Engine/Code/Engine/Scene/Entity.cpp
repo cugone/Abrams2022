@@ -42,6 +42,16 @@ Entity* Entity::GetParent() const noexcept {
     return m_parent;
 }
 
+void Entity::SetParent(Entity* newParent) noexcept {
+    if(!newParent && m_parent) {
+        m_parent->RemoveChild(*this);
+    }
+    m_parent = newParent;
+    if(m_parent) {
+        m_parent->AddChild(*this);
+    }
+}
+
 Entity Entity::AddChild(Entity&& entity) noexcept {
     m_children.emplace_back(std::move(entity));
     return Entity{m_children.back()};
