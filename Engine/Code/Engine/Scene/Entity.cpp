@@ -35,7 +35,7 @@ Scene* Entity::GetScene() noexcept {
 }
 
 bool Entity::HasParent() const noexcept {
-    return m_parent != nullptr;
+    return m_parent != nullptr && *m_parent;
 }
 
 Entity* Entity::GetParent() const noexcept {
