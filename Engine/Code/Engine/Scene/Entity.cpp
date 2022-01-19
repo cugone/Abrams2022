@@ -15,6 +15,11 @@ Entity::operator bool() const noexcept {
     return m_id != entt::null;
 }
 
+Entity::operator std::uint32_t() const noexcept {
+    return static_cast<std::uint32_t>(m_id);
+}
+
+
 Scene* Entity::GetScene() const noexcept {
     if(auto scene = m_Scene.lock(); scene) {
         return scene.get();

@@ -19,8 +19,7 @@ public:
     explicit Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept;
 
     [[nodiscard]] explicit operator bool() const noexcept;
-        return m_id != entt::null;
-    }
+    [[nodiscard]] operator std::uint32_t() const noexcept;
 
     [[nodiscard]] Scene* GetScene() const noexcept;
     [[nodiscard]] Scene* GetScene() noexcept;
