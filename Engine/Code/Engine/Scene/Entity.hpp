@@ -64,14 +64,14 @@ public:
     }
 
     template<typename Component>
-    [[nodiscard]] const Component& GetComponent() const noexcept {
+    [[nodiscard]] decltype(auto) GetComponent() const noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
         GUARANTEE_OR_DIE(HasComponent<Component>(), "Entity does not have specified component!");
         return m_Scene.lock()->m_registry.get<Component>(m_id);
     }
     
     template<typename Component>
-    [[nodiscard]] Component& GetComponent() noexcept {
+    [[nodiscard]] decltype(auto) GetComponent() noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
         GUARANTEE_OR_DIE(HasComponent<Component>(), "Entity does not have specified component!");
         return m_Scene.lock()->m_registry.get<Component>(m_id);
