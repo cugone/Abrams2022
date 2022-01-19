@@ -30,6 +30,8 @@ public:
 
     Entity AddChild(Entity&& entity) noexcept;
     Entity AddChild(const Entity& entity) noexcept;
+    void RemoveChild(Entity&& entity) noexcept;
+    void RemoveChild(const Entity& entity) noexcept;
 
     [[nodiscard]] bool HasChildren() const noexcept;
     [[nodiscard]] const std::vector<Entity>& GetChildren() const noexcept;

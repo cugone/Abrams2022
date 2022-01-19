@@ -62,6 +62,14 @@ Entity Entity::AddChild(const Entity& entity) noexcept {
     return Entity{m_children.back()};
 }
 
+void Entity::RemoveChild(Entity&& entity) noexcept {
+    m_children.erase(std::remove(std::begin(m_children), std::end(m_children), entity), std::end(m_children));
+}
+
+void Entity::RemoveChild(const Entity& entity) noexcept {
+    m_children.erase(std::remove(std::begin(m_children), std::end(m_children), entity), std::end(m_children));
+}
+
 bool Entity::HasChildren() const noexcept {
     return m_children.empty();
 }
