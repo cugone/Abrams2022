@@ -57,17 +57,10 @@ public:
     }
 
     template<typename Component, typename... Args>
-    Component& AddComponent(Args&&... args) noexcept {
+    decltype(auto) AddComponent(Args&&... args) noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
-        if(HasComponent<Component>()) {
-            ERROR_AND_DIE("Entity already has specified component!");
-        }
-        auto& r = m_Scene.lock()->m_registry;
-        const auto oldSize = r.size<Component>();
-        auto& newR = r.emplace<Component>(r.create(), std::forward<Args>(args)...);
-        const auto newSize = r.size<Component>();
-        GUARANTEE_OR_DIE(oldSize != newSize, "AddComponent failed to add component!");
-        return newR;
+        GUARANTEE_OR_DIE(!HasComponent<Component>(), "Entity already has specified component!");
+        return m_Scene.lock()->m_registry.emplace<Component>(m_id, std::forward<Args>(args)...);
     }
 
     template<typename Component>
