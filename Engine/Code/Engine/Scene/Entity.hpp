@@ -18,7 +18,7 @@ public:
 
     Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept;
 
-    [[nodiscard]] operator bool() const noexcept {
+    [[nodiscard]] explicit operator bool() const noexcept;
         return m_id != entt::null;
     }
 

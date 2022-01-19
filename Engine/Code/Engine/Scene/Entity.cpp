@@ -11,6 +11,10 @@ Entity::Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept
     m_Scene = scene;
 }
 
+Entity::operator bool() const noexcept {
+    return m_id != entt::null;
+}
+
 Scene* Entity::GetScene() const noexcept {
     if(auto scene = m_Scene.lock(); scene) {
         return scene.get();
