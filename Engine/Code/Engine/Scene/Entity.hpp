@@ -83,6 +83,12 @@ public:
         return m_Scene.lock()->m_registry.remove<Component>(m_id);
     }
 
+    template<typename Component, typename... Args>
+    decltype(auto) UpdateComponent(Args&&... args) noexcept {
+        GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
+        return m_Scene.lock()->m_registry.replace<Component>(m_id, std::forward<Args>(args)...);
+    }
+
 protected:
     std::weak_ptr<Scene> m_Scene{};
 private:
