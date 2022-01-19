@@ -16,7 +16,7 @@ public:
     Entity& operator=(Entity&& rhs) noexcept = default;
     ~Entity() noexcept = default;
 
-    Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept;
+    explicit Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept;
 
     [[nodiscard]] explicit operator bool() const noexcept;
         return m_id != entt::null;
