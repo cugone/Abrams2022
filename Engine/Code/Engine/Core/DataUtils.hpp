@@ -14,6 +14,7 @@
 
 #include <Thirdparty/TinyXML2/tinyxml2.h>
 
+#include <bit>
 #include <functional>
 #include <intrin.h>
 #include <string>
@@ -23,40 +24,38 @@ using XMLAttribute = tinyxml2::XMLAttribute;
 
 namespace DataUtils {
 
-[[nodiscard]] constexpr inline auto Bits(uint8_t value) noexcept -> uint8_t {
-    const char* const bits =
-    "\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
-    "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-    "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-    "\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-    "\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
-    "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-    "\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
-    "\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
-    return bits[value];
+[[nodiscard]] constexpr inline auto Bits(uint8_t value) noexcept -> int {
+    return std::popcount(value);
+    //constexpr const char* const bits =
+    //"\0\1\1\2\1\2\2\3\1\2\2\3\2\3\3\4"
+    //"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+    //"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+    //"\1\2\2\3\2\3\3\4\2\3\3\4\3\4\4\5"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+    //"\2\3\3\4\3\4\4\5\3\4\4\5\4\5\5\6"
+    //"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+    //"\3\4\4\5\4\5\5\6\4\5\5\6\5\6\6\7"
+    //"\4\5\5\6\5\6\6\7\5\6\6\7\6\7\7\x8";
+    //return bits[value];
 }
 
-[[nodiscard]] inline auto Bits(uint16_t value) noexcept -> uint16_t {
-    //TODO: Use <bit> header version (std::popcount) when it becomes available.
-    return __popcnt16(value);
+[[nodiscard]] constexpr inline auto Bits(uint16_t value) noexcept -> int {
+    return std::popcount(value);
 }
 
-[[nodiscard]] inline auto Bits(uint32_t value) noexcept -> uint32_t {
-    //TODO: Use <bit> header version (std::popcount) when it becomes available.
-    return __popcnt(value);
+[[nodiscard]] constexpr inline auto Bits(uint32_t value) noexcept -> int {
+    return std::popcount(value);
 }
 
-[[nodiscard]] inline auto Bits(uint64_t value) noexcept -> uint64_t {
-    //TODO: Use <bit> header version (std::popcount) when it becomes available.
-    return __popcnt64(value);
+[[nodiscard]] constexpr inline auto Bits(uint64_t value) noexcept -> int {
+    return std::popcount(value);
 }
 
 [[nodiscard]] constexpr inline auto ShiftLeft(uint8_t value, uint8_t distance) noexcept -> uint8_t {
