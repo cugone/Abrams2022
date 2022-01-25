@@ -960,7 +960,7 @@ Vector3 Matrix4::CalcEulerAngles() const noexcept {
     const auto is_z_i_near_one = MathUtils::IsEquivalent(z_i, -1.0f) || MathUtils::IsEquivalent(z_i, 1.0f);
     if(is_z_i_near_one) {
         const auto theta_1 = -std::asin(z_i);
-        const auto theta_2 = MathUtils::M_PI - theta_1;
+        const auto theta_2 = MathUtils::pi_v<float> - theta_1;
 
         const auto c_theta_1 = std::cos(theta_1);
         const auto c_theta_2 = std::cos(theta_2);

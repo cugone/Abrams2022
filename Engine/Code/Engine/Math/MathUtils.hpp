@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include <algorithm>
+#include <numbers>
 #include <optional>
 #include <random>
 #include <ratio>
@@ -30,7 +31,15 @@ class Rgba;
 class Rotator;
 
 namespace MathUtils {
-//TODO: Consider <numbers> header when it becomes available
+
+//The values for:
+//e, log2e, log10e, pi, 1/pi (inv_pi),
+//1/sqrt(pi) (inv_sqrtpi), ln2, ln10, sqrt2, sqrt3,
+//1/sqrt3 (inv_sqrt3), egamma, and phi
+//are available in the <numbers> header.
+
+using namespace std::numbers;
+
 constexpr const float M_1PI_6 = 0.52359877559829887307f;         // 1pi/6
 constexpr const float M_1PI_4 = 0.78539816339744830962f;         // 1pi/4
 constexpr const float M_1PI_3 = 1.04719755119659774615f;         // 1pi/3
@@ -38,7 +47,6 @@ constexpr const float M_1PI_2 = 1.57079632679489661923f;         // 1pi/2
 constexpr const float M_2PI_3 = 2.09439510239319549230f;         // 2pi/3
 constexpr const float M_3PI_4 = 2.35619449019234492884f;         // 3pi/4
 constexpr const float M_5PI_6 = 2.61799387799149436538f;         // 5pi/6
-constexpr const float M_PI = 3.14159265358979323846f;            // pi
 constexpr const float M_7PI_6 = 3.66519142918809211153f;         // 7pi/6
 constexpr const float M_5PI_4 = 3.92699081698724154807f;         // 5pi/4
 constexpr const float M_4PI_3 = 4.18879020478639098461f;         // 4pi/3
@@ -47,20 +55,11 @@ constexpr const float M_5PI_3 = 5.23598775598298873077f;         // 5pi/3
 constexpr const float M_7PI_4 = 5.49778714378213816730f;         // 7pi/4
 constexpr const float M_11PI_6 = 5.75958653158128760384f;        // 11pi/6
 constexpr const float M_2PI = 6.28318530717958647692f;           // 2pi
-constexpr const float M_E = 2.71828182845904523536f;             // e
-constexpr const float M_LOG2E = 1.44269504088896340736f;         // log2(e)
-constexpr const float M_LOG10E = 0.43429448190325182765f;        // log10(e)
-constexpr const float M_LN2 = 0.69314718055994530942f;           // ln(2)
-constexpr const float M_LN10 = 2.30258509299404568402f;          // ln(10)
 constexpr const float M_PI_2 = 1.57079632679489661923f;          // pi/2
 constexpr const float M_PI_4 = 0.78539816339744830962f;          // pi/4
-constexpr const float M_1_PI = 0.31830988618379067151f;          // 1/pi
 constexpr const float M_2_PI = 0.63661977236758134308f;          // 2/pi
 constexpr const float M_2_SQRTPI = 1.12837916709551257390f;      // 2/sqrt(pi)
-constexpr const float M_SQRT2 = 1.41421356237309504880f;         // sqrt(2)
 constexpr const float M_1_SQRT2 = 0.70710678118654752440f;       // 1/sqrt(2)
-constexpr const float M_SQRT3 = 1.73205080756887729352f;         // sqrt(3)
-constexpr const float M_1_SQRT3 = 0.57735026918962576450f;       // 1/sqrt(3)
 constexpr const float M_SQRT3_3 = 0.57735026918962576451f;       // sqrt(3)/3
 constexpr const float M_TAU = 1.61803398874989484821f;           // tau (golden ratio)
 constexpr const float M_16_BY_9_RATIO = 1.77777777777777777778f; // 16/9

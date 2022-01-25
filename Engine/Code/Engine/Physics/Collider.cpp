@@ -167,7 +167,7 @@ ColliderCircle::ColliderCircle(const Position& position, float radius)
 
 float ColliderCircle::CalcArea() const noexcept {
     const auto& half_extents = _polygon.GetHalfExtents();
-    return MathUtils::M_PI * half_extents.x * half_extents.x;
+    return MathUtils::pi_v<float> * half_extents.x * half_extents.x;
 }
 
 Vector2 ColliderCircle::GetHalfExtents() const noexcept {

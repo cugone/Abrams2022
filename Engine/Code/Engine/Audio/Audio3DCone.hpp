@@ -33,7 +33,7 @@ public:
 protected:
 private:
 
-    Vector2 m_innerOuterAngleRadians{MathUtils::M_PI_2, MathUtils::M_PI};
+    Vector2 m_innerOuterAngleRadians{MathUtils::M_PI_2, MathUtils::pi_v<float>};
     Vector2 m_innerOuterVolume{1.0f, 0.708f};
     Vector2 m_innerOuterLPF{0.0f, 0.25f};
     Vector2 m_innerOuterReverb{0.708f, 1.0f};

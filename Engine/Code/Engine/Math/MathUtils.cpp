@@ -42,11 +42,11 @@ void SetRandomEngineSeed(unsigned int seed) noexcept {
 }
 
 float ConvertDegreesToRadians(float degrees) noexcept {
-    return degrees * (MathUtils::M_PI / 180.0f);
+    return degrees * (MathUtils::pi_v<float> / 180.0f);
 }
 
 float ConvertRadiansToDegrees(float radians) noexcept {
-    return radians * (180.0f * MathUtils::M_1_PI);
+    return radians * (180.0f * MathUtils::inv_pi_v<float>);
 }
 
 std::random_device& GetRandomDevice() noexcept {
@@ -55,8 +55,8 @@ std::random_device& GetRandomDevice() noexcept {
 }
 
 std::mt19937_64& GetMT64RandomEngine(unsigned int seed /*= 0*/) noexcept {
-    static thread_local std::mt19937_64 e = std::mt19937_64(!seed ? GetRandomDevice()() : seed);
-    return e;
+    static thread_local std::mt19937_64 random_engine = std::mt19937_64(!seed ? GetRandomDevice()() : seed);
+    return random_engine;
 }
 
 bool GetRandomBool() noexcept {
@@ -524,13 +524,13 @@ Vector3 GetRandomPointOn(const Sphere3& sphere) noexcept {
     //See: https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/
     const auto u = MathUtils::GetRandomZeroToOne<float>();
     const auto v = MathUtils::GetRandomZeroToOne<float>();
-    const auto theta = MathUtils::M_2PI * u;
-    const auto phi = std::acos(2.0f * v - 1.0f);
+    const auto theta_angle = MathUtils::M_2PI * u;
+    const auto phi_angle = std::acos(2.0f * v - 1.0f);
     const auto r = sphere.radius;
-    const auto sin_theta = std::sin(theta);
-    const auto cos_theta = std::cos(theta);
-    const auto sin_phi = std::sin(phi);
-    const auto cos_phi = std::cos(phi);
+    const auto sin_theta = std::sin(theta_angle);
+    const auto cos_theta = std::cos(theta_angle);
+    const auto sin_phi = std::sin(phi_angle);
+    const auto cos_phi = std::cos(phi_angle);
     const auto x = r * sin_phi * cos_theta;
     const auto y = r * sin_phi * sin_theta;
     const auto z = r * cos_phi;
@@ -561,13 +561,13 @@ Vector3 GetRandomPointInside(const Sphere3& sphere) noexcept {
     //See: https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/
     const auto u = MathUtils::GetRandomZeroToOne<float>();
     const auto v = MathUtils::GetRandomZeroToOne<float>();
-    const auto theta = MathUtils::M_2PI * u;
-    const auto phi = std::acos(2.0f * v - 1.0f);
+    const auto theta_angle = MathUtils::M_2PI * u;
+    const auto phi_angle = std::acos(2.0f * v - 1.0f);
     const auto r = sphere.radius * std::pow(MathUtils::GetRandomZeroToOne<float>(), 1.0f / 3.0f);
-    const auto sin_theta = std::sin(theta);
-    const auto cos_theta = std::cos(theta);
-    const auto sin_phi = std::sin(phi);
-    const auto cos_phi = std::cos(phi);
+    const auto sin_theta = std::sin(theta_angle);
+    const auto cos_theta = std::cos(theta_angle);
+    const auto sin_phi = std::sin(phi_angle);
+    const auto cos_phi = std::cos(phi_angle);
     const auto x = r * sin_phi * cos_theta;
     const auto y = r * sin_phi * sin_theta;
     const auto z = r * cos_phi;
@@ -594,7 +594,7 @@ Vector3 GetRandomPointInsidePlane(const Plane3& p, float r) noexcept {
     // rotate the vector around n by a random angle
     // using Rodrigues' rotation formula
     // http://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
-    float theta = MathUtils::GetRandomZeroToOne<float>() * MathUtils::M_PI;
+    float theta = MathUtils::GetRandomZeroToOne<float>() * MathUtils::pi_v<float>;
     Vector3 k = n.GetNormalize();
     w = w * std::cos(theta) + CrossProduct(k, w) * std::sin(theta);
 
