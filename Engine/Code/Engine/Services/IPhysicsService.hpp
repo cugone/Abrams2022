@@ -34,11 +34,34 @@ public:
     virtual void EnableDrag(bool isDragEnabled) noexcept = 0;
     virtual void EnablePhysics(bool isPhysicsEnabled) noexcept = 0;
 
+
     template<typename JointDefType>
-    Joint* CreateJoint(const JointDefType& defType) noexcept;
-    
+    Joint* CreateJoint(const JointDefType& defType) noexcept {
+        static_assert(std::is_base_of_v<JointDef, JointDefType>, "CreateJoint received type not derived from Joint.");
+        std::unique_ptr<Joint> newJoint{};
+        if constexpr(std::is_same_v<JointDefType, SpringJointDef>) {
+            newJoint.reset(new SpringJoint(defType));
+        } else if constexpr(std::is_same_v<JointDefType, RodJointDef>) {
+            newJoint.reset(new RodJoint(defType));
+        } else if constexpr(std::is_same_v<JointDefType, CableJointDef>) {
+            newJoint.reset(new CableJoint(defType));
+        } else {
+            //Catch-all for user-defined joint definitions (possible vector for malicious types!)
+            newJoint.reset(new JointDefType{defType});
+        }
+        auto* joint_ptr = newJoint.get();
+        _joints.emplace_back(std::move(newJoint));
+        return joint_ptr;
+    }
+
+
     template<typename ForceGeneratorType>
-    ForceGeneratorType* CreateForceGenerator();
+    ForceGeneratorType* CreateForceGenerator() {
+        auto newFG = std::make_unique<ForceGeneratorType>();
+        auto* new_fg_ptr = newFG.get();
+        _forceGenerators.emplace_back(newFG);
+        return new_fg_ptr;
+    }
 
     virtual [[nodiscard]] const std::vector<std::unique_ptr<Joint>>& Debug_GetJoints() const noexcept = 0;
     virtual [[nodiscard]] const std::vector<RigidBody*>& Debug_GetBodies() const noexcept = 0;
@@ -54,29 +77,3 @@ protected:
 private:
     
 };
-
-template<typename JointDefType>
-Joint* IPhysicsService::CreateJoint(const JointDefType& defType) noexcept {
-    static_assert(std::is_base_of_v<JointDef, JointDefType>, "CreateJoint received type not derived from Joint.");
-    std::unique_ptr<Joint> newJoint{};
-    if constexpr(std::is_same_v<JointDefType, SpringJointDef>) {
-        newJoint.reset(new SpringJoint(defType));
-    } else if constexpr(std::is_same_v<JointDefType, RodJointDef>) {
-        newJoint.reset(new RodJoint(defType));
-    } else if constexpr(std::is_same_v<JointDefType, CableJointDef>) {
-        newJoint.reset(new CableJoint(defType));
-    } else {
-        static_assert(false, "CreateJoint received type not in if-else chain.");
-    }
-    auto* joint_ptr = newJoint.get();
-    _joints.emplace_back(std::move(newJoint));
-    return joint_ptr;
-}
-
-template<typename ForceGeneratorType>
-ForceGeneratorType* IPhysicsService::CreateForceGenerator() {
-    auto newFG = std::make_unique<ForceGeneratorType>();
-    auto* new_fg_ptr = newFG.get();
-    _forceGenerators.emplace_back(newFG);
-    return new_fg_ptr;
-}
