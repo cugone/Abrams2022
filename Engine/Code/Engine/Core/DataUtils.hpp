@@ -421,7 +421,7 @@ template<typename T>
                 if(attr.empty()) {
                     return defaultValue;
                 } else {
-                    return T(attr);
+                    return T{attr};
                 }
             }
         }
