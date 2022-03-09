@@ -6,6 +6,7 @@
 #include "Engine/Core/Console.hpp"
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Obj.hpp"
@@ -514,6 +515,10 @@ void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
     _time_data.system_frame_time = deltaSeconds.count();
     _time_cb->Update(*_rhi_context, &_time_data);
     SetConstantBuffer(GetTimeBufferIndex(), _time_cb.get());
+}
+
+void Renderer::UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) noexcept {
+    buffer.Update(*_rhi_context, data);
 }
 
 void Renderer::Render() const noexcept {

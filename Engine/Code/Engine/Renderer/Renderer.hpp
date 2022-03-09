@@ -403,6 +403,7 @@ public:
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;
 
     void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept override;
+    void UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) noexcept override;
 
     void ResetModelViewProjection() noexcept override;
     void AppendModelMatrix(const Matrix4& modelMatrix) noexcept override;

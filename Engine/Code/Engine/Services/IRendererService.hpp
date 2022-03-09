@@ -4,6 +4,7 @@
 
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
 #include "Engine/Renderer/Shader.hpp"
 #include "Engine/Renderer/Sampler.hpp"
@@ -25,7 +26,6 @@ class Rgba;
 class Frustum;
 class Camera2D;
 class SpriteSheet;
-class AnimatedSprite;
 class FrameBuffer;
 
 class RHIDeviceContext;
@@ -245,6 +245,7 @@ public:
     virtual void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept = 0;
 
     virtual void UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept = 0;
+    virtual void UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) noexcept = 0;
 
     virtual void ResetModelViewProjection() noexcept = 0;
     virtual void AppendModelMatrix(const Matrix4& modelMatrix) noexcept = 0;
@@ -539,7 +540,7 @@ public:
     void RegisterFontsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
 
     void UpdateGameTime([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept override {}
-
+    void UpdateConstantBuffer([[maybe_unused]] ConstantBuffer& buffer, [[maybe_unused]] void* const& data) noexcept override {}
     void ResetModelViewProjection() noexcept override {}
     void AppendModelMatrix([[maybe_unused]] const Matrix4& modelMatrix) noexcept override {}
     void SetModelMatrix([[maybe_unused]] const Matrix4& mat = Matrix4::I) noexcept override {}
