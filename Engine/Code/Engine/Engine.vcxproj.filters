@@ -107,6 +107,9 @@
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{aa14a974-13f5-4a4a-a70c-6140ab817b65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Thirdparty\Webp">
+      <UniqueIdentifier>{134fafe8-e2e4-405e-b30f-49d8a7cc8af9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -1448,6 +1451,24 @@
     </ClInclude>
     <ClInclude Include="Platform\Windows\WindowsWindow.hpp">
       <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\decode.h">
+      <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\demux.h">
+      <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\encode.h">
+      <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\mux.h">
+      <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\mux_types.h">
+      <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webp\types.h">
+      <Filter>Thirdparty\Webp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

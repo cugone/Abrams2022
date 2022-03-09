@@ -31,6 +31,7 @@
     <Link>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

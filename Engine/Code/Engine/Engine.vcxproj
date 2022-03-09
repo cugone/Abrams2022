@@ -232,6 +232,12 @@
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="..\Thirdparty\webp\decode.h" />
+    <ClInclude Include="..\Thirdparty\webp\demux.h" />
+    <ClInclude Include="..\Thirdparty\webp\encode.h" />
+    <ClInclude Include="..\Thirdparty\webp\mux.h" />
+    <ClInclude Include="..\Thirdparty\webp\mux_types.h" />
+    <ClInclude Include="..\Thirdparty\webp\types.h" />
     <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\anchor.h" />
     <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\binary.h" />
     <ClInclude Include="..\Thirdparty\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />
@@ -560,6 +566,11 @@
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <Lib />
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libwebp_debug.lib;libwebpdemux_debug.lib;libwebpmux_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -574,6 +585,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">
     <ClCompile>
@@ -589,6 +604,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">
     <ClCompile>
@@ -604,6 +623,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

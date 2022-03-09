@@ -7,6 +7,7 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
