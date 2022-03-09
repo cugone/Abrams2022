@@ -4,7 +4,7 @@
 #include "Engine/Math/Matrix4.hpp"
 #include "Engine/Renderer/Material.hpp"
 
-ParticleIntegrator Particle::semi_implicit_euler = [=](float /*time*/, const ParticleState& state) -> ParticleState {
+ParticleIntegrator Particle::semi_implicit_euler = [](float /*time*/, const ParticleState& state) -> ParticleState {
     ParticleState dS = state;
     if(dS.mass > 0.0f) {
         dS.acceleration = Vector3::Zero;
