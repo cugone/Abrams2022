@@ -17,6 +17,7 @@
 
 #include <Thirdparty/stb/stb_image.h>
 #include <Thirdparty/stb/stb_image_write.h>
+#include <Thirdparty/webp/decode.h>
 
 #include <algorithm>
 #include <sstream>
@@ -47,6 +48,15 @@ Image::Image(std::filesystem::path filepath) noexcept
             m_bytesPerTexel = req_comp;
             m_texelBytes = std::vector<unsigned char>(texel_bytes, texel_bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
             stbi_image_free(texel_bytes);
+        } else if(auto webpvalid = !!WebPGetInfo(buf->data(), buf->size(), &m_dimensions.x, &m_dimensions.y); webpvalid == true) {
+            if(auto* bytes = WebPDecodeRGBA(buf->data(), buf->size(), &m_dimensions.x, &m_dimensions.y); bytes != nullptr) {
+                m_bytesPerTexel = req_comp;
+                m_texelBytes = std::vector<unsigned char>(bytes, bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
+                WebPFree(bytes);
+            } else {
+                const auto ss = std::string{"function WebPDecodeRGBA failed with file: "} + filepath.string() + ".";
+                GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+            }
         } else {
             const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a supported image type.";
             GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
