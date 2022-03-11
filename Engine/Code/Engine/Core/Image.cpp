@@ -18,6 +18,7 @@
 #include <Thirdparty/stb/stb_image.h>
 #include <Thirdparty/stb/stb_image_write.h>
 #include <Thirdparty/webp/decode.h>
+#include <Thirdparty/webp/demux.h>
 
 #include <algorithm>
 #include <sstream>
@@ -45,17 +46,57 @@ Image::Image(std::filesystem::path filepath) noexcept
         int comp = 0;
         int req_comp = 4;
         if(auto* texel_bytes = stbi_load_from_memory(buf->data(), static_cast<int>(buf->size()), &m_dimensions.x, &m_dimensions.y, &comp, req_comp); texel_bytes != nullptr) {
+            //Image data is basic image file. Use stbi to load it.
             m_bytesPerTexel = req_comp;
             m_texelBytes = std::vector<unsigned char>(texel_bytes, texel_bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
             stbi_image_free(texel_bytes);
         } else if(auto webpvalid = !!WebPGetInfo(buf->data(), buf->size(), &m_dimensions.x, &m_dimensions.y); webpvalid == true) {
-            if(auto* bytes = WebPDecodeRGBA(buf->data(), buf->size(), &m_dimensions.x, &m_dimensions.y); bytes != nullptr) {
-                m_bytesPerTexel = req_comp;
-                m_texelBytes = std::vector<unsigned char>(bytes, bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
-                WebPFree(bytes);
-            } else {
-                const auto ss = std::string{"function WebPDecodeRGBA failed with file: "} + filepath.string() + ".";
-                GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+            //Image data is a .webp file. 
+            WebPBitstreamFeatures features{};
+            if(auto features_href = WebPGetFeatures(buf->data(), buf->size(), &features); features_href == VP8_STATUS_OK) {
+                if(!features.has_animation) { //.webp file is a static image.
+                    if(auto* bytes = WebPDecodeRGBA(buf->data(), buf->size(), &m_dimensions.x, &m_dimensions.y); bytes != nullptr) {
+                        m_bytesPerTexel = req_comp;
+                        m_texelBytes = std::vector<unsigned char>(bytes, bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
+                        WebPFree(bytes);
+                    } else {
+                        const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a valid .webp file.";
+                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+                    }
+                } else { //.webp file is animated.
+                    m_bytesPerTexel = req_comp;
+                    WebPData webp_data{};
+                    webp_data.bytes = buf->data();
+                    webp_data.size = buf->size();
+                    if(WebPDemuxer* demux = WebPDemux(&webp_data); demux != nullptr) {
+                        m_dimensions.x = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
+                        m_dimensions.y = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
+                        //const auto format = WebPDemuxGetI(demux, WEBP_FF_FORMAT_FLAGS);
+                        //const auto frame_count = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+                        //const auto loop_count = WebPDemuxGetI(demux, WEBP_FF_LOOP_COUNT);
+                        //const auto background_color = WebPDemuxGetI(demux, WEBP_FF_BACKGROUND_COLOR);
+
+                        {
+                            WebPIterator iter{};
+                            if(WebPDemuxGetFrame(demux, 1, &iter)) {
+                                //do {
+                                auto* frame_data = WebPDecodeRGBA(iter.fragment.bytes, iter.fragment.size, &m_dimensions.x, &m_dimensions.y);
+                                const auto slice = m_dimensions.x * m_bytesPerTexel * m_dimensions.y;
+                                m_texelBytes = std::vector<unsigned char>(frame_data, frame_data + slice);
+                                WebPFree(frame_data);
+                                frame_data = nullptr;
+                                //} while(WebPDemuxNextFrame(&iter));
+                            }
+                            WebPDemuxReleaseIterator(&iter);
+                        }
+
+                        WebPDemuxDelete(demux);
+                        demux = nullptr;
+                    } else {
+                        const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a valid animated .webp file.";
+                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+                    }
+                }
             }
         } else {
             const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a supported image type.";
@@ -243,6 +284,8 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
     } else if(extension == ".hdr") {
         const auto ss = std::string{"Attempting to export "} + filepath.string() + " to an unsupported type: " + extension + "\nHigh Dynamic Range output is not supported.";
         ERROR_RECOVERABLE(ss.c_str());
+    } else if(extension == ".webp") {
+
     }
     return 0 != result;
 }
@@ -276,7 +319,7 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
 }
 
 std::string Image::GetSupportedExtensionsList() noexcept {
-    return std::string(".png,.bmp,.tga,.jpg");
+    return std::string(".png,.bmp,.tga,.jpg,.webp");
 }
 
 void swap(Image& a, Image& b) noexcept {
