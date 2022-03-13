@@ -318,7 +318,7 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
     return result;
 }
 
-std::string Image::GetSupportedExtensionsList() noexcept {
+constexpr std::string Image::GetSupportedExtensionsList() noexcept {
     return std::string(".png,.bmp,.tga,.jpg,.webp");
 }
 
