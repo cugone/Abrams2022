@@ -322,6 +322,11 @@ constexpr std::string Image::GetSupportedExtensionsList() noexcept {
     return std::string(".png,.bmp,.tga,.jpg,.webp");
 }
 
+bool Image::IsSupportedExtension(const std::filesystem::path& ext) noexcept {
+    static const auto list = StringUtils::Split(Image::GetSupportedExtensionsList());
+    return std::find(std::cbegin(list), std::cend(list), ext.string()) != std::cend(list);
+}
+
 void swap(Image& a, Image& b) noexcept {
     std::scoped_lock<std::mutex, std::mutex> lock(a._cs, b._cs);
     std::swap(a.m_bytesPerTexel, b.m_bytesPerTexel);
