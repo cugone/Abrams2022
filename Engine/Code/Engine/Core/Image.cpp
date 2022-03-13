@@ -291,7 +291,7 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
         const auto ss = std::string{"Attempting to export "} + filepath.string() + " to an unsupported type: " + extension + "\nHigh Dynamic Range output is not supported.";
         ERROR_RECOVERABLE(ss.c_str());
     } else if(extension == ".webp") {
-
+        //TODO: Write Muxer for .webp
     }
     return 0 != result;
 }
