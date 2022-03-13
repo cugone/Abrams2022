@@ -703,6 +703,9 @@
     <ClCompile Include="Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Core\WebP.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1469,6 +1472,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\webp\types.h">
       <Filter>Thirdparty\Webp</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\WebP.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
