@@ -33,6 +33,12 @@ Image::Image(std::filesystem::path filepath) noexcept
         GUARANTEE_OR_DIE(FS::exists(filepath), error_msg.c_str());
     }
 
+    const auto extension = filepath.extension();
+    {
+        const auto error_msg = std::string{"Failed to load image. Filetype \'" + extension.string() + "\' is not supported.\n"};
+        GUARANTEE_OR_DIE(IsSupportedExtension(extension), error_msg.c_str());
+    }
+
     {
         std::error_code ec{};
         filepath = FS::canonical(filepath);
