@@ -70,6 +70,7 @@ Image::Image(std::filesystem::path filepath) noexcept
                         GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
                     }
                 } else { //.webp file is animated.
+                    DebuggerPrintf("Loading animated .webp files are not supported by the Image type. Use the WebP or AnimatedWebP types instead.");
                     m_bytesPerTexel = req_comp;
                     WebPData webp_data{};
                     webp_data.bytes = buf->data();
