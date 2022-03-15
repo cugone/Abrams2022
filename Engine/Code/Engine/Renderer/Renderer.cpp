@@ -377,12 +377,46 @@ void Renderer::CreateWorkingVboAndIbo() noexcept {
 
 void Renderer::LogAvailableDisplays() noexcept {
     std::ostringstream ss;
-    ss << std::setw(60) << std::setfill('-') << '\n';
+    ss << std::setw(80) << std::setfill('-') << '\n';
     ss << "Available Display Dimensions:\n";
-    for(const auto& display : _rhi_device->displayModes) {
-        ss << display.width << 'x' << display.height << 'x' << display.refreshRateHz << '\n';
+    ss << std::setw(80) << std::setfill('-') << '\n';
+    ss << std::setfill(' ');
+    ss << std::setw(13) << std::left << "|" << std::setw(10) << "Resolution" << std::setw(10) << std::right << "|";
+    ss << std::setw(26) << std::right << "Refresh Rate (Hz)" << std::setw(20) << std::right << '|' << '\n';
+    ss << std::setw(80) << std::setfill('-') << '\n';
+    ss << std::setfill(' ');
+    auto refreshRateHzStr = std::string{};
+    for(auto it = std::begin(_rhi_device->displayModes); it != std::end(_rhi_device->displayModes); ) {
+        const auto& display = *it;
+        const auto& next_it = std::next(it, 1);
+        if(next_it == std::end(_rhi_device->displayModes)) {
+            if(std::distance(it, next_it) == 1) {
+                refreshRateHzStr += std::to_string(display.refreshRateHz);
+            }
+            const auto resolution_str = std::to_string(display.width) + "x" + std::to_string(display.height);
+            ss << std::setw(13) << std::left << '|' << std::setw(10) << std::right << std::setfill(' ') << resolution_str;
+            ss << std::setw(10) << std::right << '|' << std::setw(40) << std::right << std::setfill(' ') << refreshRateHzStr << std::setw(6) << std::right << '|' << '\n';
+            refreshRateHzStr.clear();
+            break;
+        }
+        const auto& next_display = *next_it;
+        if(display.width == next_display.width && display.height == next_display.height) {
+            refreshRateHzStr += std::to_string(display.refreshRateHz) + ' ';
+        } else {
+            if(std::distance(it, next_it) == 1) {
+                refreshRateHzStr += std::to_string(display.refreshRateHz);
+            }
+            if(!refreshRateHzStr.empty() && refreshRateHzStr.back() == ' ') {
+                refreshRateHzStr.pop_back();
+            }
+            const auto resolution_str = std::to_string(display.width) + "x" + std::to_string(display.height);
+            ss << std::setw(13) << std::left << '|' << std::setw(10) << std::right << std::setfill(' ') << resolution_str;
+            ss << std::setw(10) << std::right << '|' << std::setw(40) << std::right << std::setfill(' ') << refreshRateHzStr << std::setw(6) << std::right << '|' << '\n';
+            refreshRateHzStr.clear();
+        }
+        std::advance(it, 1);
     }
-    ss << std::setw(60) << std::setfill('-') << '\n';
+    ss << std::setw(80) << std::setfill('-') << '\n';
     ServiceLocator::get<IFileLoggerService>().LogLineAndFlush(ss.str());
 }
 
