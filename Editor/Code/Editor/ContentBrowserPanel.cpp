@@ -2,7 +2,9 @@
 
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/Image.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Platform/PlatformUtils.hpp"
 #include "Engine/Platform/Win.hpp"
@@ -82,6 +84,7 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
 }
 
 void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
+    using namespace std::string_literals;
     if(ImGui::BeginPopupContextWindow("##ContentBrowserContextWindow", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup)) {
         if(ImGui::MenuItem("Create Folder")) {
             int count = 0;
@@ -93,7 +96,16 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
         if(ImGui::BeginMenu("Import Asset")) {
             if(ImGui::MenuItem("Texture")) {
                 ImGui::CloseCurrentPopup();
-                if(auto path = FileDialogs::OpenFile("PNG file (*.png)\0*.png\0All Files (*.*)\0*.*\0\0"); !path.empty()) {
+                static const auto extension_list = StringUtils::Split(Image::GetSupportedExtensionsList());
+                static const auto opf_str = [&]() {
+                    std::string result;
+                    for(auto e : extension_list) {
+                        result.append(std::string(StringUtils::ToUpperCase(std::string{e.substr(1)}) + " file (*"s + e + ")\0*"s + e + "\0"s));
+                    }
+                    result += "All Files (*.*)\0*.*\0\0"s;
+                    return result;
+                }();
+                if(auto path = FileDialogs::OpenFile(opf_str.data()); !path.empty()) {
                     const auto asPath = std::filesystem::path{path};
                     const auto filename = asPath.filename();
                     std::filesystem::copy_file(path, currentDirectory / filename);
