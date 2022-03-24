@@ -42,6 +42,21 @@ public:
     void GetValue(const std::string& key, long double& value) const noexcept override;
     void GetValue(const std::string& key, std::string& value) const noexcept override;
 
+    void GetValueOr(const std::string& key, bool& value, bool defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, char& value, char defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, unsigned char& value, unsigned char defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, signed char& value, signed char defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, unsigned int& value, unsigned int defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, int& value, int defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, long& value, long defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, unsigned long& value, unsigned long defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, long long& value, long long defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, unsigned long long& value, unsigned long long defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, float& value, float defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, double& value, double defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, long double& value, long double defaultValue) const noexcept override;
+    void GetValueOr(const std::string& key, std::string& value, std::string defaultValue) const noexcept override;
+
     void SetValue(const std::string& key, const bool& value) noexcept override;
     void SetValue(const std::string& key, const char& value) noexcept override;
     void SetValue(const std::string& key, const unsigned char& value) noexcept override;
@@ -65,7 +80,7 @@ public:
     friend std::ostream& operator<<(std::ostream& output, const Config& config) noexcept;
     friend std::istream& operator>>(std::istream& input, Config& config) noexcept;
 
-protected:
-private:
+ protected:
+ private:
     std::map<std::string, std::string> _config{};
 };
