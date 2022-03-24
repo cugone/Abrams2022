@@ -326,7 +326,7 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
 }
 
 constexpr std::string Image::GetSupportedExtensionsList() noexcept {
-    return std::string(".png,.bmp,.tga,.jpg,.webp");
+    return std::string(".png,.bmp,.tga,.jpg,.webp,.ppm");
 }
 
 bool Image::IsSupportedExtension(const std::filesystem::path& ext) noexcept {
