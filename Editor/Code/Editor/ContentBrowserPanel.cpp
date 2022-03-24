@@ -91,8 +91,7 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
             ImGui::CloseCurrentPopup();
         }
         if(ImGui::BeginMenu("Import Asset")) {
-            ImGui::Text("Texture");
-            if(ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+            if(ImGui::MenuItem("Texture")) {
                 ImGui::CloseCurrentPopup();
                 if(auto path = FileDialogs::OpenFile("PNG file (*.png)\0*.png\0All Files (*.*)\0*.*\0\0"); !path.empty()) {
                     const auto asPath = std::filesystem::path{path};
