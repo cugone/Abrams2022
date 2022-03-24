@@ -75,8 +75,7 @@ bool Config::HasKey(const std::string& key) const noexcept {
 }
 
 void Config::GetValue(const std::string& key, bool& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         try {
             int keyAsInt = std::stoi(found->second);
             value = keyAsInt != 0;
@@ -94,92 +93,79 @@ void Config::GetValue(const std::string& key, bool& value) const noexcept {
 }
 
 void Config::GetValue(const std::string& key, char& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = *(found->second.begin());
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned char& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = static_cast<unsigned char>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, signed char& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = static_cast<signed char>(std::stoi(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned int& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = static_cast<unsigned int>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, int& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stoi(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stol(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stoul(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long long& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stoll(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long long& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stoull(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, float& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stof(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, double& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stod(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long double& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = std::stold(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, std::string& value) const noexcept {
-    auto found = _config.find(key);
-    if(found != _config.end()) {
+    if(auto found = _config.find(key); found != _config.end()) {
         value = found->second;
     }
 }
