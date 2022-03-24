@@ -383,12 +383,5 @@ bool Editor::IsAssetExtension(const std::filesystem::path& ext) const noexcept {
 }
 
 bool Editor::IsImageAssetExtension(const std::filesystem::path& ext) const noexcept {
-    static const auto ext_string = Image::GetSupportedExtensionsList();
-    static const auto ext_list = StringUtils::Split(ext_string);
-    for(const auto& p : ext_list) {
-        if(p == ext.string()) {
-            return true;
-        }
-    }
-    return false;
+    return Image::IsSupportedExtension(ext);
 }
