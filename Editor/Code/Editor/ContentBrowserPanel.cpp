@@ -95,6 +95,9 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
             if(ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                 ImGui::CloseCurrentPopup();
                 if(auto path = FileDialogs::OpenFile("PNG file (*.png)\0*.png\0All Files (*.*)\0*.*\0\0"); !path.empty()) {
+                    const auto asPath = std::filesystem::path{path};
+                    const auto filename = asPath.filename();
+                    std::filesystem::copy_file(path, currentDirectory / filename);
                 }
             }
             ImGui::EndMenu();
