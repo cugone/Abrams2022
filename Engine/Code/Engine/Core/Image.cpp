@@ -325,10 +325,6 @@ Image Image::CreateImageFromFileBuffer(const std::vector<unsigned char>& data) n
     return result;
 }
 
-constexpr std::string Image::GetSupportedExtensionsList() noexcept {
-    return std::string(".png,.bmp,.tga,.jpg,.webp,.ppm");
-}
-
 bool Image::IsSupportedExtension(const std::filesystem::path& ext) noexcept {
     static const auto list = StringUtils::Split(Image::GetSupportedExtensionsList());
     return std::find(std::cbegin(list), std::cend(list), ext.string()) != std::cend(list);

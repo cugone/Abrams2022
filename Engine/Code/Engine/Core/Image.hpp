@@ -42,7 +42,9 @@ public:
 
     [[nodiscard]] bool Export(std::filesystem::path filepath, int bytes_per_pixel = 4, int jpg_quality = 100) const noexcept;
     [[nodiscard]] static Image CreateImageFromFileBuffer(const std::vector<unsigned char>& data) noexcept;
-    [[nodiscard]] static constexpr std::string GetSupportedExtensionsList() noexcept;
+    [[nodiscard]] static constexpr inline std::string GetSupportedExtensionsList() noexcept {
+        return std::string(".png,.bmp,.tga,.jpg,.webp,.ppm");
+    }
     [[nodiscard]] static bool IsSupportedExtension(const std::filesystem::path& ext) noexcept;
 
     friend void swap(Image& a, Image& b) noexcept;
