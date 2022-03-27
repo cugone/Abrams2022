@@ -9,6 +9,11 @@
 #include <mutex>
 #include <vector>
 
+//class Editor {
+//public:
+//    enum class AssetType;
+//};
+
 class ContentBrowserPanel : public IGPanel {
 public:
     virtual ~ContentBrowserPanel() = default;
@@ -16,10 +21,20 @@ public:
     void UpdateContentBrowserPaths() noexcept;
 
     std::filesystem::path currentDirectory{};
+
 protected:
 private:
+    struct ContentBrowserItemStats {
+        //Editor::AssetType asset_type{};
+        std::string asset_type{};
+        std::string id{};
+        std::filesystem::path path{};
+        std::size_t filesize{0u};
+    };
+
     void ShowContextMenuOnEmptySpace() noexcept;
     void PollContentBrowserPaths() noexcept;
+    void ShowHoveredItemStats(const ContentBrowserItemStats& stats) noexcept;
 
     mutable std::mutex _cs;
     std::vector<std::filesystem::path> m_PathsCache{};

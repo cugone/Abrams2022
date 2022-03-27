@@ -52,14 +52,21 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
         const auto columnCount = (std::min)((std::max)(1, static_cast<int>(m_PanelWidth / cellSize)), 64);
         ImGui::BeginTable("##ContentBrowser", columnCount, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ContextMenuInBody);
         {
+            ContentBrowserItemStats stats{};
             for(auto& p : m_PathsCache) {
                 ImGui::TableNextColumn();
                 const auto* editor = GetGameAs<Editor>();
-                const auto icon = editor->GetAssetTextureFromType(p);
+                const auto icon = editor->GetAssetTextureFromPath(p);
                 ImGui::BeginGroup();
-                ImGui::PushStyleColor(ImGuiCol_Button, Vector4::Zero);
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Vector4::Zero);
+                ImGui::PushStyleColor(ImGuiCol_Button, std::make_from_tuple<Vector4>(Rgba::DarkGray.GetAsFloats()));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, std::make_from_tuple<Vector4>(Rgba::LightGray.GetAsFloats()));
+                //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, 5.0f);
                 const std::string str_id = p.string();
+                stats.id = str_id;
+                stats.path = p;
+                stats.filesize = std::filesystem::file_size(p);
+                //stats.asset_type = editor->GetAssetType(p);
+                stats.asset_type = Editor::GetAssetTypeName(editor->GetAssetType(p));
                 ImGui::PushID(str_id.c_str());
                 if(std::filesystem::is_directory(p)) {
                     if(ImGui::ImageButton(icon, Vector2{thumbnailSize, thumbnailSize}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::White)) {
@@ -67,20 +74,36 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
                         m_CacheNeedsImmediateUpdate = true;
                     }
                 } else {
-                    ImGui::Image(icon, Vector2{thumbnailSize, thumbnailSize}, Vector2::Zero, Vector2::One, Rgba::White, Rgba::NoAlpha);
+                    if(ImGui::ImageButton(icon, Vector2{thumbnailSize, thumbnailSize}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::White)) {
+                    }
                 }
                 ImGui::PopID();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
                 const auto filename_string = p.filename().string();
                 const auto filename_size = ImGui::CalcTextSize(filename_string.c_str(), nullptr);
                 ImGui::TextWrapped(filename_string.c_str());
+                //ImGui::PopStyleVar();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
                 ImGui::EndGroup();
+                if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                    ShowHoveredItemStats(stats);
+                }
             }
         }
         ImGui::EndTable();
     }
     ImGui::End();
+}
+
+void ContentBrowserPanel::ShowHoveredItemStats(const ContentBrowserItemStats& stats) noexcept {
+    ImGui::BeginTooltip();
+    {
+        ImGui::TextColored(Rgba::LightGray, "Type: %s", stats.asset_type.c_str());
+        ImGui::TextColored(Rgba::LightGray, "ID: %s", stats.id.c_str());
+        ImGui::TextColored(Rgba::LightGray, "Path: %s", stats.path.string().c_str());
+        ImGui::TextColored(Rgba::LightGray, "Size: %u bytes", stats.filesize);
+    }
+    ImGui::EndTooltip();
 }
 
 void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
