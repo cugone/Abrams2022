@@ -16,6 +16,14 @@ class Texture;
 
 class Editor : public GameBase {
 public:
+    enum class AssetType {
+        None
+        , Folder
+        , Texture
+        , Log
+        , Text
+        , Scene
+    };
 
     void Initialize() noexcept override;
     void BeginFrame() noexcept override;
@@ -28,7 +36,22 @@ public:
     const GameSettings& GetSettings() const noexcept override;
     GameSettings& GetSettings() noexcept override;
 
-    Texture* GetAssetTextureFromType(const std::filesystem::path& path) const noexcept;
+    Texture* GetAssetTextureFromPath(const std::filesystem::path& path) const noexcept;
+    AssetType GetAssetType(const std::filesystem::path& path) const noexcept;
+
+    static constexpr const std::string GetAssetTypeName(const AssetType& type) noexcept {
+        switch(type) {
+        case AssetType::None: return "None";
+        case AssetType::Folder: return "Folder";
+        case AssetType::Texture: return "Texture";
+        case AssetType::Log: return "Log";
+        case AssetType::Text: return "Text";
+        case AssetType::Scene: return "Scene";
+        default: return "None";
+        }
+    }
+
+
 protected:
 private:
 

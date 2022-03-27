@@ -240,7 +240,7 @@ void Editor::ShowMinMaxCloseButtons() noexcept {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, Rgba::NoAlpha.GetAsRawValue());
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::Red.GetAsRawValue());
 
-    if(ImGui::ImageButton(GetAssetTextureFromType(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/CloseButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+    if(ImGui::ImageButton(GetAssetTextureFromPath(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/CloseButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
         auto& app = ServiceLocator::get<IAppService>();
         app.SetIsQuitting(true);
     }
@@ -254,13 +254,13 @@ void Editor::ShowMinMaxCloseButtons() noexcept {
         }
         return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/RestoreDownButtonAsset.png";
     }(); //IIIL
-    if(ImGui::ImageButton(GetAssetTextureFromType(max_or_restore_down_button_path), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+    if(ImGui::ImageButton(GetAssetTextureFromPath(max_or_restore_down_button_path), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
         auto& renderer = ServiceLocator::get<IRendererService>();
         auto& app = ServiceLocator::get<IAppService>();
         !renderer.GetOutput()->GetWindow()->IsFullscreen() ? app.Maximize() : app.Restore();
     }
     ImGui::SameLine(minimize_button_offset);
-    if(ImGui::ImageButton(GetAssetTextureFromType(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MinimizeButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
+    if(ImGui::ImageButton(GetAssetTextureFromPath(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MinimizeButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
         auto& app = ServiceLocator::get<IAppService>();
         app.SetIsQuitting(true);
     }
@@ -342,7 +342,7 @@ bool Editor::HasAssetExtension(const std::filesystem::path& path) const noexcept
     return std::filesystem::is_directory(path) || path.has_extension() && IsAssetExtension(path.extension());
 }
 
-Texture* Editor::GetAssetTextureFromType(const std::filesystem::path& path) const noexcept {
+Texture* Editor::GetAssetTextureFromPath(const std::filesystem::path& path) const noexcept {
     auto& renderer = ServiceLocator::get<IRendererService>();
     auto* defaultTexture = renderer.GetTexture("__white");
     if(HasAssetExtension(path)) {
@@ -368,6 +368,28 @@ Texture* Editor::GetAssetTextureFromType(const std::filesystem::path& path) cons
         return p.empty() ? defaultTexture : renderer.GetTexture(p.string());
     }
     return defaultTexture;
+}
+
+Editor::AssetType Editor::GetAssetType(const std::filesystem::path& path) const noexcept {
+    const auto e = path.extension();
+    if(IsAssetExtension(e)) {
+        if(e == ".txt") {
+            return Editor::AssetType::Text;
+        }
+        if(e == ".log") {
+            return Editor::AssetType::Log;
+        }
+        if(e == ".ascene") {
+            return Editor::AssetType::Scene;
+        }
+        if(IsImageAssetExtension(e)) {
+            return Editor::AssetType::Texture;
+        }
+    }
+    if(std::filesystem::is_directory(path)) {
+        return Editor::AssetType::Folder;
+    }
+    return Editor::AssetType::None;
 }
 
 bool Editor::IsAssetExtension(const std::filesystem::path& ext) const noexcept {
