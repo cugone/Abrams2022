@@ -60,7 +60,6 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
                 ImGui::BeginGroup();
                 ImGui::PushStyleColor(ImGuiCol_Button, std::make_from_tuple<Vector4>(Rgba::DarkGray.GetAsFloats()));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, std::make_from_tuple<Vector4>(Rgba::LightGray.GetAsFloats()));
-                //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, 5.0f);
                 const std::string str_id = p.string();
                 stats.id = str_id;
                 stats.path = p;
@@ -81,9 +80,7 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
                 const auto filename_string = p.filename().string();
                 const auto filename_size = ImGui::CalcTextSize(filename_string.c_str(), nullptr);
                 ImGui::TextWrapped(filename_string.c_str());
-                //ImGui::PopStyleVar();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
+                ImGui::PopStyleColor(2);
                 ImGui::EndGroup();
                 if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
                     ShowHoveredItemStats(stats);
