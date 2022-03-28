@@ -21,15 +21,15 @@
 void AudioSystem::EmitterListenerDSP_worker() noexcept {
     while(IsRunning()) {
         static thread_local auto updateAudioThisFrame = uint8_t{0u};
-        std::unique_lock<std::mutex> lock(_cs);
+        std::unique_lock<std::mutex> lock(m_cs);
         //Condition to wake up: not running or should update this frame.
-        _signal.wait(lock, [this]() -> bool { return !_is_running || !!updateAudioThisFrame; });
+        m_signal.wait(lock, [this]() -> bool { return !m_is_running || !!updateAudioThisFrame; });
         if(!!updateAudioThisFrame) {
-            for(auto& active : _active_channels) {
-                for(auto& emitter : _emitters) {
-                    for(auto& listener : _listeners) {
+            for(auto& active : m_active_channels) {
+                for(auto& emitter : m_emitters) {
+                    for(auto& listener : m_listeners) {
                         //const auto old_freq = active->GetFrequency();
-                        auto dsp = CalculateDSP(*emitter, *listener, _dsp_settings);
+                        auto dsp = CalculateDSP(*emitter, *listener, m_dsp_settings);
                         active->SetDSPSettings(dsp);
                     }
                 }
@@ -43,8 +43,8 @@ void AudioSystem::EmitterListenerDSP_worker() noexcept {
 bool AudioSystem::IsRunning() const noexcept {
     bool running = false;
     {
-        std::scoped_lock<std::mutex> lock(_cs);
-        running = _is_running;
+        std::scoped_lock<std::mutex> lock(m_cs);
+        running = m_is_running;
     }
     return running;
 }
@@ -59,18 +59,18 @@ AudioSystem::AudioSystem() noexcept
 AudioSystem::AudioSystem(std::size_t max_channels) noexcept
 : EngineSubsystem()
 , IAudioService()
-, _max_channels(max_channels)
+, m_max_channels(max_channels)
 {
     InitializeAudioSystem();
 }
 
 AudioSystem::~AudioSystem() noexcept {
-    _is_running = false;
-    _signal.notify_one();
+    m_is_running = false;
+    m_signal.notify_one();
 
-    _dsp_thread.join();
+    m_dsp_thread.join();
 
-    for(auto& channel : _active_channels) {
+    for(auto& channel : m_active_channels) {
         channel->Stop();
     }
 
@@ -78,30 +78,30 @@ AudioSystem::~AudioSystem() noexcept {
         bool done_cleanup = false;
         do {
             std::this_thread::yield();
-            std::scoped_lock<std::mutex> lock(_cs);
-            done_cleanup = _active_channels.empty();
+            std::scoped_lock<std::mutex> lock(m_cs);
+            done_cleanup = m_active_channels.empty();
         } while(!done_cleanup);
     }
 
-    _active_channels.clear();
-    _active_channels.shrink_to_fit();
+    m_active_channels.clear();
+    m_active_channels.shrink_to_fit();
 
-    _idle_channels.clear();
-    _idle_channels.shrink_to_fit();
+    m_idle_channels.clear();
+    m_idle_channels.shrink_to_fit();
 
-    _sounds.clear();
-    _wave_files.clear();
+    m_sounds.clear();
+    m_wave_files.clear();
 
-    if(_master_voice) {
-        _master_voice->DestroyVoice();
-        _master_voice = nullptr;
+    if(m_master_voice) {
+        m_master_voice->DestroyVoice();
+        m_master_voice = nullptr;
     }
 
-    if(_xaudio2) {
-        _xaudio2->UnregisterForCallbacks(&_engine_callback);
+    if(m_xaudio2) {
+        m_xaudio2->UnregisterForCallbacks(&m_engine_callback);
 
-        _xaudio2->Release();
-        _xaudio2 = nullptr;
+        m_xaudio2->Release();
+        m_xaudio2 = nullptr;
     }
 
     ::CoUninitialize();
@@ -110,7 +110,7 @@ AudioSystem::~AudioSystem() noexcept {
 void AudioSystem::InitializeAudioSystem() noexcept {
     bool co_init_succeeded = SUCCEEDED(::CoInitializeEx(nullptr, COINIT_MULTITHREADED));
     GUARANTEE_OR_DIE(co_init_succeeded, "Failed to setup Audio System.");
-    bool xaudio2_create_succeeded = SUCCEEDED(::XAudio2Create(&_xaudio2));
+    bool xaudio2_create_succeeded = SUCCEEDED(::XAudio2Create(&m_xaudio2));
     GUARANTEE_OR_DIE(xaudio2_create_succeeded, "Failed to create Audio System.");
 }
 
@@ -123,23 +123,23 @@ void AudioSystem::Initialize() noexcept {
     config.LogTiming = true;
     config.BreakMask = XAUDIO2_LOG_WARNINGS;
     config.TraceMask = XAUDIO2_LOG_DETAIL | XAUDIO2_LOG_WARNINGS | XAUDIO2_LOG_FUNC_CALLS;
-    _xaudio2->SetDebugConfiguration(&config);
+    m_xaudio2->SetDebugConfiguration(&config);
 #endif
-    _xaudio2->CreateMasteringVoice(&_master_voice);
+    m_xaudio2->CreateMasteringVoice(&m_master_voice);
 
     XAUDIO2_VOICE_DETAILS details{};
-    _master_voice->GetVoiceDetails(&details);
-    _input_channels = details.InputChannels;
+    m_master_voice->GetVoiceDetails(&details);
+    m_input_channels = details.InputChannels;
 
     DebuggerPrintf("Mastering voice expects %i input channels.\n", details.InputChannels);
 
     DWORD dwChannelMask;
-    _master_voice->GetChannelMask(&dwChannelMask);
+    m_master_voice->GetChannelMask(&dwChannelMask);
 
-    ::X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, _x3daudio);
+    ::X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_x3daudio);
 
-    _idle_channels.reserve(_max_channels);
-    _active_channels.reserve(_max_channels);
+    m_idle_channels.reserve(m_max_channels);
+    m_active_channels.reserve(m_max_channels);
 
     FileUtils::Wav::WavFormatChunk fmt{};
     fmt.formatId = 1;
@@ -150,19 +150,19 @@ void AudioSystem::Initialize() noexcept {
     fmt.bitsPerSample = 16;
     SetFormat(fmt);
 
-    SetEngineCallback(&_engine_callback);
-    _is_running = true;
+    SetEngineCallback(&m_engine_callback);
+    m_is_running = true;
 
-    _dsp_thread = std::thread(&AudioSystem::EmitterListenerDSP_worker, this);
-    ThreadUtils::SetThreadDescription(_dsp_thread, std::string{"AudioSystem Updater"});
+    m_dsp_thread = std::thread(&AudioSystem::EmitterListenerDSP_worker, this);
+    ThreadUtils::SetThreadDescription(m_dsp_thread, std::string{"AudioSystem Updater"});
 
-    for(std::size_t i = 0; i < _max_channels; ++i) {
-        _idle_channels.push_back(std::make_unique<Channel>(*this, AudioSystem::Channel::ChannelDesc{this}));
+    for(std::size_t i = 0; i < m_max_channels; ++i) {
+        m_idle_channels.push_back(std::make_unique<Channel>(*this, AudioSystem::Channel::ChannelDesc{this}));
     }
 }
 
 const std::atomic_uint32_t& AudioSystem::GetOperationSetId() const noexcept {
-    return _operationID;
+    return m_operationID;
 }
 const std::atomic_uint32_t& AudioSystem::IncrementAndGetOperationSetId() noexcept {
     IncrementOperationSetId();
@@ -170,32 +170,32 @@ const std::atomic_uint32_t& AudioSystem::IncrementAndGetOperationSetId() noexcep
 }
 
 void AudioSystem::IncrementOperationSetId() noexcept {
-    _operationID++;
+    m_operationID++;
 }
 
 void AudioSystem::SubmitDeferredOperation(uint32_t operationSetId) noexcept {
-    _xaudio2->CommitChanges(operationSetId);
+    m_xaudio2->CommitChanges(operationSetId);
 }
 
 void AudioSystem::SetEngineCallback(EngineCallback* callback) noexcept {
-    if(&_engine_callback == callback) {
+    if(&m_engine_callback == callback) {
         return;
     }
-    _xaudio2->UnregisterForCallbacks(&_engine_callback);
-    _engine_callback = *callback;
-    _xaudio2->RegisterForCallbacks(&_engine_callback);
+    m_xaudio2->UnregisterForCallbacks(&m_engine_callback);
+    m_engine_callback = *callback;
+    m_xaudio2->RegisterForCallbacks(&m_engine_callback);
 }
 
 const WAVEFORMATEXTENSIBLE& AudioSystem::GetFormat() const noexcept {
-    return _audio_format_ex;
+    return m_audio_format_ex;
 }
 
 FileUtils::Wav::WavFormatChunk AudioSystem::GetLoadedWavFileFormat() const noexcept {
     FileUtils::Wav::WavFormatChunk fmt{};
-    if(_wave_files.empty()) {
+    if(m_wave_files.empty()) {
         return fmt;
     }
-    return _wave_files.begin()->second->GetFormatChunk();
+    return m_wave_files.begin()->second->GetFormatChunk();
 }
 
 AudioDSPResults AudioSystem::CalculateDSP(const Audio3DEmitter& emitter, const Audio3DListener& listener, const AudioDSPSettings& settings) const noexcept {
@@ -213,12 +213,12 @@ AudioDSPResults AudioSystem::CalculateDSP(const Audio3DEmitter& emitter, const A
     uint32_t flags = AudioDSPSettingsToX3DAudioDSPFlags(settings);
 
     X3DAUDIO_DSP_SETTINGS dsp_settings{};
-    dsp_settings.pMatrixCoefficients = settings.use_matrix_table ? new float[_input_channels * _max_channels] : nullptr;
-    dsp_settings.pDelayTimes = settings.use_delay_array && _input_channels > 1 ? new float[_max_channels] : nullptr;
+    dsp_settings.pMatrixCoefficients = settings.use_matrix_table ? new float[m_input_channels * m_max_channels] : nullptr;
+    dsp_settings.pDelayTimes = settings.use_delay_array && m_input_channels > 1 ? new float[m_max_channels] : nullptr;
     dsp_settings.SrcChannelCount = 1;
-    dsp_settings.DstChannelCount = _input_channels * static_cast<uint32_t>(_max_channels);
+    dsp_settings.DstChannelCount = m_input_channels * static_cast<uint32_t>(m_max_channels);
 
-    ::X3DAudioCalculate(_x3daudio, &x3daudio_listener, &x3daudio_emitter, flags, &dsp_settings);
+    ::X3DAudioCalculate(m_x3daudio, &x3daudio_listener, &x3daudio_emitter, flags, &dsp_settings);
     
     AudioDSPResults results{};
     results.dopplerFactor = dsp_settings.DopplerFactor;
@@ -253,24 +253,24 @@ bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) noexcept {
 }
 
 void AudioSystem::SuspendAudio() noexcept {
-    if(_xaudio2) {
-        _xaudio2->StopEngine();
+    if(m_xaudio2) {
+        m_xaudio2->StopEngine();
     }
 }
 
 void AudioSystem::ResumeAudio() noexcept {
-    if(_xaudio2) {
-        _xaudio2->StartEngine();
+    if(m_xaudio2) {
+        m_xaudio2->StartEngine();
     }
 }
 
 void AudioSystem::SetFormat(const WAVEFORMATEXTENSIBLE& format) noexcept {
-    _audio_format_ex = format;
+    m_audio_format_ex = format;
 }
 
 void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexcept {
     auto* fmt_buffer = reinterpret_cast<const unsigned char*>(&format);
-    std::memcpy(&_audio_format_ex, fmt_buffer, sizeof(_audio_format_ex));
+    std::memcpy(&m_audio_format_ex, fmt_buffer, sizeof(m_audio_format_ex));
 }
 
 void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
@@ -301,21 +301,21 @@ void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, b
 }
 
 void AudioSystem::DeactivateChannel(Channel& channel) noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    const auto found_iter = std::find_if(std::begin(_active_channels), std::end(_active_channels),
+    std::scoped_lock<std::mutex> lock(m_cs);
+    const auto found_iter = std::find_if(std::begin(m_active_channels), std::end(m_active_channels),
                                          [&channel](const std::unique_ptr<Channel>& c) { return c.get() == &channel; });
-    _idle_channels.push_back(std::move(*found_iter));
-    _active_channels.erase(found_iter);
+    m_idle_channels.push_back(std::move(*found_iter));
+    m_active_channels.erase(found_iter);
 }
 
 void AudioSystem::Play(Sound& snd, SoundDesc desc /* = SoundDesc{}*/) noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    if(_idle_channels.empty()) {
+    std::scoped_lock<std::mutex> lock(m_cs);
+    if(m_idle_channels.empty()) {
         return;
     }
-    _active_channels.push_back(std::move(_idle_channels.back()));
-    _idle_channels.pop_back();
-    auto& inserted_channel = _active_channels.back();
+    m_active_channels.push_back(std::move(m_idle_channels.back()));
+    m_idle_channels.pop_back();
+    auto& inserted_channel = m_active_channels.back();
     inserted_channel->Play(snd);
 }
 
@@ -333,7 +333,7 @@ void AudioSystem::Play(const std::filesystem::path& filepath) noexcept {
 }
 
 void AudioSystem::Play(const std::size_t id) noexcept {
-    Play(_sounds[id].first, SoundDesc{});
+    Play(m_sounds[id].first, SoundDesc{});
 }
 
 void AudioSystem::Play(const std::filesystem::path& filepath, const bool looping) noexcept {
@@ -345,16 +345,16 @@ void AudioSystem::Play(const std::filesystem::path& filepath, const bool looping
 void AudioSystem::Play(const std::size_t id, const bool looping) noexcept {
     SoundDesc desc{};
     desc.loopCount = looping ? -1 : 0;
-    Play(_sounds[id].first, desc);
+    Play(m_sounds[id].first, desc);
 }
 
 void AudioSystem::SetDSPSettings(const AudioDSPSettings& newSettings) noexcept {
-    _dsp_settings = newSettings;
+    m_dsp_settings = newSettings;
 }
 
 void AudioSystem::Stop(const std::filesystem::path& filepath) noexcept {
-    const auto& found = std::find_if(std::cbegin(_sounds), std::cend(_sounds), [&filepath](const auto& snd) { return snd.first == filepath; });
-    if(found != std::cend(_sounds)) {
+    const auto& found = std::find_if(std::cbegin(m_sounds), std::cend(m_sounds), [&filepath](const auto& snd) { return snd.first == filepath; });
+    if(found != std::cend(m_sounds)) {
         for(auto& channel : found->second->GetChannels()) {
             channel->Stop();
             DeactivateChannel(*channel);
@@ -363,14 +363,14 @@ void AudioSystem::Stop(const std::filesystem::path& filepath) noexcept {
 }
 
 void AudioSystem::Stop(const std::size_t id) noexcept {
-    auto& channel = _active_channels[id];
+    auto& channel = m_active_channels[id];
     channel->Stop();
     DeactivateChannel(*channel);
 }
 
 void AudioSystem::StopAll() noexcept {
     const auto& op_id = IncrementAndGetOperationSetId();
-    for(auto& active_sound : _active_channels) {
+    for(auto& active_sound : m_active_channels) {
         active_sound->Stop(op_id);
         DeactivateChannel(*active_sound);
     }
@@ -396,10 +396,10 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noe
     }
     filepath.make_preferred();
     const auto finder = [&filepath](const auto& a) { return a.first == filepath; };
-    auto found_iter = std::find_if(std::begin(_sounds), std::end(_sounds), finder);
-    if(found_iter == _sounds.end()) {
-        _sounds.emplace_back(std::make_pair(filepath, std::move(std::make_unique<Sound>(*this, filepath))));
-        found_iter = std::find_if(std::begin(_sounds), std::end(_sounds), finder);
+    auto found_iter = std::find_if(std::begin(m_sounds), std::end(m_sounds), finder);
+    if(found_iter == m_sounds.end()) {
+        m_sounds.emplace_back(std::make_pair(filepath, std::move(std::make_unique<Sound>(*this, filepath))));
+        found_iter = std::find_if(std::begin(m_sounds), std::end(m_sounds), finder);
     }
     return found_iter->second.get();
 }
@@ -421,8 +421,8 @@ AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filep
         }
     }
     filepath.make_preferred();
-    _sounds.emplace_back(std::make_pair(filepath, std::move(std::make_unique<Sound>(*this, filepath))));
-    return _sounds.back().second.get();
+    m_sounds.emplace_back(std::make_pair(filepath, std::move(std::make_unique<Sound>(*this, filepath))));
+    return m_sounds.back().second.get();
 }
 
 void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
@@ -440,14 +440,14 @@ void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
             logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
         }
     }
-    if(const auto found = std::find_if(std::cbegin(_wave_files), std::cend(_wave_files), [&filepath](const auto& wav) { return wav.first == filepath; }); found != std::cend(_wave_files)) {
+    if(const auto found = std::find_if(std::cbegin(m_wave_files), std::cend(m_wave_files), [&filepath](const auto& wav) { return wav.first == filepath; }); found != std::cend(m_wave_files)) {
         return;
     }
 
     if(const auto wav_result = [&]() {
            auto&& wav = std::make_unique<FileUtils::Wav>();
            if(const auto result = wav->Load(filepath); result == FileUtils::Wav::WAV_SUCCESS) {
-               _wave_files.emplace_back(std::make_pair(filepath, std::move(wav)));
+               m_wave_files.emplace_back(std::make_pair(filepath, std::move(wav)));
                return result;
            } else {
                return result;
@@ -473,137 +473,137 @@ void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
 }
 
 void AudioSystem::Register3DAudioEmitter(Audio3DEmitter* emitter) noexcept {
-    _emitters.emplace_back(emitter);
+    m_emitters.emplace_back(emitter);
 }
 
 void AudioSystem::Register3DAudioListener(Audio3DListener* listener) noexcept {
-    _listeners.emplace_back(listener);
+    m_listeners.emplace_back(listener);
 }
 
 void STDMETHODCALLTYPE AudioSystem::Channel::VoiceCallback::OnBufferEnd(void* pBufferContext) {
     Channel& channel = *static_cast<Channel*>(pBufferContext);
     channel.Stop();
-    channel._sound->RemoveChannel(&channel);
-    channel._sound = nullptr;
-    channel._audio_system->DeactivateChannel(channel);
+    channel.m_sound->RemoveChannel(&channel);
+    channel.m_sound = nullptr;
+    channel.m_audio_system->DeactivateChannel(channel);
 }
 
 void STDMETHODCALLTYPE AudioSystem::Channel::VoiceCallback::OnLoopEnd(void* pBufferContext) {
     Channel& channel = *static_cast<Channel*>(pBufferContext);
-    if(channel._desc.stopWhenFinishedLooping && channel._desc.loop_count != XAUDIO2_LOOP_INFINITE) {
-        if(++channel._desc.repeat_count >= channel._desc.loop_count) {
+    if(channel.m_desc.stopWhenFinishedLooping && channel.m_desc.loop_count != XAUDIO2_LOOP_INFINITE) {
+        if(++channel.m_desc.repeat_count >= channel.m_desc.loop_count) {
             channel.Stop();
         }
     }
 }
 
 AudioSystem::Channel::Channel(AudioSystem& audioSystem, const ChannelDesc& desc) noexcept
-: _audio_system(&audioSystem)
-, _desc{desc} {
+: m_audio_system(&audioSystem)
+, m_desc{desc} {
     static VoiceCallback vcb;
-    _buffer.pContext = this;
-    auto* fmt = reinterpret_cast<const WAVEFORMATEX*>(&(_audio_system->GetFormat()));
-    _audio_system->_xaudio2->CreateSourceVoice(&_voice, fmt, 0, _desc.frequency_max, &vcb);
+    m_buffer.pContext = this;
+    auto* fmt = reinterpret_cast<const WAVEFORMATEX*>(&(m_audio_system->GetFormat()));
+    m_audio_system->m_xaudio2->CreateSourceVoice(&m_voice, fmt, 0, m_desc.frequency_max, &vcb);
     //if(auto* group = _audio_system->GetChannelGroup(desc.groupName); group != nullptr) {
     //    group->AddChannel(this);
     //}
 }
 
 AudioSystem::Channel::~Channel() noexcept {
-    if(_voice) {
+    if(m_voice) {
         Stop();
-        _voice->DestroyVoice();
-        _voice = nullptr;
+        m_voice->DestroyVoice();
+        m_voice = nullptr;
     }
 }
 
 void AudioSystem::Channel::SetDSPSettings(AudioDSPResults& settings) {
-    if(this && _voice) {
+    if(this && m_voice) {
         if(settings.pMatrixCoefficients && *settings.pMatrixCoefficients) {
-            _voice->SetOutputMatrix(_audio_system->_master_voice, 1, _audio_system->_input_channels, *settings.pMatrixCoefficients);
+            m_voice->SetOutputMatrix(m_audio_system->m_master_voice, 1, m_audio_system->m_input_channels, *settings.pMatrixCoefficients);
             delete[] *settings.pMatrixCoefficients;
             *settings.pMatrixCoefficients = nullptr;
         }
         XAUDIO2_FILTER_PARAMETERS filterParameters{XAUDIO2_FILTER_TYPE::LowPassFilter, 2.0f * std::sin(MathUtils::M_1PI_6 * settings.lowPassFilterDirectCoefficient)};
-        _voice->SetFilterParameters(&filterParameters);
+        m_voice->SetFilterParameters(&filterParameters);
     }
 }
 
 void AudioSystem::Channel::SetDSPSettings(AudioDSPResults& settings, uint32_t operationSetId) {
-    if(_voice) {
+    if(m_voice) {
         if(settings.pMatrixCoefficients && *settings.pMatrixCoefficients) {
-            _voice->SetOutputMatrix(_audio_system->_master_voice, 1, _audio_system->_input_channels, *settings.pMatrixCoefficients, operationSetId);
+            m_voice->SetOutputMatrix(m_audio_system->m_master_voice, 1, m_audio_system->m_input_channels, *settings.pMatrixCoefficients, operationSetId);
             delete[] *settings.pMatrixCoefficients;
             *settings.pMatrixCoefficients = nullptr;
         }
         XAUDIO2_FILTER_PARAMETERS filterParameters{XAUDIO2_FILTER_TYPE::LowPassFilter, 2.0f * std::sin(MathUtils::M_1PI_6 * settings.lowPassFilterDirectCoefficient)};
-        _voice->SetFilterParameters(&filterParameters, operationSetId);
+        m_voice->SetFilterParameters(&filterParameters, operationSetId);
     }
 }
 
 void AudioSystem::Channel::Play(Sound& snd) noexcept {
     snd.AddChannel(this);
-    _sound = &snd;
+    m_sound = &snd;
     if(const auto* wav = snd.GetWav()) {
-        _buffer.pAudioData = wav->GetDataBuffer();
-        _buffer.AudioBytes = wav->GetDataBufferSize();
-        _buffer.LoopCount = _desc.loop_count;
-        _buffer.LoopBegin = 0;
-        _buffer.LoopLength = 0;
-        if(_desc.loop_count) {
-            _buffer.LoopBegin = _desc.loop_beginSamples;
-            _buffer.LoopLength = _desc.loop_endSamples - _desc.loop_beginSamples;
+        m_buffer.pAudioData = wav->GetDataBuffer();
+        m_buffer.AudioBytes = wav->GetDataBufferSize();
+        m_buffer.LoopCount = m_desc.loop_count;
+        m_buffer.LoopBegin = 0;
+        m_buffer.LoopLength = 0;
+        if(m_desc.loop_count) {
+            m_buffer.LoopBegin = m_desc.loop_beginSamples;
+            m_buffer.LoopLength = m_desc.loop_endSamples - m_desc.loop_beginSamples;
         }
-        _voice->SubmitSourceBuffer(&_buffer, nullptr);
-        _voice->SetVolume(_desc.volume);
-        _voice->SetFrequencyRatio(_desc.frequency);
-        _voice->Start();
+        m_voice->SubmitSourceBuffer(&m_buffer, nullptr);
+        m_voice->SetVolume(m_desc.volume);
+        m_voice->SetFrequencyRatio(m_desc.frequency);
+        m_voice->Start();
     }
 }
 
 void AudioSystem::Channel::Play(Sound& snd, uint32_t operationSetId) noexcept {
     snd.AddChannel(this);
-    _sound = &snd;
+    m_sound = &snd;
     if(const auto* wav = snd.GetWav()) {
-        _buffer.pAudioData = wav->GetDataBuffer();
-        _buffer.AudioBytes = wav->GetDataBufferSize();
-        _buffer.LoopCount = _desc.loop_count;
-        _buffer.LoopBegin = 0;
-        _buffer.LoopLength = 0;
-        if(_desc.loop_count) {
-            _buffer.LoopBegin = _desc.loop_beginSamples;
-            _buffer.LoopLength = _desc.loop_endSamples - _desc.loop_beginSamples;
+        m_buffer.pAudioData = wav->GetDataBuffer();
+        m_buffer.AudioBytes = wav->GetDataBufferSize();
+        m_buffer.LoopCount = m_desc.loop_count;
+        m_buffer.LoopBegin = 0;
+        m_buffer.LoopLength = 0;
+        if(m_desc.loop_count) {
+            m_buffer.LoopBegin = m_desc.loop_beginSamples;
+            m_buffer.LoopLength = m_desc.loop_endSamples - m_desc.loop_beginSamples;
         }
-        _voice->SubmitSourceBuffer(&_buffer, nullptr);
-        _voice->SetVolume(_desc.volume, operationSetId);
-        _voice->SetFrequencyRatio(_desc.frequency, operationSetId);
-        _voice->Start(0, operationSetId);
+        m_voice->SubmitSourceBuffer(&m_buffer, nullptr);
+        m_voice->SetVolume(m_desc.volume, operationSetId);
+        m_voice->SetFrequencyRatio(m_desc.frequency, operationSetId);
+        m_voice->Start(0, operationSetId);
     }
 }
 
 void AudioSystem::Channel::Stop() noexcept {
-    if(_voice) {
-        _voice->Stop();
-        _voice->FlushSourceBuffers();
+    if(m_voice) {
+        m_voice->Stop();
+        m_voice->FlushSourceBuffers();
     }
 }
 
 void AudioSystem::Channel::Stop(uint32_t operationSetId) noexcept {
-    if(_voice) {
-        _voice->Stop(0, operationSetId);
-        _voice->FlushSourceBuffers();
+    if(m_voice) {
+        m_voice->Stop(0, operationSetId);
+        m_voice->FlushSourceBuffers();
     }
 }
 
 void AudioSystem::Channel::Pause() noexcept {
-    if(_voice) {
-        _voice->Stop();
+    if(m_voice) {
+        m_voice->Stop();
     }
 }
 
 void AudioSystem::Channel::Pause(uint32_t operationSetId) noexcept {
-    if(_voice) {
-        _voice->Stop(0, operationSetId);
+    if(m_voice) {
+        m_voice->Stop(0, operationSetId);
     }
 }
 
@@ -625,20 +625,20 @@ AudioSystem::Channel::ChannelDesc& AudioSystem::Channel::ChannelDesc::operator=(
 }
 
 void AudioSystem::Channel::SetStopWhenFinishedLooping(bool value) {
-    _desc.stopWhenFinishedLooping = value;
+    m_desc.stopWhenFinishedLooping = value;
 }
 
 void AudioSystem::Channel::SetLoopCount(int count) noexcept {
     if(count <= -1) {
-        _desc.loop_count = XAUDIO2_LOOP_INFINITE;
+        m_desc.loop_count = XAUDIO2_LOOP_INFINITE;
     } else {
         count = std::clamp(count, 0, XAUDIO2_MAX_LOOP_COUNT);
-        _desc.loop_count = count;
+        m_desc.loop_count = count;
     }
 }
 
 uint32_t AudioSystem::Channel::GetLoopCount() const noexcept {
-    return _desc.loop_count;
+    return m_desc.loop_count;
 }
 
 void AudioSystem::Channel::SetLoopRange(TimeUtils::FPSeconds start, TimeUtils::FPSeconds end) {
@@ -647,34 +647,34 @@ void AudioSystem::Channel::SetLoopRange(TimeUtils::FPSeconds start, TimeUtils::F
 }
 
 void AudioSystem::Channel::SetLoopBegin(TimeUtils::FPSeconds start) {
-    const auto& fmt = _audio_system->GetLoadedWavFileFormat();
-    _desc.loop_beginSamples = static_cast<uint32_t>(fmt.samplesPerSecond * start.count());
+    const auto& fmt = m_audio_system->GetLoadedWavFileFormat();
+    m_desc.loop_beginSamples = static_cast<uint32_t>(fmt.samplesPerSecond * start.count());
 }
 
 void AudioSystem::Channel::SetLoopEnd(TimeUtils::FPSeconds end) {
-    const auto& fmt = _audio_system->GetLoadedWavFileFormat();
-    _desc.loop_endSamples = static_cast<uint32_t>(fmt.samplesPerSecond * end.count());
+    const auto& fmt = m_audio_system->GetLoadedWavFileFormat();
+    m_desc.loop_endSamples = static_cast<uint32_t>(fmt.samplesPerSecond * end.count());
 }
 
 void AudioSystem::Channel::SetVolume(float newVolume) noexcept {
-    _desc.volume = newVolume;
+    m_desc.volume = newVolume;
 }
 
 void AudioSystem::Channel::SetFrequency(float newFrequency) noexcept {
-    newFrequency = std::clamp(newFrequency, XAUDIO2_MIN_FREQ_RATIO, _desc.frequency_max);
-    _desc.frequency = newFrequency;
+    newFrequency = std::clamp(newFrequency, XAUDIO2_MIN_FREQ_RATIO, m_desc.frequency_max);
+    m_desc.frequency = newFrequency;
 }
 
 float AudioSystem::Channel::GetVolume() const noexcept {
-    return _desc.volume;
+    return m_desc.volume;
 }
 
 float AudioSystem::Channel::GetFrequency() const noexcept {
-    return _desc.frequency;
+    return m_desc.frequency;
 }
 
 AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepath)
-: _audio_system(&audiosystem) {
+: m_audio_system(&audiosystem) {
     namespace FS = std::filesystem;
     GUARANTEE_OR_DIE(FS::exists(filepath), "Attempting to create sound that does not exist.\n");
     {
@@ -687,43 +687,43 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepa
     }
     filepath.make_preferred();
     const auto pred = [&filepath](const auto& wav) { return wav.first == filepath; };
-    auto found = std::find_if(std::begin(_audio_system->_wave_files), std::end(_audio_system->_wave_files), pred);
-    if(found == _audio_system->_wave_files.end()) {
-        _audio_system->RegisterWavFile(filepath);
-        found = std::find_if(std::begin(_audio_system->_wave_files), std::end(_audio_system->_wave_files), pred);
+    auto found = std::find_if(std::begin(m_audio_system->m_wave_files), std::end(m_audio_system->m_wave_files), pred);
+    if(found == m_audio_system->m_wave_files.end()) {
+        m_audio_system->RegisterWavFile(filepath);
+        found = std::find_if(std::begin(m_audio_system->m_wave_files), std::end(m_audio_system->m_wave_files), pred);
     }
-    if(found != std::end(_audio_system->_wave_files)) {
-        _my_id = _id++;
-        _wave_file = found->second.get();
+    if(found != std::end(m_audio_system->m_wave_files)) {
+        m_my_id = m_id++;
+        m_wave_file = found->second.get();
     }
 }
 
 void AudioSystem::Sound::AddChannel(Channel* channel) noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    _channels.push_back(channel);
+    std::scoped_lock<std::mutex> lock(m_cs);
+    m_channels.push_back(channel);
 }
 
 void AudioSystem::Sound::RemoveChannel(Channel* channel) noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    _channels.erase(std::remove_if(std::begin(_channels), std::end(_channels),
+    std::scoped_lock<std::mutex> lock(m_cs);
+    m_channels.erase(std::remove_if(std::begin(m_channels), std::end(m_channels),
                                    [channel](Channel* c) -> bool { return c == channel; }),
-                    std::end(_channels));
+                    std::end(m_channels));
 }
 
 const std::size_t AudioSystem::Sound::GetId() const noexcept {
-    return _my_id;
+    return m_my_id;
 }
 
 const std::size_t AudioSystem::Sound::GetCount() noexcept {
-    return _id;
+    return m_id;
 }
 
 const FileUtils::Wav* const AudioSystem::Sound::GetWav() const noexcept {
-    return _wave_file;
+    return m_wave_file;
 }
 
 const std::vector<AudioSystem::Channel*>& AudioSystem::Sound::GetChannels() const noexcept {
-    return _channels;
+    return m_channels;
 }
 
 void STDMETHODCALLTYPE AudioSystem::EngineCallback::OnCriticalError(HRESULT error) {

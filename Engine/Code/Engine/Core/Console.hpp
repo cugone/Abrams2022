@@ -38,8 +38,8 @@ public:
         [[nodiscard]] const std::vector<Command>& GetCommands() const noexcept;
 
     private:
-        Console* _console = nullptr;
-        std::vector<Command> _commands{};
+        Console* m_console = nullptr;
+        std::vector<Command> m_commands{};
     };
     Console() noexcept;
     Console(const Console& other) = delete;
@@ -142,25 +142,25 @@ private:
     [[nodiscard]] bool WasMouseWheelJustScrolledUp() const noexcept;
     [[nodiscard]] bool WasMouseWheelJustScrolledDown() const noexcept;
 
-    std::unique_ptr<Camera2D> _camera{};
-    std::map<std::string, std::unique_ptr<ConsoleCommand>> _commands{};
-    std::vector<std::string> _entryline_buffer{};
-    std::vector<OutputEntry> _output_buffer{};
-    std::string _entryline{};
-    std::string::const_iterator _cursor_position{_entryline.begin()};
-    std::string::const_iterator _selection_position{_entryline.begin()};
-    decltype(_entryline_buffer)::const_iterator _current_history_position{};
-    unsigned int _default_blink_rate = 4u;
-    unsigned int _blink_rate = _default_blink_rate;
-    int _mouseWheelPosition{0};
-    mutable Vector2 _outputStartPosition{};
-    Stopwatch _cursor_timer = Stopwatch(_blink_rate);
-    uint8_t _show_cursor : 1;
-    uint8_t _is_open : 1;
-    uint8_t _highlight_mode : 1;
-    uint8_t _skip_nonwhitespace_mode : 1;
-    uint8_t _dirty_text : 1;
-    uint8_t _non_rendering_char : 1;
-    uint8_t _entryline_changed : 1;
-    uint8_t _output_changed : 1;
+    std::unique_ptr<Camera2D> m_camera{};
+    std::map<std::string, std::unique_ptr<ConsoleCommand>> m_commands{};
+    std::vector<std::string> m_entryline_buffer{};
+    std::vector<OutputEntry> m_output_buffer{};
+    std::string m_entryline{};
+    std::string::const_iterator m_cursor_position{m_entryline.begin()};
+    std::string::const_iterator m_selection_position{m_entryline.begin()};
+    decltype(m_entryline_buffer)::const_iterator m_current_history_position{};
+    unsigned int m_default_blink_rate = 4u;
+    unsigned int m_blink_rate = m_default_blink_rate;
+    int m_mouseWheelPosition{0};
+    mutable Vector2 m_outputStartPosition{};
+    Stopwatch m_cursor_timer = Stopwatch(m_blink_rate);
+    uint8_t m_show_cursor : 1;
+    uint8_t m_is_open : 1;
+    uint8_t m_highlight_mode : 1;
+    uint8_t m_skip_nonwhitespace_mode : 1;
+    uint8_t m_dirty_text : 1;
+    uint8_t m_non_rendering_char : 1;
+    uint8_t m_entryline_changed : 1;
+    uint8_t m_output_changed : 1;
 };

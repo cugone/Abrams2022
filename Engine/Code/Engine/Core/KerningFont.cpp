@@ -23,7 +23,7 @@ float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string
         const auto previous_char = char_iter++;
         if(char_iter != text.end()) {
             auto kern_value = 0.0f;
-            if(const auto kern_iter = font._kernmap.find(std::make_pair(*previous_char, *char_iter)); kern_iter != font._kernmap.end()) {
+            if(const auto kern_iter = font.m_kernmap.find(std::make_pair(*previous_char, *char_iter)); kern_iter != font.m_kernmap.end()) {
                 kern_value = static_cast<float>(kern_iter->second);
             }
             cursor_x += current_char_def.xadvance + kern_value;
@@ -49,22 +49,22 @@ float KerningFont::CalculateTextHeight(const std::string& text, float scale /*= 
 }
 
 float KerningFont::GetLineHeight() const noexcept {
-    return static_cast<float>(_common.line_height);
+    return static_cast<float>(m_common.line_height);
 }
 
 float KerningFont::GetLineHeightAsUV() const noexcept {
-    return GetLineHeight() / static_cast<float>(_common.scale.y);
+    return GetLineHeight() / static_cast<float>(m_common.scale.y);
 }
 
 const std::string& KerningFont::GetName() const noexcept {
-    return _name;
+    return m_name;
 }
 
 KerningFont::CharDef KerningFont::GetCharDef(int ch) const noexcept {
-    auto chardef_iter = _charmap.find(ch);
-    if(chardef_iter == _charmap.end()) {
-        chardef_iter = _charmap.find(-1);
-        if(chardef_iter == _charmap.end()) {
+    auto chardef_iter = m_charmap.find(ch);
+    if(chardef_iter == m_charmap.end()) {
+        chardef_iter = m_charmap.find(-1);
+        if(chardef_iter == m_charmap.end()) {
             return CharDef{};
         }
     }
@@ -72,19 +72,19 @@ KerningFont::CharDef KerningFont::GetCharDef(int ch) const noexcept {
 }
 
 const KerningFont::CommonDef& KerningFont::GetCommonDef() const noexcept {
-    return _common;
+    return m_common;
 }
 
 const KerningFont::InfoDef& KerningFont::GetInfoDef() const noexcept {
-    return _info;
+    return m_info;
 }
 
 const std::vector<std::string>& KerningFont::GetImagePaths() const noexcept {
-    return _image_paths;
+    return m_image_paths;
 }
 
 const std::filesystem::path& KerningFont::GetFilePath() const noexcept {
-    return _filepath;
+    return m_filepath;
 }
 
 bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
@@ -92,7 +92,7 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
         namespace FS = std::filesystem;
         const auto path_exists = FS::exists(filepath);
         if(!path_exists) {
-            DebuggerPrintf("Failed to read file: %s \nDoes not exist.\n", _filepath.string().c_str());
+            DebuggerPrintf("Failed to read file: %s \nDoes not exist.\n", m_filepath.string().c_str());
             return false;
         }
         {
@@ -112,20 +112,20 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
             DebuggerPrintf("%s is not a BMFont file.\n", filepath.string().c_str());
             return false;
         }
-        if(_is_loaded) {
+        if(m_is_loaded) {
             DebuggerPrintf("%s is already loaded.\n", filepath.string().c_str());
             return false;
         }
-        _filepath = filepath;
+        m_filepath = filepath;
     }
-    if(const auto& buffer = FileUtils::ReadBinaryBufferFromFile(_filepath.string()); buffer.has_value()) {
+    if(const auto& buffer = FileUtils::ReadBinaryBufferFromFile(m_filepath.string()); buffer.has_value()) {
         if(buffer->size() < 4) {
-            DebuggerPrintf("%s is not a BMFont file.\n", _filepath.string().c_str());
+            DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
             return false;
         }
         return LoadFromBuffer(*buffer);
     } else {
-        DebuggerPrintf("Failed to read file: %s \n", _filepath.string().c_str());
+        DebuggerPrintf("Failed to read file: %s \n", m_filepath.string().c_str());
         return false;
     }
 }
@@ -135,26 +135,26 @@ bool KerningFont::LoadFromBuffer(const std::vector<uint8_t>& buffer) noexcept {
     const auto is_binary = out_buffer[0] == 66 && out_buffer[1] == 77 && out_buffer[2] == 70;
     const auto is_text = out_buffer[0] == 105 && out_buffer[1] == 110 && out_buffer[2] == 102 && out_buffer[3] == 111;
     if(is_binary) {
-        _is_loaded = LoadFromBinary(out_buffer);
+        m_is_loaded = LoadFromBinary(out_buffer);
     } else if(is_text) {
-        _is_loaded = LoadFromText(out_buffer);
+        m_is_loaded = LoadFromText(out_buffer);
     } else {
-        _is_loaded = LoadFromXml(out_buffer);
+        m_is_loaded = LoadFromXml(out_buffer);
     }
-    return _is_loaded;
+    return m_is_loaded;
 }
 
 Material* KerningFont::GetMaterial() const noexcept {
-    return _material;
+    return m_material;
 }
 
 void KerningFont::SetMaterial(Material* mat) noexcept {
-    _material = mat;
+    m_material = mat;
 }
 
 int KerningFont::GetKerningValue(int first, int second) const noexcept {
-    const auto iter = _kernmap.find(std::make_pair(first, second));
-    if(iter != _kernmap.end()) {
+    const auto iter = m_kernmap.find(std::make_pair(first, second));
+    if(iter != m_kernmap.end()) {
         return (*iter).second;
     }
     return 0;
@@ -218,7 +218,7 @@ bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) noexcept {
         }
     }
     if(!kerning_count) {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", _name.c_str());
+        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
     }
     return true;
 }
@@ -263,52 +263,52 @@ bool KerningFont::ParseInfoLine(const std::string& infoLine) noexcept {
         value = cur_key_value[1];
         try {
             if(key == "face") {
-                _info.face = value;
+                m_info.face = value;
             }
             if(key == "size") {
-                _info.em_size = std::stoi(value);
+                m_info.em_size = std::stoi(value);
             }
             if(key == "bold") {
-                _info.is_bold = std::stoi(value) != 0;
+                m_info.is_bold = std::stoi(value) != 0;
             }
             if(key == "italic") {
-                _info.is_italic = std::stoi(value) != 0;
+                m_info.is_italic = std::stoi(value) != 0;
             }
             if(key == "charset") {
-                _info.charset = value;
+                m_info.charset = value;
             }
             if(key == "unicode") {
-                _info.charset = std::stoi(value) != 0;
+                m_info.charset = std::stoi(value) != 0;
             }
             if(key == "stretchH") {
-                _info.stretch_height = std::stof(value) / 100.0f;
+                m_info.stretch_height = std::stof(value) / 100.0f;
             }
             if(key == "smooth") {
-                _info.is_smoothed = std::stoi(value) != 0;
+                m_info.is_smoothed = std::stoi(value) != 0;
             }
             if(key == "aa") {
-                _info.is_aliased = std::stoi(value);
+                m_info.is_aliased = std::stoi(value);
             }
             if(key == "padding") {
                 const auto& pads = StringUtils::Split(value, ',', true);
-                _info.padding.x = std::stoi(pads[0]);
-                _info.padding.y = std::stoi(pads[1]);
-                _info.padding.z = std::stoi(pads[2]);
-                _info.padding.w = std::stoi(pads[3]);
+                m_info.padding.x = std::stoi(pads[0]);
+                m_info.padding.y = std::stoi(pads[1]);
+                m_info.padding.z = std::stoi(pads[2]);
+                m_info.padding.w = std::stoi(pads[3]);
             }
             if(key == "spacing") {
                 const auto& spaces = StringUtils::Split(value, ',', true);
-                _info.spacing.x = std::stoi(spaces[0]);
-                _info.spacing.y = std::stoi(spaces[1]);
+                m_info.spacing.x = std::stoi(spaces[0]);
+                m_info.spacing.y = std::stoi(spaces[1]);
             }
             if(key == "outline") {
-                _info.outline = std::stoi(value);
+                m_info.outline = std::stoi(value);
             }
         } catch(...) {
             return false;
         }
     }
-    _name = _info.face + std::to_string(_info.em_size);
+    m_name = m_info.face + std::to_string(m_info.em_size);
     return true;
 }
 
@@ -325,40 +325,40 @@ bool KerningFont::ParseCommonLine(const std::string& commonLine) noexcept {
         value = cur_key_value[1];
         try {
             if(key == "lineHeight") {
-                _common.line_height = std::stoi(value);
+                m_common.line_height = std::stoi(value);
             }
             if(key == "base") {
-                _common.base = std::stoi(value);
+                m_common.base = std::stoi(value);
             }
             if(key == "scaleW") {
-                _common.scale.x = std::stoi(value);
+                m_common.scale.x = std::stoi(value);
             }
             if(key == "scaleH") {
-                _common.scale.y = std::stoi(value);
+                m_common.scale.y = std::stoi(value);
             }
             if(key == "pages") {
-                _common.page_count = std::stoi(value);
+                m_common.page_count = std::stoi(value);
             }
             if(key == "packed") {
-                _common.is_packed = std::stoi(value) != 0;
+                m_common.is_packed = std::stoi(value) != 0;
             }
             if(key == "alphaChnl") {
-                _common.alpha_channel = std::stoi(value);
+                m_common.alpha_channel = std::stoi(value);
             }
             if(key == "redChnl") {
-                _common.red_channel = std::stoi(value);
+                m_common.red_channel = std::stoi(value);
             }
             if(key == "greenChnl") {
-                _common.green_channel = std::stoi(value);
+                m_common.green_channel = std::stoi(value);
             }
             if(key == "blueChnl") {
-                _common.blue_channel = std::stoi(value);
+                m_common.blue_channel = std::stoi(value);
             }
         } catch(...) {
             return false;
         }
     }
-    _image_paths.resize(_common.page_count);
+    m_image_paths.resize(m_common.page_count);
     return true;
 }
 
@@ -393,7 +393,7 @@ bool KerningFont::ParsePageLine(const std::string& pageLine) noexcept {
             return false;
         }
     }
-    _image_paths[id] = file;
+    m_image_paths[id] = file;
     return true;
 }
 
@@ -410,7 +410,7 @@ bool KerningFont::ParseCharsLine(const std::string& charsLine) noexcept {
         value = cur_key_value[1];
         try {
             if(key == "count") {
-                _char_count = std::stoi(value);
+                m_char_count = std::stoi(value);
             }
         } catch(...) {
             return false;
@@ -466,7 +466,7 @@ bool KerningFont::ParseCharLine(const std::string& charLine) noexcept {
             return false;
         }
     }
-    _charmap.insert_or_assign(def.id, def);
+    m_charmap.insert_or_assign(def.id, def);
     return true;
 }
 
@@ -483,7 +483,7 @@ bool KerningFont::ParseKerningsLine(const std::string& kerningsLine) noexcept {
         value = cur_key_value[1];
         try {
             if(key == "count") {
-                _kerns_count = std::stoi(value);
+                m_kerns_count = std::stoi(value);
             }
         } catch(...) {
             return false;
@@ -517,7 +517,7 @@ bool KerningFont::ParseKerningLine(const std::string& kerningLine) noexcept {
         } catch(...) {
             return false;
         }
-        _kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
+        m_kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
     }
     return true;
 }
@@ -542,53 +542,53 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
     if(const auto* xml_info = xml_root->FirstChildElement("info")) {
         DataUtils::ValidateXmlElement(*xml_info, "info", "", "face,size,bold,italic,charset,unicode,stretchH,smooth,aa,padding,spacing,outline");
 
-        _info.face = DataUtils::ParseXmlAttribute(*xml_info, "face", _info.face);
-        _info.em_size = DataUtils::ParseXmlAttribute(*xml_info, "size", _info.em_size);
-        _info.is_bold = DataUtils::ParseXmlAttribute(*xml_info, "bold", _info.is_bold);
-        _info.is_italic = DataUtils::ParseXmlAttribute(*xml_info, "italic", _info.is_italic);
-        _info.charset = DataUtils::ParseXmlAttribute(*xml_info, "charset", _info.charset);
-        _info.is_unicode = DataUtils::ParseXmlAttribute(*xml_info, "unicode", _info.is_unicode);
-        _info.stretch_height = DataUtils::ParseXmlAttribute(*xml_info, "stretchH", _info.stretch_height) / 100.0f;
-        _info.is_smoothed = DataUtils::ParseXmlAttribute(*xml_info, "smooth", _info.is_smoothed);
-        _info.is_aliased = DataUtils::ParseXmlAttribute(*xml_info, "aa", _info.is_aliased);
+        m_info.face = DataUtils::ParseXmlAttribute(*xml_info, "face", m_info.face);
+        m_info.em_size = DataUtils::ParseXmlAttribute(*xml_info, "size", m_info.em_size);
+        m_info.is_bold = DataUtils::ParseXmlAttribute(*xml_info, "bold", m_info.is_bold);
+        m_info.is_italic = DataUtils::ParseXmlAttribute(*xml_info, "italic", m_info.is_italic);
+        m_info.charset = DataUtils::ParseXmlAttribute(*xml_info, "charset", m_info.charset);
+        m_info.is_unicode = DataUtils::ParseXmlAttribute(*xml_info, "unicode", m_info.is_unicode);
+        m_info.stretch_height = DataUtils::ParseXmlAttribute(*xml_info, "stretchH", m_info.stretch_height) / 100.0f;
+        m_info.is_smoothed = DataUtils::ParseXmlAttribute(*xml_info, "smooth", m_info.is_smoothed);
+        m_info.is_aliased = DataUtils::ParseXmlAttribute(*xml_info, "aa", m_info.is_aliased);
         {
-            _name = StringUtils::ReplaceAll(_info.face, " ", "") + std::to_string(_info.em_size);
+            m_name = StringUtils::ReplaceAll(m_info.face, " ", "") + std::to_string(m_info.em_size);
         }
         {
             std::string padding_str{};
             const auto& padding = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "padding", padding_str));
             ASSERT_OR_DIE(padding.size() == 4, "FONT FORMAT INFO PADDING CHANGED");
-            _info.padding.x = std::stoi(padding[0]);
-            _info.padding.y = std::stoi(padding[1]);
-            _info.padding.z = std::stoi(padding[2]);
-            _info.padding.w = std::stoi(padding[3]);
+            m_info.padding.x = std::stoi(padding[0]);
+            m_info.padding.y = std::stoi(padding[1]);
+            m_info.padding.z = std::stoi(padding[2]);
+            m_info.padding.w = std::stoi(padding[3]);
         }
         {
             std::string spacing_str{};
             const auto& spacing = StringUtils::Split(DataUtils::ParseXmlAttribute(*xml_info, "spacing", spacing_str));
             ASSERT_OR_DIE(spacing.size() == 2, "FONT FORMAT INFO SPACING CHANGED");
-            _info.spacing.x = std::stoi(spacing[0]);
-            _info.spacing.y = std::stoi(spacing[1]);
+            m_info.spacing.x = std::stoi(spacing[0]);
+            m_info.spacing.y = std::stoi(spacing[1]);
         }
-        _info.outline = DataUtils::ParseXmlAttribute(*xml_info, "outline", _info.outline);
+        m_info.outline = DataUtils::ParseXmlAttribute(*xml_info, "outline", m_info.outline);
     }
 
-    if(const auto* xml_common = xml_root->FirstChildElement("common")) {
-        DataUtils::ValidateXmlElement(*xml_common, "common", "", "lineHeight,base,scaleW,scaleH,pages,packed,alphaChnl,redChnl,greenChnl,blueChnl");
-        _common.line_height = DataUtils::ParseXmlAttribute(*xml_common, "lineHeight", _common.line_height);
-        _common.base = DataUtils::ParseXmlAttribute(*xml_common, "base", _common.base);
-        _common.scale.x = DataUtils::ParseXmlAttribute(*xml_common, "scaleW", _common.scale.x);
-        _common.scale.y = DataUtils::ParseXmlAttribute(*xml_common, "scaleH", _common.scale.y);
-        _common.page_count = DataUtils::ParseXmlAttribute(*xml_common, "pages", _common.page_count);
-        _common.is_packed = DataUtils::ParseXmlAttribute(*xml_common, "packed", _common.is_packed);
-        _common.alpha_channel = DataUtils::ParseXmlAttribute(*xml_common, "alphaChnl", _common.alpha_channel);
-        _common.red_channel = DataUtils::ParseXmlAttribute(*xml_common, "redChnl", _common.red_channel);
-        _common.green_channel = DataUtils::ParseXmlAttribute(*xml_common, "greenChnl", _common.green_channel);
-        _common.blue_channel = DataUtils::ParseXmlAttribute(*xml_common, "blueChnl", _common.blue_channel);
+    if(const auto* xmlm_common = xml_root->FirstChildElement("common")) {
+        DataUtils::ValidateXmlElement(*xmlm_common, "common", "", "lineHeight,base,scaleW,scaleH,pages,packed,alphaChnl,redChnl,greenChnl,blueChnl");
+        m_common.line_height = DataUtils::ParseXmlAttribute(*xmlm_common, "lineHeight", m_common.line_height);
+        m_common.base = DataUtils::ParseXmlAttribute(*xmlm_common, "base", m_common.base);
+        m_common.scale.x = DataUtils::ParseXmlAttribute(*xmlm_common, "scaleW", m_common.scale.x);
+        m_common.scale.y = DataUtils::ParseXmlAttribute(*xmlm_common, "scaleH", m_common.scale.y);
+        m_common.page_count = DataUtils::ParseXmlAttribute(*xmlm_common, "pages", m_common.page_count);
+        m_common.is_packed = DataUtils::ParseXmlAttribute(*xmlm_common, "packed", m_common.is_packed);
+        m_common.alpha_channel = DataUtils::ParseXmlAttribute(*xmlm_common, "alphaChnl", m_common.alpha_channel);
+        m_common.red_channel = DataUtils::ParseXmlAttribute(*xmlm_common, "redChnl", m_common.red_channel);
+        m_common.green_channel = DataUtils::ParseXmlAttribute(*xmlm_common, "greenChnl", m_common.green_channel);
+        m_common.blue_channel = DataUtils::ParseXmlAttribute(*xmlm_common, "blueChnl", m_common.blue_channel);
     }
     if(const auto* xml_pages = xml_root->FirstChildElement("pages")) {
         DataUtils::ValidateXmlElement(*xml_pages, "pages", "page", "");
-        _image_paths.resize(_common.page_count);
+        m_image_paths.resize(m_common.page_count);
         { //Scope constraint
             namespace FS = std::filesystem;
             DataUtils::ForEachChildElement(*xml_pages, "page",
@@ -596,14 +596,14 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
                                                DataUtils::ValidateXmlElement(elem, "page", "", "id,file");
                                                unsigned int page_id = DataUtils::ParseXmlAttribute(elem, "id", 0u);
                                                auto page_file = DataUtils::ParseXmlAttribute(elem, "file", std::string{});
-                                               _image_paths[page_id] = page_file;
+                                               m_image_paths[page_id] = page_file;
                                            });
         }
     }
     if(const auto* xml_chars = xml_root->FirstChildElement("chars")) {
         DataUtils::ValidateXmlElement(*xml_chars, "chars", "char", "count");
 
-        _char_count = DataUtils::ParseXmlAttribute(*xml_chars, "count", _char_count);
+        m_char_count = DataUtils::ParseXmlAttribute(*xml_chars, "count", m_char_count);
         DataUtils::ForEachChildElement(*xml_chars, "char",
                                        [this](const XMLElement& elem) {
                                            DataUtils::ValidateXmlElement(elem, "char", "", "id,x,y,width,height,xoffset,yoffset,xadvance,page,chnl");
@@ -619,12 +619,12 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
                                            t.page_id = DataUtils::ParseXmlAttribute(elem, "page", t.page_id);
                                            t.channel_id = DataUtils::ParseXmlAttribute(elem, "chnl", t.channel_id);
 
-                                           _charmap.insert_or_assign(id, t);
+                                           m_charmap.insert_or_assign(id, t);
                                        });
     }
     if(const auto* xml_kernings = xml_root->FirstChildElement("kernings")) {
         DataUtils::ValidateXmlElement(*xml_kernings, "kernings", "kerning", "count");
-        _kerns_count = DataUtils::ParseXmlAttribute(*xml_kernings, "count", _char_count);
+        m_kerns_count = DataUtils::ParseXmlAttribute(*xml_kernings, "count", m_char_count);
         DataUtils::ForEachChildElement(*xml_kernings, "kerning",
                                        [this](const XMLElement& elem) {
                                            DataUtils::ValidateXmlElement(elem, "kerning", "", "first,second,amount");
@@ -633,10 +633,10 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
                                            def.second = DataUtils::ParseXmlAttribute(elem, "second", def.second);
                                            def.amount = DataUtils::ParseXmlAttribute(elem, "amount", def.amount);
 
-                                           _kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
+                                           m_kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
                                        });
     } else {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", _name.c_str());
+        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
     }
     return true;
 }
@@ -720,7 +720,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
     constexpr const uint8_t CURRENT_BMF_VERSION = 3;
     if(bss.read(reinterpret_cast<char*>(&header), sizeof(header))) {
         if(!(header.id[0] == 'B' && header.id[1] == 'M' && header.id[2] == 'F')) {
-            DebuggerPrintf("%s is not a BMFont file.\n", _filepath.string().c_str());
+            DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
             return false;
         }
         if(header.version != CURRENT_BMF_VERSION) {
@@ -743,47 +743,47 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             std::string font_name(block_size - sizeof(info), '\0');
             bss.read(font_name.data(), font_name.size());
             if(info.font_size < 0) {
-                DebuggerPrintf("%s uses \"Match char height\" option which will result in negative font sizes.\n", _filepath.string().c_str());
+                DebuggerPrintf("%s uses \"Match char height\" option which will result in negative font sizes.\n", m_filepath.string().c_str());
             }
-            _info.charset = info.char_set;
-            _info.em_size = info.font_size;
-            _info.face = font_name.c_str();
-            _info.is_aliased = info.aa != 0;
-            _info.is_smoothed = (info.suibfr3_bitfield & 0b10000000) != 0;
-            _info.is_unicode = (info.suibfr3_bitfield & 0b01000000) != 0;
-            _info.is_italic = (info.suibfr3_bitfield & 0b00100000) != 0;
-            _info.is_bold = (info.suibfr3_bitfield & 0b00010000) != 0;
-            _info.is_fixedHeight = (info.suibfr3_bitfield & 0b00001000) != 0;
-            _info.outline = info.outline;
-            _info.padding = IntVector4(info.padding_up, info.padding_right, info.padding_down, info.padding_left);
-            _info.spacing = IntVector2(info.spacing_h, info.spacing_v);
-            _info.stretch_height = info.stretch_height / 100.0f;
-            _name = StringUtils::ReplaceAll(_info.face, " ", "") + std::to_string(_info.em_size);
+            m_info.charset = info.char_set;
+            m_info.em_size = info.font_size;
+            m_info.face = font_name.c_str();
+            m_info.is_aliased = info.aa != 0;
+            m_info.is_smoothed = (info.suibfr3_bitfield & 0b10000000) != 0;
+            m_info.is_unicode = (info.suibfr3_bitfield & 0b01000000) != 0;
+            m_info.is_italic = (info.suibfr3_bitfield & 0b00100000) != 0;
+            m_info.is_bold = (info.suibfr3_bitfield & 0b00010000) != 0;
+            m_info.is_fixedHeight = (info.suibfr3_bitfield & 0b00001000) != 0;
+            m_info.outline = info.outline;
+            m_info.padding = IntVector4(info.padding_up, info.padding_right, info.padding_down, info.padding_left);
+            m_info.spacing = IntVector2(info.spacing_h, info.spacing_v);
+            m_info.stretch_height = info.stretch_height / 100.0f;
+            m_name = StringUtils::ReplaceAll(m_info.face, " ", "") + std::to_string(m_info.em_size);
             break;
         }
         case BLOCK_ID_COMMON: {
             ++successful_block_reads;
             bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
             bss.read(reinterpret_cast<char*>(&common), block_size);
-            _common.alpha_channel = common.alpha_channel;
-            _common.base = common.base;
-            _common.blue_channel = common.blue_channel;
-            _common.green_channel = common.green_channel;
-            _common.is_packed = (common.r7p_bitfield & 0b00000001) != 0;
-            _common.line_height = common.line_height;
-            _common.page_count = common.pages;
-            _image_paths.resize(_common.page_count);
-            _common.red_channel = common.red_channel;
-            _common.scale = IntVector2(common.scale_w, common.scale_h);
+            m_common.alpha_channel = common.alpha_channel;
+            m_common.base = common.base;
+            m_common.blue_channel = common.blue_channel;
+            m_common.green_channel = common.green_channel;
+            m_common.is_packed = (common.r7p_bitfield & 0b00000001) != 0;
+            m_common.line_height = common.line_height;
+            m_common.page_count = common.pages;
+            m_image_paths.resize(m_common.page_count);
+            m_common.red_channel = common.red_channel;
+            m_common.scale = IntVector2(common.scale_w, common.scale_h);
             break;
         }
         case BLOCK_ID_PAGES: {
             ++successful_block_reads;
             bss.read(reinterpret_cast<char*>(&block_size), sizeof(block_size));
-            uint8_t page_name_length = (uint8_t)(((uint32_t)block_size / (uint32_t)_common.page_count) - (uint32_t)1);
-            for(std::size_t i = 0; i < static_cast<std::size_t>(_common.page_count); ++i) {
-                _image_paths[i].resize(page_name_length);
-                bss.read(_image_paths[i].data(), _image_paths[i].size() + 1);
+            uint8_t page_name_length = (uint8_t)(((uint32_t)block_size / (uint32_t)m_common.page_count) - (uint32_t)1);
+            for(std::size_t i = 0; i < static_cast<std::size_t>(m_common.page_count); ++i) {
+                m_image_paths[i].resize(page_name_length);
+                bss.read(m_image_paths[i].data(), m_image_paths[i].size() + 1);
             }
             break;
         }
@@ -794,7 +794,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             uint32_t char_count = block_size / chars_size;
             for(uint32_t i = 0; i < char_count; ++i) {
                 if(!bss.read(reinterpret_cast<char*>(&chars), chars_size)) {
-                    DebuggerPrintf("%s is not a BMFont file.\n", _filepath.string().c_str());
+                    DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
                     return false;
                 }
                 CharDef d{};
@@ -805,7 +805,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
                 d.page_id = chars.page;
                 d.position = IntVector2(chars.x, chars.y);
                 d.xadvance = chars.x_advance;
-                _charmap.insert_or_assign(d.id, d);
+                m_charmap.insert_or_assign(d.id, d);
             }
             break;
         }
@@ -820,7 +820,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
                     d.first = kerning.first;
                     d.second = kerning.second;
                     d.amount = kerning.amount;
-                    _kernmap.insert_or_assign(std::make_pair(d.first, d.second), d.amount);
+                    m_kernmap.insert_or_assign(std::make_pair(d.first, d.second), d.amount);
                 }
             }
             break;
@@ -832,7 +832,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
         }
     }
     if(successful_block_reads < BLOCK_ID_KERNINGS) {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", _name.c_str());
+        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
     }
     return true;
 }

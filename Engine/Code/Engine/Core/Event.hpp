@@ -24,25 +24,25 @@ public:
         sub.cb = FunctionWithArgumentCallback;
         sub.secondary_cb = cb;
         sub.user_arg = user_arg;
-        subscriptions.push_back(sub);
+        m_subscriptions.push_back(sub);
     }
 
     void Unsubscribe(void* user_arg, void* cb) noexcept {
-        subscriptions.erase(std::remove_if(std::begin(subscriptions),
-                                           std::end(subscriptions),
+        m_subscriptions.erase(std::remove_if(std::begin(m_subscriptions),
+                                           std::end(m_subscriptions),
                                            [&cb, &user_arg](const event_sub_t& sub) {
                                                return (sub.secondary_cb == cb) && (sub.user_arg == user_arg);
                                            }),
-                            std::end(subscriptions));
+                            std::end(m_subscriptions));
     }
 
     void Unsubscribe_by_argument(void* user_arg) noexcept {
-        subscriptions.erase(std::remove_if(std::begin(subscriptions),
-                                           std::end(subscriptions),
+        m_subscriptions.erase(std::remove_if(std::begin(m_subscriptions),
+                                           std::end(m_subscriptions),
                                            [&user_arg](const event_sub_t& sub) {
                                                return sub.user_arg == user_arg;
                                            }),
-                            std::end(subscriptions));
+                            std::end(m_subscriptions));
     }
 
     template<typename T>
@@ -51,7 +51,7 @@ public:
         sub.cb = MethodCallback<T, decltype(mcb)>;
         sub.secondary_cb = *(void**)(&mcb);
         sub.user_arg = obj;
-        subscriptions.push_back(sub);
+        m_subscriptions.push_back(sub);
     }
 
     template<typename T>
@@ -65,19 +65,19 @@ public:
     }
 
     void Trigger(ARGS... args) const noexcept {
-        for(const auto& sub : subscriptions) {
+        for(const auto& sub : m_subscriptions) {
             sub.cb(&sub, args...);
         }
     }
 
     void Trigger(ARGS... args) noexcept {
-        for(auto& sub : subscriptions) {
+        for(auto& sub : m_subscriptions) {
             sub.cb(&sub, args...);
         }
     }
 
 private:
-    std::vector<event_sub_t> subscriptions;
+    std::vector<event_sub_t> m_subscriptions;
 
     static void FunctionWithArgumentCallback(event_sub_t* sub, ARGS... args) noexcept;
 

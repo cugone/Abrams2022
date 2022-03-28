@@ -53,18 +53,18 @@ private:
 
     void TriangulatePolygon(const std::vector<std::string>& tris) noexcept;
 
-    std::string _materialName{};
-    std::string _objectName{};
-    std::vector<Vertex3D> _vbo{};
-    std::vector<unsigned int> _ibo{};
-    std::vector<Vector3> _verts{};
-    std::vector<Vector3> _tex_coords{};
-    std::vector<Vector3> _normals{};
-    std::vector<FaceIdxs> _face_idxs{};
-    std::atomic_bool _is_loaded = false;
-    std::atomic_bool _is_loading = false;
-    std::atomic_bool _is_saving = false;
-    std::atomic_bool _is_saved = false;
+    std::string m_materialName{};
+    std::string m_objectName{};
+    std::vector<Vertex3D> m_vbo{};
+    std::vector<unsigned int> m_ibo{};
+    std::vector<Vector3> m_verts{};
+    std::vector<Vector3> m_tex_coords{};
+    std::vector<Vector3> m_normals{};
+    std::vector<FaceIdxs> m_face_idxs{};
+    std::atomic_bool m_is_loaded = false;
+    std::atomic_bool m_is_loading = false;
+    std::atomic_bool m_is_saving = false;
+    std::atomic_bool m_is_saved = false;
 };
 
 } // namespace FileUtils

@@ -9,19 +9,19 @@
 
 void JobConsumer::AddCategory(const JobType& category) noexcept {
     const auto categoryAsSizeT = TypeUtils::GetUnderlyingValue<JobType>(category);
-    if(categoryAsSizeT >= JobSystem::_queues.size()) {
+    if(categoryAsSizeT >= JobSystem::m_queues.size()) {
         return;
     }
-    if(auto* q = JobSystem::_queues[categoryAsSizeT]; q) {
-        _consumables.push_back(q);
+    if(auto* q = JobSystem::m_queues[categoryAsSizeT]; q) {
+        m_consumables.push_back(q);
     }
 }
 
 bool JobConsumer::ConsumeJob() noexcept {
-    if(_consumables.empty()) {
+    if(m_consumables.empty()) {
         return false;
     }
-    for(const auto& consumable : _consumables) {
+    for(const auto& consumable : m_consumables) {
         if(!consumable) {
             continue;
         }
@@ -55,10 +55,10 @@ void JobConsumer::ConsumeFor(TimeUtils::FPMilliseconds consume_duration) noexcep
 }
 
 bool JobConsumer::HasJobs() const noexcept {
-    if(_consumables.empty()) {
+    if(m_consumables.empty()) {
         return false;
     }
-    for(const auto& consumable : _consumables) {
+    for(const auto& consumable : m_consumables) {
         const auto& queue = *consumable;
         if(!queue.empty()) {
             return true;

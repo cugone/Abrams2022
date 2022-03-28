@@ -42,14 +42,14 @@ void* Console::GetAcceleratorTable() const noexcept {
 
 Console::Console() noexcept
 : EngineSubsystem()
-, _show_cursor(false)
-, _is_open(false)
-, _highlight_mode(false)
-, _skip_nonwhitespace_mode(false)
-, _dirty_text(false)
-, _non_rendering_char(false)
-, _entryline_changed(false)
-, _output_changed(false)
+, m_show_cursor(false)
+, m_is_open(false)
+, m_highlight_mode(false)
+, m_skip_nonwhitespace_mode(false)
+, m_dirty_text(false)
+, m_non_rendering_char(false)
+, m_entryline_changed(false)
+, m_output_changed(false)
 
 {
     ACCEL copy{};
@@ -78,7 +78,7 @@ Console::Console() noexcept
 
 Console::~Console() noexcept {
     ::DestroyAcceleratorTable(hAcceleratorTable);
-    _commands.clear();
+    m_commands.clear();
 }
 
 bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
@@ -112,7 +112,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         return true;
     }
     case WindowsSystemMessage::Keyboard_SysKeyDown: {
-        _non_rendering_char = false;
+        m_non_rendering_char = false;
         auto key = static_cast<unsigned char>(wp);
         auto lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
         //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
@@ -133,7 +133,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         //constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
         bool is_extended_key = (lpBits & extended_key_mask) != 0;
         if(key < 32 || key == 127) { //Control and Del chars
-            _non_rendering_char = true;
+            m_non_rendering_char = true;
         }
         auto my_key = ConvertWinVKToKeyCode(key);
         if(is_extended_key) {
@@ -147,13 +147,13 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             default: return false;
             }
         }
-        if(!_non_rendering_char) {
+        if(!m_non_rendering_char) {
             return true;
         }
         return false;
     }
     case WindowsSystemMessage::Keyboard_KeyDown: {
-        _non_rendering_char = false;
+        m_non_rendering_char = false;
         auto key = static_cast<unsigned char>(wp);
         auto lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
         //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
@@ -173,7 +173,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         //constexpr uint32_t transition_state_mask = 0b1000'0000'0000'0000'0000'0000'0000'0000; //0x80000000;
         bool is_extended_key = (lpBits & extended_key_mask) != 0;
         if(key < 32 || key == 127) { //Control and Del chars
-            _non_rendering_char = true;
+            m_non_rendering_char = true;
         }
         auto my_key = ConvertWinVKToKeyCode(key);
         if(is_extended_key) {
@@ -228,9 +228,9 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case KeyCode::Ctrl: SetSkipNonWhitespaceMode(true); return true;
         case KeyCode::Shift: SetHighlightMode(true); return true;
         case KeyCode::Tab: return HandleTabKey();
-        case KeyCode::F1: RunCommand(std::string("help ") + _entryline); return true;
+        case KeyCode::F1: RunCommand(std::string("help ") + m_entryline); return true;
         default: {
-            if(!_non_rendering_char) {
+            if(!m_non_rendering_char) {
                 return true;
             }
             return false;
@@ -238,10 +238,10 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         }
     }
     case WindowsSystemMessage::Keyboard_Char: {
-        if(IsClosed() || _non_rendering_char) {
+        if(IsClosed() || m_non_rendering_char) {
             return false;
         }
-        _entryline_changed = false;
+        m_entryline_changed = false;
         auto char_code = static_cast<unsigned char>(wp);
         //uint32_t lpBits = lp;
         //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
@@ -270,7 +270,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         if(IsClosed()) {
             return false;
         }
-        _entryline_changed = false;
+        m_entryline_changed = false;
         auto char_code = static_cast<unsigned char>(wp);
         auto lpBits = static_cast<uint32_t>(lp & 0xFFFFFFFFu);
         //0bTPXRRRRESSSSSSSSCCCCCCCCCCCCCCCC
@@ -311,7 +311,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         if(IsClosed()) {
             return false;
         }
-        _mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
+        m_mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
         return true;
     }
     case WindowsSystemMessage::Window_Size: {
@@ -327,11 +327,11 @@ bool Console::HandleClipboardCopy() const noexcept {
     if(Clipboard::HasText()) {
         auto hwnd = static_cast<HWND>(ServiceLocator::get<IRendererService>().GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
-        if(_cursor_position != _selection_position) {
-            std::string copied_text = CopyText(_cursor_position, _selection_position);
+        if(m_cursor_position != m_selection_position) {
+            std::string copied_text = CopyText(m_cursor_position, m_selection_position);
             did_copy = c.Copy(copied_text);
         } else {
-            did_copy = c.Copy(_entryline);
+            did_copy = c.Copy(m_entryline);
         }
     }
     return did_copy;
@@ -342,23 +342,23 @@ void Console::HandleClipboardPaste() noexcept {
         auto hwnd = static_cast<HWND>(ServiceLocator::get<IRendererService>().GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
         auto string_to_paste = c.Paste();
-        PasteText(string_to_paste, _cursor_position);
+        PasteText(string_to_paste, m_cursor_position);
     }
 }
 
 void Console::HandleClipboardCut() noexcept {
     if(HandleClipboardCopy()) {
-        RemoveText(_cursor_position, _selection_position);
+        RemoveText(m_cursor_position, m_selection_position);
     }
 }
 
 void Console::HandleSelectAll() noexcept {
-    _cursor_position = _entryline.end();
-    _selection_position = _entryline.begin();
+    m_cursor_position = m_entryline.end();
+    m_selection_position = m_entryline.begin();
 }
 
 bool Console::HandleEscapeKey() noexcept {
-    _entryline.empty() ? Close() : ClearEntryLine();
+    m_entryline.empty() ? Close() : ClearEntryLine();
     return true;
 }
 
@@ -368,20 +368,20 @@ bool Console::HandleTabKey() noexcept {
 }
 
 void Console::AutoCompleteEntryline() noexcept {
-    if(_entryline.empty()) {
+    if(m_entryline.empty()) {
         return;
     }
-    for(const auto& entry : _commands) {
-        if(StringUtils::StartsWith(entry.first, _entryline)) {
-            _entryline = entry.first;
+    for(const auto& entry : m_commands) {
+        if(StringUtils::StartsWith(entry.first, m_entryline)) {
+            m_entryline = entry.first;
             MoveCursorToEnd();
         }
     }
 }
 
 bool Console::HandleBackspaceKey() noexcept {
-    if(_cursor_position != _selection_position) {
-        RemoveText(_cursor_position, _selection_position);
+    if(m_cursor_position != m_selection_position) {
+        RemoveText(m_cursor_position, m_selection_position);
     } else {
         RemoveTextBehindCaret();
     }
@@ -406,43 +406,43 @@ bool Console::HandleReturnKey() noexcept {
 bool Console::HandleTildeKey() noexcept {
     ToggleConsole();
     if(IsOpen()) {
-        _mouseWheelPosition = 0;
-        _outputStartPosition = Vector2::Zero;
-        _non_rendering_char = true;
-        _entryline.clear();
-        _cursor_position = _entryline.begin();
-        _selection_position = _cursor_position;
+        m_mouseWheelPosition = 0;
+        m_outputStartPosition = Vector2::Zero;
+        m_non_rendering_char = true;
+        m_entryline.clear();
+        m_cursor_position = m_entryline.begin();
+        m_selection_position = m_cursor_position;
     }
     return true;
 }
 
 void Console::SetHighlightMode(bool value) noexcept {
-    _highlight_mode = value;
+    m_highlight_mode = value;
 }
 
 void Console::SetOutputChanged(bool value) noexcept {
-    _output_changed = value;
+    m_output_changed = value;
 }
 
 void Console::SetSkipNonWhitespaceMode(bool value) noexcept {
-    _skip_nonwhitespace_mode = value;
+    m_skip_nonwhitespace_mode = value;
 }
 
 bool Console::HandleEndKey() noexcept {
-    const auto offset = std::distance(_cursor_position, std::cend(_entryline));
+    const auto offset = std::distance(m_cursor_position, std::cend(m_entryline));
     MoveCursorRight(offset);
     return true;
 }
 
 bool Console::HandleHomeKey() noexcept {
-    const auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
+    const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
     MoveCursorLeft(offset);
     return true;
 }
 
 bool Console::HandleDelKey() noexcept {
-    if(_cursor_position != _selection_position) {
-        RemoveText(_cursor_position, _selection_position);
+    if(m_cursor_position != m_selection_position) {
+        RemoveText(m_cursor_position, m_selection_position);
     } else {
         RemoveTextInFrontOfCaret();
     }
@@ -450,16 +450,16 @@ bool Console::HandleDelKey() noexcept {
 }
 
 bool Console::HandleRightKey() noexcept {
-    const auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
-    const auto offset_from_next_space = _entryline.find_first_of(' ', offset);
-    MoveCursorRight(_skip_nonwhitespace_mode ? offset + offset_from_next_space : 1);
+    const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
+    const auto offset_from_next_space = m_entryline.find_first_of(' ', offset);
+    MoveCursorRight(m_skip_nonwhitespace_mode ? offset + offset_from_next_space : 1);
     return true;
 }
 
 bool Console::HandleLeftKey() noexcept {
-    const auto offset = std::distance(std::cbegin(_entryline), _cursor_position);
-    const auto offset_from_previous_space = _entryline.find_last_of(' ', offset - 1);
-    MoveCursorLeft(_skip_nonwhitespace_mode ? offset - offset_from_previous_space : 1);
+    const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
+    const auto offset_from_previous_space = m_entryline.find_last_of(' ', offset - 1);
+    MoveCursorLeft(m_skip_nonwhitespace_mode ? offset - offset_from_previous_space : 1);
     return true;
 }
 
@@ -469,8 +469,8 @@ void Console::RunCommand(const std::string& name_and_args) noexcept {
     }
     const auto trimmed_name_and_args = StringUtils::TrimWhitespace(name_and_args);
     const auto [command, args] = StringUtils::SplitOnFirst(trimmed_name_and_args, ' ');
-    const auto iter = _commands.find(command);
-    if(iter == _commands.end()) {
+    const auto iter = m_commands.find(command);
+    if(iter == m_commands.end()) {
         ErrorMsg("INVALID COMMAND");
         return;
     }
@@ -483,21 +483,21 @@ void Console::RegisterCommand(const ConsoleCommand& command) noexcept {
     if(asConsoleCommand.command_name.empty()) {
         return;
     }
-    const auto iter = _commands.find(asConsoleCommand.command_name);
-    if(iter == _commands.end()) {
+    const auto iter = m_commands.find(asConsoleCommand.command_name);
+    if(iter == m_commands.end()) {
         auto newConsoleCommand = std::make_unique<Console::Command>();
         newConsoleCommand->command_name = asConsoleCommand.command_name;
         newConsoleCommand->help_text_short = asConsoleCommand.help_text_short;
         newConsoleCommand->help_text_long = asConsoleCommand.help_text_long;
         newConsoleCommand->command_function = asConsoleCommand.command_function;
-        _commands.insert_or_assign(asConsoleCommand.command_name, std::move(newConsoleCommand));
+        m_commands.insert_or_assign(asConsoleCommand.command_name, std::move(newConsoleCommand));
     }
 }
 
 void Console::UnregisterCommand(const std::string& command_name) noexcept {
-    const auto iter = _commands.find(command_name);
-    if(iter != _commands.end()) {
-        _commands.erase(command_name);
+    const auto iter = m_commands.find(command_name);
+    if(iter != m_commands.end()) {
+        m_commands.erase(command_name);
     }
 }
 
@@ -516,75 +516,75 @@ void Console::PopCommandList(const ConsoleCommandList& list) noexcept {
 }
 
 void Console::UnregisterAllCommands() noexcept {
-    _commands.clear();
+    m_commands.clear();
 }
 
 void Console::ToggleConsole() noexcept {
-    _is_open = !_is_open;
+    m_is_open = !m_is_open;
 }
 
 bool Console::IsOpen() const noexcept {
-    return _is_open;
+    return m_is_open;
 }
 
 bool Console::IsClosed() const noexcept {
-    return !_is_open;
+    return !m_is_open;
 }
 
 void Console::Open() noexcept {
-    _is_open = true;
+    m_is_open = true;
 }
 
 void Console::Close() noexcept {
-    _is_open = false;
+    m_is_open = false;
 }
 
 void Console::ToggleHighlightMode() noexcept {
-    _highlight_mode = !_highlight_mode;
+    m_highlight_mode = !m_highlight_mode;
 }
 
 bool Console::IsHighlighting() const noexcept {
-    return _highlight_mode;
+    return m_highlight_mode;
 }
 
 void Console::PostEntryLine() noexcept {
-    if(_entryline.empty()) {
+    if(m_entryline.empty()) {
         return;
     }
     PushEntrylineToOutputBuffer();
     PushEntrylineToBuffer();
-    RunCommand(_entryline);
+    RunCommand(m_entryline);
     ClearEntryLine();
 }
 
 void Console::PushEntrylineToOutputBuffer() noexcept {
-    PrintMsg(_entryline);
+    PrintMsg(m_entryline);
 }
 
 void Console::PushEntrylineToBuffer() noexcept {
-    const auto already_in_buffer = !_entryline_buffer.empty() && _entryline_buffer.back() == _entryline;
+    const auto already_in_buffer = !m_entryline_buffer.empty() && m_entryline_buffer.back() == m_entryline;
     if(already_in_buffer) {
         return;
     }
-    _entryline_buffer.push_back(_entryline);
-    _current_history_position = _entryline_buffer.end();
+    m_entryline_buffer.push_back(m_entryline);
+    m_current_history_position = m_entryline_buffer.end();
 }
 
 void Console::ClearEntryLine() noexcept {
-    _entryline.clear();
-    _cursor_position = std::begin(_entryline);
-    _selection_position = std::begin(_entryline);
+    m_entryline.clear();
+    m_cursor_position = std::begin(m_entryline);
+    m_selection_position = std::begin(m_entryline);
 }
 
 void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) noexcept {
-    if(_cursor_position != _entryline.begin()) {
-        if(!_highlight_mode) {
-            if(std::distance(std::cbegin(_entryline), _cursor_position) > distance) {
-                _cursor_position -= distance;
+    if(m_cursor_position != m_entryline.begin()) {
+        if(!m_highlight_mode) {
+            if(std::distance(std::cbegin(m_entryline), m_cursor_position) > distance) {
+                m_cursor_position -= distance;
             } else {
-                _cursor_position = std::begin(_entryline);
+                m_cursor_position = std::begin(m_entryline);
             }
-            _selection_position = _cursor_position;
+            m_selection_position = m_cursor_position;
         } else {
             UpdateSelectedRange(-distance);
         }
@@ -592,14 +592,14 @@ void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) noex
 }
 
 void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) noexcept {
-    if(_cursor_position != _entryline.end()) {
-        if(!_highlight_mode) {
-            if(distance < std::distance(_cursor_position, std::cend(_entryline))) {
-                _cursor_position += distance;
+    if(m_cursor_position != m_entryline.end()) {
+        if(!m_highlight_mode) {
+            if(distance < std::distance(m_cursor_position, std::cend(m_entryline))) {
+                m_cursor_position += distance;
             } else {
-                _cursor_position = std::end(_entryline);
+                m_cursor_position = std::end(m_entryline);
             }
-            _selection_position = _cursor_position;
+            m_selection_position = m_cursor_position;
         } else {
             UpdateSelectedRange(distance);
         }
@@ -607,79 +607,79 @@ void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) noe
 }
 
 void Console::MoveCursorToEnd() noexcept {
-    MoveCursorRight(_entryline.size() + 1);
+    MoveCursorRight(m_entryline.size() + 1);
 }
 
 void Console::MoveCursorToFront() noexcept {
-    MoveCursorLeft(_entryline.size() + 1);
+    MoveCursorLeft(m_entryline.size() + 1);
 }
 
 void Console::UpdateSelectedRange(std::string::difference_type distance) noexcept {
     if(distance > 0) {
-        const auto distance_from_end = std::distance(_cursor_position, std::cend(_entryline));
+        const auto distance_from_end = std::distance(m_cursor_position, std::cend(m_entryline));
         if(distance_from_end > std::abs(distance)) {
-            _cursor_position += distance;
+            m_cursor_position += distance;
         } else {
-            _cursor_position = std::end(_entryline);
+            m_cursor_position = std::end(m_entryline);
         }
 
-        std::string::const_iterator rangeStart = _cursor_position;
-        std::string::const_iterator rangeEnd = _selection_position;
-        if(!_highlight_mode && _selection_position < _cursor_position) {
-            rangeStart = _selection_position;
-            rangeEnd = _cursor_position;
+        std::string::const_iterator rangeStart = m_cursor_position;
+        std::string::const_iterator rangeEnd = m_selection_position;
+        if(!m_highlight_mode && m_selection_position < m_cursor_position) {
+            rangeStart = m_selection_position;
+            rangeEnd = m_cursor_position;
         }
-        _cursor_position = rangeStart;
-        _selection_position = rangeEnd;
+        m_cursor_position = rangeStart;
+        m_selection_position = rangeEnd;
     } else if(distance < 0) {
-        const auto distance_from_beginning = std::distance(std::cbegin(_entryline), _cursor_position);
+        const auto distance_from_beginning = std::distance(std::cbegin(m_entryline), m_cursor_position);
         if(distance_from_beginning > std::abs(distance)) {
-            _cursor_position += distance;
+            m_cursor_position += distance;
         } else {
-            _cursor_position = std::begin(_entryline);
+            m_cursor_position = std::begin(m_entryline);
         }
 
-        std::string::const_iterator rangeStart = _cursor_position;
-        std::string::const_iterator rangeEnd = _selection_position;
-        if(!_highlight_mode && _selection_position < _cursor_position) {
-            rangeStart = _selection_position;
-            rangeEnd = _cursor_position;
+        std::string::const_iterator rangeStart = m_cursor_position;
+        std::string::const_iterator rangeEnd = m_selection_position;
+        if(!m_highlight_mode && m_selection_position < m_cursor_position) {
+            rangeStart = m_selection_position;
+            rangeEnd = m_cursor_position;
         }
-        _cursor_position = rangeStart;
-        _selection_position = rangeEnd;
+        m_cursor_position = rangeStart;
+        m_selection_position = rangeEnd;
     }
 }
 
 void Console::RemoveTextInFrontOfCaret() noexcept {
-    if(!_entryline.empty()) {
-        if(_cursor_position != _entryline.end()) {
-            _cursor_position = _entryline.erase(_cursor_position);
-            _selection_position = _cursor_position;
-            _entryline_changed = true;
+    if(!m_entryline.empty()) {
+        if(m_cursor_position != m_entryline.end()) {
+            m_cursor_position = m_entryline.erase(m_cursor_position);
+            m_selection_position = m_cursor_position;
+            m_entryline_changed = true;
         }
     }
 }
 
 void Console::PopConsoleBuffer() noexcept {
-    if(!_entryline.empty()) {
-        if(_cursor_position == _entryline.end()) {
-            _entryline.pop_back();
-            --_cursor_position;
-            _entryline_changed = true;
+    if(!m_entryline.empty()) {
+        if(m_cursor_position == m_entryline.end()) {
+            m_entryline.pop_back();
+            --m_cursor_position;
+            m_entryline_changed = true;
         }
     }
 }
 void Console::RemoveTextBehindCaret() noexcept {
-    if(!_entryline.empty()) {
-        if(_cursor_position != _entryline.end()) {
-            if(_cursor_position != _entryline.begin()) {
-                _cursor_position = _entryline.erase(_cursor_position - 1);
-                _entryline_changed = true;
+    if(!m_entryline.empty()) {
+        if(m_cursor_position != m_entryline.end()) {
+            if(m_cursor_position != m_entryline.begin()) {
+                m_cursor_position = m_entryline.erase(m_cursor_position - 1);
+                m_entryline_changed = true;
             }
         } else {
             PopConsoleBuffer();
         }
-        _selection_position = _cursor_position;
+        m_selection_position = m_cursor_position;
     }
 }
 
@@ -687,9 +687,9 @@ void Console::RemoveText(std::string::const_iterator start, std::string::const_i
     if(end < start) {
         std::swap(start, end);
     }
-    _cursor_position = _entryline.erase(start, end);
-    _selection_position = _cursor_position;
-    _entryline_changed = true;
+    m_cursor_position = m_entryline.erase(start, end);
+    m_selection_position = m_cursor_position;
+    m_entryline_changed = true;
 }
 
 std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) const noexcept {
@@ -703,16 +703,16 @@ void Console::PasteText(const std::string& text, std::string::const_iterator loc
     if(text.empty()) {
         return;
     }
-    if(_cursor_position != _selection_position) {
-        RemoveText(_cursor_position, _selection_position);
+    if(m_cursor_position != m_selection_position) {
+        RemoveText(m_cursor_position, m_selection_position);
     }
-    _cursor_position = _entryline.insert(loc, std::begin(text), std::end(text)) + text.size();
-    _selection_position = _cursor_position;
-    _entryline_changed = true;
+    m_cursor_position = m_entryline.insert(loc, std::begin(text), std::end(text)) + text.size();
+    m_selection_position = m_cursor_position;
+    m_entryline_changed = true;
 }
 
 void Console::Initialize() noexcept {
-    _camera = std::make_unique<Camera2D>();
+    m_camera = std::make_unique<Camera2D>();
     RegisterDefaultCommands();
 }
 
@@ -726,20 +726,20 @@ void Console::RegisterDefaultCommands() noexcept {
         std::string cur_arg{};
         if(arg_set >> cur_arg) { //help ...
             cur_arg = StringUtils::TrimWhitespace(cur_arg);
-            const auto found_iter = _commands.find(cur_arg);
-            if(found_iter != _commands.end()) {
+            const auto found_iter = m_commands.find(cur_arg);
+            if(found_iter != m_commands.end()) {
                 const auto* asCommand = dynamic_cast<const Console::Command*>(found_iter->second.get());
                 PrintMsg(std::string{asCommand->command_name + ": " + asCommand->help_text_short});
                 return;
             }
-            for(auto& [key, value] : _commands) {
+            for(auto& [key, value] : m_commands) {
                 if(StringUtils::StartsWith(key, cur_arg)) {
                     const auto* asCommand = dynamic_cast<const Console::Command*>(value.get());
                     PrintMsg(std::string{asCommand->command_name + ": " + asCommand->help_text_short});
                 }
             }
         } else {
-            for(auto& [_, value] : _commands) {
+            for(auto& [_, value] : m_commands) {
                 const auto* asCommand = dynamic_cast<const Console::Command*>(value.get());
                 PrintMsg(std::string{asCommand->command_name + ": " + asCommand->help_text_short});
             }
@@ -766,15 +766,15 @@ void Console::RegisterDefaultCommands() noexcept {
     clear.help_text_short = "Clears the output buffer.";
     clear.help_text_long = clear.help_text_short;
     clear.command_function = [this](const std::string& /*args*/) -> void {
-        _output_changed = true;
-        _output_buffer.clear();
+        m_output_changed = true;
+        m_output_buffer.clear();
     };
     RegisterCommand(clear);
 }
 
 void Console::BeginFrame() noexcept {
-    if(_cursor_timer.CheckAndReset()) {
-        _show_cursor = !_show_cursor;
+    if(m_cursor_timer.CheckAndReset()) {
+        m_show_cursor = !m_show_cursor;
     }
 }
 
@@ -799,16 +799,16 @@ void Console::Render() const noexcept {
 }
 
 void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
-    if(!_show_cursor) {
+    if(!m_show_cursor) {
         return;
     }
     auto&& renderer = ServiceLocator::get<IRendererService>();
     const auto textline_bottom = view_half_extents.y * 0.99f;
     const auto textline_left = -view_half_extents.x * 0.99f;
     const auto font = renderer.GetFont("System32");
-    const auto first = _entryline.begin();
-    const auto has_text = !_entryline.empty();
-    const auto text_left_of_cursor = has_text ? std::string(first, _cursor_position) : std::string("");
+    const auto first = m_entryline.begin();
+    const auto has_text = !m_entryline.empty();
+    const auto text_left_of_cursor = has_text ? std::string(first, m_cursor_position) : std::string("");
     const auto xPosOffsetToCaret = font->CalculateTextWidth(text_left_of_cursor);
     const auto cursor_t = Matrix4::CreateTranslationMatrix(Vector3(textline_left + xPosOffsetToCaret, textline_bottom, 0.0f));
     const auto model_cursor_mat = cursor_t;
@@ -818,25 +818,25 @@ void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
 }
 
 void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
-    if(_output_buffer.empty()) {
+    if(m_output_buffer.empty()) {
         return;
     }
     std::vector<Vertex3D> vbo{};
     std::vector<unsigned int> ibo{};
     auto&& renderer = ServiceLocator::get<IRendererService>();
     auto* font = renderer.GetFont("System32");
-    const auto max_vertical_start_position = (_output_buffer.size() * (1 + font->GetLineHeight()) - view_half_extents.y * 2.0f);
-    if(_outputStartPosition.y <= max_vertical_start_position && WasMouseWheelJustScrolledUp()) {
-        _outputStartPosition.y += font->GetLineHeight();
+    const auto max_vertical_start_position = (m_output_buffer.size() * (1 + font->GetLineHeight()) - view_half_extents.y * 2.0f);
+    if(m_outputStartPosition.y <= max_vertical_start_position && WasMouseWheelJustScrolledUp()) {
+        m_outputStartPosition.y += font->GetLineHeight();
     }
-    if(_outputStartPosition.y && WasMouseWheelJustScrolledDown()) {
-        _outputStartPosition.y -= font->GetLineHeight();
+    if(m_outputStartPosition.y && WasMouseWheelJustScrolledDown()) {
+        m_outputStartPosition.y -= font->GetLineHeight();
     }
     {
         const auto draw_x = -view_half_extents.x;
         const auto draw_y = view_half_extents.y;
-        auto draw_loc = _outputStartPosition + Vector2(draw_x * 0.99f, draw_y * 0.99f);
-        for(auto iter = _output_buffer.cbegin(); iter != _output_buffer.cend(); ++iter) {
+        auto draw_loc = m_outputStartPosition + Vector2(draw_x * 0.99f, draw_y * 0.99f);
+        for(auto iter = m_output_buffer.cbegin(); iter != m_output_buffer.cend(); ++iter) {
             draw_loc.y -= font->CalculateTextHeight(iter->str);
             renderer.AppendMultiLineTextBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
         }
@@ -851,49 +851,49 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
 }
 
 void Console::OutputMsg(const std::string& msg, const Rgba& color) noexcept {
-    _output_changed = true;
-    _output_buffer.push_back({msg, color});
+    m_output_changed = true;
+    m_output_buffer.push_back({msg, color});
 }
 
 void Console::HistoryUp() noexcept {
-    if(_current_history_position == _entryline_buffer.begin()) {
+    if(m_current_history_position == m_entryline_buffer.begin()) {
         return;
     }
-    --_current_history_position;
-    _entryline = *_current_history_position;
+    --m_current_history_position;
+    m_entryline = *m_current_history_position;
     MoveCursorToEnd();
 }
 
 void Console::HistoryDown() noexcept {
-    if(_current_history_position != _entryline_buffer.end()) {
-        ++_current_history_position;
-        if(_current_history_position == _entryline_buffer.end()) {
+    if(m_current_history_position != m_entryline_buffer.end()) {
+        ++m_current_history_position;
+        if(m_current_history_position == m_entryline_buffer.end()) {
             ClearEntryLine();
         } else {
-            _entryline = *_current_history_position;
+            m_entryline = *m_current_history_position;
         }
     }
     MoveCursorToEnd();
 }
 
 void Console::InsertCharInEntryLine(unsigned char c) noexcept {
-    _entryline_changed = true;
-    if(!_entryline.empty()) {
-        if(_cursor_position != _selection_position) {
-            RemoveText(_cursor_position, _selection_position);
+    m_entryline_changed = true;
+    if(!m_entryline.empty()) {
+        if(m_cursor_position != m_selection_position) {
+            RemoveText(m_cursor_position, m_selection_position);
         }
-        if(_cursor_position == _entryline.end()) {
-            _entryline.push_back(c);
-            _cursor_position = _entryline.end();
+        if(m_cursor_position == m_entryline.end()) {
+            m_entryline.push_back(c);
+            m_cursor_position = m_entryline.end();
         } else {
-            _entryline.insert(_cursor_position, c);
-            ++_cursor_position;
+            m_entryline.insert(m_cursor_position, c);
+            ++m_cursor_position;
         }
     } else {
-        _entryline += c;
-        _cursor_position = _entryline.end();
+        m_entryline += c;
+        m_cursor_position = m_entryline.end();
     }
-    _selection_position = _cursor_position;
+    m_selection_position = m_cursor_position;
 }
 
 void Console::PrintMsg(const std::string& msg) noexcept {
@@ -924,12 +924,12 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
     const auto entryline_t = Matrix4::CreateTranslationMatrix(Vector3(textline_left, textline_bottom, 0.0f));
     const auto model_entryline_mat = entryline_t;
 
-    if(_cursor_position != _selection_position) {
-        auto xPosOffsetToCaret = font->CalculateTextWidth(std::string(std::begin(_entryline), _cursor_position));
-        auto xPosOffsetToSelect = font->CalculateTextWidth(std::string(std::begin(_entryline), _selection_position));
-        std::string::const_iterator rangeStart = _cursor_position;
-        std::string::const_iterator rangeEnd = _selection_position;
-        if(_selection_position < _cursor_position) {
+    if(m_cursor_position != m_selection_position) {
+        auto xPosOffsetToCaret = font->CalculateTextWidth(std::string(std::begin(m_entryline), m_cursor_position));
+        auto xPosOffsetToSelect = font->CalculateTextWidth(std::string(std::begin(m_entryline), m_selection_position));
+        std::string::const_iterator rangeStart = m_cursor_position;
+        std::string::const_iterator rangeEnd = m_selection_position;
+        if(m_selection_position < m_cursor_position) {
             std::swap(rangeStart, rangeEnd);
             std::swap(xPosOffsetToCaret, xPosOffsetToSelect);
         }
@@ -941,13 +941,13 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
         renderer.SetModelMatrix(model_entryline_mat);
         renderer.SetMaterial(font->GetMaterial());
 
-        renderer.DrawTextLine(font, std::string(_entryline, 0, std::distance(std::cbegin(_entryline), rangeStart)), Rgba::White);
+        renderer.DrawTextLine(font, std::string(m_entryline, 0, std::distance(std::cbegin(m_entryline), rangeStart)), Rgba::White);
         auto rightside_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToSelect, 0.0f, 0.0f));
         rightside_t = Matrix4::MakeRT(model_entryline_mat, rightside_t);
         renderer.SetModelMatrix(rightside_t);
-        renderer.DrawTextLine(font, std::string(_entryline, std::distance(std::cbegin(_entryline), rangeEnd), std::distance(rangeEnd, std::cend(_entryline))), Rgba::White);
+        renderer.DrawTextLine(font, std::string(m_entryline, std::distance(std::cbegin(m_entryline), rangeEnd), std::distance(rangeEnd, std::cend(m_entryline))), Rgba::White);
 
-        const auto xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(_entryline), rangeStart));
+        const auto xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(m_entryline), rangeStart));
         const auto blacktext_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToStart, 0.0f, 0.0f));
         auto model_mat_blacktext = Matrix4::MakeRT(model_entryline_mat, blacktext_t);
         renderer.SetModelMatrix(model_mat_blacktext);
@@ -956,7 +956,7 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
     } else {
         renderer.SetModelMatrix(model_entryline_mat);
         renderer.SetMaterial(font->GetMaterial());
-        renderer.DrawTextLine(font, _entryline, Rgba::White);
+        renderer.DrawTextLine(font, m_entryline, Rgba::White);
     }
 }
 
@@ -972,17 +972,17 @@ Vector2 Console::SetupViewFromCamera() const noexcept {
     const auto leftBottom = Vector2(-view_half_width, view_half_height);
     const auto rightTop = Vector2(view_half_width, -view_half_height);
     const auto nearFar = Vector2(0.0f, 1.0f);
-    _camera->SetupView(leftBottom, rightTop, nearFar, aspect);
+    m_camera->SetupView(leftBottom, rightTop, nearFar, aspect);
 
-    renderer.SetViewMatrix(_camera->GetViewMatrix());
-    renderer.SetProjectionMatrix(_camera->GetProjectionMatrix());
+    renderer.SetViewMatrix(m_camera->GetViewMatrix());
+    renderer.SetProjectionMatrix(m_camera->GetProjectionMatrix());
 
     return Vector2(view_half_width, view_half_height);
 }
 
 int Console::GetMouseWheelPositionNormalized() const noexcept {
-    if(_mouseWheelPosition) {
-        return _mouseWheelPosition / std::abs(_mouseWheelPosition);
+    if(m_mouseWheelPosition) {
+        return m_mouseWheelPosition / std::abs(m_mouseWheelPosition);
     }
     return 0;
 }
@@ -996,46 +996,46 @@ bool Console::WasMouseWheelJustScrolledDown() const noexcept {
 }
 
 void Console::EndFrame() noexcept {
-    _mouseWheelPosition = 0;
+    m_mouseWheelPosition = 0;
 }
 
 Console::CommandList::CommandList(Console* console /*= nullptr*/) noexcept
-: _console(console) {
+: m_console(console) {
     /* DO NOTHING */
 }
 
 Console::CommandList::CommandList(Console* console, const std::vector<Command>& commands) noexcept
-: _console(console)
-, _commands(commands) {
-    if(!_console) {
+: m_console(console)
+, m_commands(commands) {
+    if(!m_console) {
         return;
     }
-    for(const auto& command : _commands) {
-        _console->RegisterCommand(command);
+    for(const auto& command : m_commands) {
+        m_console->RegisterCommand(command);
     }
 }
 
 Console::CommandList::~CommandList() noexcept {
-    if(!_console) {
+    if(!m_console) {
         return;
     }
-    for(const auto& command : _commands) {
-        _console->UnregisterCommand(command.command_name);
+    for(const auto& command : m_commands) {
+        m_console->UnregisterCommand(command.command_name);
     }
 }
 
 void Console::CommandList::AddCommand(const Command& command) {
-    _commands.emplace_back(command);
+    m_commands.emplace_back(command);
 }
 
 void Console::CommandList::RemoveCommand(const std::string& name) {
-    _commands.erase(std::remove_if(std::begin(_commands), std::end(_commands), [&name](const Console::Command& command) { return name == command.command_name; }), std::end(_commands));
+    m_commands.erase(std::remove_if(std::begin(m_commands), std::end(m_commands), [&name](const Console::Command& command) { return name == command.command_name; }), std::end(m_commands));
 }
 
 void Console::CommandList::RemoveAllCommands() noexcept {
-    _commands.clear();
+    m_commands.clear();
 }
 
 const std::vector<Console::Command>& Console::CommandList::GetCommands() const noexcept {
-    return _commands;
+    return m_commands;
 }

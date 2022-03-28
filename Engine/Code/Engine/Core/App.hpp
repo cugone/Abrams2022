@@ -96,28 +96,28 @@ private:
 
     void LogSystemDescription() const;
 
-    bool _isQuitting = false;
-    bool _current_focus = false;
-    bool _previous_focus = false;
-    bool _enteredSizeMove = false;
-    bool _doneSizeMove = false;
+    bool m_isQuitting = false;
+    bool m_current_focus = false;
+    bool m_previous_focus = false;
+    bool m_enteredSizeMove = false;
+    bool m_doneSizeMove = false;
 
-    std::string _title{"UNTITLED GAME"};
+    std::string m_title{"UNTITLED GAME"};
 
-    std::unique_ptr<JobSystem> _theJobSystem{};
-    std::unique_ptr<FileLogger> _theFileLogger{};
-    std::unique_ptr<Config> _theConfig{};
-    std::unique_ptr<Renderer> _theRenderer{};
-    std::unique_ptr<Console> _theConsole{};
-    std::unique_ptr<PhysicsSystem> _thePhysicsSystem{};
-    std::unique_ptr<InputSystem> _theInputSystem{};
-    std::unique_ptr<UISystem> _theUI{};
-    std::unique_ptr<AudioSystem> _theAudioSystem{};
-    std::unique_ptr<GameType> _theGame{};
+    std::unique_ptr<JobSystem> m_theJobSystem{};
+    std::unique_ptr<FileLogger> m_theFileLogger{};
+    std::unique_ptr<Config> m_theConfig{};
+    std::unique_ptr<Renderer> m_theRenderer{};
+    std::unique_ptr<Console> m_theConsole{};
+    std::unique_ptr<PhysicsSystem> m_thePhysicsSystem{};
+    std::unique_ptr<InputSystem> m_theInputSystem{};
+    std::unique_ptr<UISystem> m_theUI{};
+    std::unique_ptr<AudioSystem> m_theAudioSystem{};
+    std::unique_ptr<GameType> m_theGame{};
 
-    static inline std::unique_ptr<App<GameType>> _theApp{};
+    static inline std::unique_ptr<App<GameType>> m_theApp{};
 
-    static inline NullAppService _nullApp{};
+    static inline NullAppService m_nullApp{};
 };
 
 namespace detail {
@@ -127,26 +127,26 @@ namespace detail {
 
 template<typename T>
 /*static*/ void App<T>::CreateApp(const std::string& title, const std::string& cmdString) noexcept {
-    if(_theApp) {
+    if(m_theApp) {
         return;
     }
-    _theApp = std::make_unique<App<T>>(title, cmdString);
-    ServiceLocator::provide(*static_cast<IAppService*>(_theApp.get()));
+    m_theApp = std::make_unique<App<T>>(title, cmdString);
+    ServiceLocator::provide(*static_cast<IAppService*>(m_theApp.get()));
 }
 
 template<typename T>
 /*static*/ void App<T>::DestroyApp() noexcept {
-    if(!_theApp) {
+    if(!m_theApp) {
         return;
     }
-    _theApp.reset(nullptr);
+    m_theApp.reset(nullptr);
 }
 
 template<typename T>
 App<T>::App(const std::string& title, const std::string& cmdString)
 : EngineSubsystem()
-, _title{title}
-, _theConfig{std::make_unique<Config>(KeyValueParser{cmdString})} {
+, m_title{title}
+, m_theConfig{std::make_unique<Config>(KeyValueParser{cmdString})} {
     SetupEngineSystemPointers();
     SetupEngineSystemChainOfResponsibility();
     LogSystemDescription();
@@ -161,40 +161,40 @@ App<T>::~App() noexcept {
 
 template<typename T>
 void App<T>::SetupEngineSystemPointers() {
-    ServiceLocator::provide(*static_cast<IConfigService*>(_theConfig.get()));
+    ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()));
 
-    _theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
-    ServiceLocator::provide(*static_cast<IJobSystemService*>(_theJobSystem.get()));
+    m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
+    ServiceLocator::provide(*static_cast<IJobSystemService*>(m_theJobSystem.get()));
 
-    _theFileLogger = std::make_unique<FileLogger>("game");
-    ServiceLocator::provide(*static_cast<IFileLoggerService*>(_theFileLogger.get()));
+    m_theFileLogger = std::make_unique<FileLogger>("game");
+    ServiceLocator::provide(*static_cast<IFileLoggerService*>(m_theFileLogger.get()));
 
-    _thePhysicsSystem = std::make_unique<PhysicsSystem>();
-    ServiceLocator::provide(*static_cast<IPhysicsService*>(_thePhysicsSystem.get()));
+    m_thePhysicsSystem = std::make_unique<PhysicsSystem>();
+    ServiceLocator::provide(*static_cast<IPhysicsService*>(m_thePhysicsSystem.get()));
 
-    _theRenderer = std::make_unique<Renderer>();
-    ServiceLocator::provide(*static_cast<IRendererService*>(_theRenderer.get()));
+    m_theRenderer = std::make_unique<Renderer>();
+    ServiceLocator::provide(*static_cast<IRendererService*>(m_theRenderer.get()));
 
-    _theInputSystem = std::make_unique<InputSystem>();
-    ServiceLocator::provide(*static_cast<IInputService*>(_theInputSystem.get()));
+    m_theInputSystem = std::make_unique<InputSystem>();
+    ServiceLocator::provide(*static_cast<IInputService*>(m_theInputSystem.get()));
 
-    _theAudioSystem = std::make_unique<AudioSystem>();
-    ServiceLocator::provide(*static_cast<IAudioService*>(_theAudioSystem.get()));
+    m_theAudioSystem = std::make_unique<AudioSystem>();
+    ServiceLocator::provide(*static_cast<IAudioService*>(m_theAudioSystem.get()));
 
-    _theUI = std::make_unique<UISystem>();
-    _theConsole = std::make_unique<Console>();
-    _theGame = std::make_unique<GameType>();
+    m_theUI = std::make_unique<UISystem>();
+    m_theConsole = std::make_unique<Console>();
+    m_theGame = std::make_unique<GameType>();
 
-    g_theJobSystem = _theJobSystem.get();
-    g_theFileLogger = _theFileLogger.get();
-    g_theConfig = _theConfig.get();
-    g_theRenderer = _theRenderer.get();
-    g_theUISystem = _theUI.get();
-    g_theConsole = _theConsole.get();
-    g_thePhysicsSystem = _thePhysicsSystem.get();
-    g_theInputSystem = _theInputSystem.get();
-    g_theAudioSystem = _theAudioSystem.get();
-    g_theGame = _theGame.get();
+    g_theJobSystem = m_theJobSystem.get();
+    g_theFileLogger = m_theFileLogger.get();
+    g_theConfig = m_theConfig.get();
+    g_theRenderer = m_theRenderer.get();
+    g_theUISystem = m_theUI.get();
+    g_theConsole = m_theConsole.get();
+    g_thePhysicsSystem = m_thePhysicsSystem.get();
+    g_theInputSystem = m_theInputSystem.get();
+    g_theAudioSystem = m_theAudioSystem.get();
+    g_theGame = m_theGame.get();
     g_theApp<T> = this;
 }
 
@@ -239,7 +239,7 @@ void App<T>::Initialize() noexcept {
     g_theRenderer->SetVSync(vsync);
     g_theRenderer->SetWinProc(detail::WindowProc);
     auto* output = g_theRenderer->GetOutput();
-    output->SetTitle(_title);
+    output->SetTitle(m_title);
 
     g_theUISystem->Initialize();
     g_theInputSystem->Initialize();
@@ -319,12 +319,12 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         bool losing_focus = wp == FALSE;
         bool gaining_focus = wp == TRUE;
         if(losing_focus) {
-            _current_focus = false;
-            _previous_focus = true;
+            m_current_focus = false;
+            m_previous_focus = true;
         }
         if(gaining_focus) {
-            _current_focus = true;
-            _previous_focus = false;
+            m_current_focus = true;
+            m_previous_focus = false;
         }
         return false;
     }
@@ -334,12 +334,12 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         switch(active_type) {
         case WA_ACTIVE: /* FALLTHROUGH */
         case WA_CLICKACTIVE:
-            _current_focus = true;
-            _previous_focus = false;
+            m_current_focus = true;
+            m_previous_focus = false;
             return true;
         case WA_INACTIVE:
-            _current_focus = false;
-            _previous_focus = true;
+            m_current_focus = false;
+            m_previous_focus = true;
             return true;
         default:
             return false;
@@ -347,13 +347,13 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     }
     case WindowsSystemMessage::Window_EnterSizeMove:
     {
-        _enteredSizeMove = true;
+        m_enteredSizeMove = true;
         return false;
     }
     case WindowsSystemMessage::Window_ExitSizeMove:
     {
-        if(_enteredSizeMove) {
-            _doneSizeMove = true;
+        if(m_enteredSizeMove) {
+            m_doneSizeMove = true;
             return false;
         }
         return false;
@@ -367,9 +367,9 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case WindowResizeType::Minimized:
             return true;
         case WindowResizeType::Restored:
-            if(_enteredSizeMove && _doneSizeMove) {
-                _enteredSizeMove = false;
-                _doneSizeMove = false;
+            if(m_enteredSizeMove && m_doneSizeMove) {
+                m_enteredSizeMove = false;
+                m_doneSizeMove = false;
                 LPARAM lp = msg.lparam;
                 const auto w = HIWORD(lp);
                 const auto h = LOWORD(lp);
@@ -393,12 +393,12 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 
 template<typename T>
 bool App<T>::IsQuitting() const {
-    return _isQuitting;
+    return m_isQuitting;
 }
 
 template<typename T>
 void App<T>::SetIsQuitting(bool value) {
-    _isQuitting = value;
+    m_isQuitting = value;
 }
 
 template<typename T>
@@ -435,17 +435,17 @@ void App<T>::LogSystemDescription() const {
 
 template<typename T>
 bool App<T>::HasFocus() const {
-    return _current_focus;
+    return m_current_focus;
 }
 
 template<typename T>
 bool App<T>::LostFocus() const {
-    return _previous_focus && !_current_focus;
+    return m_previous_focus && !m_current_focus;
 }
 
 template<typename T>
 bool App<T>::GainedFocus() const {
-    return !_previous_focus && _current_focus;
+    return !m_previous_focus && m_current_focus;
 }
 
 template<typename T>

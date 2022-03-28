@@ -132,15 +132,15 @@ private:
     [[nodiscard]] bool ParseKerningsLine(const std::string& kerningsLine) noexcept;
     [[nodiscard]] bool ParseKerningLine(const std::string& kerningLine) noexcept;
 
-    Material* _material = nullptr;
-    std::string _name{};
-    std::vector<std::string> _image_paths{};
-    std::filesystem::path _filepath{};
-    CharMap _charmap{};
-    KerningMap _kernmap{};
-    InfoDef _info{};
-    CommonDef _common{};
-    std::size_t _char_count{0u};
-    std::size_t _kerns_count{0u};
-    bool _is_loaded = false;
+    Material* m_material = nullptr;
+    std::string m_name{};
+    std::vector<std::string> m_image_paths{};
+    std::filesystem::path m_filepath{};
+    CharMap m_charmap{};
+    KerningMap m_kernmap{};
+    InfoDef m_info{};
+    CommonDef m_common{};
+    std::size_t m_char_count{0u};
+    std::size_t m_kerns_count{0u};
+    bool m_is_loaded = false;
 };

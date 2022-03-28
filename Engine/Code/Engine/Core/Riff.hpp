@@ -49,8 +49,8 @@ protected:
 private:
     [[nodiscard]] bool ParseDataIntoChunks(std::vector<unsigned char>& buffer) noexcept;
 
-    std::vector<std::unique_ptr<RiffChunk>> _chunks{};
-    mutable decltype(_chunks)::iterator _current_chunk{};
+    std::vector<std::unique_ptr<RiffChunk>> m_chunks{};
+    mutable decltype(m_chunks)::iterator m_current_chunk{};
 
     friend class Wav;
 };

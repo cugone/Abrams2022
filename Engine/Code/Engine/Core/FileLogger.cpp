@@ -34,16 +34,16 @@ void FileLogger::Log_worker() noexcept {
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
     auto& js = ServiceLocator::get<IJobSystemService>();
-    js.SetCategorySignal(JobType::Logging, &_signal);
+    js.SetCategorySignal(JobType::Logging, &m_signal);
 
     while(IsRunning()) {
-        std::unique_lock<std::mutex> lock(_cs);
+        std::unique_lock<std::mutex> lock(m_cs);
         //Condition to wake up: not running or queue has jobs.
-        _signal.wait(lock, [this]() -> bool { return !_is_running || !_queue.empty(); });
-        if(!_queue.empty()) {
-            const std::string str = _queue.front();
-            _queue.pop();
-            _stream << str;
+        m_signal.wait(lock, [this]() -> bool { return !m_is_running || !m_queue.empty(); });
+        if(!m_queue.empty()) {
+            const std::string str = m_queue.front();
+            m_queue.pop();
+            m_stream << str;
             RequestFlush();
             jc.ConsumeAll();
         }
@@ -51,17 +51,17 @@ void FileLogger::Log_worker() noexcept {
 }
 
 void FileLogger::RequestFlush() noexcept {
-    if(_requesting_flush) {
-        _stream.flush();
-        _requesting_flush = false;
+    if(m_requesting_flush) {
+        m_stream.flush();
+        m_requesting_flush = false;
     }
 }
 
 bool FileLogger::IsRunning() const noexcept {
     bool running = false;
     {
-        std::scoped_lock<std::mutex> lock(_cs);
-        running = _is_running;
+        std::scoped_lock<std::mutex> lock(m_cs);
+        running = m_is_running;
     }
     return running;
 }
@@ -74,11 +74,11 @@ struct copy_log_job_t {
 void FileLogger::DoCopyLog() noexcept {
     if(IsRunning()) {
         auto* job_data = new copy_log_job_t;
-        std::filesystem::path from_p = _current_log_path;
+        std::filesystem::path from_p = m_current_log_path;
         from_p = FS::canonical(from_p);
         from_p.make_preferred();
         auto to_p = from_p.parent_path();
-        to_p = to_p / std::filesystem::path{_logName + "_" + TimeUtils::GetDateTimeStampFromNow({true})}.replace_extension(".log");
+        to_p = to_p / std::filesystem::path{m_logName + "_" + TimeUtils::GetDateTimeStampFromNow({true})}.replace_extension(".log");
         to_p = FS::absolute(to_p);
         to_p.make_preferred();
         job_data->to = to_p;
@@ -93,18 +93,18 @@ void FileLogger::CopyLog(void* user_data) noexcept {
         auto* job_data = static_cast<copy_log_job_t*>(user_data);
         std::filesystem::path from = job_data->from;
         std::filesystem::path to = job_data->to;
-        std::scoped_lock<std::mutex> lock(_cs);
-        _stream.flush();
-        _stream.close();
-        std::cout.rdbuf(_old_cout);
+        std::scoped_lock<std::mutex> lock(m_cs);
+        m_stream.flush();
+        m_stream.close();
+        std::cout.rdbuf(m_old_cout);
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-        _stream.open(from, std::ios_base::app);
-        _old_cout = std::cout.rdbuf(_stream.rdbuf());
+        m_stream.open(from, std::ios_base::app);
+        m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
     }
 }
 
 void FileLogger::FinalizeLog() noexcept {
-    std::filesystem::path from_p = _current_log_path;
+    std::filesystem::path from_p = m_current_log_path;
     from_p = FS::canonical(from_p);
     from_p.make_preferred();
     std::filesystem::path to_p = from_p;
@@ -116,10 +116,10 @@ void FileLogger::FinalizeLog() noexcept {
     to_p.replace_extension(".log");
     //Canonicalizing output file that doesn't already exist is an error.
     to_p.make_preferred();
-    _stream << "Copied log to: " << to_p << "...\n";
-    _stream.flush();
-    _stream.close();
-    std::cout.rdbuf(_old_cout);
+    m_stream << "Copied log to: " << to_p << "...\n";
+    m_stream.flush();
+    m_stream.close();
+    std::cout.rdbuf(m_old_cout);
     std::filesystem::copy_file(from_p, to_p, std::filesystem::copy_options::overwrite_existing);
 }
 
@@ -131,7 +131,7 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
     namespace FS = std::filesystem;
     const auto folder_p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameLogs);
     const auto extension = FS::path{".log"};
-    _logName = log_name;
+    m_logName = log_name;
     const auto log_p = [&]() {
         FS::path result = (folder_p / log_name).replace_extension(extension);
         if(FS::exists(result)) {
@@ -142,23 +142,23 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
         result.make_preferred();
         return result;
     }();
-    _current_log_path = log_p;
+    m_current_log_path = log_p;
     FileUtils::CreateFolders(folder_p); //I don't care if this returns false when the folders already exist.
     //Removes only if it exists.
     FS::remove(log_p);
     FileUtils::RemoveExceptMostRecentFiles(folder_p, MAX_LOGS, extension.string());
-    _is_running = true;
-    _stream.open(_current_log_path);
-    if(_stream.fail()) {
+    m_is_running = true;
+    m_stream.open(m_current_log_path);
+    if(m_stream.fail()) {
         DebuggerPrintf("FileLogger failed to initialize.\n");
-        _stream.clear();
-        _is_running = false;
+        m_stream.clear();
+        m_is_running = false;
         return;
     }
-    _old_cout = std::cout.rdbuf(_stream.rdbuf());
-    _worker = std::thread(&FileLogger::Log_worker, this);
-    ThreadUtils::SetThreadDescription(_worker, L"FileLogger");
-    const auto ss = std::string{"Initializing Logger: "} + _current_log_path.string() + "...";
+    m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
+    m_worker = std::thread(&FileLogger::Log_worker, this);
+    ThreadUtils::SetThreadDescription(m_worker, L"FileLogger");
+    const auto ss = std::string{"Initializing Logger: "} + m_current_log_path.string() + "...";
     LogLine(ss.c_str());
 }
 
@@ -169,13 +169,13 @@ void FileLogger::Shutdown() noexcept {
             if(AllocationTracker::is_enabled()) {
                 ss << AllocationTracker::status() << "\n";
             }
-            ss << std::string{"Shutting down Logger: "} << _current_log_path.string() << "...";
+            ss << std::string{"Shutting down Logger: "} << m_current_log_path.string() << "...";
             LogLine(ss.str().c_str());
         }
         SetIsRunning(false);
-        _signal.notify_all();
-        if(_worker.joinable()) {
-            _worker.join();
+        m_signal.notify_all();
+        if(m_worker.joinable()) {
+            m_worker.join();
         }
         FinalizeLog();
         ServiceLocator::get<IJobSystemService>().SetCategorySignal(JobType::Logging, nullptr);
@@ -184,10 +184,10 @@ void FileLogger::Shutdown() noexcept {
 
 void FileLogger::Log(const std::string& msg) noexcept {
     {
-        std::scoped_lock<std::mutex> lock(_cs);
-        _queue.push(msg);
+        std::scoped_lock<std::mutex> lock(m_cs);
+        m_queue.push(msg);
     }
-    _signal.notify_all();
+    m_signal.notify_all();
 }
 
 void FileLogger::LogLine(const std::string& msg) noexcept {
@@ -256,15 +256,15 @@ void FileLogger::InsertMessage(std::stringstream& msg, const std::string& messag
 }
 
 void FileLogger::Flush() noexcept {
-    _requesting_flush = true;
-    while(_requesting_flush) {
+    m_requesting_flush = true;
+    while(m_requesting_flush) {
         std::this_thread::yield();
     }
 }
 
 void FileLogger::SetIsRunning(bool value /*= true*/) noexcept {
-    std::scoped_lock<std::mutex> lock(_cs);
-    _is_running = value;
+    std::scoped_lock<std::mutex> lock(m_cs);
+    m_is_running = value;
 }
 
 void FileLogger::SaveLog() noexcept {

@@ -31,8 +31,8 @@ private:
     template<typename T>
     [[nodiscard]] bool Copy_helper(const T& text);
 
-    HWND _hwnd{};
-    bool _is_open{false};
+    HWND m_hwnd{};
+    bool m_is_open{false};
 };
 
 template<typename T>
@@ -44,7 +44,7 @@ bool Clipboard::Copy_helper(const T& text) {
     if(!HasText()) {
         return did_copy;
     }
-    if(Open(_hwnd)) {
+    if(Open(m_hwnd)) {
         if(Empty()) {
             if(auto hgblcopy = ::GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(T::value_type))) {
                 if(auto lpstrcopy = static_cast<LPTSTR>(::GlobalLock(hgblcopy))) {

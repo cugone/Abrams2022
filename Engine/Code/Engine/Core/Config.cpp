@@ -10,25 +10,25 @@
 #include <sstream>
 
 Config::Config(KeyValueParser&& kvp) noexcept
-: _config(std::move(kvp.Release())) {
+: m_config(std::move(kvp.Release())) {
     /* DO NOTHING */
 }
 
 Config::Config(Config&& other) noexcept
-: _config(std::move(other._config)) {
-    other._config = {};
+: m_config(std::move(other.m_config)) {
+    other.m_config = {};
 }
 
 Config& Config::operator=(Config&& rhs) noexcept {
-    _config = rhs._config;
-    rhs._config = {};
+    m_config = rhs.m_config;
+    rhs.m_config = {};
     return *this;
 }
 
 bool Config::LoadFromFile(const std::filesystem::path& filepath) noexcept {
     if(std::filesystem::exists(filepath)) {
         KeyValueParser kvp(filepath);
-        _config = std::move(kvp.Release());
+        m_config = std::move(kvp.Release());
         return true;
     }
     return false;
@@ -71,11 +71,11 @@ bool Config::SaveToFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::HasKey(const std::string& key) const noexcept {
-    return _config.find(key) != _config.end();
+    return m_config.find(key) != m_config.end();
 }
 
 void Config::GetValue(const std::string& key, bool& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         try {
             int keyAsInt = std::stoi(found->second);
             value = keyAsInt != 0;
@@ -93,85 +93,85 @@ void Config::GetValue(const std::string& key, bool& value) const noexcept {
 }
 
 void Config::GetValue(const std::string& key, char& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = *(found->second.begin());
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned char& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned char>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, signed char& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<signed char>(std::stoi(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned int& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned int>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, int& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoi(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stol(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoul(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long long& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoll(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long long& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoull(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, float& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stof(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, double& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stod(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long double& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stold(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, std::string& value) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = found->second;
     }
 }
 
 void Config::GetValueOr(const std::string& key, bool& value, bool defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         try {
             int keyAsInt = std::stoi(found->second);
             value = keyAsInt != 0;
@@ -191,7 +191,7 @@ void Config::GetValueOr(const std::string& key, bool& value, bool defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, char& value, char defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = *(found->second.begin());
     } else {
         value = defaultValue;
@@ -199,7 +199,7 @@ void Config::GetValueOr(const std::string& key, char& value, char defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned char& value, unsigned char defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned char>(std::stoul(found->second));
     } else {
         value = defaultValue;
@@ -207,7 +207,7 @@ void Config::GetValueOr(const std::string& key, unsigned char& value, unsigned c
 }
 
 void Config::GetValueOr(const std::string& key, signed char& value, signed char defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<signed char>(std::stoi(found->second));
     } else {
         value = defaultValue;
@@ -215,7 +215,7 @@ void Config::GetValueOr(const std::string& key, signed char& value, signed char 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned int& value, unsigned int defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned int>(std::stoul(found->second));
     } else {
         value = defaultValue;
@@ -223,7 +223,7 @@ void Config::GetValueOr(const std::string& key, unsigned int& value, unsigned in
 }
 
 void Config::GetValueOr(const std::string& key, int& value, int defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoi(found->second);
     } else {
         value = defaultValue;
@@ -231,7 +231,7 @@ void Config::GetValueOr(const std::string& key, int& value, int defaultValue) co
 }
 
 void Config::GetValueOr(const std::string& key, long& value, long defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stol(found->second);
     } else {
         value = defaultValue;
@@ -239,7 +239,7 @@ void Config::GetValueOr(const std::string& key, long& value, long defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned long& value, unsigned long defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoul(found->second);
     } else {
         value = defaultValue;
@@ -247,7 +247,7 @@ void Config::GetValueOr(const std::string& key, unsigned long& value, unsigned l
 }
 
 void Config::GetValueOr(const std::string& key, long long& value, long long defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoll(found->second);
     } else {
         value = defaultValue;
@@ -255,7 +255,7 @@ void Config::GetValueOr(const std::string& key, long long& value, long long defa
 }
 
 void Config::GetValueOr(const std::string& key, unsigned long long& value, unsigned long long defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoull(found->second);
     } else {
         value = defaultValue;
@@ -263,7 +263,7 @@ void Config::GetValueOr(const std::string& key, unsigned long long& value, unsig
 }
 
 void Config::GetValueOr(const std::string& key, float& value, float defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stof(found->second);
     } else {
         value = defaultValue;
@@ -271,7 +271,7 @@ void Config::GetValueOr(const std::string& key, float& value, float defaultValue
 }
 
 void Config::GetValueOr(const std::string& key, double& value, double defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stod(found->second);
     } else {
         value = defaultValue;
@@ -279,7 +279,7 @@ void Config::GetValueOr(const std::string& key, double& value, double defaultVal
 }
 
 void Config::GetValueOr(const std::string& key, long double& value, long double defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stold(found->second);
     } else {
         value = defaultValue;
@@ -287,7 +287,7 @@ void Config::GetValueOr(const std::string& key, long double& value, long double 
 }
 
 void Config::GetValueOr(const std::string& key, std::string& value, std::string defaultValue) const noexcept {
-    if(auto found = _config.find(key); found != _config.end()) {
+    if(auto found = m_config.find(key); found != m_config.end()) {
         value = found->second;
     } else {
         value = defaultValue;
@@ -295,59 +295,59 @@ void Config::GetValueOr(const std::string& key, std::string& value, std::string 
 }
 
 void Config::SetValue(const std::string& key, const char& value) noexcept {
-    _config[key] = value;
+    m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const unsigned char& value) noexcept {
-    _config[key] = value;
+    m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const signed char& value) noexcept {
-    _config[key] = value;
+    m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const bool& value) noexcept {
-    _config[key] = value ? "true" : "false";
+    m_config[key] = value ? "true" : "false";
 }
 
 void Config::SetValue(const std::string& key, const unsigned int& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const int& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const unsigned long& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long long& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const unsigned long long& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const float& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const double& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long double& value) noexcept {
-    _config[key] = std::to_string(value);
+    m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const std::string& value) noexcept {
-    _config[key] = value;
+    m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const char* value) noexcept {
@@ -355,13 +355,13 @@ void Config::SetValue(const std::string& key, const char* value) noexcept {
 }
 
 void Config::PrintConfig(const std::string& key, std::ostream& output) const noexcept {
-    if(const auto iter = _config.find(key); iter != std::end(_config)) {
+    if(const auto iter = m_config.find(key); iter != std::end(m_config)) {
         PrintKeyValue(output, iter->first, iter->second);
     }
 }
 
 void Config::PrintConfigs(std::ostream& output) const noexcept {
-    for(const auto& [key, value] : _config) {
+    for(const auto& [key, value] : m_config) {
         PrintKeyValue(output, key, value);
     }
 }
@@ -392,6 +392,6 @@ std::ostream& operator<<(std::ostream& output, const Config& config) noexcept {
 
 std::istream& operator>>(std::istream& input, Config& config) noexcept {
     KeyValueParser kvp(input);
-    config._config = std::move(kvp.Release());
+    config.m_config = std::move(kvp.Release());
     return input;
 }

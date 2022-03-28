@@ -38,21 +38,21 @@ unsigned int Wav::Load(std::filesystem::path filepath) noexcept {
             while(ss.read(reinterpret_cast<char*>(&cur_header), sizeof(cur_header))) {
                 switch(StringUtils::FourCC(cur_header.fourcc)) {
                 case WavChunkID::FMT: {
-                    if(!ss.read(reinterpret_cast<char*>(&_fmt), cur_header.length)) {
+                    if(!ss.read(reinterpret_cast<char*>(&m_fmt), cur_header.length)) {
                         return WAV_ERROR_BAD_FILE;
                     }
                     break;
                 }
                 case WavChunkID::DATA: {
-                    _data.length = cur_header.length;
-                    _data.data = std::move(std::make_unique<uint8_t[]>(_data.length));
-                    if(!ss.read(reinterpret_cast<char*>(_data.data.get()), _data.length)) {
+                    m_data.length = cur_header.length;
+                    m_data.data = std::move(std::make_unique<uint8_t[]>(m_data.length));
+                    if(!ss.read(reinterpret_cast<char*>(m_data.data.get()), m_data.length)) {
                         return WAV_ERROR_BAD_FILE;
                     }
                     break;
                 }
                 case WavChunkID::FACT: {
-                    if(!ss.read(reinterpret_cast<char*>(&_fact), cur_header.length)) {
+                    if(!ss.read(reinterpret_cast<char*>(&m_fact), cur_header.length)) {
                         return WAV_ERROR_BAD_FILE;
                     }
                     break;
@@ -70,23 +70,23 @@ unsigned int Wav::Load(std::filesystem::path filepath) noexcept {
 }
 
 unsigned char* Wav::GetFormatAsBuffer() noexcept {
-    return reinterpret_cast<unsigned char*>(&_fmt);
+    return reinterpret_cast<unsigned char*>(&m_fmt);
 }
 
 unsigned char* Wav::GetDataBuffer() const noexcept {
-    return _data.data.get();
+    return m_data.data.get();
 }
 
 uint32_t Wav::GetDataBufferSize() const noexcept {
-    return _data.length;
+    return m_data.length;
 }
 
 const Wav::WavFormatChunk& Wav::GetFormatChunk() const noexcept {
-    return _fmt;
+    return m_fmt;
 }
 
 const Wav::WavDataChunk& Wav::GetDataChunk() const noexcept {
-    return _data;
+    return m_data;
 }
 
 } // namespace FileUtils

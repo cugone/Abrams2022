@@ -59,6 +59,6 @@ public:
     [[nodiscard]] bool HasJobs() const noexcept;
 
 private:
-    std::vector<ThreadSafeQueue<Job*>*> _consumables{};
+    std::vector<ThreadSafeQueue<Job*>*> m_consumables{};
     friend class JobSystem;
 };

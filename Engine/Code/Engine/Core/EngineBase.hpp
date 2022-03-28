@@ -18,14 +18,14 @@ public:
     static void Run() noexcept;
     static void Shutdown() noexcept;
 private:
-    static inline bool _initCalled{false};
-    static inline bool _shutdownCalled{false};
+    static inline bool m_initCalled{false};
+    static inline bool m_shutdownCalled{false};
 };
 
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Initialize(const std::string& title, const std::string& cmdString) noexcept {
-    _initCalled = true;
+    m_initCalled = true;
     App<GameType>::CreateApp(title, cmdString);
     auto& app = ServiceLocator::get<IAppService>();
     app.InitializeService();
@@ -34,7 +34,7 @@ void Engine<GameType>::Initialize(const std::string& title, const std::string& c
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Run() noexcept {
-    GUARANTEE_OR_DIE(_initCalled, "Engine::Initialize not called before Run");
+    GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
     auto& app = ServiceLocator::get<IAppService>();
     while(!app.IsQuitting()) {
         app.RunFrame();
@@ -44,9 +44,9 @@ void Engine<GameType>::Run() noexcept {
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Shutdown() noexcept {
-    GUARANTEE_OR_DIE(_initCalled, "Engine::Initialize not called before Shutdown");
-    if(!_shutdownCalled) {
-        _shutdownCalled = true;
+    GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Shutdown");
+    if(!m_shutdownCalled) {
+        m_shutdownCalled = true;
         App<GameType>::DestroyApp();
     }
 }

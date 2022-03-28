@@ -4,15 +4,15 @@
 #include "Engine/Platform/Win.hpp"
 
 EngineSubsystem::~EngineSubsystem() noexcept {
-    _next_subsystem = nullptr;
+    m_next_subsystem = nullptr;
 }
 
 bool EngineSubsystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     if(ProcessSystemMessage(msg)) {
         return true;
     }
-    if(_next_subsystem) {
-        return _next_subsystem->EngineSubsystem::ProcessSystemMessage(msg);
+    if(m_next_subsystem) {
+        return m_next_subsystem->EngineSubsystem::ProcessSystemMessage(msg);
     }
     return false;
 }
@@ -140,5 +140,5 @@ WindowsSystemMessage EngineSubsystem::GetWindowsSystemMessageFromUintMessage(uns
 }
 
 void EngineSubsystem::SetNextHandler(EngineSubsystem* next_handler) noexcept {
-    _next_subsystem = next_handler;
+    m_next_subsystem = next_handler;
 }
