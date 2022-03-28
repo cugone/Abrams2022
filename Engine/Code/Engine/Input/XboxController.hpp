@@ -99,17 +99,17 @@ private:
         , Max
     };
     // clang-format on
-    Vector2 _leftThumbDistance = Vector2::Zero;
-    Vector2 _rightThumbDistance = Vector2::Zero;
-    Vector2 _triggerDistances = Vector2::Zero;
-    unsigned short _leftMotorState = 0;
-    unsigned short _rightMotorState = 0;
-    unsigned short _previousRawInput = 0;
-    unsigned short _currentRawInput = 0;
-    unsigned long _previousPacketNumber = 0;
-    unsigned long _currentPacketNumber = 0;
-    std::bitset<(std::size_t)ActiveState::Max> _previousActiveState{};
-    std::bitset<(std::size_t)ActiveState::Max> _currentActiveState{};
-    std::bitset<(std::size_t)Button::Max> _previousButtonState{};
-    std::bitset<(std::size_t)Button::Max> _currentButtonState{};
+    Vector2 m_leftThumbDistance = Vector2::Zero;
+    Vector2 m_rightThumbDistance = Vector2::Zero;
+    Vector2 m_triggerDistances = Vector2::Zero;
+    unsigned short m_leftMotorState = 0;
+    unsigned short m_rightMotorState = 0;
+    unsigned short m_previousRawInput = 0;
+    unsigned short m_currentRawInput = 0;
+    unsigned long m_previousPacketNumber = 0;
+    unsigned long m_currentPacketNumber = 0;
+    std::bitset<(std::size_t)ActiveState::Max> m_previousActiveState{};
+    std::bitset<(std::size_t)ActiveState::Max> m_currentActiveState{};
+    std::bitset<(std::size_t)Button::Max> m_previousButtonState{};
+    std::bitset<(std::size_t)Button::Max> m_currentButtonState{};
 };

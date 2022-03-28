@@ -16,35 +16,35 @@
 #include <sstream>
 
 RHIOutput::RHIOutput(const RHIDevice& parent, std::unique_ptr<Window> wnd) noexcept
-: _parent_device(parent)
-, _window(std::move(wnd)) {
-    SetDisplayMode(_window->GetDisplayMode());
+: m_parent_device(parent)
+, m_window(std::move(wnd)) {
+    SetDisplayMode(m_window->GetDisplayMode());
     CreateBuffers();
 }
 
 const RHIDevice& RHIOutput::GetParentDevice() const noexcept {
-    return _parent_device;
+    return m_parent_device;
 }
 
 const Window* RHIOutput::GetWindow() const noexcept {
-    return _window.get();
+    return m_window.get();
 }
 
 Window* RHIOutput::GetWindow() noexcept {
-    return _window.get();
+    return m_window.get();
 }
 
 Texture* RHIOutput::GetBackBuffer() const noexcept {
-    return _back_buffer.get();
+    return m_back_buffer.get();
 }
 
 Texture* RHIOutput::GetDepthStencil() const noexcept {
-    return _depthstencil.get();
+    return m_depthstencil.get();
 }
 
 IntVector2 RHIOutput::GetDimensions() const noexcept {
-    if(_window) {
-        return _window->GetClientDimensions();
+    if(m_window) {
+        return m_window->GetClientDimensions();
     } else {
         return IntVector2::Zero;
     }
@@ -56,7 +56,7 @@ IntVector2 RHIOutput::GetCenter() const noexcept {
 }
 
 float RHIOutput::GetAspectRatio() const noexcept {
-    if(_window) {
+    if(m_window) {
         const auto& dims = GetDimensions();
         if(dims.y < dims.x) {
             return dims.x / static_cast<float>(dims.y);
@@ -68,11 +68,11 @@ float RHIOutput::GetAspectRatio() const noexcept {
 }
 
 void RHIOutput::SetDisplayMode(const RHIOutputMode& newMode) noexcept {
-    _window->SetDisplayMode(newMode);
+    m_window->SetDisplayMode(newMode);
 }
 
 void RHIOutput::SetDimensions(const IntVector2& clientSize) noexcept {
-    _window->SetDimensions(clientSize);
+    m_window->SetDimensions(clientSize);
 }
 
 void RHIOutput::Present(bool vsync) noexcept {
@@ -81,17 +81,17 @@ void RHIOutput::Present(bool vsync) noexcept {
     present_params.pDirtyRects = nullptr;
     present_params.pScrollOffset = nullptr;
     present_params.pScrollRect = nullptr;
-    const auto should_tear = _parent_device.IsAllowTearingSupported();
+    const auto should_tear = m_parent_device.IsAllowTearingSupported();
     const auto is_vsync_off = !vsync;
     const auto use_no_sync_interval = should_tear && is_vsync_off;
     const auto sync_interval = use_no_sync_interval ? 0u : 1u;
     const auto present_flags = use_no_sync_interval ? DXGI_PRESENT_ALLOW_TEARING : 0ul;
-    if(const auto hr_present = _parent_device.GetDxSwapChain()->Present1(sync_interval, present_flags, &present_params); FAILED(hr_present)) {
+    if(const auto hr_present = m_parent_device.GetDxSwapChain()->Present1(sync_interval, present_flags, &present_params); FAILED(hr_present)) {
         switch(hr_present) {
         case DXGI_ERROR_DEVICE_REMOVED: /** FALLTHROUGH **/
         case DXGI_ERROR_DEVICE_RESET: {
-            _parent_device.HandleDeviceLost();
-            const auto hr_removed_reset = _parent_device.GetDxDevice()->GetDeviceRemovedReason();
+            m_parent_device.HandleDeviceLost();
+            const auto hr_removed_reset = m_parent_device.GetDxDevice()->GetDeviceRemovedReason();
             const auto err_str = std::string{"Your GPU device has been lost. Please restart the application. The returned error message follows:\n"} + StringUtils::FormatWindowsMessage(hr_removed_reset);
             ERROR_AND_DIE(err_str.c_str());
             break;
@@ -111,18 +111,18 @@ void RHIOutput::Present(bool vsync) noexcept {
 }
 
 void RHIOutput::CreateBuffers() noexcept {
-    _back_buffer = CreateBackbuffer();
-    _back_buffer->SetDebugName("__back_buffer");
+    m_back_buffer = CreateBackbuffer();
+    m_back_buffer->SetDebugName("__back_buffer");
 
-    _depthstencil = CreateDepthStencil();
-    _depthstencil->SetDebugName("__default_depthstencil");
+    m_depthstencil = CreateDepthStencil();
+    m_depthstencil->SetDebugName("__default_depthstencil");
 
 }
 
 std::unique_ptr<Texture> RHIOutput::CreateBackbuffer() noexcept {
     Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer{};
-    _parent_device.GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&back_buffer));
-    return std::make_unique<Texture2D>(_parent_device, back_buffer);
+    m_parent_device.GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&back_buffer));
+    return std::make_unique<Texture2D>(m_parent_device, back_buffer);
 }
 
 std::unique_ptr<Texture> RHIOutput::CreateDepthStencil() noexcept {
@@ -143,7 +143,7 @@ std::unique_ptr<Texture> RHIOutput::CreateDepthStencil() noexcept {
     descDepth.BindFlags = BufferBindUsageToD3DBindFlags(BufferBindUsage::Depth_Stencil);
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;
-    auto hr_texture = _parent_device.GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &depthstencil);
+    auto hr_texture = m_parent_device.GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &depthstencil);
     {
         const auto error_msg = [&]() {
             std::string msg{"Fatal Error: Failed to create depthstencil for window. Reason:\n"};
@@ -152,7 +152,7 @@ std::unique_ptr<Texture> RHIOutput::CreateDepthStencil() noexcept {
         }(); //IIIL
         GUARANTEE_OR_DIE(SUCCEEDED(hr_texture), error_msg.c_str());
     }
-    return std::make_unique<Texture2D>(_parent_device, depthstencil);
+    return std::make_unique<Texture2D>(m_parent_device, depthstencil);
 }
 
 std::unique_ptr<Texture> RHIOutput::CreateFullscreenTexture() noexcept {
@@ -200,7 +200,7 @@ std::unique_ptr<Texture> RHIOutput::CreateFullscreenTexture() noexcept {
     const auto isImmutable = bufferUsage == BufferUsage::Static;
     const auto mustUseInitialData = isImmutable || isMultiSampled;
 
-    auto hr = _parent_device.GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    auto hr = m_parent_device.GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     {
         const auto error_msg = [&]() {
             std::string msg{"Fatal Error: Failed to create fullscreen texture. Reason:\n"};
@@ -209,16 +209,16 @@ std::unique_ptr<Texture> RHIOutput::CreateFullscreenTexture() noexcept {
         }(); //IIIL
         GUARANTEE_OR_DIE(SUCCEEDED(hr), error_msg.c_str());
     }
-    return std::make_unique<Texture2D>(_parent_device, dx_tex);
+    return std::make_unique<Texture2D>(m_parent_device, dx_tex);
 }
 
 void RHIOutput::SetTitle(const std::string& newTitle) const noexcept {
-    _window->SetTitle(newTitle);
+    m_window->SetTitle(newTitle);
 }
 
 void RHIOutput::ResetBackbuffer() noexcept {
-    _back_buffer.reset();
-    _depthstencil.reset();
-    _parent_device.ResetSwapChainForHWnd();
+    m_back_buffer.reset();
+    m_depthstencil.reset();
+    m_parent_device.ResetSwapChainForHWnd();
     CreateBuffers();
 }

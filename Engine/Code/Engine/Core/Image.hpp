@@ -56,5 +56,5 @@ private:
     unsigned int m_bytesPerTexel = 0;
     std::vector<unsigned char> m_texelBytes{};
     std::filesystem::path m_filepath{};
-    mutable std::mutex _cs{};
+    mutable std::mutex m_cs{};
 };

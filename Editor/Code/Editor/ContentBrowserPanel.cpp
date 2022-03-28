@@ -138,7 +138,7 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
 }
 
 void ContentBrowserPanel::UpdateContentBrowserPaths() noexcept {
-    std::scoped_lock<std::mutex> lock{_cs};
+    std::scoped_lock<std::mutex> lock{m_cs};
     m_PathsCache.clear();
     for(const auto& p : std::filesystem::directory_iterator{currentDirectory}) {
         m_PathsCache.emplace_back(p.path());

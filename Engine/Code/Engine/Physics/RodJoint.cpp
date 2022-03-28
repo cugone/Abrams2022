@@ -9,37 +9,37 @@
 #include "Engine/Services/IRendererService.hpp"
 
 RodJoint::RodJoint(const RodJointDef& def) noexcept {
-    _def.rigidBodyA = def.rigidBodyA;
-    _def.rigidBodyB = def.rigidBodyB;
-    _def.localAnchorA = def.localAnchorA;
-    _def.localAnchorB = def.localAnchorB;
-    _def.linearDamping = def.linearDamping;
-    _def.angularDamping = def.angularDamping;
-    _def.attachedCollidable = def.attachedCollidable;
-    _def.breakForce = def.breakForce;
-    _def.breakTorque = def.breakTorque;
-    auto posA = _def.localAnchorA;
-    auto posB = _def.localAnchorB;
-    if(_def.rigidBodyA) {
-        posA = _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA);
+    m_def.rigidBodyA = def.rigidBodyA;
+    m_def.rigidBodyB = def.rigidBodyB;
+    m_def.localAnchorA = def.localAnchorA;
+    m_def.localAnchorB = def.localAnchorB;
+    m_def.linearDamping = def.linearDamping;
+    m_def.angularDamping = def.angularDamping;
+    m_def.attachedCollidable = def.attachedCollidable;
+    m_def.breakForce = def.breakForce;
+    m_def.breakTorque = def.breakTorque;
+    auto posA = m_def.localAnchorA;
+    auto posB = m_def.localAnchorB;
+    if(m_def.rigidBodyA) {
+        posA = m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA);
     }
-    if(_def.rigidBodyB) {
-        posB = _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB);
+    if(m_def.rigidBodyB) {
+        posB = m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB);
     }
-    _def.worldAnchorA = posA;
-    _def.worldAnchorB = posB;
-    _def.length = MathUtils::CalcDistance(_def.worldAnchorA, _def.worldAnchorB);
+    m_def.worldAnchorA = posA;
+    m_def.worldAnchorB = posB;
+    m_def.length = MathUtils::CalcDistance(m_def.worldAnchorA, m_def.worldAnchorB);
 }
 
 void RodJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    auto* first_body = _def.rigidBodyA;
-    auto* second_body = _def.rigidBodyB;
+    auto* first_body = m_def.rigidBodyA;
+    auto* second_body = m_def.rigidBodyB;
     if(first_body == nullptr && second_body == nullptr) {
         return;
     }
 
-    const auto fb_pos = _def.worldAnchorA;
-    const auto sb_pos = _def.worldAnchorB;
+    const auto fb_pos = m_def.worldAnchorA;
+    const auto sb_pos = m_def.worldAnchorB;
 
     const auto distance = MathUtils::CalcDistance(fb_pos, sb_pos);
     const auto displacement_towards_first = fb_pos - sb_pos;
@@ -51,7 +51,7 @@ void RodJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexce
     const auto mass_sum = m1 + m2;
     const auto mass1_ratio = m1 / mass_sum;
     const auto mass2_ratio = m2 / mass_sum;
-    const auto length = _def.length;
+    const auto length = m_def.length;
     if(distance < length) { //Compression
         if(first_body) {
             first_body->ApplyImpulse(direction_to_first * mass1_ratio);
@@ -70,7 +70,7 @@ void RodJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexce
 }
 
 void RodJoint::DebugRender() const noexcept {
-    if(!(_def.rigidBodyA || _def.rigidBodyB)) {
+    if(!(m_def.rigidBodyA || m_def.rigidBodyB)) {
         return;
     }
     const auto posA = GetAnchorA();
@@ -81,63 +81,63 @@ void RodJoint::DebugRender() const noexcept {
 }
 
 void RodJoint::Attach(RigidBody* a, RigidBody* b, Vector2 localAnchorA /*= Vector2::ZERO*/, Vector2 localAnchorB /*= Vector2::ZERO*/) noexcept {
-    _def.rigidBodyA = a;
-    _def.rigidBodyB = b;
-    _def.localAnchorA = localAnchorA;
-    _def.localAnchorB = localAnchorB;
+    m_def.rigidBodyA = a;
+    m_def.rigidBodyB = b;
+    m_def.localAnchorA = localAnchorA;
+    m_def.localAnchorB = localAnchorB;
     if(a) {
-        _def.worldAnchorA = _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA);
+        m_def.worldAnchorA = m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA);
     }
     if(b) {
-        _def.worldAnchorB = _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB);
+        m_def.worldAnchorB = m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB);
     }
 }
 
 void RodJoint::Detach(const RigidBody* body) noexcept {
-    if(body == _def.rigidBodyA) {
-        _def.rigidBodyA = nullptr;
-    } else if(body == _def.rigidBodyB) {
-        _def.rigidBodyB = nullptr;
+    if(body == m_def.rigidBodyA) {
+        m_def.rigidBodyA = nullptr;
+    } else if(body == m_def.rigidBodyB) {
+        m_def.rigidBodyB = nullptr;
     }
 }
 
 void RodJoint::DetachAll() noexcept {
-    _def.rigidBodyA = nullptr;
-    _def.rigidBodyB = nullptr;
+    m_def.rigidBodyA = nullptr;
+    m_def.rigidBodyB = nullptr;
 }
 
 bool RodJoint::IsNotAttached() const noexcept {
-    return _def.rigidBodyA == nullptr || _def.rigidBodyB == nullptr;
+    return m_def.rigidBodyA == nullptr || m_def.rigidBodyB == nullptr;
 }
 
 RigidBody* RodJoint::GetBodyA() const noexcept {
-    return _def.rigidBodyA;
+    return m_def.rigidBodyA;
 }
 
 RigidBody* RodJoint::GetBodyB() const noexcept {
-    return _def.rigidBodyB;
+    return m_def.rigidBodyB;
 }
 
 Vector2 RodJoint::GetAnchorA() const noexcept {
-    return _def.rigidBodyA ? _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA) : _def.worldAnchorA;
+    return m_def.rigidBodyA ? m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA) : m_def.worldAnchorA;
 }
 
 Vector2 RodJoint::GetAnchorB() const noexcept {
-    return _def.rigidBodyB ? _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB) : _def.worldAnchorB;
+    return m_def.rigidBodyB ? m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB) : m_def.worldAnchorB;
 }
 
 float RodJoint::GetMassA() const noexcept {
-    return _def.rigidBodyA ? _def.rigidBodyA->GetMass() : 0.0f;
+    return m_def.rigidBodyA ? m_def.rigidBodyA->GetMass() : 0.0f;
 }
 
 float RodJoint::GetMassB() const noexcept {
-    return _def.rigidBodyB ? _def.rigidBodyB->GetMass() : 0.0f;
+    return m_def.rigidBodyB ? m_def.rigidBodyB->GetMass() : 0.0f;
 }
 
 bool RodJoint::ConstraintViolated() const noexcept {
     const bool violated = [this]() -> const bool {
         const auto distance = MathUtils::CalcDistance(GetAnchorA(), GetAnchorB());
-        return distance < _def.length || _def.length < distance;
+        return distance < m_def.length || m_def.length < distance;
     }();
     return violated;
 }
@@ -160,7 +160,7 @@ void RodJoint::SolvePositionConstraint() const noexcept {
     const auto mass2_ratio = m2 / mass_sum;
     auto newPosition1 = posA;
     auto newPosition2 = posB;
-    const auto length = _def.length;
+    const auto length = m_def.length;
     const auto difference_from_length = std::abs(length - distance);
     const auto displacement = direction * difference_from_length;
     if(distance < length) { //Compression
@@ -218,7 +218,7 @@ void RodJoint::SolveVelocityConstraint() const noexcept {
     auto v2 = second_body ? second_body->GetVelocity() : Vector2::Zero;
     auto newVelocity1 = v1;
     auto newVelocity2 = v2;
-    const auto length = _def.length;
+    const auto length = m_def.length;
     if(distance < length) { //Compression
         newVelocity1 = mass1_ratio * MathUtils::Reject(v1, direction_to_first);
         newVelocity2 = mass2_ratio * MathUtils::Reject(v2, direction_to_second);

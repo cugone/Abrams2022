@@ -36,7 +36,7 @@ private:
     void PollContentBrowserPaths() noexcept;
     void ShowHoveredItemStats(const ContentBrowserItemStats& stats) noexcept;
 
-    mutable std::mutex _cs;
+    mutable std::mutex m_cs;
     std::vector<std::filesystem::path> m_PathsCache{};
     Stopwatch m_UpdatePoll{1.0f};
     uint32_t m_PanelWidth{1600u};

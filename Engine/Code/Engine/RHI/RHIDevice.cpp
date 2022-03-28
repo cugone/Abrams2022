@@ -40,19 +40,19 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
 }
 
 D3D_FEATURE_LEVEL RHIDevice::GetFeatureLevel() const noexcept {
-    return _dx_highestSupportedFeatureLevel;
+    return m_dx_highestSupportedFeatureLevel;
 }
 
 ID3D11Device5* RHIDevice::GetDxDevice() const noexcept {
-    return _dx_device.Get();
+    return m_dx_device.Get();
 }
 
 IDXGISwapChain4* RHIDevice::GetDxSwapChain() const noexcept {
-    return _dxgi_swapchain.Get();
+    return m_dxgi_swapchain.Get();
 }
 
 bool RHIDevice::IsAllowTearingSupported() const noexcept {
-    return _allow_tearing_supported;
+    return m_allow_tearing_supported;
 }
 
 //std::unique_ptr<VertexBuffer> RHIDevice::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo, const BufferUsage& usage, const BufferBindUsage& bindusage) const noexcept {
@@ -68,13 +68,13 @@ std::unique_ptr<IndexBuffer> RHIDevice::CreateIndexBuffer(const IndexBuffer::buf
 }
 
 void RHIDevice::CreateInputLayout(InputLayout& layout, RHIDevice& device, void* byte_code, std::size_t byte_code_length) noexcept {
-    layout._elements.shrink_to_fit();
-    if(layout._dx_input_layout) {
-        layout._dx_input_layout->Release();
-        layout._dx_input_layout = nullptr;
+    layout.m_elements.shrink_to_fit();
+    if(layout.m_dx_input_layout) {
+        layout.m_dx_input_layout->Release();
+        layout.m_dx_input_layout = nullptr;
     }
     auto* dx_device = device.GetDxDevice();
-    HRESULT hr = dx_device->CreateInputLayout(layout._elements.data(), static_cast<unsigned int>(layout._elements.size()), byte_code, byte_code_length, layout._dx_input_layout.GetAddressOf());
+    HRESULT hr = dx_device->CreateInputLayout(layout.m_elements.data(), static_cast<unsigned int>(layout.m_elements.size()), byte_code, byte_code_length, layout.m_dx_input_layout.GetAddressOf());
     bool succeeded = SUCCEEDED(hr);
     GUARANTEE_OR_DIE(succeeded, "Create Input Layout failed.");
 }
@@ -116,7 +116,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
 
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> context{};
     {
-        std::vector<AdapterInfo> adapters = _rhi_factory.GetAdaptersByHighPerformancePreference();
+        std::vector<AdapterInfo> adapters = m_rhi_factory.GetAdaptersByHighPerformancePreference();
         if(adapters.empty()) {
             window.reset();
             ERROR_AND_DIE("RHIDevice: Graphics card not found.")
@@ -125,13 +125,13 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
         OutputAdapterInfo(adapters);
         GetDisplayModes(adapters);
         DeviceInfo device_info = CreateDeviceFromFirstAdapter(adapters);
-        _dx_device = device_info.dx_device;
-        _dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
+        m_dx_device = device_info.dx_device;
+        m_dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
         context = device_info.dx_context;
     }
     
-    _dxgi_swapchain = CreateSwapChain(*window);
-    _allow_tearing_supported = _rhi_factory.QueryForAllowTearingSupport(*this);
+    m_dxgi_swapchain = CreateSwapChain(*window);
+    m_allow_tearing_supported = m_rhi_factory.QueryForAllowTearingSupport(*this);
     //TODO(casey): Allow Alt+Enter until resizing is stable
     //_rhi_factory.RestrictAltEnterToggle(*this);
 
@@ -232,7 +232,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::CreateSwapChain(const Window&
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    return _rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
+    return m_rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
 }
 
 Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::RecreateSwapChain(const Window& window) noexcept {
@@ -253,7 +253,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::RecreateSwapChain(const Windo
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    return _rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
+    return m_rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
 }
 
 std::vector<OutputInfo> RHIDevice::GetOutputsFromAdapter(const AdapterInfo& a) const noexcept {
@@ -321,7 +321,7 @@ DisplayDesc RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<Displa
 void RHIDevice::SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityOrLower /*= true*/) noexcept {
 #ifdef RENDER_DEBUG
     Microsoft::WRL::ComPtr<ID3D11Debug> _dx_debug{};
-    if(SUCCEEDED(_dx_device.As(&_dx_debug))) {
+    if(SUCCEEDED(m_dx_device.As(&_dx_debug))) {
         Microsoft::WRL::ComPtr<ID3D11InfoQueue> _dx_infoqueue{};
         if(SUCCEEDED(_dx_debug.As(&_dx_infoqueue))) {
             _dx_infoqueue->SetMuteDebugOutput(false);
@@ -395,7 +395,7 @@ std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersFro
 }
 
 void RHIDevice::ResetSwapChainForHWnd() const noexcept {
-    const auto hr = _dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, _rhi_factory.QueryForAllowTearingSupport(*this) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
+    const auto hr = m_dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, m_rhi_factory.QueryForAllowTearingSupport(*this) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
     GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr).c_str());
 }
 
@@ -500,7 +500,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
     desc.name = name;
     if(uses_vs_stage) {
         ID3D11VertexShader* vs = nullptr;
-        auto hr = device._dx_device->CreateVertexShader(compiledShader.data(), compiledShader.size(), nullptr, &vs);
+        auto hr = device.m_dx_device->CreateVertexShader(compiledShader.data(), compiledShader.size(), nullptr, &vs);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && vs, error_msg.c_str());
@@ -513,7 +513,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
 
     if(uses_ps_stage) {
         ID3D11PixelShader* ps = nullptr;
-        auto hr = device._dx_device->CreatePixelShader(compiledShader.data(), compiledShader.size(), nullptr, &ps);
+        auto hr = device.m_dx_device->CreatePixelShader(compiledShader.data(), compiledShader.size(), nullptr, &ps);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && ps, error_msg.c_str());
@@ -524,7 +524,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
 
     if(uses_hs_stage) {
         ID3D11HullShader* hs = nullptr;
-        auto hr = device._dx_device->CreateHullShader(compiledShader.data(), compiledShader.size(), nullptr, &hs);
+        auto hr = device.m_dx_device->CreateHullShader(compiledShader.data(), compiledShader.size(), nullptr, &hs);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && hs, error_msg.c_str());
@@ -535,7 +535,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
 
     if(uses_ds_stage) {
         ID3D11DomainShader* ds = nullptr;
-        auto hr = device._dx_device->CreateDomainShader(compiledShader.data(), compiledShader.size(), nullptr, &ds);
+        auto hr = device.m_dx_device->CreateDomainShader(compiledShader.data(), compiledShader.size(), nullptr, &ds);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && ds, error_msg.c_str());
@@ -546,7 +546,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
 
     if(uses_gs_stage) {
         ID3D11GeometryShader* gs = nullptr;
-        auto hr = device._dx_device->CreateGeometryShader(compiledShader.data(), compiledShader.size(), nullptr, &gs);
+        auto hr = device.m_dx_device->CreateGeometryShader(compiledShader.data(), compiledShader.size(), nullptr, &gs);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && gs, error_msg.c_str());
@@ -557,7 +557,7 @@ std::unique_ptr<ShaderProgram> RHIDevice::CreateShaderProgramFromCsoBinaryBuffer
 
     if(uses_cs_stage) {
         ID3D11ComputeShader* cs = nullptr;
-        auto hr = device._dx_device->CreateComputeShader(compiledShader.data(), compiledShader.size(), nullptr, &cs);
+        auto hr = device.m_dx_device->CreateComputeShader(compiledShader.data(), compiledShader.size(), nullptr, &cs);
         {
             const auto error_msg = StringUtils::FormatWindowsMessage(hr);
             GUARANTEE_OR_DIE(SUCCEEDED(hr) && cs, error_msg.c_str());

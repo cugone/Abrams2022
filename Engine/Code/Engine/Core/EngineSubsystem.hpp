@@ -163,5 +163,5 @@ protected:
     [[nodiscard]] static WindowResizeType GetResizeTypeFromWmSize(const EngineMessage& msg) noexcept;
 
 private:
-    EngineSubsystem* _next_subsystem = nullptr;
+    EngineSubsystem* m_next_subsystem = nullptr;
 };

@@ -26,8 +26,8 @@ private:
         uint32_t ipv6[4] = {0u, 0u, 0u, 0u};
         uint32_t ipv4;
     };
-    address_t address{};
-    uint16_t port = 0;
+    address_t m_address{};
+    uint16_t m_port = 0;
 };
 
 } // namespace Net

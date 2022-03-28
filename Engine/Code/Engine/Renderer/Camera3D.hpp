@@ -105,25 +105,25 @@ private:
     void CalcViewProjectionMatrix() noexcept;
     void CalcProjectionMatrix() noexcept;
 
-    float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
-    float fov_vertical_degrees = 60.0f;
-    float near_view_height = 1600.0f;
-    float far_view_height = 1600.0f;
-    float near_distance = 0.01f;
-    float far_distance = 1.0f;
-    Vector3 position = Vector3::Zero;
-    Vector3 world_up = Vector3::Y_Axis;
+    float m_aspect_ratio = MathUtils::M_16_BY_9_RATIO;
+    float m_fov_vertical_degrees = 60.0f;
+    float m_near_view_height = 1600.0f;
+    float m_far_view_height = 1600.0f;
+    float m_near_distance = 0.01f;
+    float m_far_distance = 1.0f;
+    Vector3 m_position = Vector3::Zero;
+    Vector3 m_world_up = Vector3::Y_Axis;
 
-    Matrix4 view_matrix = Matrix4::I;
-    Matrix4 rotation_matrix = Matrix4::I;
-    Matrix4 projection_matrix = Matrix4::I;
-    Matrix4 view_projection_matrix = Matrix4::I;
-    Matrix4 inv_view_matrix = Matrix4::I;
-    Matrix4 inv_projection_matrix = Matrix4::I;
-    Matrix4 inv_view_projection_matrix = Matrix4::I;
+    Matrix4 m_view_matrix = Matrix4::I;
+    Matrix4 m_rotation_matrix = Matrix4::I;
+    Matrix4 m_projection_matrix = Matrix4::I;
+    Matrix4 m_view_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_matrix = Matrix4::I;
+    Matrix4 m_inv_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_projection_matrix = Matrix4::I;
 
-    Quaternion rotation = Quaternion::I;
-    float rotationPitch = 0.0f;
-    float rotationYaw = 0.0f;
-    float rotationRoll = 0.0f;
+    Quaternion m_rotation = Quaternion::I;
+    float m_rotationPitch = 0.0f;
+    float m_rotationYaw = 0.0f;
+    float m_rotationRoll = 0.0f;
 };

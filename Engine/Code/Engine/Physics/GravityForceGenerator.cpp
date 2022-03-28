@@ -5,19 +5,19 @@
 
 GravityForceGenerator::GravityForceGenerator(const Vector2& gravity) noexcept
 : ForceGenerator()
-, g(gravity) {
+, m_g(gravity) {
     /* DO NOTHING */
 }
 
 void GravityForceGenerator::notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) const noexcept {
-    if(g == Vector2::Zero) {
+    if(m_g == Vector2::Zero) {
         return;
     }
-    for(auto* body : _observers) {
-        body->ApplyForce(g, deltaSeconds);
+    for(auto* body : m_observers) {
+        body->ApplyForce(m_g, deltaSeconds);
     }
 }
 
 void GravityForceGenerator::SetGravity(const Vector2& newGravity) noexcept {
-    g = newGravity;
+    m_g = newGravity;
 }

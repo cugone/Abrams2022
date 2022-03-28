@@ -23,7 +23,7 @@ public:
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
-            std::scoped_lock lock(_cs);
+            std::scoped_lock lock(m_cs);
             return static_cast<ServiceInterface&>(*found->second);
         }
         ERROR_AND_DIE("Service type not previously provided.");
@@ -33,7 +33,7 @@ public:
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(const auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
-            std::scoped_lock lock(_cs);
+            std::scoped_lock lock(m_cs);
             return static_cast<const ServiceInterface&>(*found->second);
         }
         ERROR_AND_DIE("Service type not previously provided.");
@@ -42,7 +42,7 @@ public:
     template<typename ServiceInterface>
     static void provide(ServiceInterface& service) {
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
-        std::scoped_lock lock(_cs);
+        std::scoped_lock lock(m_cs);
         auto provided_typeindex = std::type_index(typeid(ServiceInterface));
         if(auto [it, result] = m_services.try_emplace(provided_typeindex, &service); !result) {
             m_services.erase(it);
@@ -53,5 +53,5 @@ public:
 protected:
 private:
     static inline std::unordered_map<std::type_index, IService*> m_services{};
-    static inline std::mutex _cs{};
+    static inline std::mutex m_cs{};
 };

@@ -67,5 +67,5 @@ public:
 
 protected:
 private:
-    ShaderProgramDesc _desc{};
+    ShaderProgramDesc m_desc{};
 };

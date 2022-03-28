@@ -57,9 +57,9 @@ public:
 
 protected:
 private:
-    WavFormatChunk _fmt{};
-    WavFactChunk _fact{};
-    WavDataChunk _data{};
+    WavFormatChunk m_fmt{};
+    WavFactChunk m_fact{};
+    WavDataChunk m_data{};
 };
 
 } // namespace FileUtils

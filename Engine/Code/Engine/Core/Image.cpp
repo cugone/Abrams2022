@@ -155,7 +155,7 @@ Image::Image(Image&& img) noexcept
 , m_bytesPerTexel(std::move(img.m_bytesPerTexel))
 , m_filepath(std::move(img.m_filepath))
 {
-    std::scoped_lock<std::mutex, std::mutex> lock(_cs, img._cs);
+    std::scoped_lock<std::mutex, std::mutex> lock(m_cs, img.m_cs);
     m_texelBytes = std::move(img.m_texelBytes);
 }
 
@@ -196,7 +196,7 @@ Image::Image(const Texture* tex) noexcept {
 }
 
 Image& Image::operator=(Image&& rhs) noexcept {
-    std::scoped_lock<std::mutex, std::mutex> lock(_cs, rhs._cs);
+    std::scoped_lock<std::mutex, std::mutex> lock(m_cs, rhs.m_cs);
     m_bytesPerTexel = std::move(rhs.m_bytesPerTexel);
     m_dimensions = std::move(rhs.m_dimensions);
     m_filepath = std::move(rhs.m_filepath);
@@ -277,16 +277,16 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
     int quality = std::clamp(jpg_quality, 0, 100);
     int result = 0;
     if(extension == ".png") {
-        std::scoped_lock<std::mutex> lock(_cs);
+        std::scoped_lock<std::mutex> lock(m_cs);
         result = stbi_write_png(p_str.c_str(), w, h, bbp, m_texelBytes.data(), stride);
     } else if(extension == ".bmp") {
-        std::scoped_lock<std::mutex> lock(_cs);
+        std::scoped_lock<std::mutex> lock(m_cs);
         result = stbi_write_bmp(p_str.c_str(), w, h, bbp, m_texelBytes.data());
     } else if(extension == ".tga") {
-        std::scoped_lock<std::mutex> lock(_cs);
+        std::scoped_lock<std::mutex> lock(m_cs);
         result = stbi_write_tga(p_str.c_str(), w, h, bbp, m_texelBytes.data());
     } else if(extension == ".jpg") {
-        std::scoped_lock<std::mutex> lock(_cs);
+        std::scoped_lock<std::mutex> lock(m_cs);
         result = stbi_write_jpg(p_str.c_str(), w, h, bbp, m_texelBytes.data(), quality);
     } else if(extension == ".hdr") {
         const auto ss = std::string{"Attempting to export "} + filepath.string() + " to an unsupported type: " + extension + "\nHigh Dynamic Range output is not supported.";
@@ -331,7 +331,7 @@ bool Image::IsSupportedExtension(const std::filesystem::path& ext) noexcept {
 }
 
 void swap(Image& a, Image& b) noexcept {
-    std::scoped_lock<std::mutex, std::mutex> lock(a._cs, b._cs);
+    std::scoped_lock<std::mutex, std::mutex> lock(a.m_cs, b.m_cs);
     std::swap(a.m_bytesPerTexel, b.m_bytesPerTexel);
     std::swap(a.m_dimensions, b.m_dimensions);
     std::swap(a.m_filepath, b.m_filepath);

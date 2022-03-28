@@ -17,5 +17,5 @@ public:
 
 protected:
 private:
-    std::size_t _buffer_size = 0;
+    std::size_t m_buffer_size = 0;
 };

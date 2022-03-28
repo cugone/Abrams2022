@@ -41,10 +41,10 @@ protected:
     void CalcVerts();
 
 private:
-    int _sides = 3;
-    float _orientationDegrees = 0.0f;
-    Vector2 _half_extents = Vector2(0.5f, 0.5f);
-    Vector2 _position = Vector2::Zero;
-    std::vector<Vector2> _verts;
-    std::vector<Vector2> _normals;
+    int m_sides = 3;
+    float m_orientationDegrees = 0.0f;
+    Vector2 m_half_extents = Vector2(0.5f, 0.5f);
+    Vector2 m_position = Vector2::Zero;
+    std::vector<Vector2> m_verts;
+    std::vector<Vector2> m_normals;
 };

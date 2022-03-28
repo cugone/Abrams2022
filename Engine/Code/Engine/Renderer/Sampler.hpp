@@ -36,6 +36,6 @@ protected:
 private:
     [[nodiscard]] bool CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc = SamplerDesc()) noexcept;
 
-    SamplerDesc _desc{};
-    ID3D11SamplerState* _dx_state = nullptr;
+    SamplerDesc m_desc{};
+    ID3D11SamplerState* m_dx_state = nullptr;
 };

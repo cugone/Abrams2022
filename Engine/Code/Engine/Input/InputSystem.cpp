@@ -80,8 +80,8 @@ void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) noexcept {
 }
 
 void InputSystem::UpdateXboxConnectedState() noexcept {
-    for(int i = 0; i < _max_controller_count; ++i) {
-        _xboxControllers[i].UpdateConnectedState(i);
+    for(int i = 0; i < m_max_controller_count; ++i) {
+        m_xboxControllers[i].UpdateConnectedState(i);
     }
 }
 
@@ -90,7 +90,7 @@ void InputSystem::SetMouseCoords(float newX, float newY) noexcept {
 }
 
 void InputSystem::SetMouseCoords(Vector2 newCoords) noexcept {
-    _mouseCoords = newCoords;
+    m_mouseCoords = newCoords;
 }
 
 void InputSystem::UpdateMouseCoords(float newX, float newY) noexcept {
@@ -98,9 +98,9 @@ void InputSystem::UpdateMouseCoords(float newX, float newY) noexcept {
 }
 
 void InputSystem::UpdateMouseCoords(Vector2 newCoords) noexcept {
-    _mousePrevCoords = _mouseCoords;
-    _mouseCoords = newCoords;
-    _mouseDelta = _mouseCoords - _mousePrevCoords;
+    m_mousePrevCoords = m_mouseCoords;
+    m_mouseCoords = newCoords;
+    m_mouseDelta = m_mouseCoords - m_mousePrevCoords;
 }
 
 void InputSystem::AdjustMouseCoords(float offsetX, float offsetY) noexcept {
@@ -108,9 +108,9 @@ void InputSystem::AdjustMouseCoords(float offsetX, float offsetY) noexcept {
 }
 
 void InputSystem::AdjustMouseCoords(Vector2 offset) noexcept {
-    _mousePrevCoords = _mouseCoords;
-    _mouseCoords += offset;
-    _mouseDelta = _mouseCoords - _mousePrevCoords;
+    m_mousePrevCoords = m_mouseCoords;
+    m_mouseCoords += offset;
+    m_mouseDelta = m_mouseCoords - m_mousePrevCoords;
 }
 
 bool InputSystem::WasMouseWheelJustUsed() const noexcept {
@@ -146,12 +146,12 @@ Vector2 InputSystem::GetWindowCenter(const Window& window) const noexcept {
 
 bool InputSystem::WasAnyControllerJustUsed() const noexcept {
     bool result = false;
-    for(int i = 0; i < _max_controller_count; ++i) {
-        result |= _xboxControllers[i].IsAnyButtonDown();
-        result |= _xboxControllers[i].GetLeftThumbPosition().CalcLengthSquared() > 0.0f;
-        result |= _xboxControllers[i].GetRightThumbPosition().CalcLengthSquared() > 0.0f;
-        result |= _xboxControllers[i].GetLeftTriggerPosition() > 0.0f;
-        result |= _xboxControllers[i].GetRightTriggerPosition() > 0.0f;
+    for(int i = 0; i < m_max_controller_count; ++i) {
+        result |= m_xboxControllers[i].IsAnyButtonDown();
+        result |= m_xboxControllers[i].GetLeftThumbPosition().CalcLengthSquared() > 0.0f;
+        result |= m_xboxControllers[i].GetRightThumbPosition().CalcLengthSquared() > 0.0f;
+        result |= m_xboxControllers[i].GetLeftTriggerPosition() > 0.0f;
+        result |= m_xboxControllers[i].GetRightTriggerPosition() > 0.0f;
         if(result)
             break;
     }
@@ -168,13 +168,13 @@ bool InputSystem::IsMouseCursorVisible() const noexcept {
 void InputSystem::HideMouseCursor() noexcept {
     while(::ShowCursor(FALSE) >= 0)
         ;
-    _cursor_visible = IsMouseCursorVisible();
+    m_cursor_visible = IsMouseCursorVisible();
 }
 
 void InputSystem::ShowMouseCursor() noexcept {
     while(::ShowCursor(TRUE) < 0)
         ;
-    _cursor_visible = IsMouseCursorVisible();
+    m_cursor_visible = IsMouseCursorVisible();
 }
 
 void InputSystem::ToggleMouseCursorVisibility() noexcept {
@@ -196,41 +196,41 @@ void InputSystem::SetCursorWindowPosition(const Vector2& window_pos) noexcept {
 }
 
 const Vector2& InputSystem::GetMouseCoords() const noexcept {
-    return _mouseCoords;
+    return m_mouseCoords;
 }
 
 const Vector2& InputSystem::GetMouseDelta() const noexcept {
-    return _mouseDelta;
+    return m_mouseDelta;
 }
 
 int InputSystem::GetMouseWheelPosition() const noexcept {
-    return _mouseWheelPosition;
+    return m_mouseWheelPosition;
 }
 
 int InputSystem::GetMouseWheelPositionNormalized() const noexcept {
-    if(_mouseWheelPosition) {
-        return _mouseWheelPosition / std::abs(_mouseWheelPosition);
+    if(m_mouseWheelPosition) {
+        return m_mouseWheelPosition / std::abs(m_mouseWheelPosition);
     }
     return 0;
 }
 
 int InputSystem::GetMouseWheelHorizontalPosition() const noexcept {
-    return _mouseWheelHPosition;
+    return m_mouseWheelHPosition;
 }
 
 int InputSystem::GetMouseWheelHorizontalPositionNormalized() const noexcept {
-    if(_mouseWheelHPosition) {
-        return _mouseWheelHPosition / std::abs(_mouseWheelHPosition);
+    if(m_mouseWheelHPosition) {
+        return m_mouseWheelHPosition / std::abs(m_mouseWheelHPosition);
     }
     return 0;
 }
 
 IntVector2 InputSystem::GetMouseWheelPositionAsIntVector2() const noexcept {
-    return IntVector2{_mouseWheelHPosition, _mouseWheelPosition};
+    return IntVector2{m_mouseWheelHPosition, m_mouseWheelPosition};
 }
 
 bool InputSystem::IsMouseLockedToViewport() const noexcept {
-    return _should_clip_cursor;
+    return m_should_clip_cursor;
 }
 
 void InputSystem::LockMouseToViewport(const Window& window) const noexcept {
@@ -242,8 +242,8 @@ void InputSystem::LockMouseToViewport(const Window& window) const noexcept {
     const long bottom = pos.y + dims.y;
     RECT temp{top, left, right, bottom};
     if(::ClipCursor(&temp)) {
-        _should_clip_cursor = true;
-        _currentClippingArea = RectToAABB2(temp);
+        m_should_clip_cursor = true;
+        m_currentClippingArea = RectToAABB2(temp);
     }
 }
 
@@ -254,18 +254,18 @@ void InputSystem::LockMouseToWindowViewport() const noexcept {
 
 void InputSystem::UnlockMouseFromViewport() const noexcept {
     ::ClipCursor(nullptr);
-    _should_clip_cursor = false;
-    _currentClippingArea = _initialClippingArea;
+    m_should_clip_cursor = false;
+    m_currentClippingArea = m_initialClippingArea;
 }
 
 void InputSystem::RegisterKeyDown(unsigned char keyIndex) noexcept {
     auto kc = ConvertWinVKToKeyCode(keyIndex);
-    _currentKeys[(std::size_t)kc] = true;
+    m_currentKeys[(std::size_t)kc] = true;
 }
 
 void InputSystem::RegisterKeyUp(unsigned char keyIndex) noexcept {
     auto kc = ConvertWinVKToKeyCode(keyIndex);
-    _currentKeys[(std::size_t)kc] = false;
+    m_currentKeys[(std::size_t)kc] = false;
 }
 
 bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
@@ -858,7 +858,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         //constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
         //constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
         WPARAM wp = msg.wparam;
-        _mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
+        m_mouseWheelPosition = GET_WHEEL_DELTA_WPARAM(wp);
         return true;
     }
     case WindowsSystemMessage::Mouse_MouseHWheel: {
@@ -871,7 +871,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         //constexpr uint16_t xbutton1_down_mask = 0b0000'0000'0010'0000; //0x0020
         //constexpr uint16_t xbutton2_down_mask = 0b0000'0000'0100'0000; //0x0040
         WPARAM wp = msg.wparam;
-        _mouseWheelHPosition = GET_WHEEL_DELTA_WPARAM(wp);
+        m_mouseWheelHPosition = GET_WHEEL_DELTA_WPARAM(wp);
         return true;
     }
     case WindowsSystemMessage::Window_Move: {
@@ -879,15 +879,15 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             return false;
         }
         LPARAM lp = msg.lparam;
-        const auto width = _currentClippingArea.CalcDimensions().x;
-        const auto height = _currentClippingArea.CalcDimensions().y;
+        const auto width = m_currentClippingArea.CalcDimensions().x;
+        const auto height = m_currentClippingArea.CalcDimensions().y;
         const auto x = static_cast<float>(LOWORD(lp));
         const auto y = static_cast<float>(HIWORD(lp));
-        _currentClippingArea.mins.y = y;
-        _currentClippingArea.mins.x = x;
-        _currentClippingArea.maxs.y = y + height;
-        _currentClippingArea.maxs.x = x + width;
-        RECT result = AABB2ToRect(_currentClippingArea);
+        m_currentClippingArea.mins.y = y;
+        m_currentClippingArea.mins.x = x;
+        m_currentClippingArea.maxs.y = y + height;
+        m_currentClippingArea.maxs.x = x + width;
+        RECT result = AABB2ToRect(m_currentClippingArea);
         ::ClipCursor(&result);
         return true;
     }
@@ -906,13 +906,13 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         LPARAM lp = msg.lparam;
         const auto w = static_cast<float>(LOWORD(lp));
         const auto h = static_cast<float>(HIWORD(lp));
-        const auto x = _currentClippingArea.mins.x;
-        const auto y = _currentClippingArea.mins.y;
-        _currentClippingArea.mins.x   = x;
-        _currentClippingArea.mins.y   = y;
-        _currentClippingArea.maxs.x = x + w;
-        _currentClippingArea.maxs.y = y + h;
-        RECT result = AABB2ToRect(_currentClippingArea);
+        const auto x = m_currentClippingArea.mins.x;
+        const auto y = m_currentClippingArea.mins.y;
+        m_currentClippingArea.mins.x   = x;
+        m_currentClippingArea.mins.y   = y;
+        m_currentClippingArea.maxs.x = x + w;
+        m_currentClippingArea.maxs.y = y + h;
+        RECT result = AABB2ToRect(m_currentClippingArea);
         ::ClipCursor(&result);
         return false; //App needs to respond
     }
@@ -927,7 +927,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             ::ClipCursor(nullptr);
         }
         if(gaining_focus) {
-            RECT result = AABB2ToRect(_currentClippingArea);
+            RECT result = AABB2ToRect(m_currentClippingArea);
             ::ClipCursor(&result);
         }
         return false; //App needs to respond
@@ -942,7 +942,7 @@ bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case WA_ACTIVE: /** FALLTHROUGH **/
         case WA_CLICKACTIVE:
             {
-                RECT result = AABB2ToRect(_currentClippingArea);
+                RECT result = AABB2ToRect(m_currentClippingArea);
                 ::ClipCursor(&result);
             }
             return false; //App needs to respond
@@ -963,11 +963,11 @@ InputSystem::InputSystem() noexcept
 {
     RECT result{};
     ::GetClipCursor(&result);
-    _initialClippingArea = RectToAABB2(result);
+    m_initialClippingArea = RectToAABB2(result);
 }
 
 InputSystem::~InputSystem() noexcept {
-    RECT result = AABB2ToRect(_initialClippingArea);
+    RECT result = AABB2ToRect(m_initialClippingArea);
     ::ClipCursor(&result);
 }
 
@@ -976,11 +976,11 @@ void InputSystem::Initialize() noexcept {
 }
 
 void InputSystem::BeginFrame() noexcept {
-    if(_connection_poll.CheckAndReset()) {
+    if(m_connection_poll.CheckAndReset()) {
         UpdateXboxConnectedState();
     }
-    for(int i = 0; i < _max_controller_count; ++i) {
-        _xboxControllers[i].Update(i);
+    for(int i = 0; i < m_max_controller_count; ++i) {
+        m_xboxControllers[i].Update(i);
     }
 }
 
@@ -993,11 +993,11 @@ void InputSystem::Render() const noexcept {
 }
 
 void InputSystem::EndFrame() noexcept {
-    _mouseDelta = Vector2::Zero;
-    _mousePrevCoords = _mouseCoords;
-    _previousKeys = _currentKeys;
-    _mouseWheelPosition = 0;
-    _mouseWheelHPosition = 0;
+    m_mouseDelta = Vector2::Zero;
+    m_mousePrevCoords = m_mouseCoords;
+    m_previousKeys = m_currentKeys;
+    m_mouseWheelPosition = 0;
+    m_mouseWheelHPosition = 0;
 }
 
 bool InputSystem::WasAnyKeyPressed() const noexcept {
@@ -1027,15 +1027,15 @@ bool InputSystem::WasMouseJustUsed() const noexcept {
 }
 
 bool InputSystem::IsKeyUp(const KeyCode& key) const noexcept {
-    return !_previousKeys[(std::size_t)key] && !_currentKeys[(std::size_t)key];
+    return !m_previousKeys[(std::size_t)key] && !m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasKeyJustPressed(const KeyCode& key) const noexcept {
-    return !_previousKeys[(std::size_t)key] && _currentKeys[(std::size_t)key];
+    return !m_previousKeys[(std::size_t)key] && m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::IsKeyDown(const KeyCode& key) const noexcept {
-    return _previousKeys[(std::size_t)key] && _currentKeys[(std::size_t)key];
+    return m_previousKeys[(std::size_t)key] && m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasKeyJustPressedOrIsKeyDown(const KeyCode& key) const noexcept {
@@ -1052,7 +1052,7 @@ bool InputSystem::IsAnyKeyDown() const noexcept {
 }
 
 bool InputSystem::WasKeyJustReleased(const KeyCode& key) const noexcept {
-    return _previousKeys[(std::size_t)key] && !_currentKeys[(std::size_t)key];
+    return m_previousKeys[(std::size_t)key] && !m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasMouseWheelJustScrolledUp() const noexcept {
@@ -1073,7 +1073,7 @@ bool InputSystem::WasMouseWheelJustScrolledRight() const noexcept {
 
 std::size_t InputSystem::GetConnectedControllerCount() const noexcept {
     int connected_count = 0;
-    for(const auto& controller : _xboxControllers) {
+    for(const auto& controller : m_xboxControllers) {
         if(controller.IsConnected()) {
             ++connected_count;
         }
@@ -1083,16 +1083,16 @@ std::size_t InputSystem::GetConnectedControllerCount() const noexcept {
 
 bool InputSystem::IsAnyControllerConnected() const noexcept {
     bool result = false;
-    for(const auto& controller : _xboxControllers) {
+    for(const auto& controller : m_xboxControllers) {
         result |= controller.IsConnected();
     }
     return result;
 }
 
 const XboxController& InputSystem::GetXboxController(const std::size_t& controllerIndex) const noexcept {
-    return _xboxControllers[controllerIndex];
+    return m_xboxControllers[controllerIndex];
 }
 
 XboxController& InputSystem::GetXboxController(const std::size_t& controllerIndex) noexcept {
-    return _xboxControllers[controllerIndex];
+    return m_xboxControllers[controllerIndex];
 }

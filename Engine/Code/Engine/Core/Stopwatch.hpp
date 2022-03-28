@@ -26,6 +26,6 @@ public:
     void Reset() noexcept;
 
 private:
-    TimeUtils::FPSeconds interval_time{};
-    TimeUtils::FPSeconds target_time{};
+    TimeUtils::FPSeconds m_interval_time{};
+    TimeUtils::FPSeconds m_target_time{};
 };

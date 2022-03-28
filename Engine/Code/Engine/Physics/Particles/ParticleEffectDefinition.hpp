@@ -24,12 +24,12 @@ public:
     float GetLongestLifetime();
 
 private:
-    std::string _name = "UNNAMED_PARTICLE_EFFECT";
-    std::string _soundSrc{};
-    std::vector<std::string> _emitter_names;
-    float _lifetime = -1.0f;
-    bool _destroyOnFinish = false;
-    bool _hasSound = false;
+    std::string m_name = "UNNAMED_PARTICLE_EFFECT";
+    std::string m_soundSrc{};
+    std::vector<std::string> m_emitter_names;
+    float m_lifetime = -1.0f;
+    bool m_destroyOnFinish = false;
+    bool m_hasSound = false;
 
     friend class ParticleEffect;
 };

@@ -32,11 +32,11 @@ bool ParticleEffectDefinition::LoadDefinition(const XMLElement& element) {
     DataUtils::ValidateXmlElement(element, "effect", "emitter", "name", "sound");
 
     auto definition = std::make_unique<ParticleEffectDefinition>();
-    definition->_name = DataUtils::ParseXmlAttribute(element, "name", definition->_name);
-    if(auto found_iter = s_particleEffectDefinitions.find(definition->_name); found_iter != std::end(s_particleEffectDefinitions)) {
+    definition->m_name = DataUtils::ParseXmlAttribute(element, "name", definition->m_name);
+    if(auto found_iter = s_particleEffectDefinitions.find(definition->m_name); found_iter != std::end(s_particleEffectDefinitions)) {
         return false;
     }
-    definition->_emitter_names = [&element]() {
+    definition->m_emitter_names = [&element]() {
         const auto emitter_count = DataUtils::GetChildElementCount(element, "emitter");
         std::vector<std::string> emitter_names{};
         emitter_names.reserve(emitter_count);
@@ -52,30 +52,30 @@ bool ParticleEffectDefinition::LoadDefinition(const XMLElement& element) {
         DataUtils::ValidateXmlElement(*xml_sound, "sound", "", "src");
         std::string sound_src = DataUtils::ParseXmlAttribute(*xml_sound, "src", std::string{});
         if(!sound_src.empty()) {
-            definition->_soundSrc = sound_src;
-            definition->_hasSound = true;
+            definition->m_soundSrc = sound_src;
+            definition->m_hasSound = true;
         }
     }
-    definition->_lifetime = GetLongestLifetime(*definition);
-    const std::string name = definition->_name;
+    definition->m_lifetime = GetLongestLifetime(*definition);
+    const std::string name = definition->m_name;
     s_particleEffectDefinitions.insert_or_assign(name, std::move(definition));
     return true;
 }
 
 const std::string& ParticleEffectDefinition::GetName() const {
-    return _name;
+    return m_name;
 }
 
 bool ParticleEffectDefinition::HasSound() const {
-    return _hasSound;
+    return m_hasSound;
 }
 
 const std::string& ParticleEffectDefinition::GetSoundSource() const {
-    return _soundSrc;
+    return m_soundSrc;
 }
 
 bool ParticleEffectDefinition::DestroyOnFinish() const {
-    return _destroyOnFinish;
+    return m_destroyOnFinish;
 }
 
 float ParticleEffectDefinition::GetLongestLifetime() {
@@ -83,11 +83,11 @@ float ParticleEffectDefinition::GetLongestLifetime() {
 }
 
 float ParticleEffectDefinition::GetLongestLifetime(const ParticleEffectDefinition& def) {
-    float longest_lifetime = def._lifetime;
-    for(auto& emitter_name : def._emitter_names) {
+    float longest_lifetime = def.m_lifetime;
+    for(auto& emitter_name : def.m_emitter_names) {
         auto* emitter = ParticleEmitterDefinition::GetParticleEmitterDefinition(emitter_name);
-        if(longest_lifetime < emitter->_lifetime) {
-            longest_lifetime = emitter->_lifetime;
+        if(longest_lifetime < emitter->m_lifetime) {
+            longest_lifetime = emitter->m_lifetime;
         }
     }
     return longest_lifetime;

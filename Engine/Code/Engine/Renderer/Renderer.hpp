@@ -69,37 +69,37 @@ class VertexBuffer;
 struct screenshot_job_t {
 public:
     screenshot_job_t()
-    : saveLocation{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}} {
+    : m_saveLocation{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}} {
         namespace FS = std::filesystem;
-        FileUtils::CreateFolders(saveLocation);
-        const std::filesystem::path folder = saveLocation;
+        FileUtils::CreateFolders(m_saveLocation);
+        const std::filesystem::path folder = m_saveLocation;
         const auto screenshot_count = FileUtils::CountFilesInFolders(folder);
         const auto filepath = folder / FS::path{"Screenshot_" + std::to_string(screenshot_count + 1) + ".png"};
-        saveLocation = filepath;
+        m_saveLocation = filepath;
     }
     screenshot_job_t(std::filesystem::path location)
-    : saveLocation{location} {
+    : m_saveLocation{location} {
         /* DO NOTHING */
     }
     screenshot_job_t(std::string location)
-    : saveLocation{location} {
+    : m_saveLocation{location} {
         /* DO NOTHING */
     }
     operator bool() const noexcept {
-        return !saveLocation.empty() && std::filesystem::exists(saveLocation.parent_path());
+        return !m_saveLocation.empty() && std::filesystem::exists(m_saveLocation.parent_path());
     }
     operator std::string() const noexcept {
-        return saveLocation.string();
+        return m_saveLocation.string();
     }
     operator std::filesystem::path() const noexcept {
-        return saveLocation;
+        return m_saveLocation;
     }
     void clear() noexcept {
-        saveLocation.clear();
+        m_saveLocation.clear();
     }
 
 private:
-    std::filesystem::path saveLocation{};
+    std::filesystem::path m_saveLocation{};
 };
 
 struct matrix_buffer_t {
@@ -520,14 +520,14 @@ private:
     //void Draw(const PrimitiveType& topology, VertexBuffer* vbo, std::size_t vertex_count) noexcept;
     template<typename ArrayBufferType>
     void Draw(const PrimitiveType& topology, ArrayBufferType* vbo, std::size_t vertex_count) noexcept {
-        GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+        GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
-        _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+        m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
         unsigned int offsets = 0;
         const auto dx_vbo_buffer = vbo->GetDxBuffer();
-        _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
-        _rhi_context->Draw(vertex_count);
+        m_rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
+        m_rhi_context->Draw(vertex_count);
     }
 
     void DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, std::size_t vertexPerInstanceCount, std::size_t instanceCount, std::size_t startVertexLocation, std::size_t startInstanceLocation) noexcept;
@@ -535,16 +535,16 @@ private:
     //void DrawIndexed(const PrimitiveType& topology, VertexBuffer* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept;
     template<typename ArrayBufferType>
     void DrawIndexed(const PrimitiveType& topology, ArrayBufferType* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept {
-        GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+        GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
-        _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+        m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
         unsigned int offsets = 0;
         const auto dx_vbo_buffer = vbo->GetDxBuffer();
         auto dx_ibo_buffer = ibo->GetDxBuffer();
-        _rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
-        _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer.Get(), DXGI_FORMAT_R32_UINT, offsets);
-        _rhi_context->DrawIndexed(index_count, startVertex, baseVertexLocation);
+        m_rhi_context->GetDxContext()->IASetVertexBuffers(0, 1, dx_vbo_buffer.GetAddressOf(), &stride, &offsets);
+        m_rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer.Get(), DXGI_FORMAT_R32_UINT, offsets);
+        m_rhi_context->DrawIndexed(index_count, startVertex, baseVertexLocation);
     }
 
     void DrawIndexedInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, IndexBuffer* ibo, std::size_t indexPerInstanceCount, std::size_t instanceCount, std::size_t startIndexLocation, std::size_t baseVertexLocation, std::size_t startInstanceLocation) noexcept;
@@ -644,51 +644,51 @@ private:
 
     void FulfillScreenshotRequest() noexcept;
 
-    Camera3D _camera{};
-    matrix_buffer_t _matrix_data{};
-    time_buffer_t _time_data{};
-    lighting_buffer_t _lighting_data{};
-    std::size_t _current_vbo_size = 0;
-    std::size_t _current_vbco_size = 0;
-    std::size_t _current_vbio_size = 0;
-    std::size_t _current_ibo_size = 0;
-    RHIInstance* _rhi_instance = nullptr;
-    std::unique_ptr<RHIDevice> _rhi_device = nullptr;
-    std::unique_ptr<RHIDeviceContext> _rhi_context = nullptr;
-    std::unique_ptr<RHIOutput> _rhi_output = nullptr;
-    Texture* _current_target = nullptr;
-    Texture* _current_depthstencil = nullptr;
-    Texture* _default_depthstencil = nullptr;
-    DepthStencilState* _current_depthstencil_state = nullptr;
-    RasterState* _current_raster_state = nullptr;
-    Sampler* _current_sampler = nullptr;
-    Material* _current_material = nullptr;
-    IntVector2 _window_dimensions = IntVector2::Zero;
-    RHIOutputMode _current_outputMode = RHIOutputMode::Windowed;
-    std::unique_ptr<FrameBuffer> _backbuffer{};
-    std::unique_ptr<VertexBuffer> _temp_vbo = nullptr;
-    std::unique_ptr<VertexCircleBuffer> _circle_vbo = nullptr;
-    std::unique_ptr<VertexBufferInstanced> _temp_vbio = nullptr;
-    std::unique_ptr<IndexBuffer> _temp_ibo = nullptr;
-    std::unique_ptr<ConstantBuffer> _matrix_cb = nullptr;
-    std::unique_ptr<ConstantBuffer> _time_cb = nullptr;
-    std::unique_ptr<ConstantBuffer> _lighting_cb = nullptr;
-    std::vector<std::pair<std::string, std::unique_ptr<Texture>>> _textures{};
-    std::vector<std::pair<std::string, std::unique_ptr<ShaderProgram>>> _shader_programs;
-    std::vector<std::pair<std::string, std::unique_ptr<Shader>>> _shaders;
-    std::vector<std::pair<std::string, std::unique_ptr<Material>>> _materials;
-    std::vector<std::pair<std::string, std::unique_ptr<Sampler>>> _samplers;
-    std::vector<std::pair<std::string, std::unique_ptr<RasterState>>> _rasters;
-    std::vector<std::pair<std::string, std::unique_ptr<DepthStencilState>>> _depthstencils;
-    std::vector<std::pair<std::string, std::unique_ptr<KerningFont>>> _fonts;
-    mutable std::mutex _cs{};
-    screenshot_job_t _screenshot{};
-    std::filesystem::path _last_screenshot_location{};
-    bool _vsync = false;
-    bool _materials_need_updating = true;
-    bool _enteredSizeMove = false;
-    bool _doneSizeMove = false;
-    bool _is_minimized = false;
+    Camera3D m_camera{};
+    matrix_buffer_t m_matrix_data{};
+    time_buffer_t m_time_data{};
+    lighting_buffer_t m_lighting_data{};
+    std::size_t m_current_vbo_size = 0;
+    std::size_t m_current_vbco_size = 0;
+    std::size_t m_current_vbio_size = 0;
+    std::size_t m_current_ibo_size = 0;
+    RHIInstance* m_rhi_instance = nullptr;
+    std::unique_ptr<RHIDevice> m_rhi_device = nullptr;
+    std::unique_ptr<RHIDeviceContext> m_rhi_context = nullptr;
+    std::unique_ptr<RHIOutput> m_rhi_output = nullptr;
+    Texture* m_current_target = nullptr;
+    Texture* m_current_depthstencil = nullptr;
+    Texture* m_default_depthstencil = nullptr;
+    DepthStencilState* m_current_depthstencil_state = nullptr;
+    RasterState* m_current_raster_state = nullptr;
+    Sampler* m_current_sampler = nullptr;
+    Material* m_current_material = nullptr;
+    IntVector2 m_window_dimensions = IntVector2::Zero;
+    RHIOutputMode m_current_outputMode = RHIOutputMode::Windowed;
+    std::unique_ptr<FrameBuffer> m_backbuffer{};
+    std::unique_ptr<VertexBuffer> m_temp_vbo = nullptr;
+    std::unique_ptr<VertexCircleBuffer> m_circle_vbo = nullptr;
+    std::unique_ptr<VertexBufferInstanced> m_temp_vbio = nullptr;
+    std::unique_ptr<IndexBuffer> m_temp_ibo = nullptr;
+    std::unique_ptr<ConstantBuffer> m_matrix_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> m_time_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> m_lighting_cb = nullptr;
+    std::vector<std::pair<std::string, std::unique_ptr<Texture>>> m_textures{};
+    std::vector<std::pair<std::string, std::unique_ptr<ShaderProgram>>> m_shader_programs;
+    std::vector<std::pair<std::string, std::unique_ptr<Shader>>> m_shaders;
+    std::vector<std::pair<std::string, std::unique_ptr<Material>>> m_materials;
+    std::vector<std::pair<std::string, std::unique_ptr<Sampler>>> m_samplers;
+    std::vector<std::pair<std::string, std::unique_ptr<RasterState>>> m_rasters;
+    std::vector<std::pair<std::string, std::unique_ptr<DepthStencilState>>> m_depthstencils;
+    std::vector<std::pair<std::string, std::unique_ptr<KerningFont>>> m_fonts;
+    mutable std::mutex m_cs{};
+    screenshot_job_t m_screenshot{};
+    std::filesystem::path m_last_screenshot_location{};
+    bool m_vsync = false;
+    bool m_materials_need_updating = true;
+    bool m_enteredSizeMove = false;
+    bool m_doneSizeMove = false;
+    bool m_is_minimized = false;
 
     friend class Shader;
     friend class AnimatedSprite;

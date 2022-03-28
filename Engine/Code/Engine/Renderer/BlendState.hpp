@@ -32,12 +32,12 @@ public:
     [[nodiscard]] ID3D11BlendState* GetDxBlendState() noexcept;
 
 protected:
-    [[nodiscard]] bool CreateBlendState(const RHIDevice* device, BlendDesc render_target = BlendDesc{}) noexcept;
-    [[nodiscard]] bool CreateBlendState(const RHIDevice* device, const std::vector<BlendDesc>& render_targets = {BlendDesc{}}) noexcept;
+    [[nodiscard]] bool CreateBlendState(const RHIDevice* device, BlendDesc m_render_target = BlendDesc{}) noexcept;
+    [[nodiscard]] bool CreateBlendState(const RHIDevice* device, const std::vector<BlendDesc>& m_render_targets = {BlendDesc{}}) noexcept;
 
 private:
-    bool _alpha_to_coverage_enable = false;
-    bool _independant_blend_enable = false;
-    std::vector<BlendDesc> _descs{};
-    ID3D11BlendState* _dx_state = nullptr;
+    bool m_alpha_to_coverage_enable = false;
+    bool m_independant_blend_enable = false;
+    std::vector<BlendDesc> m_descs{};
+    ID3D11BlendState* m_dx_state = nullptr;
 };

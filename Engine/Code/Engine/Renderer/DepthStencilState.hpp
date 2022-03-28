@@ -38,6 +38,6 @@ protected:
 private:
     [[nodiscard]] bool CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc = DepthStencilDesc{}) noexcept;
 
-    DepthStencilDesc _desc{};
-    ID3D11DepthStencilState* _dx_state = nullptr;
+    DepthStencilDesc m_desc{};
+    ID3D11DepthStencilState* m_dx_state = nullptr;
 };

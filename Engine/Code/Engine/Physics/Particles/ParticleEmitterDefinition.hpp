@@ -49,25 +49,25 @@ private:
 
     static std::unique_ptr<ParticleEmitterDefinition> CreateParticleEmitterDefinition(const XMLElement& element) noexcept;
 
-    ParticleState _initialState{};
-    ParticleRenderState _particleRenderState{};
+    ParticleState m_initialState{};
+    ParticleRenderState m_particleRenderState{};
 
-    EmitterDefinition _emitterPositionDefinition{};
-    EmitterDefinition _emitterVelocityDefinition{};
-    Vector3 _position{Vector3::Zero};
-    Vector3 _velocity{Vector3::Zero};
-    Vector3 _acceleration{Vector3::Zero};
-    std::size_t _initialBurst{0u};
-    float _spawnPerSecond{0.0f};
-    float _lifetime{0.0f};
-    float _particleLifetime{0.0f};
-    float _mass{0.0f};
-    std::string _materialName{};
-    std::string _name{};
-    Rgba _particleColor{Rgba::White};
-    bool _isPrewarmed{false};
-    bool _isBillboarded{true};
-    bool _isSorted{true};
+    EmitterDefinition m_emitterPositionDefinition{};
+    EmitterDefinition m_emitterVelocityDefinition{};
+    Vector3 m_position{Vector3::Zero};
+    Vector3 m_velocity{Vector3::Zero};
+    Vector3 m_acceleration{Vector3::Zero};
+    std::size_t m_initialBurst{0u};
+    float m_spawnPerSecond{0.0f};
+    float m_lifetime{0.0f};
+    float m_particleLifetime{0.0f};
+    float m_mass{0.0f};
+    std::string m_materialName{};
+    std::string m_name{};
+    Rgba m_particleColor{Rgba::White};
+    bool m_isPrewarmed{false};
+    bool m_isBillboarded{true};
+    bool m_isSorted{true};
 
     friend class ParticleEmitter;
     friend class ParticleEffectDefinition;

@@ -7,15 +7,15 @@ IntVector2 GameSettings::GetWindowResolution() const noexcept {
 }
 
 int GameSettings::GetWindowWidth() const noexcept {
-    return _windowWidth;
+    return m_windowWidth;
 }
 
 int GameSettings::GetWindowHeight() const noexcept {
-    return _windowHeight;
+    return m_windowHeight;
 }
 
 float GameSettings::GetVerticalFov() const noexcept {
-    return _fov;
+    return m_fov;
 }
 
 void GameSettings::SetWindowResolution(const IntVector2& newResolution) noexcept {
@@ -24,71 +24,71 @@ void GameSettings::SetWindowResolution(const IntVector2& newResolution) noexcept
 }
 
 void GameSettings::SetWindowWidth(int newWidth) noexcept {
-    _windowWidth = newWidth;
+    m_windowWidth = newWidth;
 }
 
 void GameSettings::SetWindowHeight(int newHeight) noexcept {
-    _windowHeight = newHeight;
+    m_windowHeight = newHeight;
 }
 
 void GameSettings::SetVerticalFov(float newFov) noexcept {
-    _fov = newFov;
+    m_fov = newFov;
 }
 
 void GameSettings::SetVsyncEnabled(bool newVsync) noexcept {
-    _vsync = newVsync;
+    m_vsync = newVsync;
 }
 
 bool GameSettings::IsMouseInvertedX() const noexcept {
-    return _invertMouseX;
+    return m_invertMouseX;
 }
 
 bool GameSettings::IsMouseInvertedY() const noexcept {
-    return _invertMouseY;
+    return m_invertMouseY;
 }
 
 bool GameSettings::IsVsyncEnabled() const noexcept {
-    return _vsync;
+    return m_vsync;
 }
 
 int GameSettings::DefaultWindowWidth() const noexcept {
-    return _defaultWindowWidth;
+    return m_defaultWindowWidth;
 }
 
 int GameSettings::DefaultWindowHeight() const noexcept {
-    return _defaultWindowHeight;
+    return m_defaultWindowHeight;
 }
 
 float GameSettings::DefaultVerticalFov() const noexcept {
-    return _defaultFov;
+    return m_defaultFov;
 }
 
 bool GameSettings::DefaultMouseInvertedX() const noexcept {
-    return _defaultInvertMouseX;
+    return m_defaultInvertMouseX;
 }
 
 bool GameSettings::DefaultMouseInvertedY() const noexcept {
-    return _defaultInvertMouseY;
+    return m_defaultInvertMouseY;
 }
 
 bool GameSettings::DefaultVsyncEnabled() const noexcept {
-    return _defaultvsync;
+    return m_defaultvsync;
 }
 
 void GameSettings::SaveToConfig(Config& config) noexcept {
-    config.SetValue("width", _windowWidth);
-    config.SetValue("height", _windowHeight);
-    config.SetValue("vfov", _fov);
-    config.SetValue("invertY", _invertMouseY);
-    config.SetValue("invertY", _invertMouseX);
-    config.SetValue("vsync", _vsync);
+    config.SetValue("width", m_windowWidth);
+    config.SetValue("height", m_windowHeight);
+    config.SetValue("vfov", m_fov);
+    config.SetValue("invertY", m_invertMouseY);
+    config.SetValue("invertY", m_invertMouseX);
+    config.SetValue("vsync", m_vsync);
 }
 
 void GameSettings::SetToDefault() noexcept {
-    _windowWidth = _defaultWindowWidth;
-    _windowHeight = _defaultWindowHeight;
-    _fov = _defaultFov;
-    _invertMouseY = _defaultInvertMouseY;
-    _invertMouseX = _defaultInvertMouseX;
-    _vsync = _defaultvsync;
+    m_windowWidth = m_defaultWindowWidth;
+    m_windowHeight = m_defaultWindowHeight;
+    m_fov = m_defaultFov;
+    m_invertMouseY = m_defaultInvertMouseY;
+    m_invertMouseX = m_defaultInvertMouseX;
+    m_vsync = m_defaultvsync;
 }

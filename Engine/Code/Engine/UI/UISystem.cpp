@@ -119,7 +119,7 @@ void TextColored(const Rgba& color, const char* fmt, ...) noexcept {
 
 UISystem::UISystem() noexcept
 : EngineSubsystem()
-, _context(ImGui::CreateContext()) {
+, m_context(ImGui::CreateContext()) {
 #ifdef UI_DEBUG
     IMGUI_CHECKVERSION();
 #endif
@@ -129,9 +129,9 @@ UISystem::~UISystem() noexcept {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
-    ImGui::DestroyContext(_context);
-    _context = nullptr;
-    _widgets.clear();
+    ImGui::DestroyContext(m_context);
+    m_context = nullptr;
+    m_widgets.clear();
 }
 
 void UISystem::Initialize() noexcept {
@@ -152,13 +152,13 @@ void UISystem::Initialize() noexcept {
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
 
-    if(std::filesystem::exists(_ini_filepath)) {
-        ImGui::LoadIniSettingsFromDisk(_ini_filepath.string().c_str());
+    if(std::filesystem::exists(m_ini_filepath)) {
+        ImGui::LoadIniSettingsFromDisk(m_ini_filepath.string().c_str());
     } else {
-        ImGui::SaveIniSettingsToDisk(_ini_filepath.string().c_str());
+        ImGui::SaveIniSettingsToDisk(m_ini_filepath.string().c_str());
     }
 
-    _ini_saveTimer.SetSeconds(TimeUtils::FPSeconds{io.IniSavingRate});
+    m_ini_saveTimer.SetSeconds(TimeUtils::FPSeconds{io.IniSavingRate});
 
     io.ConfigWindowsResizeFromEdges = true;
     io.ConfigDockingWithShift = true;
@@ -174,8 +174,8 @@ void UISystem::BeginFrame() noexcept {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    if(_ini_saveTimer.CheckAndReset()) {
-        ImGui::SaveIniSettingsToDisk(_ini_filepath.string().c_str());
+    if(m_ini_saveTimer.CheckAndReset()) {
+        ImGui::SaveIniSettingsToDisk(m_ini_filepath.string().c_str());
     }
 }
 
@@ -185,11 +185,11 @@ void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
     io.AddFocusEvent(app.HasFocus());
 
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    if(show_imgui_demo_window) {
-        ImGui::ShowDemoWindow(&show_imgui_demo_window);
+    if(m_show_imgui_demo_window) {
+        ImGui::ShowDemoWindow(&m_show_imgui_demo_window);
     }
-    if(show_imgui_metrics_window) {
-        ImGui::ShowMetricsWindow(&show_imgui_metrics_window);
+    if(m_show_imgui_metrics_window) {
+        ImGui::ShowMetricsWindow(&m_show_imgui_metrics_window);
     }
 #endif
 }
@@ -201,23 +201,23 @@ void UISystem::Render() const noexcept {
     //2D View / HUD
     auto&& renderer = ServiceLocator::get<IRendererService>();
     const float ui_view_height = renderer.GetCurrentViewport().height;
-    const float ui_view_width = ui_view_height * _ui_camera.GetAspectRatio();
+    const float ui_view_width = ui_view_height * m_ui_camera.GetAspectRatio();
     const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
     const auto ui_view_half_extents = ui_view_extents * 0.5f;
     auto ui_leftBottom = Vector2{-ui_view_half_extents.x, ui_view_half_extents.y};
     auto ui_rightTop = Vector2{ui_view_half_extents.x, -ui_view_half_extents.y};
     auto ui_nearFar = Vector2{0.0f, 1.0f};
     auto ui_cam_pos = ui_view_half_extents;
-    _ui_camera.position = ui_cam_pos;
-    _ui_camera.orientation_degrees = 0.0f;
-    _ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer.GetCurrentViewportAspectRatio());
-    renderer.SetCamera(_ui_camera);
+    m_ui_camera.position = ui_cam_pos;
+    m_ui_camera.orientation_degrees = 0.0f;
+    m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer.GetCurrentViewportAspectRatio());
+    renderer.SetCamera(m_ui_camera);
 
-    for(const auto* cur_widget : _active_widgets) {
+    for(const auto* cur_widget : m_active_widgets) {
         cur_widget->Render();
     }
 #if defined(RENDER_DEBUG)
-    for(const auto* cur_widget : _active_widgets) {
+    for(const auto* cur_widget : m_active_widgets) {
         cur_widget->DebugRender();
     }
 #endif
@@ -251,7 +251,7 @@ bool UISystem::WantsInputMouseCapture() const noexcept {
 
 bool UISystem::IsImguiDemoWindowVisible() const noexcept {
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    return show_imgui_demo_window;
+    return m_show_imgui_demo_window;
 #else
     return false;
 #endif
@@ -259,7 +259,7 @@ bool UISystem::IsImguiDemoWindowVisible() const noexcept {
 
 void UISystem::ToggleImguiDemoWindow() noexcept {
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    show_imgui_demo_window = !show_imgui_demo_window;
+    m_show_imgui_demo_window = !m_show_imgui_demo_window;
     auto&& input = ServiceLocator::get<IInputService>();
     if(!input.IsMouseCursorVisible()) {
         input.ShowMouseCursor();
@@ -269,7 +269,7 @@ void UISystem::ToggleImguiDemoWindow() noexcept {
 
 bool UISystem::IsImguiMetricsWindowVisible() const noexcept {
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
-    return show_imgui_metrics_window;
+    return m_show_imgui_metrics_window;
 #else
     return false;
 #endif
@@ -277,7 +277,7 @@ bool UISystem::IsImguiMetricsWindowVisible() const noexcept {
 
 void UISystem::ToggleImguiMetricsWindow() noexcept {
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
-    show_imgui_metrics_window = !show_imgui_metrics_window;
+    m_show_imgui_metrics_window = !m_show_imgui_metrics_window;
     auto&& input = ServiceLocator::get<IInputService>();
     if(!input.IsMouseCursorVisible()) {
         input.ShowMouseCursor();
@@ -297,13 +297,13 @@ void UISystem::RegisterUiWidgetsFromFolder(std::filesystem::path folderpath, boo
     const auto widgets_lambda = [this](const std::filesystem::path& path) {
         auto newWidget = std::make_unique<UIWidget>(path);
         const std::string name = newWidget->name;
-        _widgets.try_emplace(name, std::move(newWidget));
+        m_widgets.try_emplace(name, std::move(newWidget));
     };
     FileUtils::ForEachFileInFolder(folderpath, ".ui", widgets_lambda, recursive);
 }
 
 bool UISystem::IsWidgetLoaded(const UIWidget& widget) const noexcept {
-    return std::find(std::begin(_active_widgets), std::end(_active_widgets), &widget) != std::end(_active_widgets);
+    return std::find(std::begin(m_active_widgets), std::end(m_active_widgets), &widget) != std::end(m_active_widgets);
 }
 
 void UISystem::LoadUiWidgetsFromFolder(std::filesystem::path path, bool recursive /*= false*/) {
@@ -321,12 +321,12 @@ void UISystem::LoadUiWidgetsFromFolder(std::filesystem::path path, bool recursiv
 
 void UISystem::LoadUiWidget(const std::string& name) {
     if(auto* widget = GetWidgetByName(name)) {
-        _active_widgets.push_back(widget);
+        m_active_widgets.push_back(widget);
     }
 }
 
 void UISystem::UnloadUiWidget(const std::string& name) {
-    _active_widgets.erase(std::remove_if(std::begin(_active_widgets), std::end(_active_widgets), [&name](UIWidget* widget) { return widget->name == name; }), std::end(_active_widgets));
+    m_active_widgets.erase(std::remove_if(std::begin(m_active_widgets), std::end(m_active_widgets), [&name](UIWidget* widget) { return widget->name == name; }), std::end(m_active_widgets));
 }
 
 void UISystem::AddUiWidgetToViewport(UIWidget& widget) {
@@ -344,7 +344,7 @@ void UISystem::RemoveUiWidgetFromViewport(UIWidget& widget) {
 }
 
 UIWidget* UISystem::GetWidgetByName(const std::string& name) const {
-    if(const auto& found = _widgets.find(name); found != std::end(_widgets)) {
+    if(const auto& found = m_widgets.find(name); found != std::end(m_widgets)) {
         return found->second.get();
     }
     return nullptr;

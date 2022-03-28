@@ -15,64 +15,64 @@
 #include <type_traits>
 
 RigidBody::RigidBody(const RigidBodyDesc& desc /*= RigidBodyDesc{}*/)
-: rigidbodyDesc(desc)
-, velocity(rigidbodyDesc.initialVelocity)
-, position(rigidbodyDesc.initialPosition)
-, acceleration(rigidbodyDesc.initialAcceleration) {
-    const auto area = rigidbodyDesc.collider->CalcArea();
-    if(MathUtils::IsEquivalentToZero(rigidbodyDesc.physicsMaterial.density) || MathUtils::IsEquivalentToZero(area)) {
-        rigidbodyDesc.physicsDesc.mass = 0.0f;
+: m_rigidbodyDesc(desc)
+, m_velocity(m_rigidbodyDesc.initialVelocity)
+, m_position(m_rigidbodyDesc.initialPosition)
+, m_acceleration(m_rigidbodyDesc.initialAcceleration) {
+    const auto area = m_rigidbodyDesc.collider->CalcArea();
+    if(MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsMaterial.density) || MathUtils::IsEquivalentToZero(area)) {
+        m_rigidbodyDesc.physicsDesc.mass = 0.0f;
     } else {
-        rigidbodyDesc.physicsDesc.mass = rigidbodyDesc.physicsMaterial.density * area;
-        rigidbodyDesc.physicsDesc.mass = std::pow(rigidbodyDesc.physicsDesc.mass, rigidbodyDesc.physicsMaterial.massExponent);
-        if(!MathUtils::IsEquivalentToZero(rigidbodyDesc.physicsDesc.mass) && rigidbodyDesc.physicsDesc.mass < 0.001f) {
-            rigidbodyDesc.physicsDesc.mass = 0.001f;
+        m_rigidbodyDesc.physicsDesc.mass = m_rigidbodyDesc.physicsMaterial.density * area;
+        m_rigidbodyDesc.physicsDesc.mass = std::pow(m_rigidbodyDesc.physicsDesc.mass, m_rigidbodyDesc.physicsMaterial.massExponent);
+        if(!MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsDesc.mass) && m_rigidbodyDesc.physicsDesc.mass < 0.001f) {
+            m_rigidbodyDesc.physicsDesc.mass = 0.001f;
         }
     }
 }
 
 void RigidBody::BeginFrame() {
     static constexpr auto pred = [](const auto& force) { return force.second.count() <= 0.0f; };
-    if(!linear_forces.empty()) {
-        linear_forces.erase(std::remove_if(linear_forces.begin(), linear_forces.end(), pred), linear_forces.end());
+    if(!m_linear_forces.empty()) {
+        m_linear_forces.erase(std::remove_if(m_linear_forces.begin(), m_linear_forces.end(), pred), m_linear_forces.end());
     }
-    if(!angular_forces.empty()) {
-        angular_forces.erase(std::remove_if(angular_forces.begin(), angular_forces.end(), pred), angular_forces.end());
+    if(!m_angular_forces.empty()) {
+        m_angular_forces.erase(std::remove_if(m_angular_forces.begin(), m_angular_forces.end(), pred), m_angular_forces.end());
     }
 }
 
 void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
     if(!IsPhysicsEnabled() || !IsDynamic() || !IsAwake() || MathUtils::IsEquivalentToZero(GetInverseMass())) {
-        linear_impulses.clear();
-        angular_impulses.clear();
-        linear_forces.clear();
-        angular_forces.clear();
+        m_linear_impulses.clear();
+        m_angular_impulses.clear();
+        m_linear_forces.clear();
+        m_angular_forces.clear();
         return;
     }
     const auto inv_mass = GetInverseMass();
-    const auto linear_impulse_sum = std::accumulate(std::begin(linear_impulses), std::end(linear_impulses), Vector2::Zero);
-    const auto angular_impulse_sum = std::accumulate(std::begin(angular_impulses), std::end(angular_impulses), 0.0f);
-    linear_impulses.clear();
-    angular_impulses.clear();
+    const auto linear_impulse_sum = std::accumulate(std::begin(m_linear_impulses), std::end(m_linear_impulses), Vector2::Zero);
+    const auto angular_impulse_sum = std::accumulate(std::begin(m_angular_impulses), std::end(m_angular_impulses), 0.0f);
+    m_linear_impulses.clear();
+    m_angular_impulses.clear();
 
-    using LinearForceType = typename std::decay<decltype(*linear_forces.begin())>::type;
+    using LinearForceType = typename std::decay<decltype(*m_linear_forces.begin())>::type;
     const auto linear_acc = [](const LinearForceType& a, const LinearForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
-    const auto linear_force_sum = std::accumulate(std::begin(linear_forces), std::end(linear_forces), std::make_pair(Vector2::Zero, TimeUtils::FPSeconds::zero()), linear_acc);
+    const auto linear_force_sum = std::accumulate(std::begin(m_linear_forces), std::end(m_linear_forces), std::make_pair(Vector2::Zero, TimeUtils::FPSeconds::zero()), linear_acc);
 
-    using AngularForceType = typename std::decay<decltype(*angular_forces.begin())>::type;
+    using AngularForceType = typename std::decay<decltype(*m_angular_forces.begin())>::type;
     const auto angular_acc = [](const AngularForceType& a, const AngularForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
-    const auto angular_force_sum = std::accumulate(std::begin(angular_forces), std::end(angular_forces), std::make_pair(0.0f, TimeUtils::FPSeconds::zero()), angular_acc);
+    const auto angular_force_sum = std::accumulate(std::begin(m_angular_forces), std::end(m_angular_forces), std::make_pair(0.0f, TimeUtils::FPSeconds::zero()), angular_acc);
 
     //https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
 
     const auto new_angular_acceleration = (angular_impulse_sum + angular_force_sum.first) * inv_mass;
     const auto t = deltaSeconds.count();
-    dt = deltaSeconds;
+    m_dt = deltaSeconds;
 
-    auto new_position = GetPosition() + GetVelocity() * dt.count() + GetAcceleration() * (dt.count() * dt.count() * 0.5f);
+    auto new_position = GetPosition() + GetVelocity() * m_dt.count() + GetAcceleration() * (m_dt.count() * m_dt.count() * 0.5f);
     auto new_acceleration = (linear_impulse_sum + linear_force_sum.first) * inv_mass;
-    auto new_velocity = GetVelocity() + (GetAcceleration() + new_acceleration) * (dt.count() * 0.5f);
-    new_velocity *= rigidbodyDesc.physicsDesc.linearDamping;
+    auto new_velocity = GetVelocity() + (GetAcceleration() + new_acceleration) * (m_dt.count() * 0.5f);
+    new_velocity *= m_rigidbodyDesc.physicsDesc.linearDamping;
 
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_position);
@@ -102,23 +102,23 @@ void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
         }
     }
 
-    auto deltaPosition = position - new_position;
-    auto deltaOrientation = orientationDegrees - prev_orientationDegrees;
+    auto deltaPosition = m_position - new_position;
+    auto deltaOrientation = m_orientationDegrees - m_prev_orientationDegrees;
     if(MathUtils::IsEquivalentToZero(deltaPosition)
        && MathUtils::IsEquivalentToZero(deltaOrientation)) {
-        time_since_last_move += dt;
+        m_time_since_last_move += m_dt;
     } else {
-        time_since_last_move = TimeUtils::FPSeconds{0.0f};
+        m_time_since_last_move = TimeUtils::FPSeconds{0.0f};
     }
-    is_awake = time_since_last_move < TimeUtils::FPSeconds{1.0f};
+    m_is_awake = m_time_since_last_move < TimeUtils::FPSeconds{1.0f};
 
     SetPosition(new_position);
     SetVelocity(new_velocity);
     SetAcceleration(new_acceleration);
 
-    const auto& maxAngularSpeed = rigidbodyDesc.physicsDesc.maxAngularSpeed;
-    auto new_angular_velocity = std::clamp((2.0f * orientationDegrees - prev_orientationDegrees) / dt.count(), -maxAngularSpeed, maxAngularSpeed);
-    new_angular_velocity *= rigidbodyDesc.physicsDesc.angularDamping;
+    const auto& maxAngularSpeed = m_rigidbodyDesc.physicsDesc.maxAngularSpeed;
+    auto new_angular_velocity = std::clamp((2.0f * m_orientationDegrees - m_prev_orientationDegrees) / m_dt.count(), -maxAngularSpeed, maxAngularSpeed);
+    new_angular_velocity *= m_rigidbodyDesc.physicsDesc.angularDamping;
 
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_angular_velocity);
@@ -130,33 +130,33 @@ void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
         }
     }
     const auto new_orientationDegrees = MathUtils::Wrap(new_angular_velocity + new_angular_acceleration * t * t, 0.0f, 360.0f);
-    prev_orientationDegrees = orientationDegrees;
-    orientationDegrees = new_orientationDegrees;
+    m_prev_orientationDegrees = m_orientationDegrees;
+    m_orientationDegrees = new_orientationDegrees;
 
     if(auto* const collider = GetCollider(); collider != nullptr) {
         const auto S = Matrix4::CreateScaleMatrix(collider->GetHalfExtents());
-        const auto R = Matrix4::Create2DRotationDegreesMatrix(orientationDegrees);
-        const auto T = Matrix4::CreateTranslationMatrix(position);
+        const auto R = Matrix4::Create2DRotationDegreesMatrix(m_orientationDegrees);
+        const auto T = Matrix4::CreateTranslationMatrix(m_position);
         const auto M = Matrix4::MakeSRT(S, R, T);
         auto new_transform = Matrix4::I;
-        if(!parent) {
+        if(!m_parent) {
             new_transform = M;
         } else {
-            auto p = parent;
+            auto p = m_parent;
             while(p) {
                 new_transform = Matrix4::MakeRT(p->GetParentTransform(), M);
-                p = p->parent;
+                p = p->m_parent;
             }
         }
         transform = new_transform;
-        collider->SetPosition(position);
-        collider->SetOrientationDegrees(orientationDegrees);
+        collider->SetPosition(m_position);
+        collider->SetOrientationDegrees(m_orientationDegrees);
     }
 
-    for(auto& force : linear_forces) {
+    for(auto& force : m_linear_forces) {
         force.second -= deltaSeconds;
     }
-    for(auto& force : angular_forces) {
+    for(auto& force : m_angular_forces) {
         force.second -= deltaSeconds;
     }
 }
@@ -176,42 +176,42 @@ void RigidBody::DebugRender() const {
 }
 
 void RigidBody::Endframe() {
-    if(should_kill) {
+    if(m_should_kill) {
         auto& physics = ServiceLocator::get<IPhysicsService>();
         physics.RemoveObject(this);
     }
 }
 
 void RigidBody::EnablePhysics(bool enabled) {
-    rigidbodyDesc.physicsDesc.enablePhysics = enabled;
+    m_rigidbodyDesc.physicsDesc.enablePhysics = enabled;
 }
 
 void RigidBody::EnableGravity(bool enabled) {
-    rigidbodyDesc.physicsDesc.enableGravity = IsDynamic() && enabled;
+    m_rigidbodyDesc.physicsDesc.enableGravity = IsDynamic() && enabled;
 }
 
 void RigidBody::EnableDrag(bool enabled) {
-    rigidbodyDesc.physicsDesc.enableDrag = IsDynamic() && enabled;
+    m_rigidbodyDesc.physicsDesc.enableDrag = IsDynamic() && enabled;
 }
 
 bool RigidBody::IsPhysicsEnabled() const {
-    return rigidbodyDesc.physicsDesc.enablePhysics;
+    return m_rigidbodyDesc.physicsDesc.enablePhysics;
 }
 
 bool RigidBody::IsGravityEnabled() const {
-    return IsDynamic() && rigidbodyDesc.physicsDesc.enableGravity;
+    return IsDynamic() && m_rigidbodyDesc.physicsDesc.enableGravity;
 }
 
 bool RigidBody::IsDragEnabled() const {
-    return IsDynamic() && rigidbodyDesc.physicsDesc.enableDrag;
+    return IsDynamic() && m_rigidbodyDesc.physicsDesc.enableDrag;
 }
 
 bool RigidBody::IsDynamic() const noexcept {
-    return rigidbodyDesc.collider != nullptr;
+    return m_rigidbodyDesc.collider != nullptr;
 }
 
 void RigidBody::SetAwake(bool awake) noexcept {
-    is_awake = IsDynamic() && awake;
+    m_is_awake = IsDynamic() && awake;
 }
 
 void RigidBody::Wake() noexcept {
@@ -223,11 +223,11 @@ void RigidBody::Sleep() noexcept {
 }
 
 bool RigidBody::IsAwake() const {
-    return IsDynamic() && is_awake;
+    return IsDynamic() && m_is_awake;
 }
 
 float RigidBody::GetMass() const {
-    return rigidbodyDesc.physicsDesc.mass;
+    return m_rigidbodyDesc.physicsDesc.mass;
 }
 
 float RigidBody::GetInverseMass() const {
@@ -238,15 +238,15 @@ float RigidBody::GetInverseMass() const {
 }
 
 Matrix4 RigidBody::GetParentTransform() const {
-    if(parent) {
-        return parent->transform;
+    if(m_parent) {
+        return m_parent->transform;
     }
     return Matrix4::I;
 }
 
 void RigidBody::ApplyImpulse(const Vector2& impulse) {
     SetAwake(true);
-    linear_impulses.push_back(impulse);
+    m_linear_impulses.push_back(impulse);
 }
 
 void RigidBody::ApplyImpulse(const Vector2& direction, float magnitude) {
@@ -255,7 +255,7 @@ void RigidBody::ApplyImpulse(const Vector2& direction, float magnitude) {
 
 void RigidBody::ApplyForce(const Vector2& force, const TimeUtils::FPSeconds& duration) {
     SetAwake(true);
-    linear_forces.push_back(std::make_pair(force, duration));
+    m_linear_forces.push_back(std::make_pair(force, duration));
 }
 
 void RigidBody::ApplyForce(const Vector2& direction, float magnitude, const TimeUtils::FPSeconds& duration) {
@@ -266,9 +266,9 @@ void RigidBody::ApplyTorque(float force, const TimeUtils::FPSeconds& duration) {
     SetAwake(true);
     if(!IsRotationLocked()) {
         if(duration == TimeUtils::FPSeconds::zero()) {
-            angular_impulses.push_back(force);
+            m_angular_impulses.push_back(force);
         } else {
-            angular_forces.push_back(std::make_pair(force, duration));
+            m_angular_forces.push_back(std::make_pair(force, duration));
         }
     }
 }
@@ -280,14 +280,14 @@ void RigidBody::ApplyTorqueAt(const Vector2& position_on_object, const Vector2& 
 void RigidBody::ApplyTorqueAt(const Vector2& position_on_object, const Vector2& force, const TimeUtils::FPSeconds& duration) {
     if(auto* const collider = GetCollider(); collider != nullptr) {
         const auto point_of_collision = MathUtils::CalcClosestPoint(position_on_object, *collider);
-        const auto r = position - point_of_collision;
+        const auto r = m_position - point_of_collision;
         const auto torque = MathUtils::CrossProduct(force, r);
         ApplyTorque(torque, duration);
     }
 }
 
 void RigidBody::ApplyTorque(const Vector2& direction, float magnitude, const TimeUtils::FPSeconds& duration) {
-    ApplyTorqueAt(position, direction * magnitude, duration);
+    ApplyTorqueAt(m_position, direction * magnitude, duration);
 }
 
 void RigidBody::ApplyForceAt(const Vector2& position_on_object, const Vector2& direction, float magnitude, const TimeUtils::FPSeconds& duration) {
@@ -297,9 +297,9 @@ void RigidBody::ApplyForceAt(const Vector2& position_on_object, const Vector2& d
 void RigidBody::ApplyForceAt(const Vector2& position_on_object, const Vector2& force, const TimeUtils::FPSeconds& duration) {
     if(auto* const collider = GetCollider(); collider != nullptr) {
         const auto point_of_collision = MathUtils::CalcClosestPoint(position_on_object, *collider);
-        auto r = position - point_of_collision;
+        auto r = m_position - point_of_collision;
         if(MathUtils::IsEquivalentToZero(r)) {
-            r = position;
+            r = m_position;
         }
         const auto&& [parallel, perpendicular] = MathUtils::DivideIntoProjectAndReject(force, r);
         const auto angular_result = force - parallel;
@@ -316,7 +316,7 @@ void RigidBody::ApplyImpulseAt(const Vector2& position_on_object, const Vector2&
 void RigidBody::ApplyImpulseAt(const Vector2& position_on_object, const Vector2& force) {
     if(auto* const collider = GetCollider(); collider != nullptr) {
         const auto point_of_collision = MathUtils::CalcClosestPoint(position_on_object, *collider);
-        const auto r = position - point_of_collision;
+        const auto r = m_position - point_of_collision;
         const auto&& [parallel, perpendicular] = MathUtils::DivideIntoProjectAndReject(force, r);
         const auto angular_result = force - parallel;
         const auto linear_result = force - perpendicular;
@@ -334,27 +334,27 @@ const OBB2 RigidBody::GetBounds() const {
 
 void RigidBody::SetPosition(const Vector2& newPosition, bool teleport /*= false*/) noexcept {
     if(teleport) {
-        position = newPosition;
+        m_position = newPosition;
     } else {
         Wake();
-        position = newPosition;
+        m_position = newPosition;
     }
 }
 
 const Vector2& RigidBody::GetPosition() const {
-    return position;
+    return m_position;
 }
 
 void RigidBody::SetVelocity(const Vector2& newVelocity) noexcept {
-    velocity = newVelocity;
+    m_velocity = newVelocity;
 }
 
 const Vector2& RigidBody::GetVelocity() const {
-    return velocity;
+    return m_velocity;
 }
 
 const Vector2& RigidBody::GetAcceleration() const {
-    return acceleration;
+    return m_acceleration;
 }
 
 Vector2 RigidBody::CalcDimensions() const {
@@ -365,35 +365,35 @@ Vector2 RigidBody::CalcDimensions() const {
 }
 
 float RigidBody::GetOrientationDegrees() const {
-    return orientationDegrees;
+    return m_orientationDegrees;
 }
 
 float RigidBody::GetAngularVelocityDegrees() const {
-    return (orientationDegrees - prev_orientationDegrees) / dt.count();
+    return (m_orientationDegrees - m_prev_orientationDegrees) / m_dt.count();
 }
 
 float RigidBody::GetAngularAccelerationDegrees() const {
-    return angular_acceleration;
+    return m_angular_acceleration;
 }
 
 const Collider* RigidBody::GetCollider() const noexcept {
-    return rigidbodyDesc.collider;
+    return m_rigidbodyDesc.collider;
 }
 
 Collider* RigidBody::GetCollider() noexcept {
-    return rigidbodyDesc.collider;
+    return m_rigidbodyDesc.collider;
 }
 
 void RigidBody::FellOutOfWorld() noexcept {
-    should_kill = true;
+    m_should_kill = true;
 }
 
 const bool RigidBody::ShouldKill() const noexcept {
-    return should_kill;
+    return m_should_kill;
 }
 
 const bool RigidBody::IsRotationLocked() const noexcept {
-    return should_lock_rotation;
+    return m_should_lock_rotation;
 }
 
 void RigidBody::LockRotation(bool shouldLockRotation) noexcept {
@@ -401,16 +401,16 @@ void RigidBody::LockRotation(bool shouldLockRotation) noexcept {
 }
 
 void RigidBody::SetAcceleration(const Vector2& newAccleration) noexcept {
-    acceleration = newAccleration;
+    m_acceleration = newAccleration;
 }
 
 Vector2 RigidBody::CalcForceVector() noexcept {
     //const auto inv_mass = GetInverseMass();
-    const auto linear_impulse_sum = std::accumulate(std::begin(linear_impulses), std::end(linear_impulses), Vector2::Zero);
+    const auto linear_impulse_sum = std::accumulate(std::begin(m_linear_impulses), std::end(m_linear_impulses), Vector2::Zero);
 
-    using LinearForceType = typename std::decay<decltype(*linear_forces.begin())>::type;
+    using LinearForceType = typename std::decay<decltype(*m_linear_forces.begin())>::type;
     const auto linear_acc = [](const LinearForceType& a, const LinearForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
-    const auto linear_force_sum = std::accumulate(std::begin(linear_forces), std::end(linear_forces), std::make_pair(Vector2::Zero, TimeUtils::FPSeconds::zero()), linear_acc);
+    const auto linear_force_sum = std::accumulate(std::begin(m_linear_forces), std::end(m_linear_forces), std::make_pair(Vector2::Zero, TimeUtils::FPSeconds::zero()), linear_acc);
 
     return linear_impulse_sum + linear_force_sum.first;
 }

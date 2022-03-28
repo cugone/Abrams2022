@@ -32,8 +32,8 @@ private:
     SpriteSheet(const std::filesystem::path& texturePath, int tilesWide, int tilesHigh) noexcept;
 
     void LoadFromXml(const XMLElement& elem) noexcept;
-    Texture* _spriteSheetTexture = nullptr;
-    IntVector2 _spriteLayout{1, 1};
+    Texture* m_spriteSheetTexture = nullptr;
+    IntVector2 m_spriteLayout{1, 1};
 
     friend class Renderer;
     friend class MapEditor;

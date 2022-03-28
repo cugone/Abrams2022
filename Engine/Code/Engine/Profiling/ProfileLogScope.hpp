@@ -19,10 +19,12 @@ protected:
 private:
     using time_point_t = std::chrono::time_point<std::chrono::steady_clock>;
 
-    const char* _scope_name = nullptr;
-    time_point_t _time_at_creation{};
+    const char* m_scope_name = nullptr;
+    time_point_t m_time_at_creation{};
 };
 
+//TODO: Replace __LINE__ with std::source_location::line
+//TODO: Replace __FUNCSIG__ with std::source_location::function_name
 #if defined PROFILE_LOG_SCOPE || defined PROFILE_LOG_SCOPE_FUNCTION
     #undef PROFILE_LOG_SCOPE
     #undef PROFILE_LOG_SCOPE_FUNCTION

@@ -14,7 +14,7 @@
 
 UIElement::UIElement(UIPanel* parent /*= nullptr*/) {
     if(parent) {
-        _slot = parent->AddChild(this);
+        m_slot = parent->AddChild(this);
     }
 }
 
@@ -23,55 +23,55 @@ UIElement::~UIElement() {
 }
 
 void UIElement::RemoveSelf() {
-    if(_slot && _slot->parent) {
-        _slot->parent->RemoveChild(this);
-        _slot->parent = nullptr;
-        _slot->content = nullptr;
-        _slot = &s_NullPanelSlot;
+    if(m_slot && m_slot->parent) {
+        m_slot->parent->RemoveChild(this);
+        m_slot->parent = nullptr;
+        m_slot->content = nullptr;
+        m_slot = &s_NullPanelSlot;
     }
 }
 
 bool UIElement::HasSlot() const noexcept {
-    return _slot != &s_NullPanelSlot;
+    return m_slot != &s_NullPanelSlot;
 }
 
 void UIElement::ResetSlot() noexcept {
-    _slot = &s_NullPanelSlot;
+    m_slot = &s_NullPanelSlot;
 }
 
 void UIElement::SetSlot(UIPanelSlot* newSlot) noexcept {
-    _slot = newSlot;
+    m_slot = newSlot;
 }
 
 const UIPanelSlot* const UIElement::GetSlot() const noexcept {
-    return _slot;
+    return m_slot;
 }
 
 UIPanelSlot* UIElement::GetSlot() noexcept {
-    return _slot;
+    return m_slot;
 }
 
 void UIElement::SetBorderColor(const Rgba& color) {
-    SetDebugColors(color, _fill_color, _pivot_color);
+    SetDebugColors(color, m_fill_color, m_pivot_color);
 }
 
 void UIElement::SetBackgroundColor(const Rgba& color) {
-    SetDebugColors(_edge_color, color, _pivot_color);
+    SetDebugColors(m_edge_color, color, m_pivot_color);
 }
 
 void UIElement::SetPivotColor(const Rgba& color) {
-    SetDebugColors(_edge_color, _fill_color, color);
+    SetDebugColors(m_edge_color, m_fill_color, color);
 }
 
 void UIElement::SetDebugColors(const Rgba& edge, const Rgba& fill, const Rgba& pivot /*= Rgba::RED*/) {
-    _edge_color = edge;
-    _fill_color = fill;
-    _pivot_color = pivot;
+    m_edge_color = edge;
+    m_fill_color = fill;
+    m_pivot_color = pivot;
 }
 
 Vector2 UIElement::CalcLocalPosition() const {
     AABB2 local_bounds = GetParentBounds();
-    return MathUtils::CalcPointFromNormalizedPoint(_position.GetXY(), local_bounds) + _position.GetZW();
+    return MathUtils::CalcPointFromNormalizedPoint(m_position.GetXY(), local_bounds) + m_position.GetZW();
 }
 
 Vector2 UIElement::CalcRelativePosition(const Vector2& position) const {
@@ -81,30 +81,30 @@ Vector2 UIElement::CalcRelativePosition(const Vector2& position) const {
 
 Vector2 UIElement::CalcRelativePosition() const {
     AABB2 parent_bounds = GetParentLocalBounds();
-    return MathUtils::CalcPointFromNormalizedPoint(_pivot, parent_bounds);
+    return MathUtils::CalcPointFromNormalizedPoint(m_pivot, parent_bounds);
 }
 
 const Vector4& UIElement::GetPosition() const {
-    return _position;
+    return m_position;
 }
 
 void UIElement::SetPosition(const Vector4& position) {
     DirtyElement(UIInvalidateElementReason::Layout);
-    _position = position;
+    m_position = position;
     CalcBounds();
 }
 
 void UIElement::SetPositionRatio(const Vector2& ratio) {
-    UIElement::SetPosition(Vector4{ratio, _position.GetZW()});
+    UIElement::SetPosition(Vector4{ratio, m_position.GetZW()});
 }
 
 void UIElement::SetPositionOffset(const Vector2& offset) {
-    UIElement::SetPosition(Vector4{_position.GetXY(), offset});
+    UIElement::SetPosition(Vector4{m_position.GetXY(), offset});
 }
 
 void UIElement::SetPivot(const Vector2& pivotPosition) {
     DirtyElement(UIInvalidateElementReason::Layout);
-    _pivot = pivotPosition;
+    m_pivot = pivotPosition;
     CalcBounds();
 }
 
@@ -145,7 +145,7 @@ void UIElement::SetPivot(const UIPivotPosition& pivotPosition) {
 }
 
 const Vector2& UIElement::GetPivot() const {
-    return _pivot;
+    return m_pivot;
 }
 
 void UIElement::Update(TimeUtils::FPSeconds /*deltaSeconds*/) {
@@ -195,7 +195,7 @@ Matrix4 UIElement::GetParentWorldTransform() const noexcept {
 }
 
 void UIElement::DirtyElement(UIInvalidateElementReason reason /*= InvalidateElementReason::Any*/) {
-    _dirty_reason = reason;
+    m_dirty_reason = reason;
 }
 
 void UIElement::DebugRenderBoundsAndPivot() const {
@@ -207,13 +207,13 @@ void UIElement::DebugRenderPivot() const {
     const auto world_transform = GetWorldTransform();
     const auto scale = world_transform.GetScale();
     const auto inv_scale_matrix = Matrix4::CalculateInverse(Matrix4::CreateScaleMatrix(Vector3(scale.x * 0.10f, scale.y * 0.10f, 1.0f)));
-    const auto pivot_pos = MathUtils::CalcPointFromNormalizedPoint(_pivot, _bounds);
+    const auto pivot_pos = MathUtils::CalcPointFromNormalizedPoint(m_pivot, m_bounds);
     const auto pivot_pos_matrix = Matrix4::CreateTranslationMatrix(pivot_pos);
     const auto transform = Matrix4::MakeSRT(inv_scale_matrix, world_transform, pivot_pos_matrix);
     auto&& renderer = ServiceLocator::get<IRendererService>();
     renderer.SetMaterial(renderer.GetMaterial("__2D"));
     renderer.SetModelMatrix(transform);
-    renderer.DrawX2D(_pivot_color);
+    renderer.DrawX2D(m_pivot_color);
 }
 
 void UIElement::DebugRenderBounds() const {
@@ -221,24 +221,24 @@ void UIElement::DebugRenderBounds() const {
     auto&& renderer = ServiceLocator::get<IRendererService>();
     renderer.SetModelMatrix(world_transform);
     renderer.SetMaterial(renderer.GetMaterial("__2D"));
-    renderer.DrawAABB2(_edge_color, _fill_color);
+    renderer.DrawAABB2(m_edge_color, m_fill_color);
 }
 
 AABB2 UIElement::GetParentBounds() const noexcept {
     const auto* parent = GetParent();
-    return parent ? parent->_bounds : AABB2::Zero_to_One;
+    return parent ? parent->m_bounds : AABB2::Zero_to_One;
 }
 
 UIPanel* UIElement::GetParent() const noexcept {
-    return _slot->parent;
+    return m_slot->parent;
 }
 
 bool UIElement::IsHidden() const {
-    return _hidden;
+    return m_hidden;
 }
 
 bool UIElement::IsVisible() const {
-    return !_hidden;
+    return !m_hidden;
 }
 
 void UIElement::Hide() {
@@ -250,11 +250,11 @@ void UIElement::Show() {
 }
 
 void UIElement::SetHidden(bool hidden /*= true*/) {
-    _hidden = hidden;
+    m_hidden = hidden;
 }
 
 void UIElement::ToggleHidden() {
-    _hidden = !_hidden;
+    m_hidden = !m_hidden;
 }
 
 void UIElement::ToggleVisibility() {
@@ -262,42 +262,42 @@ void UIElement::ToggleVisibility() {
 }
 
 bool UIElement::IsEnabled() const {
-    return _enabled;
+    return m_enabled;
 }
 
 bool UIElement::IsDisabled() const {
-    return !_enabled;
+    return !m_enabled;
 }
 
 void UIElement::Enable() {
-    _enabled = true;
+    m_enabled = true;
 }
 
 void UIElement::Disable() {
-    _enabled = false;
+    m_enabled = false;
 }
 
 void UIElement::SetEnabled(bool enabled /*= true*/) {
-    _enabled = enabled;
+    m_enabled = enabled;
 }
 
 void UIElement::ToggleEnabled() {
-    _enabled = !_enabled;
+    m_enabled = !m_enabled;
 }
 
 const std::string& UIElement::GetName() const {
-    return _name;
+    return m_name;
 }
 
 std::string& UIElement::GetName() {
-    return _name;
+    return m_name;
 }
 
 void UIElement::CalcBounds() noexcept {
     DirtyElement(UIInvalidateElementReason::Layout);
     const auto desired_size = this->CalcDesiredSize();
-    _bounds.mins = desired_size.GetXY();
-    _bounds.maxs = desired_size.GetZW();
+    m_bounds.mins = desired_size.GetXY();
+    m_bounds.maxs = desired_size.GetZW();
 }
 
 void UIElement::CalcBoundsAndPivot() noexcept {
@@ -312,7 +312,7 @@ AABB2 UIElement::CalcBoundsRelativeToParent() const noexcept {
     AABB2 parent_bounds = parent ? parent->CalcLocalBounds() : CalcLocalBounds();
     Vector2 parent_size = parent_bounds.CalcDimensions();
 
-    Vector2 pivot_position = parent_bounds.mins + (parent_size * _position.GetXY() + _position.GetZW());
+    Vector2 pivot_position = parent_bounds.mins + (parent_size * m_position.GetXY() + m_position.GetZW());
 
     AABB2 my_local_bounds = CalcLocalBounds();
     my_local_bounds.Translate(pivot_position);
@@ -322,7 +322,7 @@ AABB2 UIElement::CalcBoundsRelativeToParent() const noexcept {
 
 AABB2 UIElement::CalcRelativeBounds() const noexcept {
     Vector2 size = CalcDesiredSize().GetZW();
-    Vector2 pivot_position = size * _pivot;
+    Vector2 pivot_position = size * m_pivot;
 
     AABB2 bounds;
     bounds.StretchToIncludePoint(Vector2::Zero);
@@ -348,10 +348,10 @@ AABB2 UIElement::AlignBoundsToContainer(AABB2 bounds, AABB2 container, const Vec
 
 AABB2 UIElement::CalcAlignedAbsoluteBounds() const noexcept {
     AABB2 parent_bounds = GetParentLocalBounds();
-    const auto ratio = _position.GetXY();
+    const auto ratio = m_position.GetXY();
     AABB2 alignedBounds = AlignBoundsToContainer(CalcBoundsRelativeToParent(), parent_bounds, ratio);
 
-    const auto unit = _position.GetZW();
+    const auto unit = m_position.GetZW();
     Vector2 normalized_ratio = MathUtils::RangeMap(ratio, Vector2(0.0f, 1.0f), Vector2(-1.0f, 1.0f));
     Vector2 scaled_ratio = normalized_ratio * unit;
     Vector2 offset(scaled_ratio);
@@ -366,7 +366,7 @@ AABB2 UIElement::CalcLocalBounds() const noexcept {
 }
 
 bool UIElement::IsDirty(UIInvalidateElementReason reason /*= InvalidateElementReason::Any*/) const {
-    return (_dirty_reason & reason) == reason;
+    return (m_dirty_reason & reason) == reason;
 }
 
 bool UIElement::IsParent() const {
@@ -379,7 +379,7 @@ bool UIElement::IsChild() const {
 
 AABB2 UIElement::GetParentLocalBounds() const {
     const auto* parent = GetParent();
-    return parent ? parent->CalcLocalBounds() : AABB2(Vector2::Zero, _bounds.CalcDimensions());
+    return parent ? parent->CalcLocalBounds() : AABB2(Vector2::Zero, m_bounds.CalcDimensions());
 }
 
 AABB2 UIElement::GetParentRelativeBounds() const {
@@ -408,24 +408,24 @@ AABB2 UIElement::MoveToBestFit(const AABB2& obj, const AABB2& container) const n
 }
 
 float UIElement::GetAspectRatio() const noexcept {
-    const auto dims = _bounds.CalcDimensions();
+    const auto dims = m_bounds.CalcDimensions();
     return dims.x / dims.y;
 }
 
 Vector2 UIElement::GetTopLeft() const noexcept {
-    return _bounds.mins;
+    return m_bounds.mins;
 }
 
 Vector2 UIElement::GetTopRight() const noexcept {
-    return Vector2{_bounds.maxs.x, _bounds.mins.y};
+    return Vector2{m_bounds.maxs.x, m_bounds.mins.y};
 }
 
 Vector2 UIElement::GetBottomLeft() const noexcept {
-    return Vector2{_bounds.mins.x, _bounds.maxs.y};
+    return Vector2{m_bounds.mins.x, m_bounds.maxs.y};
 }
 
 Vector2 UIElement::GetBottomRight() const noexcept {
-    return _bounds.maxs;
+    return m_bounds.maxs;
 }
 
 bool UIElement::HasParent() const {
@@ -443,11 +443,11 @@ float UIElement::GetParentOrientationDegrees() const {
 }
 
 void UIElement::SetOrientationDegrees(float value) {
-    _orientationRadians = MathUtils::ConvertDegreesToRadians(value);
+    m_orientationRadians = MathUtils::ConvertDegreesToRadians(value);
 }
 
 void UIElement::SetOrientationRadians(float value) {
-    _orientationRadians = value;
+    m_orientationRadians = value;
 }
 
 float UIElement::GetOrientationDegrees() const {
@@ -455,7 +455,7 @@ float UIElement::GetOrientationDegrees() const {
 }
 
 float UIElement::GetOrientationRadians() const {
-    return _orientationRadians;
+    return m_orientationRadians;
 }
 
 float UIElement::CalcLocalRotationDegrees() const {

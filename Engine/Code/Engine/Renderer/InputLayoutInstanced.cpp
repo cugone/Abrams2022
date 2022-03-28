@@ -5,7 +5,7 @@
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 InputLayoutInstanced::InputLayoutInstanced(const RHIDevice& parent_device) noexcept
-: _parent_device(parent_device) {
+: m_parent_device(parent_device) {
     /* DO NOTHING */
 }
 
@@ -18,27 +18,27 @@ void InputLayoutInstanced::AddElement(std::size_t memberByteOffset, const ImageF
     e_desc.SemanticIndex = 0;
     e_desc.InputSlot = inputSlot;
     e_desc.AlignedByteOffset = static_cast<unsigned int>(memberByteOffset);
-    _elements.push_back(e_desc);
+    m_elements.push_back(e_desc);
 }
 
 void InputLayoutInstanced::AddElement(const D3D11_INPUT_ELEMENT_DESC& desc) noexcept {
-    _elements.push_back(desc);
+    m_elements.push_back(desc);
 }
 
 void InputLayoutInstanced::CreateInputLayout(void* byte_code, std::size_t byte_code_length) noexcept {
-    _elements.shrink_to_fit();
-    if(_dx_input_layout) {
-        _dx_input_layout->Release();
-        _dx_input_layout = nullptr;
+    m_elements.shrink_to_fit();
+    if(m_dx_input_layout) {
+        m_dx_input_layout->Release();
+        m_dx_input_layout = nullptr;
     }
-    auto* dx_device = _parent_device.GetDxDevice();
-    HRESULT hr = dx_device->CreateInputLayout(_elements.data(), static_cast<unsigned int>(_elements.size()), byte_code, byte_code_length, _dx_input_layout.GetAddressOf());
+    auto* dx_device = m_parent_device.GetDxDevice();
+    HRESULT hr = dx_device->CreateInputLayout(m_elements.data(), static_cast<unsigned int>(m_elements.size()), byte_code, byte_code_length, m_dx_input_layout.GetAddressOf());
     bool succeeded = SUCCEEDED(hr);
     GUARANTEE_OR_DIE(succeeded, "Create Input Layout failed.");
 }
 
 ID3D11InputLayout* InputLayoutInstanced::GetDxInputLayout() const noexcept {
-    return _dx_input_layout.Get();
+    return m_dx_input_layout.Get();
 }
 
 void InputLayoutInstanced::PopulateInputLayoutUsingReflection(ID3D11ShaderReflection& vertexReflection) noexcept {

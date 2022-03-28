@@ -29,8 +29,8 @@ protected:
 private:
     [[nodiscard]] bool HasPanelChild(const XMLElement& elem);
 
-    std::vector<std::shared_ptr<UIElement>> _elements{};
-    UIPanel* _panel{};
+    std::vector<std::shared_ptr<UIElement>> m_elements{};
+    UIPanel* m_panel{};
 
     friend class UIPanel;
 };

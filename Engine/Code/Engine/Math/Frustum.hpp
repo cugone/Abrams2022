@@ -58,6 +58,6 @@ private:
         Far,
         Max
     };
-    std::array<Plane3, static_cast<std::size_t>(PlaneDirection::Max)> _planes{};
-    std::array<Vector3, 8> _points{};
+    std::array<Plane3, static_cast<std::size_t>(PlaneDirection::Max)> m_planes{};
+    std::array<Vector3, 8> m_points{};
 };

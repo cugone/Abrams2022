@@ -1,8 +1,8 @@
 #include "Engine/Core/Clipboard.hpp"
 
 Clipboard::Clipboard(void* hwnd) noexcept
-: _hwnd(static_cast<HWND>(hwnd)) {
-    (void)Open(_hwnd); //Used as a helper here. All other uses check if the clipboard is open first.
+: m_hwnd(static_cast<HWND>(hwnd)) {
+    (void)Open(m_hwnd); //Used as a helper here. All other uses check if the clipboard is open first.
 }
 
 Clipboard::~Clipboard() noexcept {
@@ -12,13 +12,13 @@ Clipboard::~Clipboard() noexcept {
 }
 
 bool Clipboard::Open(void* hwnd) noexcept {
-    _hwnd = static_cast<HWND>(hwnd);
-    _is_open = !!::OpenClipboard(_hwnd);
-    return _is_open;
+    m_hwnd = static_cast<HWND>(hwnd);
+    m_is_open = !!::OpenClipboard(m_hwnd);
+    return m_is_open;
 }
 
 bool Clipboard::IsOpen() const noexcept {
-    return _is_open;
+    return m_is_open;
 }
 
 bool Clipboard::IsClosed() const noexcept {
@@ -52,7 +52,7 @@ bool Clipboard::Empty() noexcept {
 
 void Clipboard::Close() noexcept {
     if(IsOpen()) {
-        _is_open = !!!::CloseClipboard();
+        m_is_open = !!!::CloseClipboard();
     }
 }
 

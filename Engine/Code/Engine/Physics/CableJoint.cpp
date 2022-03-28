@@ -9,26 +9,26 @@
 #include "Engine/Services/IRendererService.hpp"
 
 CableJoint::CableJoint(const CableJointDef& def) noexcept {
-    _def.rigidBodyA = def.rigidBodyA;
-    _def.rigidBodyB = def.rigidBodyB;
-    _def.localAnchorA = def.localAnchorA;
-    _def.localAnchorB = def.localAnchorB;
-    _def.linearDamping = def.linearDamping;
-    _def.angularDamping = def.angularDamping;
-    _def.attachedCollidable = def.attachedCollidable;
-    _def.breakForce = def.breakForce;
-    _def.breakTorque = def.breakTorque;
-    auto posA = _def.localAnchorA;
-    auto posB = _def.localAnchorB;
-    if(_def.rigidBodyA) {
-        posA = _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA);
+    m_def.rigidBodyA = def.rigidBodyA;
+    m_def.rigidBodyB = def.rigidBodyB;
+    m_def.localAnchorA = def.localAnchorA;
+    m_def.localAnchorB = def.localAnchorB;
+    m_def.linearDamping = def.linearDamping;
+    m_def.angularDamping = def.angularDamping;
+    m_def.attachedCollidable = def.attachedCollidable;
+    m_def.breakForce = def.breakForce;
+    m_def.breakTorque = def.breakTorque;
+    auto posA = m_def.localAnchorA;
+    auto posB = m_def.localAnchorB;
+    if(m_def.rigidBodyA) {
+        posA = m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA);
     }
-    if(_def.rigidBodyB) {
-        posB = _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB);
+    if(m_def.rigidBodyB) {
+        posB = m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB);
     }
-    _def.worldAnchorA = posA;
-    _def.worldAnchorB = posB;
-    _def.length = def.length;
+    m_def.worldAnchorA = posA;
+    m_def.worldAnchorB = posB;
+    m_def.length = def.length;
 }
 
 void CableJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
@@ -51,7 +51,7 @@ void CableJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noex
     const auto mass_sum = m1 + m2;
     const auto mass1_ratio = m1 / mass_sum;
     const auto mass2_ratio = m2 / mass_sum;
-    const auto length = _def.length;
+    const auto length = m_def.length;
     if(length < distance) {
         if(first_body) {
             first_body->ApplyImpulse(direction_to_second * mass1_ratio);
@@ -63,7 +63,7 @@ void CableJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noex
 }
 
 void CableJoint::DebugRender() const noexcept {
-    if(!(_def.rigidBodyA || _def.rigidBodyB)) {
+    if(!(m_def.rigidBodyA || m_def.rigidBodyB)) {
         return;
     }
     const auto posA = GetAnchorA();
@@ -74,63 +74,63 @@ void CableJoint::DebugRender() const noexcept {
 }
 
 void CableJoint::Attach(RigidBody* a, RigidBody* b, Vector2 localAnchorA /*= Vector2::ZERO*/, Vector2 localAnchorB /*= Vector2::ZERO*/) noexcept {
-    _def.rigidBodyA = a;
-    _def.rigidBodyB = b;
-    _def.localAnchorA = localAnchorA;
-    _def.localAnchorB = localAnchorB;
+    m_def.rigidBodyA = a;
+    m_def.rigidBodyB = b;
+    m_def.localAnchorA = localAnchorA;
+    m_def.localAnchorB = localAnchorB;
     if(a) {
-        _def.worldAnchorA = _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA);
+        m_def.worldAnchorA = m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA);
     }
     if(b) {
-        _def.worldAnchorB = _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB);
+        m_def.worldAnchorB = m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB);
     }
 }
 
 void CableJoint::Detach(const RigidBody* body) noexcept {
-    if(body == _def.rigidBodyA) {
-        _def.rigidBodyA = nullptr;
-    } else if(body == _def.rigidBodyB) {
-        _def.rigidBodyB = nullptr;
+    if(body == m_def.rigidBodyA) {
+        m_def.rigidBodyA = nullptr;
+    } else if(body == m_def.rigidBodyB) {
+        m_def.rigidBodyB = nullptr;
     }
 }
 
 void CableJoint::DetachAll() noexcept {
-    _def.rigidBodyA = nullptr;
-    _def.rigidBodyB = nullptr;
+    m_def.rigidBodyA = nullptr;
+    m_def.rigidBodyB = nullptr;
 }
 
 bool CableJoint::IsNotAttached() const noexcept {
-    return _def.rigidBodyA == nullptr || _def.rigidBodyB == nullptr;
+    return m_def.rigidBodyA == nullptr || m_def.rigidBodyB == nullptr;
 }
 
 RigidBody* CableJoint::GetBodyA() const noexcept {
-    return _def.rigidBodyA;
+    return m_def.rigidBodyA;
 }
 
 RigidBody* CableJoint::GetBodyB() const noexcept {
-    return _def.rigidBodyB;
+    return m_def.rigidBodyB;
 }
 
 Vector2 CableJoint::GetAnchorA() const noexcept {
-    return _def.rigidBodyA ? _def.rigidBodyA->GetPosition() + (_def.rigidBodyA->CalcDimensions() * 0.5f * _def.localAnchorA) : _def.worldAnchorA;
+    return m_def.rigidBodyA ? m_def.rigidBodyA->GetPosition() + (m_def.rigidBodyA->CalcDimensions() * 0.5f * m_def.localAnchorA) : m_def.worldAnchorA;
 }
 
 Vector2 CableJoint::GetAnchorB() const noexcept {
-    return _def.rigidBodyB ? _def.rigidBodyB->GetPosition() + (_def.rigidBodyB->CalcDimensions() * 0.5f * _def.localAnchorB) : _def.worldAnchorB;
+    return m_def.rigidBodyB ? m_def.rigidBodyB->GetPosition() + (m_def.rigidBodyB->CalcDimensions() * 0.5f * m_def.localAnchorB) : m_def.worldAnchorB;
 }
 
 float CableJoint::GetMassA() const noexcept {
-    return _def.rigidBodyA ? _def.rigidBodyA->GetMass() : 0.0f;
+    return m_def.rigidBodyA ? m_def.rigidBodyA->GetMass() : 0.0f;
 }
 
 float CableJoint::GetMassB() const noexcept {
-    return _def.rigidBodyB ? _def.rigidBodyB->GetMass() : 0.0f;
+    return m_def.rigidBodyB ? m_def.rigidBodyB->GetMass() : 0.0f;
 }
 
 bool CableJoint::ConstraintViolated() const noexcept {
     const bool violated = [this]() -> const bool {
         const auto distance = MathUtils::CalcDistance(GetAnchorA(), GetAnchorB());
-        return _def.length < distance;
+        return m_def.length < distance;
     }();
     return violated;
 }
@@ -154,7 +154,7 @@ void CableJoint::SolvePositionConstraint() const noexcept {
     const auto mass_sum = m1 + m2;
     const auto mass1_ratio = m1 / mass_sum;
     const auto mass2_ratio = m2 / mass_sum;
-    const auto length = _def.length;
+    const auto length = m_def.length;
     auto newPosition1 = posA;
     auto newPosition2 = posB;
     if(length < distance) {

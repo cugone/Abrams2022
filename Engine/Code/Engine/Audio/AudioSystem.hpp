@@ -56,12 +56,12 @@ public:
         [[nodiscard]] const FileUtils::Wav* const GetWav() const noexcept;
         const std::vector<Channel*>& GetChannels() const noexcept;
     private:
-        inline static std::size_t _id{0u};
-        AudioSystem* _audio_system{};
-        std::size_t _my_id{0u};
-        FileUtils::Wav* _wave_file{};
-        std::vector<Channel*> _channels{};
-        mutable std::mutex _cs{};
+        inline static std::size_t m_id{0u};
+        AudioSystem* m_audio_system{};
+        std::size_t m_my_id{0u};
+        FileUtils::Wav* m_wave_file{};
+        std::vector<Channel*> m_channels{};
+        mutable std::mutex m_cs{};
     };
     struct SoundDesc {
         float volume{1.0f};
@@ -143,11 +143,11 @@ private:
         void SetFrequency(float newFrequency) noexcept;
 
     private:
-        XAUDIO2_BUFFER _buffer{};
-        IXAudio2SourceVoice* _voice = nullptr;
-        Sound* _sound = nullptr;
-        AudioSystem* _audio_system = nullptr;
-        ChannelDesc _desc{};
+        XAUDIO2_BUFFER m_buffer{};
+        IXAudio2SourceVoice* m_voice = nullptr;
+        Sound* m_sound = nullptr;
+        AudioSystem* m_audio_system = nullptr;
+        ChannelDesc m_desc{};
 
         friend class VoiceCallback;
         friend class ChannelGroup;
@@ -211,24 +211,24 @@ private:
 
     bool IsRunning() const noexcept;
 
-    WAVEFORMATEXTENSIBLE _audio_format_ex{};
-    std::size_t _sound_count{};
-    std::size_t _max_channels{64u};
-    std::vector<std::pair<std::filesystem::path, std::unique_ptr<FileUtils::Wav>>> _wave_files{};
-    std::vector<std::pair<std::filesystem::path, std::unique_ptr<Sound>>> _sounds{};
-    std::vector<std::unique_ptr<Channel>> _active_channels{};
-    std::vector<std::unique_ptr<Channel>> _idle_channels{};
-    std::vector<Audio3DEmitter*> _emitters{};
-    std::vector<Audio3DListener*> _listeners{};
-    std::atomic_uint32_t _operationID{};
-    IXAudio2* _xaudio2 = nullptr;
-    X3DAUDIO_HANDLE _x3daudio;
-    IXAudio2MasteringVoice* _master_voice{};
-    EngineCallback _engine_callback{};
-    uint32_t _input_channels{};
-    mutable std::mutex _cs{};
-    std::thread _dsp_thread{};
-    AudioDSPSettings _dsp_settings{};
-    std::atomic_bool _is_running{false};
-    std::condition_variable _signal{};
+    WAVEFORMATEXTENSIBLE m_audio_format_ex{};
+    std::size_t m_sound_count{};
+    std::size_t m_max_channels{64u};
+    std::vector<std::pair<std::filesystem::path, std::unique_ptr<FileUtils::Wav>>> m_wave_files{};
+    std::vector<std::pair<std::filesystem::path, std::unique_ptr<Sound>>> m_sounds{};
+    std::vector<std::unique_ptr<Channel>> m_active_channels{};
+    std::vector<std::unique_ptr<Channel>> m_idle_channels{};
+    std::vector<Audio3DEmitter*> m_emitters{};
+    std::vector<Audio3DListener*> m_listeners{};
+    std::atomic_uint32_t m_operationID{};
+    IXAudio2* m_xaudio2 = nullptr;
+    X3DAUDIO_HANDLE m_x3daudio;
+    IXAudio2MasteringVoice* m_master_voice{};
+    EngineCallback m_engine_callback{};
+    uint32_t m_input_channels{};
+    mutable std::mutex m_cs{};
+    std::thread m_dsp_thread{};
+    AudioDSPSettings m_dsp_settings{};
+    std::atomic_bool m_is_running{false};
+    std::condition_variable m_signal{};
 };

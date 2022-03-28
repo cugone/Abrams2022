@@ -73,15 +73,15 @@ protected:
 private:
     [[nodiscard]] bool IsWidgetLoaded(const UIWidget& widget) const noexcept;
 
-    ImGuiContext* _context{};
-    mutable Camera2D _ui_camera{};
-    std::map<std::string, std::unique_ptr<UIWidget>> _widgets{};
-    std::vector<UIWidget*> _active_widgets{};
-    std::filesystem::path _ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
-    Stopwatch _ini_saveTimer{};
-    bool show_imgui_demo_window = false;
-    bool show_imgui_metrics_window = false;
-    bool save_settings_to_disk = false;
+    ImGuiContext* m_context{};
+    mutable Camera2D m_ui_camera{};
+    std::map<std::string, std::unique_ptr<UIWidget>> m_widgets{};
+    std::vector<UIWidget*> m_active_widgets{};
+    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
+    Stopwatch m_ini_saveTimer{};
+    bool m_show_imgui_demo_window = false;
+    bool m_show_imgui_metrics_window = false;
+    bool m_save_settings_to_disk = false;
 };
 
 class Texture;

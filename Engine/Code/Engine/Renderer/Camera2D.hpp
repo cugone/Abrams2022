@@ -67,17 +67,17 @@ private:
     void CalcProjectionMatrix() noexcept;
     void CalcViewProjectionMatrix() noexcept;
 
-    Matrix4 view_matrix = Matrix4::I;
-    Matrix4 projection_matrix = Matrix4::I;
-    Matrix4 view_projection_matrix = Matrix4::I;
+    Matrix4 m_view_matrix = Matrix4::I;
+    Matrix4 m_projection_matrix = Matrix4::I;
+    Matrix4 m_view_projection_matrix = Matrix4::I;
 
-    Matrix4 inv_view_matrix = Matrix4::I;
-    Matrix4 inv_projection_matrix = Matrix4::I;
-    Matrix4 inv_view_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_matrix = Matrix4::I;
+    Matrix4 m_inv_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_projection_matrix = Matrix4::I;
 
-    Vector2 leftBottom_view = Vector2{-1.0f, 1.0f};
-    Vector2 rightTop_view = Vector2{1.0f, -1.0f};
-    Vector2 nearFar_distance = Vector2{0.0f, 1.0f};
-    RenderTargetStack::Node _render_target{};
-    float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
+    Vector2 m_leftBottom_view = Vector2{-1.0f, 1.0f};
+    Vector2 m_rightTop_view = Vector2{1.0f, -1.0f};
+    Vector2 m_nearFar_distance = Vector2{0.0f, 1.0f};
+    RenderTargetStack::Node m_render_target{};
+    float m_aspect_ratio = MathUtils::M_16_BY_9_RATIO;
 };

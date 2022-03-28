@@ -10,19 +10,19 @@
 #include <mutex>
 
 void PhysicsSystem::Enable(bool enable) {
-    _is_running = enable;
+    m_is_running = enable;
 }
 
 void PhysicsSystem::SetGravity(const Vector2& new_gravity) {
-    _desc.gravity = new_gravity;
+    m_desc.gravity = new_gravity;
 }
 
 Vector2 PhysicsSystem::GetGravity() const noexcept {
-    return _desc.gravity;
+    return m_desc.gravity;
 }
 
 void PhysicsSystem::SetDragCoefficients(const Vector2& k1k2) {
-    _desc.dragK1K2 = k1k2;
+    m_desc.dragK1K2 = k1k2;
 }
 
 void PhysicsSystem::SetDragCoefficients(float linearCoefficient, float squareCoefficient) {
@@ -30,22 +30,22 @@ void PhysicsSystem::SetDragCoefficients(float linearCoefficient, float squareCoe
 }
 
 std::pair<float, float> PhysicsSystem::GetDragCoefficients() const noexcept {
-    return std::make_pair(_desc.dragK1K2.x, _desc.dragK1K2.y);
+    return std::make_pair(m_desc.dragK1K2.x, m_desc.dragK1K2.y);
 }
 
 const PhysicsSystemDesc& PhysicsSystem::GetWorldDescription() const noexcept {
-    return _desc;
+    return m_desc;
 }
 
 void PhysicsSystem::SetWorldDescription(const PhysicsSystemDesc& new_desc) {
-    _desc = new_desc;
-    _gravityFG.SetGravity(_desc.gravity);
-    _dragFG.SetCoefficients(_desc.dragK1K2);
+    m_desc = new_desc;
+    m_gravityFG.SetGravity(m_desc.gravity);
+    m_dragFG.SetCoefficients(m_desc.dragK1K2);
     //_world_partition.SetWorldBounds(_desc.world_bounds);
 }
 
 void PhysicsSystem::EnablePhysics(bool isPhysicsEnabled) noexcept {
-    for(auto* b : _rigidBodies) {
+    for(auto* b : m_rigidBodies) {
         b->EnablePhysics(isPhysicsEnabled);
     }
 }
@@ -55,30 +55,30 @@ const std::vector<std::unique_ptr<Joint>>& PhysicsSystem::Debug_GetJoints() cons
 }
 
 const std::vector<RigidBody*>& PhysicsSystem::Debug_GetBodies() const noexcept {
-    return _rigidBodies;
+    return m_rigidBodies;
 }
 
 void PhysicsSystem::EnableGravity(bool isGravityEnabled) noexcept {
-    for(auto* b : _rigidBodies) {
+    for(auto* b : m_rigidBodies) {
         b->EnableGravity(isGravityEnabled);
     }
 }
 
 void PhysicsSystem::EnableDrag(bool isGravityEnabled) noexcept {
-    for(auto* b : _rigidBodies) {
+    for(auto* b : m_rigidBodies) {
         b->EnableDrag(isGravityEnabled);
     }
 }
 
 PhysicsSystem::PhysicsSystem(const PhysicsSystemDesc& desc /*= PhysicsSystemDesc{}*/)
-: _desc(desc)
+: m_desc(desc)
 //, _world_partition(_desc.world_bounds)
 {
     /* DO NOTHING */
 }
 
 PhysicsSystem::~PhysicsSystem() {
-    _is_running = false;
+    m_is_running = false;
 }
 
 void PhysicsSystem::Initialize() noexcept {
@@ -88,40 +88,40 @@ void PhysicsSystem::Initialize() noexcept {
 }
 
 void PhysicsSystem::BeginFrame() noexcept {
-    if(!_is_running) {
+    if(!m_is_running) {
         return;
     }
 
     //_rigidBodies.reserve(_rigidBodies.size() + _pending_addition.size());
-    for(auto* a : _pending_addition) {
-        _rigidBodies.emplace_back(a);
+    for(auto* a : m_pending_addition) {
+        m_rigidBodies.emplace_back(a);
     }
-    _pending_addition.clear();
-    _pending_addition.shrink_to_fit();
+    m_pending_addition.clear();
+    m_pending_addition.shrink_to_fit();
     //_world_partition.Clear();
     //_world_partition.Add(_rigidBodies);
 
-    for(auto* body : _rigidBodies) {
+    for(auto* body : m_rigidBodies) {
         const auto is_gravity_enabled = body->IsGravityEnabled();
         const auto is_drag_enabled = body->IsDragEnabled();
-        is_gravity_enabled ? _gravityFG.attach(body) : _gravityFG.detach(body);
-        is_drag_enabled ? _dragFG.attach(body) : _dragFG.detach(body);
+        is_gravity_enabled ? m_gravityFG.attach(body) : m_gravityFG.detach(body);
+        is_drag_enabled ? m_dragFG.attach(body) : m_dragFG.detach(body);
         body->BeginFrame();
     }
 }
 
 void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    if(!this->_is_running) {
+    if(!this->m_is_running) {
         return;
     }
-    _deltaSeconds = deltaSeconds;
-    _accumulatedTime += _deltaSeconds;
-    if(_accumulatedTime >= _targetFrameRate) {
-        _accumulatedTime -= _targetFrameRate;
+    m_deltaSeconds = deltaSeconds;
+    m_accumulatedTime += m_deltaSeconds;
+    if(m_accumulatedTime >= m_targetFrameRate) {
+        m_accumulatedTime -= m_targetFrameRate;
         return;
     }
-    ApplyGravityAndDrag(_targetFrameRate);
-    ApplyCustomAndJointForces(_targetFrameRate);
+    ApplyGravityAndDrag(m_targetFrameRate);
+    ApplyCustomAndJointForces(m_targetFrameRate);
     auto& renderer = ServiceLocator::get<IRendererService>();
     const auto camera_position = Vector2(renderer.GetCamera().GetPosition());
     const auto half_extents = Vector2(renderer.GetOutput()->GetDimensions()) * 0.5f;
@@ -130,12 +130,12 @@ void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     const auto actual_collisions = NarrowPhaseCollision(potential_collisions, PhysicsUtils::GJK, PhysicsUtils::EPA);
     SolveCollision(actual_collisions);
     SolveConstraints();
-    UpdateBodiesInBounds(_targetFrameRate);
+    UpdateBodiesInBounds(m_targetFrameRate);
     SolveConstraints();
 }
 
 void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    for(auto* body : _rigidBodies) {
+    for(auto* body : m_rigidBodies) {
         if(!body) {
             continue;
         }
@@ -159,14 +159,14 @@ void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds)
 }
 
 void PhysicsSystem::ApplyGravityAndDrag(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    _gravityFG.notify(deltaSeconds);
-    _dragFG.notify(deltaSeconds);
+    m_gravityFG.notify(deltaSeconds);
+    m_dragFG.notify(deltaSeconds);
 }
 
 std::vector<RigidBody*> PhysicsSystem::BroadPhaseCollision(const AABB2& /*query_area*/) noexcept {
     std::vector<RigidBody*> potential_collisions{};
-    for(auto iterA = std::begin(_rigidBodies); iterA != std::end(_rigidBodies); ++iterA) {
-        for(auto iterB = iterA + 1; iterB != std::end(_rigidBodies); ++iterB) {
+    for(auto iterA = std::begin(m_rigidBodies); iterA != std::end(m_rigidBodies); ++iterA) {
+        for(auto iterB = iterA + 1; iterB != std::end(m_rigidBodies); ++iterB) {
             auto* bodyA = *iterA;
             auto* bodyB = *iterB;
             if(!bodyA || !bodyB) {
@@ -217,10 +217,10 @@ void PhysicsSystem::SolveCollision(const PhysicsSystem::CollisionDataSet& actual
 }
 
 void PhysicsSystem::SolveConstraints() const noexcept {
-    for(int i = 0; i < _desc.position_solver_iterations; ++i) {
+    for(int i = 0; i < m_desc.position_solver_iterations; ++i) {
         SolvePositionConstraints();
     }
-    for(int i = 0; i < _desc.velocity_solver_iterations; ++i) {
+    for(int i = 0; i < m_desc.velocity_solver_iterations; ++i) {
         SolveVelocityConstraints();
     }
 }
@@ -243,33 +243,33 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 
 void PhysicsSystem::Render() const noexcept {
     auto& renderer = ServiceLocator::get<IRendererService>();
-    if(_show_colliders) {
-        for(const auto& body : _rigidBodies) {
+    if(m_show_colliders) {
+        for(const auto& body : m_rigidBodies) {
             body->DebugRender();
         }
     }
-    if(_show_joints) {
+    if(m_show_joints) {
         for(const auto& joint : _joints) {
             joint->DebugRender();
         }
     }
-    if(_show_world_partition) {
-        _world_partition.DebugRender();
+    if(m_show_world_partition) {
+        m_world_partition.DebugRender();
     }
-    if(_show_contacts) {
+    if(m_show_contacts) {
         renderer.SetModelMatrix(Matrix4::I);
     }
 }
 
 void PhysicsSystem::EndFrame() noexcept {
     //std::scoped_lock<std::mutex> lock(_cs);
-    for(auto& body : _rigidBodies) {
+    for(auto& body : m_rigidBodies) {
         body->Endframe();
     }
-    for(auto* r : _pending_removal) {
-        _rigidBodies.erase(std::remove_if(std::begin(_rigidBodies), std::end(_rigidBodies), [this, r](const RigidBody* b) { return b == r; }), std::end(_rigidBodies));
-        _gravityFG.detach(r);
-        _dragFG.detach(r);
+    for(auto* r : m_pending_removal) {
+        m_rigidBodies.erase(std::remove_if(std::begin(m_rigidBodies), std::end(m_rigidBodies), [this, r](const RigidBody* b) { return b == r; }), std::end(m_rigidBodies));
+        m_gravityFG.detach(r);
+        m_dragFG.detach(r);
         for(auto&& fg : _forceGenerators) {
             fg->detach(r);
         }
@@ -277,8 +277,8 @@ void PhysicsSystem::EndFrame() noexcept {
             joint->Detach(r);
         }
     }
-    _pending_removal.clear();
-    _pending_removal.shrink_to_fit();
+    m_pending_removal.clear();
+    m_pending_removal.shrink_to_fit();
     _joints.erase(std::remove_if(std::begin(_joints), std::end(_joints), [](auto&& joint) -> bool { return joint->IsNotAttached(); }), std::end(_joints));
 }
 
@@ -287,32 +287,32 @@ bool PhysicsSystem::ProcessSystemMessage([[maybe_unused]] const EngineMessage& m
 }
 
 void PhysicsSystem::AddObject(RigidBody* body) {
-    _pending_addition.push_back(body);
+    m_pending_addition.push_back(body);
     //_world_partition.Add(body);
 }
 
 void PhysicsSystem::AddObjects(std::vector<RigidBody*> bodies) {
-    _pending_addition.reserve(_rigidBodies.size() + bodies.size());
-    _pending_addition.insert(std::cend(_pending_addition), std::cbegin(bodies), std::cend(bodies));
+    m_pending_addition.reserve(m_rigidBodies.size() + bodies.size());
+    m_pending_addition.insert(std::cend(m_pending_addition), std::cbegin(bodies), std::cend(bodies));
 }
 
 void PhysicsSystem::RemoveObject(RigidBody* body) {
-    _pending_removal.push_back(body);
+    m_pending_removal.push_back(body);
 }
 
 void PhysicsSystem::RemoveObjects(std::vector<RigidBody*> bodies) {
-    _pending_removal.insert(std::cend(_pending_removal), std::cbegin(bodies), std::cend(bodies));
+    m_pending_removal.insert(std::cend(m_pending_removal), std::cbegin(bodies), std::cend(bodies));
 }
 
 void PhysicsSystem::RemoveAllObjects() noexcept {
-    _pending_removal.insert(std::cend(_pending_removal), std::cbegin(_rigidBodies), std::cend(_rigidBodies));
+    m_pending_removal.insert(std::cend(m_pending_removal), std::cbegin(m_rigidBodies), std::cend(m_rigidBodies));
 }
 
 void PhysicsSystem::RemoveAllObjectsImmediately() noexcept {
-    _rigidBodies.clear();
-    _rigidBodies.shrink_to_fit();
-    _gravityFG.detach_all();
-    _dragFG.detach_all();
+    m_rigidBodies.clear();
+    m_rigidBodies.shrink_to_fit();
+    m_gravityFG.detach_all();
+    m_dragFG.detach_all();
     for(auto&& fg : _forceGenerators) {
         fg->detach_all();
     }
@@ -326,17 +326,17 @@ void PhysicsSystem::RemoveAllObjectsImmediately() noexcept {
 }
 
 void PhysicsSystem::Debug_ShowCollision(bool show) {
-    _show_colliders = show;
+    m_show_colliders = show;
 }
 
 void PhysicsSystem::Debug_ShowWorldPartition(bool show) {
-    _show_world_partition = show;
+    m_show_world_partition = show;
 }
 
 void PhysicsSystem::Debug_ShowContacts(bool show) {
-    _show_contacts = show;
+    m_show_contacts = show;
 }
 
 void PhysicsSystem::Debug_ShowJoints(bool show) {
-    _show_joints = show;
+    m_show_joints = show;
 }

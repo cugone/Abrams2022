@@ -41,7 +41,7 @@ private:
     void SolvePositionConstraint() const noexcept override;
     void SolveVelocityConstraint() const noexcept override;
 
-    RodJointDef _def{};
+    RodJointDef m_def{};
 
     friend class PhysicsSystem;
 };

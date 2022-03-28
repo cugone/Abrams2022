@@ -9,7 +9,7 @@
 
 void DepthStencilState::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
-    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
+    m_dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
 #endif
 }
 
@@ -19,29 +19,29 @@ DepthStencilState::DepthStencilState(const RHIDevice* device, const XMLElement& 
 }
 
 DepthStencilState::DepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc) noexcept
-: _desc(desc) {
+: m_desc(desc) {
     if(!CreateDepthStencilState(device, desc)) {
-        if(_dx_state) {
-            _dx_state->Release();
-            _dx_state = nullptr;
+        if(m_dx_state) {
+            m_dx_state->Release();
+            m_dx_state = nullptr;
         }
         ERROR_AND_DIE("DepthStencilState failed to create.");
     }
 }
 
 DepthStencilState::~DepthStencilState() noexcept {
-    if(_dx_state) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+    if(m_dx_state) {
+        m_dx_state->Release();
+        m_dx_state = nullptr;
     }
 }
 
 ID3D11DepthStencilState* DepthStencilState::GetDxDepthStencilState() const noexcept {
-    return _dx_state;
+    return m_dx_state;
 }
 
 DepthStencilDesc DepthStencilState::GetDesc() const noexcept {
-    return _desc;
+    return m_desc;
 }
 
 bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const DepthStencilDesc& desc /*= DepthStencilDesc{}*/) noexcept {
@@ -63,7 +63,7 @@ bool DepthStencilState::CreateDepthStencilState(const RHIDevice* device, const D
     dx_desc.BackFace.StencilFunc = ComparisonFunctionToD3DComparisonFunction(desc.stencil_testBack);
     dx_desc.BackFace.StencilPassOp = StencilOperationToD3DStencilOperation(desc.stencil_passBackOp);
 
-    HRESULT hr = device->GetDxDevice()->CreateDepthStencilState(&dx_desc, &_dx_state);
+    HRESULT hr = device->GetDxDevice()->CreateDepthStencilState(&dx_desc, &m_dx_state);
     return SUCCEEDED(hr);
 }
 

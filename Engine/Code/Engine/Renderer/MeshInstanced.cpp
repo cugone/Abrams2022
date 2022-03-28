@@ -16,26 +16,26 @@ void MeshInstanced::Builder::Begin(const PrimitiveType& type) noexcept {
 }
 
 void MeshInstanced::Builder::Begin(const PrimitiveType& type, std::size_t indexStart) noexcept {
-    _current_draw_instruction.type = type;
-    _current_draw_instruction.indexStart = indexStart;
+    m_current_draw_instruction.type = type;
+    m_current_draw_instruction.indexStart = indexStart;
 }
 
 void MeshInstanced::Builder::End(Material* mat /* = nullptr */) noexcept {
-    _current_draw_instruction.material = mat;
-    _current_draw_instruction.indexCount = indicies.size() - _current_draw_instruction.indexStart;
+    m_current_draw_instruction.material = mat;
+    m_current_draw_instruction.indexCount = indicies.size() - m_current_draw_instruction.indexStart;
     if(!draw_instructions.empty()) {
         auto& last_inst = draw_instructions.back();
         if(!mat) {
-            _current_draw_instruction.material = last_inst.material;
+            m_current_draw_instruction.material = last_inst.material;
         }
-        if(last_inst == _current_draw_instruction) {
+        if(last_inst == m_current_draw_instruction) {
             ++last_inst.count;
-            last_inst.indexCount += _current_draw_instruction.indexCount;
+            last_inst.indexCount += m_current_draw_instruction.indexCount;
         } else {
-            draw_instructions.push_back(_current_draw_instruction);
+            draw_instructions.push_back(m_current_draw_instruction);
         }
     } else {
-        draw_instructions.push_back(_current_draw_instruction);
+        draw_instructions.push_back(m_current_draw_instruction);
     }
 }
 
@@ -46,15 +46,15 @@ void MeshInstanced::Builder::Clear() noexcept {
 }
 
 void MeshInstanced::Builder::SetTangent(const Vector3& tangent) noexcept {
-    _vertex_prototype.tangent = tangent;
+    m_vertex_prototype.tangent = tangent;
 }
 
 void MeshInstanced::Builder::SetBitangent(const Vector3& bitangent) noexcept {
-    _vertex_prototype.bitangent = bitangent;
+    m_vertex_prototype.bitangent = bitangent;
 }
 
 void MeshInstanced::Builder::SetNormal(const Vector3& normal) noexcept {
-    _vertex_prototype.normal = normal;
+    m_vertex_prototype.normal = normal;
 }
 
 void MeshInstanced::Builder::SetAlpha(unsigned char value) noexcept {
@@ -62,7 +62,7 @@ void MeshInstanced::Builder::SetAlpha(unsigned char value) noexcept {
 }
 
 void MeshInstanced::Builder::SetAlpha(float value) noexcept {
-    _vertex_prototype.color.w = value;
+    m_vertex_prototype.color.w = value;
 }
 
 void MeshInstanced::Builder::SetColor(const Rgba& color) noexcept {
@@ -71,16 +71,16 @@ void MeshInstanced::Builder::SetColor(const Rgba& color) noexcept {
 }
 
 void MeshInstanced::Builder::SetColor(const Vector4& color) noexcept {
-    _vertex_prototype.color = color;
+    m_vertex_prototype.color = color;
 }
 
 void MeshInstanced::Builder::SetUV(const Vector2& uv) noexcept {
-    _vertex_prototype.texcoords = uv;
+    m_vertex_prototype.texcoords = uv;
 }
 
 std::size_t MeshInstanced::Builder::AddVertex(const Vector3& position) noexcept {
-    _vertex_prototype.position = position;
-    verticies.push_back(_vertex_prototype);
+    m_vertex_prototype.position = position;
+    verticies.push_back(m_vertex_prototype);
     return verticies.size() - 1;
 }
 

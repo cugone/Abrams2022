@@ -17,12 +17,12 @@
 #include <numeric>
 
 ParticleEmitter::ParticleEmitter(const std::string& name) noexcept
-: _name(name) {
-    const auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(_name);
-    if(definition->_spawnPerSecond > 0.0f) {
-        _spawnClock.SetFrequency(static_cast<unsigned int>(definition->_spawnPerSecond));
+: m_name(name) {
+    const auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name);
+    if(definition->m_spawnPerSecond > 0.0f) {
+        m_spawnClock.SetFrequency(static_cast<unsigned int>(definition->m_spawnPerSecond));
     } else {
-        _spawnClock.SetSeconds(TimeUtils::FPSeconds{0.016f});
+        m_spawnClock.SetSeconds(TimeUtils::FPSeconds{0.016f});
     }
 }
 
@@ -35,7 +35,7 @@ void ParticleEmitter::BeginFrame() {
 }
 
 void ParticleEmitter::Prewarm(TimeUtils::FPSeconds secondsToWarm) {
-    _isWarming = true;
+    m_isWarming = true;
     Stopwatch oven;
     oven.SetSeconds(secondsToWarm);
     float time = 0.0f;
@@ -44,20 +44,20 @@ void ParticleEmitter::Prewarm(TimeUtils::FPSeconds secondsToWarm) {
         Update(time, deltaSeconds);
         time += deltaSeconds;
     }
-    _isWarming = false;
+    m_isWarming = false;
 }
 
 void ParticleEmitter::Update(float time, float deltaSeconds) {
-    auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(_name);
-    if(_age < definition->_lifetime) {
-        if(!_isWarming) {
-            _age += deltaSeconds;
+    auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name);
+    if(m_age < definition->m_lifetime) {
+        if(!m_isWarming) {
+            m_age += deltaSeconds;
         }
-        auto emitter_pos_def = definition->_emitterPositionDefinition;
+        auto emitter_pos_def = definition->m_emitterPositionDefinition;
         Vector3 new_particle_position = parent_effect->position;
         switch(emitter_pos_def.type) {
         case EmitterType::Point:
-            new_particle_position += definition->_position;
+            new_particle_position += definition->m_position;
             break;
         case EmitterType::Line: {
             new_particle_position += MathUtils::GetRandomPointOn(LineSegment3{emitter_pos_def.start, emitter_pos_def.end});
@@ -74,11 +74,11 @@ void ParticleEmitter::Update(float time, float deltaSeconds) {
             break;
         }
 
-        auto emitter_vel_def = definition->_emitterVelocityDefinition;
+        auto emitter_vel_def = definition->m_emitterVelocityDefinition;
         Vector3 new_particle_velocity = parent_effect->velocity;
         switch(emitter_vel_def.type) {
         case EmitterType::Point:
-            new_particle_velocity += definition->_velocity;
+            new_particle_velocity += definition->m_velocity;
             break;
         case EmitterType::Line: {
             new_particle_velocity += MathUtils::GetRandomPointOn(LineSegment3{emitter_vel_def.start, emitter_vel_def.end});
@@ -95,14 +95,14 @@ void ParticleEmitter::Update(float time, float deltaSeconds) {
             break;
         }
 
-        Rgba c = definition->_particleRenderState.GetStartColor();
-        Rgba ec = definition->_particleRenderState.GetEndColor();
-        Vector3 s = definition->_particleRenderState.GetStartScale();
-        Vector3 es = definition->_particleRenderState.GetEndScale();
-        auto particle_count = _spawnClock.DecrementAll();
+        Rgba c = definition->m_particleRenderState.GetStartColor();
+        Rgba ec = definition->m_particleRenderState.GetEndColor();
+        Vector3 s = definition->m_particleRenderState.GetStartScale();
+        Vector3 es = definition->m_particleRenderState.GetEndScale();
+        auto particle_count = m_spawnClock.DecrementAll();
         auto& renderer = ServiceLocator::get<IRendererService>();
         for(unsigned int i = 0; i < particle_count; ++i) {
-            SpawnParticle(new_particle_position, new_particle_velocity, definition->_particleLifetime, c, ec, s, es, renderer.GetMaterial(definition->_materialName), definition->_mass);
+            SpawnParticle(new_particle_position, new_particle_velocity, definition->m_particleLifetime, c, ec, s, es, renderer.GetMaterial(definition->m_materialName), definition->m_mass);
         }
     }
     UpdateParticles(time, deltaSeconds);
@@ -110,7 +110,7 @@ void ParticleEmitter::Update(float time, float deltaSeconds) {
 
 void ParticleEmitter::Render() const {
     const auto p = Matrix4::CreateTranslationMatrix(parent_effect->position);
-    const auto t = Matrix4::CreateTranslationMatrix(ParticleEmitterDefinition::GetParticleEmitterDefinition(_name)->_position);
+    const auto t = Matrix4::CreateTranslationMatrix(ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name)->m_position);
     const auto s = Matrix4::I;
     const auto r = Matrix4::I;
 
@@ -119,36 +119,36 @@ void ParticleEmitter::Render() const {
     auto& renderer = ServiceLocator::get<IRendererService>();
     renderer.SetModelMatrix(pointlight_model);
 
-    for(auto& particle : _particles) {
-        particle.Render(_builder);
+    for(auto& particle : m_particles) {
+        particle.Render(m_builder);
     }
-    Mesh::Render(_builder);
+    Mesh::Render(m_builder);
 }
 
 void ParticleEmitter::EndFrame() {
-    _particles.erase(std::remove_if(std::begin(_particles), std::end(_particles), [](const Particle& a) { return a.IsDead(); }), std::end(_particles));
+    m_particles.erase(std::remove_if(std::begin(m_particles), std::end(m_particles), [](const Particle& a) { return a.IsDead(); }), std::end(m_particles));
 }
 
 float ParticleEmitter::GetAge() const {
-    return _age;
+    return m_age;
 }
 
 float ParticleEmitter::GetLifetime() const {
-    return ParticleEmitterDefinition::GetParticleEmitterDefinition(_name)->_lifetime;
+    return ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name)->m_lifetime;
 }
 
 std::size_t ParticleEmitter::GetParticleCount() const {
-    return _particles.size();
+    return m_particles.size();
 }
 
 bool ParticleEmitter::HasAliveParticles() const {
-    return !_particles.empty();
+    return !m_particles.empty();
 }
 
 void ParticleEmitter::LoadFromXML(const XMLElement& element) {
     DataUtils::ValidateXmlElement(element, "emitter", "", "name");
     const auto name = DataUtils::ParseXmlAttribute(element, "name", std::string{});
-    _spawnClock.SetFrequency(static_cast<unsigned int>(ParticleEmitterDefinition::GetParticleEmitterDefinition(name)->_spawnPerSecond));
+    m_spawnClock.SetFrequency(static_cast<unsigned int>(ParticleEmitterDefinition::GetParticleEmitterDefinition(name)->m_spawnPerSecond));
 }
 
 bool ParticleEmitter::IsDead() const {
@@ -156,29 +156,29 @@ bool ParticleEmitter::IsDead() const {
 }
 
 bool ParticleEmitter::IsAlive() const {
-    return _age > 0.0f && HasAliveParticles();
+    return m_age > 0.0f && HasAliveParticles();
 }
 void ParticleEmitter::Kill() {
-    _age = GetLifetime();
+    m_age = GetLifetime();
 }
 
 void ParticleEmitter::MakeAlive() {
-    _age = 0.0f;
-    _spawnClock.Reset();
+    m_age = 0.0f;
+    m_spawnClock.Reset();
 }
 
 Mesh::Builder& ParticleEmitter::GetMeshBuilder() noexcept {
-    return _builder;
+    return m_builder;
 }
 
 void ParticleEmitter::UpdateParticles(float time, float deltaSeconds) {
-    std::sort(std::begin(_particles), std::end(_particles));
-    auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(_name);
-    const auto loc = Matrix4::CreateTranslationMatrix(definition->_position);
+    std::sort(std::begin(m_particles), std::end(m_particles));
+    auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name);
+    const auto loc = Matrix4::CreateTranslationMatrix(definition->m_position);
     auto& renderer = ServiceLocator::get<IRendererService>();
-    const auto billboard = definition->_isBillboarded ? renderer.GetCamera().GetInverseViewMatrix() : Matrix4::I;
+    const auto billboard = definition->m_isBillboarded ? renderer.GetCamera().GetInverseViewMatrix() : Matrix4::I;
     const auto result = Matrix4::MakeRT(billboard, loc);
-    for(Particle& p : _particles) {
+    for(Particle& p : m_particles) {
         renderer.AppendModelMatrix(result);
         p.Update(time, deltaSeconds);
     }
@@ -196,16 +196,16 @@ void ParticleEmitter::SpawnParticle(const Vector3& initialPosition, const Vector
     initialRender.SetScales(scale, endScale);
     initialRender.SetLifetime(ttl);
     initialRender.SetMaterial(initialMaterial);
-    initialRender.SetBillboarding(ParticleEmitterDefinition::GetParticleEmitterDefinition(_name)->_isBillboarded);
+    initialRender.SetBillboarding(ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name)->m_isBillboarded);
 
-    _particles.emplace_back(initialRender, initialState);
+    m_particles.emplace_back(initialRender, initialState);
 }
 
 void ParticleEmitter::DestroyDeadEntities() {
-    if(_particles.empty()) {
+    if(m_particles.empty()) {
         return;
     }
 
-    _particles.erase(
-    std::remove_if(_particles.begin(), _particles.end(), [](const Particle& p) { return p.IsDead(); }), _particles.end());
+    m_particles.erase(
+    std::remove_if(m_particles.begin(), m_particles.end(), [](const Particle& p) { return p.IsDead(); }), m_particles.end());
 }

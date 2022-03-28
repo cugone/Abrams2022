@@ -104,18 +104,18 @@ bool Riff::ParseDataIntoChunks(std::vector<unsigned char>& buffer) noexcept {
             break;
         }
         }
-        _chunks.push_back(std::move(cur_chunk));
+        m_chunks.push_back(std::move(cur_chunk));
     }
-    _current_chunk = _chunks.begin();
+    m_current_chunk = m_chunks.begin();
     return true;
 }
 
 Riff::RiffChunk* Riff::GetNextChunk() const noexcept {
-    if(_current_chunk == _chunks.end()) {
+    if(m_current_chunk == m_chunks.end()) {
         return nullptr;
     }
-    auto* chunk = (*_current_chunk).get();
-    _current_chunk++;
+    auto* chunk = (*m_current_chunk).get();
+    m_current_chunk++;
     return chunk;
 }
 

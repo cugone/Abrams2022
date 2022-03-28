@@ -5,7 +5,7 @@
 #include "Engine/Services/IRendererService.hpp"
 
 UIPanel::UIPanel(UIWidget* owner)
-: _owner(owner) {
+: m_owner(owner) {
     /* DO NOTHING */
 }
 
@@ -20,7 +20,7 @@ void UIPanel::Render() const {
     if(IsHidden()) {
         return;
     }
-    if(0 < _edge_color.a || 0 < _fill_color.a) {
+    if(0 < m_edge_color.a || 0 < m_fill_color.a) {
         DebugRenderBounds();
     }
     RenderChildren();
@@ -35,11 +35,11 @@ void UIPanel::EndFrame() {
 }
 
 const UIWidget* const UIPanel::GetOwningWidget() const noexcept {
-    return _owner;
+    return m_owner;
 }
 
 void UIPanel::SetOwningWidget(UIWidget* owner) noexcept {
-    _owner = owner;
+    m_owner = owner;
 }
 
 Vector4 UIPanel::CalcDesiredSize() const noexcept {
@@ -57,7 +57,7 @@ void UIPanel::DebugRenderTopDown() const {
 }
 
 void UIPanel::DebugRenderChildren() const {
-    for(auto& slot : _slots) {
+    for(auto& slot : m_slots) {
         if(slot) {
             slot->content->DebugRender();
         }
@@ -68,7 +68,7 @@ void UIPanel::SortChildren() {
 }
 
 void UIPanel::CalcBoundsForChildren() noexcept {
-    for(auto& slot : _slots) {
+    for(auto& slot : m_slots) {
         if(slot && slot->content) {
             slot->content->CalcBounds();
         }
@@ -90,7 +90,7 @@ bool UIPanel::CanHaveManyChildren() const noexcept {
 }
 
 void UIPanel::UpdateChildren(TimeUtils::FPSeconds deltaSeconds) {
-    for(auto& slot : _slots) {
+    for(auto& slot : m_slots) {
         if(slot && slot->content) {
             slot->content->Update(deltaSeconds);
         }
@@ -98,7 +98,7 @@ void UIPanel::UpdateChildren(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void UIPanel::RenderChildren() const {
-    for(const auto& slot : _slots) {
+    for(const auto& slot : m_slots) {
         if(slot && slot->content) {
             slot->content->Render();
         }

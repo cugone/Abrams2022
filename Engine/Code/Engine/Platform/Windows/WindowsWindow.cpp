@@ -87,29 +87,29 @@ std::unique_ptr<Window> Window::Create(const WindowDesc& desc) {
 
 WindowsWindow::WindowsWindow() noexcept
 : Window()
-, _styleFlags{_defaultWindowedStyleFlags}
-, _styleFlagsEx{_defaultStyleFlagsEx}
+, m_styleFlags{m_defaultWindowedStyleFlags}
+, m_styleFlagsEx{m_defaultStyleFlagsEx}
 {
-    if(_refCount == 0) {
+    if(m_refCount == 0) {
         if(Register()) {
-            ++_refCount;
+            ++m_refCount;
         }
     }
 
     RECT desktopRect;
     HWND desktopHwnd = ::GetDesktopWindow();
     ::GetClientRect(desktopHwnd, &desktopRect);
-    ::AdjustWindowRectEx(&desktopRect, _styleFlags, _hasMenu, _styleFlagsEx);
+    ::AdjustWindowRectEx(&desktopRect, m_styleFlags, m_hasMenu, m_styleFlagsEx);
 }
 
 WindowsWindow::WindowsWindow(const IntVector2& position, const IntVector2& dimensions) noexcept
 : Window()
-, _styleFlags{_defaultWindowedStyleFlags}
-, _styleFlagsEx{_defaultStyleFlagsEx}
+, m_styleFlags{m_defaultWindowedStyleFlags}
+, m_styleFlagsEx{m_defaultStyleFlagsEx}
 {
-    if(_refCount == 0) {
+    if(m_refCount == 0) {
         if(Register()) {
-            ++_refCount;
+            ++m_refCount;
         }
     }
     RECT r{};
@@ -118,34 +118,34 @@ WindowsWindow::WindowsWindow(const IntVector2& position, const IntVector2& dimen
     r.bottom = r.top + dimensions.y;
     r.right = r.left + dimensions.x;
 
-    ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+    ::AdjustWindowRectEx(&r, m_styleFlags, m_hasMenu, m_styleFlagsEx);
 
-    _positionX = position.x - r.left;
-    _positionY = position.y - r.top;
-    _width = r.right - r.left;
-    _height = r.bottom - r.top;
-    _oldclientWidth = _clientWidth;
-    _oldclientHeight = _clientHeight;
-    _clientWidth = dimensions.x;
-    _clientHeight = dimensions.y;
+    m_positionX = position.x - r.left;
+    m_positionY = position.y - r.top;
+    m_width = r.right - r.left;
+    m_height = r.bottom - r.top;
+    m_oldclientWidth = m_clientWidth;
+    m_oldclientHeight = m_clientHeight;
+    m_clientWidth = dimensions.x;
+    m_clientHeight = dimensions.y;
 }
 
 WindowsWindow::WindowsWindow(const WindowDesc& desc) noexcept
 : Window()
-, _styleFlags{_defaultWindowedStyleFlags}
-, _styleFlagsEx{_defaultStyleFlagsEx}
+, m_styleFlags{m_defaultWindowedStyleFlags}
+, m_styleFlagsEx{m_defaultStyleFlagsEx}
 {
-    if(_refCount == 0) {
+    if(m_refCount == 0) {
         if(Register()) {
-            ++_refCount;
+            ++m_refCount;
         }
     }
     switch(desc.mode) {
     case RHIOutputMode::Windowed:
-        _styleFlags = _defaultWindowedStyleFlags;
+        m_styleFlags = m_defaultWindowedStyleFlags;
         break;
     case RHIOutputMode::Borderless_Fullscreen:
-        _styleFlags = _defaultBorderlessStyleFlags;
+        m_styleFlags = m_defaultBorderlessStyleFlags;
         break;
     }
     RECT r{};
@@ -154,23 +154,23 @@ WindowsWindow::WindowsWindow(const WindowDesc& desc) noexcept
     r.bottom = r.top + desc.dimensions.y;
     r.right = r.left + desc.dimensions.x;
 
-    ::AdjustWindowRectEx(&r, _styleFlags, _hasMenu, _styleFlagsEx);
+    ::AdjustWindowRectEx(&r, m_styleFlags, m_hasMenu, m_styleFlagsEx);
 
-    _positionX = desc.position.x - r.left;
-    _positionY = desc.position.y - r.top;
-    _width = r.right - r.left;
-    _height = r.bottom - r.top;
-    _oldclientWidth = _clientWidth;
-    _oldclientHeight = _clientHeight;
-    _clientWidth = desc.dimensions.x;
-    _clientHeight = desc.dimensions.y;
+    m_positionX = desc.position.x - r.left;
+    m_positionY = desc.position.y - r.top;
+    m_width = r.right - r.left;
+    m_height = r.bottom - r.top;
+    m_oldclientWidth = m_clientWidth;
+    m_oldclientHeight = m_clientHeight;
+    m_clientWidth = desc.dimensions.x;
+    m_clientHeight = desc.dimensions.y;
 }
 
 WindowsWindow::~WindowsWindow() noexcept {
     Close();
-    if(_refCount != 0) {
-        --_refCount;
-        if(_refCount == 0) {
+    if(m_refCount != 0) {
+        --m_refCount;
+        if(m_refCount == 0) {
             GUARANTEE_OR_DIE(Unregister(), "Failed to unregister window class");
         }
     }
@@ -191,15 +191,15 @@ void WindowsWindow::Open() noexcept {
 }
 
 void WindowsWindow::Close() noexcept {
-    ::DestroyWindow(_hWnd);
+    ::DestroyWindow(m_hWnd);
 }
 
 void WindowsWindow::Show() noexcept {
-    ::ShowWindow(_hWnd, SW_SHOW);
+    ::ShowWindow(m_hWnd, SW_SHOW);
 }
 
 void WindowsWindow::Hide() noexcept {
-    ::ShowWindow(_hWnd, SW_HIDE);
+    ::ShowWindow(m_hWnd, SW_HIDE);
 }
 
 void WindowsWindow::UnHide() noexcept {
@@ -207,7 +207,7 @@ void WindowsWindow::UnHide() noexcept {
 }
 
 bool WindowsWindow::IsOpen() const noexcept {
-    return 0 != ::IsWindow(_hWnd);
+    return 0 != ::IsWindow(m_hWnd);
 }
 
 bool WindowsWindow::IsClosed() const noexcept {
@@ -215,23 +215,23 @@ bool WindowsWindow::IsClosed() const noexcept {
 }
 
 bool WindowsWindow::IsWindowed() const noexcept {
-    return _currentDisplayMode == RHIOutputMode::Windowed;
+    return m_currentDisplayMode == RHIOutputMode::Windowed;
 }
 
 bool WindowsWindow::IsFullscreen() const noexcept {
-    return _currentDisplayMode == RHIOutputMode::Borderless_Fullscreen;
+    return m_currentDisplayMode == RHIOutputMode::Borderless_Fullscreen;
 }
 
 IntVector2 WindowsWindow::GetDimensions() const noexcept {
-    return IntVector2(_width, _height);
+    return IntVector2(m_width, m_height);
 }
 
 IntVector2 WindowsWindow::GetClientDimensions() const noexcept {
-    return IntVector2(_clientWidth, _clientHeight);
+    return IntVector2(m_clientWidth, m_clientHeight);
 }
 
 IntVector2 WindowsWindow::GetPosition() const noexcept {
-    return IntVector2(_positionX, _positionY);
+    return IntVector2(m_positionX, m_positionY);
 }
 
 void WindowsWindow::SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size) noexcept {
@@ -241,14 +241,14 @@ void WindowsWindow::SetDimensionsAndPosition(const IntVector2& new_position, con
     r.bottom = r.top + new_size.y;
     r.right = r.left + new_size.x;
 
-    _positionX = r.left;
-    _positionY = r.top;
-    _width = r.right - r.left;
-    _height = r.bottom - r.top;
-    _oldclientWidth = _clientWidth;
-    _oldclientHeight = _clientHeight;
-    _clientWidth = new_size.x;
-    _clientHeight = new_size.y;
+    m_positionX = r.left;
+    m_positionY = r.top;
+    m_width = r.right - r.left;
+    m_height = r.bottom - r.top;
+    m_oldclientWidth = m_clientWidth;
+    m_oldclientHeight = m_clientHeight;
+    m_clientWidth = new_size.x;
+    m_clientHeight = new_size.y;
 }
 
 void WindowsWindow::SetPosition(const IntVector2& new_position) noexcept {
@@ -258,16 +258,16 @@ void WindowsWindow::SetPosition(const IntVector2& new_position) noexcept {
     const auto dims = GetDimensions();
     r.bottom = r.top + dims.y;
     r.right = r.left + dims.x;
-    ::AdjustWindowRect(&r, _styleFlags, FALSE);
-    ::SetWindowPos(_hWnd, HWND_TOP, r.left, r.top, r.right - r.left, r.bottom - r.top, SWP_SHOWWINDOW);
-    _positionX = r.left;
-    _positionY = r.top;
-    _width = r.right - r.left;
-    _height = r.bottom - r.top;
-    _oldclientWidth = _clientWidth;
-    _oldclientHeight = _clientHeight;
-    _clientWidth = dims.x;
-    _clientHeight = dims.y;
+    ::AdjustWindowRect(&r, m_styleFlags, FALSE);
+    ::SetWindowPos(m_hWnd, HWND_TOP, r.left, r.top, r.right - r.left, r.bottom - r.top, SWP_SHOWWINDOW);
+    m_positionX = r.left;
+    m_positionY = r.top;
+    m_width = r.right - r.left;
+    m_height = r.bottom - r.top;
+    m_oldclientWidth = m_clientWidth;
+    m_oldclientHeight = m_clientHeight;
+    m_clientWidth = dims.x;
+    m_clientHeight = dims.y;
 }
 
 void WindowsWindow::SetDimensions(const IntVector2& new_dimensions) noexcept {
@@ -277,77 +277,77 @@ void WindowsWindow::SetDimensions(const IntVector2& new_dimensions) noexcept {
     r.left = static_cast<long>(pos.x);
     r.bottom = r.top + new_dimensions.y;
     r.right = r.left + new_dimensions.x;
-    ::AdjustWindowRect(&r, _styleFlags, FALSE);
-    _positionX = r.left;
-    _positionY = r.top;
-    _width = r.right - r.left;
-    _height = r.bottom - r.top;
-    _oldclientWidth = _clientWidth;
-    _oldclientHeight = _clientHeight;
-    _clientWidth = new_dimensions.x;
-    _clientHeight = new_dimensions.y;
+    ::AdjustWindowRect(&r, m_styleFlags, FALSE);
+    m_positionX = r.left;
+    m_positionY = r.top;
+    m_width = r.right - r.left;
+    m_height = r.bottom - r.top;
+    m_oldclientWidth = m_clientWidth;
+    m_oldclientHeight = m_clientHeight;
+    m_clientWidth = new_dimensions.x;
+    m_clientHeight = new_dimensions.y;
 }
 
 void WindowsWindow::SetForegroundWindow() noexcept {
-    ::SetForegroundWindow(_hWnd);
+    ::SetForegroundWindow(m_hWnd);
 }
 
 void WindowsWindow::SetFocus() noexcept {
-    ::SetFocus(_hWnd);
+    ::SetFocus(m_hWnd);
 }
 
 void* WindowsWindow::GetWindowHandle() const noexcept {
-    return _hWnd;
+    return m_hWnd;
 }
 
 void WindowsWindow::SetWindowHandle(void* hWnd) noexcept {
-    _hWnd = static_cast<HWND>(hWnd);
+    m_hWnd = static_cast<HWND>(hWnd);
 }
 
 void* WindowsWindow::GetWindowDeviceContext() const noexcept {
-    return _hdc;
+    return m_hdc;
 }
 
 const RHIOutputMode& WindowsWindow::GetDisplayMode() const noexcept {
-    return _currentDisplayMode;
+    return m_currentDisplayMode;
 }
 
 void WindowsWindow::SetDisplayMode(const RHIOutputMode& display_mode) noexcept {
-    if(display_mode == _currentDisplayMode) {
+    if(display_mode == m_currentDisplayMode) {
         return;
     }
 
     static WINDOWPLACEMENT g_wpPrev = {sizeof(g_wpPrev)};
-    auto dwStyle = ::GetWindowLongPtr(_hWnd, GWL_STYLE);
+    auto dwStyle = ::GetWindowLongPtr(m_hWnd, GWL_STYLE);
 
-    _currentDisplayMode = display_mode;
-    switch(_currentDisplayMode) {
+    m_currentDisplayMode = display_mode;
+    switch(m_currentDisplayMode) {
     case RHIOutputMode::Windowed: {
-        ::SetWindowLongPtr(_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-        ::SetWindowPlacement(_hWnd, &g_wpPrev);
-        ::SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0,
+        ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+        ::SetWindowPlacement(m_hWnd, &g_wpPrev);
+        ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
         break;
     }
     case RHIOutputMode::Borderless_Fullscreen: {
 #ifdef IN_EDITOR
-        ::SetWindowLongPtr(_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-        ::SetWindowPlacement(_hWnd, &g_wpPrev);
-        ::SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0,
+        ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+        ::SetWindowPlacement(m_hWnd, &g_wpPrev);
+        ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 #else
         MONITORINFO mi = {sizeof(mi)};
-        if(::GetWindowPlacement(_hWnd, &g_wpPrev) && ::GetMonitorInfo(::MonitorFromWindow(_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-            ::SetWindowLongPtr(_hWnd, GWL_STYLE,
+        if(::GetWindowPlacement(m_hWnd, &g_wpPrev) && ::GetMonitorInfo(::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+            ::SetWindowLongPtr(m_hWnd, GWL_STYLE,
                                dwStyle & ~WS_OVERLAPPEDWINDOW);
     #ifdef RENDER_DEBUG
-            ::SetWindowPos(_hWnd, HWND_NOTOPMOST,
+            ::SetWindowPos(m_hWnd, HWND_NOTOPMOST,
                            mi.rcMonitor.left, mi.rcMonitor.top,
                            mi.rcMonitor.right - mi.rcMonitor.left,
                            mi.rcMonitor.bottom - mi.rcMonitor.top,
                            SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
     #else
-            ::SetWindowPos(_hWnd, HWND_TOP,
+            ::SetWindowPos(m_hWnd, HWND_TOP,
                            mi.rcMonitor.left, mi.rcMonitor.top,
                            mi.rcMonitor.right - mi.rcMonitor.left,
                            mi.rcMonitor.bottom - mi.rcMonitor.top,
@@ -363,56 +363,56 @@ Show();
 }
 
 void WindowsWindow::SetTitle(const std::string& title) noexcept {
-    _title = title;
-    ::SetWindowTextA(_hWnd, _title.data());
+    m_title = title;
+    ::SetWindowTextA(m_hWnd, m_title.data());
 }
 
 const std::string& WindowsWindow::GetTitle() const noexcept {
-    return _title;
+    return m_title;
 }
 
 bool WindowsWindow::Register() noexcept {
-    _hInstance = GetModuleHandle(nullptr);
-    memset(&_wc, 0, sizeof(_wc));
+    m_hInstance = GetModuleHandle(nullptr);
+    memset(&m_wc, 0, sizeof(m_wc));
     auto window_class_name = "Simple Window Class";
-    _wc.cbSize = sizeof(_wc);
-    _wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    _wc.lpfnWndProc = EngineMessageHandlingProcedure;
-    _wc.cbClsExtra = 0;
-    _wc.cbWndExtra = 0;
-    _wc.hInstance = _hInstance;
+    m_wc.cbSize = sizeof(m_wc);
+    m_wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+    m_wc.lpfnWndProc = EngineMessageHandlingProcedure;
+    m_wc.cbClsExtra = 0;
+    m_wc.cbWndExtra = 0;
+    m_wc.hInstance = m_hInstance;
     auto path = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/icon.ico";
     HICON iconTaskbar = (HICON)::LoadImage(nullptr, path.string().c_str(), IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
-    _wc.hIcon = iconTaskbar;
-    _wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-    _wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    _wc.lpszMenuName = NULL;
-    _wc.lpszClassName = window_class_name;
+    m_wc.hIcon = iconTaskbar;
+    m_wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+    m_wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    m_wc.lpszMenuName = NULL;
+    m_wc.lpszClassName = window_class_name;
     HICON iconTitlebar = (HICON)::LoadImage(nullptr, path.string().c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
-    _wc.hIconSm = iconTitlebar;
-    return 0 != RegisterClassEx(&_wc);
+    m_wc.hIconSm = iconTitlebar;
+    return 0 != RegisterClassEx(&m_wc);
 }
 
 bool WindowsWindow::Unregister() noexcept {
-    return 0 != ::UnregisterClass(_wc.lpszClassName, nullptr);
+    return 0 != ::UnregisterClass(m_wc.lpszClassName, nullptr);
 }
 
 bool WindowsWindow::Create() noexcept {
-    _hWnd = ::CreateWindowEx(
-    _styleFlagsEx,          // Optional window styles.
-    _wc.lpszClassName,      // Window class
-    _title.c_str(),         // Window text
-    _styleFlags,            // Window style
-    _positionX, _positionY, //Position XY
-    _width, _height,        //Size WH
+    m_hWnd = ::CreateWindowEx(
+    m_styleFlagsEx,          // Optional window styles.
+    m_wc.lpszClassName,      // Window class
+    m_title.c_str(),         // Window text
+    m_styleFlags,            // Window style
+    m_positionX, m_positionY, //Position XY
+    m_width, m_height,        //Size WH
     nullptr,                // Parent window
     nullptr,                // Menu
-    _hInstance,             // Instance handle
+    m_hInstance,             // Instance handle
     this                    // Additional application data
     );
-    _hdc = ::GetDCEx(_hWnd, nullptr, 0);
+    m_hdc = ::GetDCEx(m_hWnd, nullptr, 0);
 
-    return _hWnd != nullptr;
+    return m_hWnd != nullptr;
 }
 
 #endif

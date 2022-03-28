@@ -82,5 +82,5 @@ public:
 
  protected:
  private:
-    std::map<std::string, std::string> _config{};
+    std::map<std::string, std::string> m_config{};
 };

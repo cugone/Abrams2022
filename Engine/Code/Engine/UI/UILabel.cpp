@@ -19,11 +19,11 @@ UILabel::UILabel(UIPanel* parent)
 
 UILabel::UILabel(UIPanel* parent, KerningFont* font, const std::string& text /*= "Label"*/)
 : UIElement(parent)
-, _font(font)
-, _text(text) {
+, m_font(font)
+, m_text(text) {
     const auto desired_size = CalcDesiredSize();
-    _bounds.mins = desired_size.GetXY();
-    _bounds.maxs = desired_size.GetZW();
+    m_bounds.mins = desired_size.GetXY();
+    m_bounds.maxs = desired_size.GetZW();
 }
 
 UILabel::UILabel(const XMLElement& elem, UIPanel* parent /*= nullptr*/)
@@ -41,54 +41,54 @@ void UILabel::Render() const {
     const auto model = Matrix4::MakeRT(inv_scale_matrix, world_transform);
     auto&& renderer = ServiceLocator::get<IRendererService>();
     renderer.SetModelMatrix(model);
-    renderer.SetMaterial(_font->GetMaterial());
-    renderer.DrawMultilineText(_font, _text, _color);
+    renderer.SetMaterial(m_font->GetMaterial());
+    renderer.DrawMultilineText(m_font, m_text, m_color);
 }
 
 const KerningFont* const UILabel::GetFont() const {
-    return _font;
+    return m_font;
 }
 
 void UILabel::SetFont(KerningFont* font) {
-    _font = font;
+    m_font = font;
     DirtyElement();
     CalcBounds();
 }
 
 void UILabel::SetText(const std::string& text) {
-    _text = text;
+    m_text = text;
     DirtyElement();
     CalcBounds();
 }
 
 const std::string& UILabel::GetText() const {
-    return _text;
+    return m_text;
 }
 
 std::string& UILabel::GetText() {
-    return _text;
+    return m_text;
 }
 
 void UILabel::SetColor(const Rgba& color) {
-    _color = color;
+    m_color = color;
 }
 
 const Rgba& UILabel::GetColor() const {
-    return _color;
+    return m_color;
 }
 
 Rgba& UILabel::GetColor() {
-    return _color;
+    return m_color;
 }
 
 void UILabel::SetScale(float value) {
-    _scale = value;
+    m_scale = value;
     DirtyElement();
     CalcBounds();
 }
 
 float UILabel::GetScale() const {
-    return _scale;
+    return m_scale;
 }
 
 float UILabel::GetScale() {
@@ -108,7 +108,7 @@ void UILabel::SetPositionRatio(const Vector2& ratio) {
 }
 
 Vector4 UILabel::CalcDesiredSize() const noexcept {
-    const auto desired_size = CalcBoundsFromFont(_font);
+    const auto desired_size = CalcBoundsFromFont(m_font);
     return Vector4{Vector2::Zero, desired_size};
 }
 
@@ -116,17 +116,17 @@ Vector2 UILabel::CalcBoundsFromFont(KerningFont* font) const {
     if(font == nullptr) {
         return {};
     }
-    const float width = font->CalculateTextWidth(_text, _scale);
-    const float height = font->CalculateTextHeight(_text, _scale);
+    const float width = font->CalculateTextWidth(m_text, m_scale);
+    const float height = font->CalculateTextHeight(m_text, m_scale);
     return Vector2{width, height};
 }
 
 bool UILabel::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "label", "", "name", "canvas,label,panel,picturebox,button,slot", "font,value");
-    _name = DataUtils::ParseXmlAttribute(elem, "name", _name);
-    _fontname = DataUtils::ParseXmlAttribute(elem, "font", _fontname);
-    _font = ServiceLocator::get<IRendererService>().GetFont(_fontname);
-    _text = DataUtils::ParseXmlAttribute(elem, "value", std::string{"TEXT"});
+    m_name = DataUtils::ParseXmlAttribute(elem, "name", m_name);
+    m_fontname = DataUtils::ParseXmlAttribute(elem, "font", m_fontname);
+    m_font = ServiceLocator::get<IRendererService>().GetFont(m_fontname);
+    m_text = DataUtils::ParseXmlAttribute(elem, "value", std::string{"TEXT"});
 
     if(auto* xml_slot = elem.FirstChildElement("slot")) {
         if(auto* parent = GetParent()) {

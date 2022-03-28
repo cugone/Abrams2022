@@ -57,8 +57,8 @@ public:
         std::size_t AddIndicies(const Primitive& type) noexcept;
 
     private:
-        Vertex3D _vertex_prototype{};
-        DrawInstruction _current_draw_instruction{};
+        Vertex3D m_vertex_prototype{};
+        DrawInstruction m_current_draw_instruction{};
     };
 
     static void Render(const MeshInstanced::Builder& builder, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept;

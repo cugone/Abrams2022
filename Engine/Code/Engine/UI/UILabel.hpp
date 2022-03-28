@@ -45,9 +45,9 @@ protected:
 private:
     [[nodiscard]] bool LoadFromXml(const XMLElement& elem) noexcept;
 
-    KerningFont* _font = nullptr;
-    std::string _fontname{"System32"};
-    std::string _text{};
-    Rgba _color = Rgba::White;
-    float _scale = 1.0f;
+    KerningFont* m_font = nullptr;
+    std::string m_fontname{"System32"};
+    std::string m_text{};
+    Rgba m_color = Rgba::White;
+    float m_scale = 1.0f;
 };

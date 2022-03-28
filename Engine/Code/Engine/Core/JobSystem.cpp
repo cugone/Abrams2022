@@ -8,9 +8,9 @@
 #include <chrono>
 #include <sstream>
 
-std::vector<ThreadSafeQueue<Job*>*> JobSystem::_queues = std::vector<ThreadSafeQueue<Job*>*>{};
-std::vector<std::condition_variable*> JobSystem::_signals = std::vector<std::condition_variable*>{};
-std::vector<std::thread> JobSystem::_threads = std::vector<std::thread>{};
+std::vector<ThreadSafeQueue<Job*>*> JobSystem::m_queues = std::vector<ThreadSafeQueue<Job*>*>{};
+std::vector<std::condition_variable*> JobSystem::m_signals = std::vector<std::condition_variable*>{};
+std::vector<std::thread> JobSystem::m_threads = std::vector<std::thread>{};
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
     JobConsumer jc;
@@ -18,9 +18,9 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
     SetCategorySignal(JobType::Generic, signal);
     while(IsRunning()) {
         if(signal) {
-            std::unique_lock<std::mutex> lock(_cs);
+            std::unique_lock<std::mutex> lock(m_cs);
             //Condition to wake up: Not running or has jobs available
-            signal->wait(lock, [&jc, this]() -> bool { return !_is_running || jc.HasJobs(); });
+            signal->wait(lock, [&jc, this]() -> bool { return !m_is_running || jc.HasJobs(); });
             if(jc.HasJobs()) {
                 jc.ConsumeAll();
             }
@@ -29,7 +29,7 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
 }
 
 JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) noexcept
-: _main_job_signal(mainJobSignal) {
+: m_main_job_signal(mainJobSignal) {
     Initialize(genericCount, categoryCount);
 }
 
@@ -43,26 +43,26 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
         core_count += genericCount;
     }
     --core_count;
-    _queues.resize(categoryCount);
-    _signals.resize(categoryCount);
-    _threads.resize(core_count);
-    _is_running = true;
+    m_queues.resize(categoryCount);
+    m_signals.resize(categoryCount);
+    m_threads.resize(core_count);
+    m_is_running = true;
 
     for(std::size_t i = 0; i < categoryCount; ++i) {
-        _queues[i] = new ThreadSafeQueue<Job*>{};
+        m_queues[i] = new ThreadSafeQueue<Job*>{};
     }
 
     for(std::size_t i = 0; i < categoryCount; ++i) {
-        _signals[i] = nullptr;
+        m_signals[i] = nullptr;
     }
-    _signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)] = new std::condition_variable;
+    m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)] = new std::condition_variable;
 
     for(std::size_t i = 0; i < static_cast<std::size_t>(core_count); ++i) {
-        auto t = std::thread(&JobSystem::GenericJobWorker, this, _signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
+        auto t = std::thread(&JobSystem::GenericJobWorker, this, m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
         std::wstring desc{L"Generic Job Thread "};
         desc += std::to_wstring(i);
         ThreadUtils::SetThreadDescription(t, desc);
-        _threads[i] = std::move(t);
+        m_threads[i] = std::move(t);
     }
 }
 
@@ -74,48 +74,48 @@ void JobSystem::Shutdown() noexcept {
     if(!IsRunning()) {
         return;
     }
-    _is_running = false;
-    for(auto& signal : _signals) {
+    m_is_running = false;
+    for(auto& signal : m_signals) {
         if(signal) {
             signal->notify_all();
         }
     }
 
-    for(auto& thread : _threads) {
+    for(auto& thread : m_threads) {
         if(thread.joinable()) {
             thread.join();
         }
     }
 
-    for(auto& queue : _queues) {
+    for(auto& queue : m_queues) {
         delete queue;
         queue = nullptr;
     }
-    for(auto& signal : _signals) {
+    for(auto& signal : m_signals) {
         delete signal;
         signal = nullptr;
     }
-    _main_job_signal = nullptr;
+    m_main_job_signal = nullptr;
 
-    _queues.clear();
-    _queues.shrink_to_fit();
+    m_queues.clear();
+    m_queues.shrink_to_fit();
 
-    _signals.clear();
-    _signals.shrink_to_fit();
+    m_signals.clear();
+    m_signals.shrink_to_fit();
 
-    _threads.clear();
-    _threads.shrink_to_fit();
+    m_threads.clear();
+    m_threads.shrink_to_fit();
 }
 
 void JobSystem::MainStep() noexcept {
     JobConsumer jc;
     jc.AddCategory(JobType::Main);
-    SetCategorySignal(JobType::Main, _main_job_signal);
+    SetCategorySignal(JobType::Main, m_main_job_signal);
     jc.ConsumeAll();
 }
 
 void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_variable* signal) noexcept {
-    _signals[static_cast<std::underlying_type_t<JobType>>(category_id)] = signal;
+    m_signals[static_cast<std::underlying_type_t<JobType>>(category_id)] = signal;
 }
 
 Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data) noexcept {
@@ -138,8 +138,8 @@ void JobSystem::Dispatch(Job* job) noexcept {
     job->state = JobState::Dispatched;
     ++job->num_dependencies;
     const auto jobtype = TypeUtils::GetUnderlyingValue<JobType>(job->type);
-    _queues[jobtype]->push(job);
-    auto* signal = _signals[jobtype];
+    m_queues[jobtype]->push(job);
+    auto* signal = m_signals[jobtype];
     if(signal) {
         signal->notify_all();
     }
@@ -171,14 +171,14 @@ void JobSystem::WaitAndRelease(Job* job) noexcept {
 }
 
 bool JobSystem::IsRunning() const noexcept {
-    bool running = _is_running;
+    bool running = m_is_running;
     return running;
 }
 
 void JobSystem::SetIsRunning(bool value /*= true*/) noexcept {
-    _is_running = value;
+    m_is_running = value;
 }
 
 std::condition_variable* JobSystem::GetMainJobSignal() const noexcept {
-    return _main_job_signal;
+    return m_main_job_signal;
 }

@@ -12,34 +12,34 @@
 #include <sstream>
 
 ArgumentParser::ArgumentParser(const std::string& args) noexcept
-: _current(args) {
+: m_current(args) {
     /* DO NOTHING */
 }
 
 void ArgumentParser::clear() noexcept {
-    _state_bits.reset();
+    m_state_bits.reset();
 }
 
 bool ArgumentParser::fail() const noexcept {
-    bool badbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
-    bool failbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)];
+    bool badbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
+    bool failbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)];
     return badbit || failbit;
 }
 
 bool ArgumentParser::good() const noexcept {
-    bool eofbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)];
-    bool failbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)];
-    bool badbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
+    bool eofbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)];
+    bool failbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)];
+    bool badbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
     return !eofbit && !failbit && !badbit;
 }
 
 bool ArgumentParser::bad() const noexcept {
-    bool badbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
+    bool badbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)];
     return badbit;
 }
 
 bool ArgumentParser::eof() const noexcept {
-    bool eofbit = _state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)];
+    bool eofbit = m_state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)];
     return eofbit;
 }
 
@@ -84,7 +84,7 @@ bool ArgumentParser::GetNext(Matrix4& value) const noexcept {
 }
 
 bool ArgumentParser::GetNext(std::string& value) const noexcept {
-    if(_current.empty()) {
+    if(m_current.empty()) {
         SetState(ArgumentParserState::EndOfFileBit, true);
         return false;
     }
@@ -155,17 +155,17 @@ bool ArgumentParser::GetNext(long double& value) const noexcept {
 
 void ArgumentParser::SetState(const ArgumentParserState& stateBits, bool newValue) const noexcept {
     if((stateBits & ArgumentParserState::BadBit) == ArgumentParserState::BadBit) {
-        _state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)] = newValue;
+        m_state_bits[static_cast<std::size_t>(ArgumentParserState::BadBit)] = newValue;
     } else if((stateBits & ArgumentParserState::FailBit) == ArgumentParserState::FailBit) {
-        _state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)] = newValue;
+        m_state_bits[static_cast<std::size_t>(ArgumentParserState::FailBit)] = newValue;
     } else if((stateBits & ArgumentParserState::EndOfFileBit) == ArgumentParserState::EndOfFileBit) {
-        _state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)] = newValue;
+        m_state_bits[static_cast<std::size_t>(ArgumentParserState::EndOfFileBit)] = newValue;
     }
 }
 
 bool ArgumentParser::GetNextValueFromBuffer(std::string& value) const noexcept {
     std::istringstream ss;
-    ss.str(_current);
+    ss.str(m_current);
     std::string arg;
     if(!(ss >> arg)) {
         return false;
@@ -192,8 +192,8 @@ bool ArgumentParser::GetNextValueFromBuffer(std::string& value) const noexcept {
             }
         }
     }
-    if(!std::getline(ss, _current)) {
-        _current = std::string("");
+    if(!std::getline(ss, m_current)) {
+        m_current = std::string("");
     }
     value = arg;
     return true;

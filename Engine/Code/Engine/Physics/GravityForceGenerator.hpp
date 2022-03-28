@@ -18,5 +18,5 @@ public:
 
 protected:
 private:
-    Vector2 g{0.0f, 10.0f};
+    Vector2 m_g{0.0f, 10.0f};
 };

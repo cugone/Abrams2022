@@ -73,8 +73,8 @@ protected:
 private:
     void SetState(const ArgumentParserState& stateBits, bool newValue) const noexcept;
     bool GetNextValueFromBuffer(std::string& value) const noexcept;
-    mutable std::string _current{};
-    mutable std::bitset<static_cast<std::size_t>(ArgumentParserState::Max)> _state_bits{};
+    mutable std::string m_current{};
+    mutable std::bitset<static_cast<std::size_t>(ArgumentParserState::Max)> m_state_bits{};
 
     template<typename T>
     bool GetNext_udt_helper(T& value) const noexcept {

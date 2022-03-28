@@ -12,12 +12,12 @@ bool Address::operator!=(const Address& rhs) const noexcept {
 
 bool Address::operator==(const Address& rhs) const noexcept {
     const auto compareIpv6 = [&]()-> const bool {
-        return address.ipv6[0] == rhs.address.ipv6[0] &&
-            address.ipv6[1] == rhs.address.ipv6[1] &&
-            address.ipv6[2] == rhs.address.ipv6[2] &&
-            address.ipv6[3] == rhs.address.ipv6[3];
+        return m_address.ipv6[0] == rhs.m_address.ipv6[0] &&
+            m_address.ipv6[1] == rhs.m_address.ipv6[1] &&
+            m_address.ipv6[2] == rhs.m_address.ipv6[2] &&
+            m_address.ipv6[3] == rhs.m_address.ipv6[3];
     };
-    return address.ipv4 == rhs.address.ipv4 && compareIpv6() && port == rhs.port;
+    return m_address.ipv4 == rhs.m_address.ipv4 && compareIpv6() && m_port == rhs.m_port;
 }
 
 } // namespace Net
