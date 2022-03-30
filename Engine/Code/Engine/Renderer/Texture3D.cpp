@@ -8,25 +8,25 @@
 
 Texture3D::Texture3D(const RHIDevice& device, Microsoft::WRL::ComPtr<ID3D11Texture3D> dxTexture) noexcept
 : Texture(device)
-, _dx_tex(dxTexture) {
+, m_dx_tex(dxTexture) {
     SetTexture();
 }
 
 void Texture3D::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
-    _dx_tex->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
+    m_dx_tex->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
 #endif
 }
 
 ID3D11Resource* Texture3D::GetDxResource() const noexcept {
-    return _dx_tex.Get();
+    return m_dx_tex.Get();
 }
 
 void Texture3D::SetTexture() {
     D3D11_TEXTURE3D_DESC t_desc{};
-    _dx_tex->GetDesc(&t_desc);
-    _dimensions = IntVector3(t_desc.Width, t_desc.Height, t_desc.Depth);
-    _isArray = false;
+    m_dx_tex->GetDesc(&t_desc);
+    m_dimensions = IntVector3(t_desc.Width, t_desc.Height, t_desc.Depth);
+    m_isArray = false;
 
     bool success = true;
     std::string error_str{"SetTexture failed. Reasons:\n"};
@@ -37,7 +37,7 @@ void Texture3D::SetTexture() {
         rtv_desc.Texture3D.MipSlice = 0;
         rtv_desc.Texture3D.FirstWSlice = 0;
         rtv_desc.Texture3D.WSize = static_cast<unsigned int>(-1);
-        auto hr = _device.GetDxDevice()->CreateRenderTargetView(_dx_tex.Get(), &rtv_desc, &_rtv);
+        auto hr = m_device.GetDxDevice()->CreateRenderTargetView(m_dx_tex.Get(), &rtv_desc, &m_rtv);
         if(FAILED(hr)) {
             success &= false;
             error_str += StringUtils::FormatWindowsMessage(hr) + '\n';
@@ -50,7 +50,7 @@ void Texture3D::SetTexture() {
         srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
         srv_desc.Texture3D.MipLevels = t_desc.MipLevels;
         srv_desc.Texture3D.MostDetailedMip = 0;
-        auto hr = _device.GetDxDevice()->CreateShaderResourceView(_dx_tex.Get(), &srv_desc, &_srv);
+        auto hr = m_device.GetDxDevice()->CreateShaderResourceView(m_dx_tex.Get(), &srv_desc, &m_srv);
         if(FAILED(hr)) {
             success &= false;
             error_str += StringUtils::FormatWindowsMessage(hr) + '\n';
@@ -66,24 +66,24 @@ void Texture3D::SetTexture() {
         uav_desc.Texture3D.MipSlice = 0;
         uav_desc.Texture3D.FirstWSlice = 0;
         uav_desc.Texture3D.WSize = static_cast<unsigned int>(-1);
-        auto hr = _device.GetDxDevice()->CreateUnorderedAccessView(_dx_tex.Get(), &uav_desc, &_uav);
+        auto hr = m_device.GetDxDevice()->CreateUnorderedAccessView(m_dx_tex.Get(), &uav_desc, &m_uav);
         if(FAILED(hr)) {
             success &= false;
             error_str += StringUtils::FormatWindowsMessage(hr) + '\n';
         }
     }
     if(!success) {
-        if(_dsv) {
-            _dsv = nullptr;
+        if(m_dsv) {
+            m_dsv = nullptr;
         }
-        if(_rtv) {
-            _rtv = nullptr;
+        if(m_rtv) {
+            m_rtv = nullptr;
         }
-        if(_srv) {
-            _srv = nullptr;
+        if(m_srv) {
+            m_srv = nullptr;
         }
-        if(_uav) {
-            _uav = nullptr;
+        if(m_uav) {
+            m_uav = nullptr;
         }
         ERROR_AND_DIE(error_str.c_str());
     }

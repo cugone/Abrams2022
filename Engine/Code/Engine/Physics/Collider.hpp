@@ -55,7 +55,7 @@ public:
     [[nodiscard]] const Polygon2& GetPolygon() const noexcept;
 
 protected:
-    Polygon2 _polygon = Polygon2{4, Vector2::Zero, Vector2{0.5f, 0.5f}, 0.0f};
+    Polygon2 m_polygon = Polygon2{4, Vector2::Zero, Vector2{0.5f, 0.5f}, 0.0f};
 
 private:
 };

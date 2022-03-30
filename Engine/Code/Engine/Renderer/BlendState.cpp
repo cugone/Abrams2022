@@ -15,8 +15,8 @@ bool BlendState::CreateBlendState(const RHIDevice* device, BlendDesc render_targ
 
 bool BlendState::CreateBlendState(const RHIDevice* device, const std::vector<BlendDesc>& render_targets /*= {BlendDesc()}*/) noexcept {
     D3D11_BLEND_DESC desc{};
-    desc.AlphaToCoverageEnable = _alpha_to_coverage_enable;
-    desc.IndependentBlendEnable = _independant_blend_enable;
+    desc.AlphaToCoverageEnable = m_alpha_to_coverage_enable;
+    desc.IndependentBlendEnable = m_independant_blend_enable;
 
     const auto targets_count = render_targets.size();
     for(auto i = 0u; i < 8u && i < targets_count; ++i) {
@@ -31,25 +31,25 @@ bool BlendState::CreateBlendState(const RHIDevice* device, const std::vector<Ble
 
         desc.RenderTarget[i].RenderTargetWriteMask = BlendColorWriteEnableToD3DBlendColorWriteEnable(render_targets[i].blend_color_write_enable);
     }
-    HRESULT hr = device->GetDxDevice()->CreateBlendState(&desc, &_dx_state);
+    HRESULT hr = device->GetDxDevice()->CreateBlendState(&desc, &m_dx_state);
     return SUCCEEDED(hr);
 }
 
 BlendState::BlendState(const RHIDevice* device, const XMLElement& element) noexcept {
     if(auto* xml_blends = element.FirstChildElement("blends")) {
         DataUtils::ValidateXmlElement(*xml_blends, "blends", "blend", "", "", "alphacoverage,independantblend");
-        _alpha_to_coverage_enable = DataUtils::ParseXmlAttribute(element, "alphacoverage", _alpha_to_coverage_enable);
-        _independant_blend_enable = DataUtils::ParseXmlAttribute(element, "independantblend", _independant_blend_enable);
+        m_alpha_to_coverage_enable = DataUtils::ParseXmlAttribute(element, "alphacoverage", m_alpha_to_coverage_enable);
+        m_independant_blend_enable = DataUtils::ParseXmlAttribute(element, "independantblend", m_independant_blend_enable);
 
         DataUtils::ForEachChildElement(*xml_blends, "blend",
                                        [this](const XMLElement& element) {
-                                           _descs.push_back(BlendDesc{element});
+                                           m_descs.push_back(BlendDesc{element});
                                        });
 
-        if(!CreateBlendState(device, _descs)) {
-            if(_dx_state) {
-                _dx_state->Release();
-                _dx_state = nullptr;
+        if(!CreateBlendState(device, m_descs)) {
+            if(m_dx_state) {
+                m_dx_state->Release();
+                m_dx_state = nullptr;
             }
             ERROR_AND_DIE("\nBlendState: Failed to create.\n");
         }
@@ -62,27 +62,27 @@ BlendState::BlendState(const RHIDevice* device, const BlendDesc& desc /*= BlendD
 }
 
 BlendState::BlendState(const RHIDevice* device, const std::vector<BlendDesc>& descs /*= std::vector<BlendDesc>{}*/, bool alphaCoverage /*= false*/, bool independantBlend /*= false*/) noexcept
-: _alpha_to_coverage_enable(alphaCoverage)
-, _independant_blend_enable(independantBlend)
-, _descs{descs} {
-    if(!CreateBlendState(device, _descs)) {
-        if(_dx_state) {
-            _dx_state->Release();
-            _dx_state = nullptr;
+: m_alpha_to_coverage_enable(alphaCoverage)
+, m_independant_blend_enable(independantBlend)
+, m_descs{descs} {
+    if(!CreateBlendState(device, m_descs)) {
+        if(m_dx_state) {
+            m_dx_state->Release();
+            m_dx_state = nullptr;
         }
         ERROR_AND_DIE("\nBlendState: Failed to create.\n");
     }
 }
 
 BlendState::~BlendState() noexcept {
-    if(_dx_state) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+    if(m_dx_state) {
+        m_dx_state->Release();
+        m_dx_state = nullptr;
     }
 }
 
 ID3D11BlendState* BlendState::GetDxBlendState() noexcept {
-    return _dx_state;
+    return m_dx_state;
 }
 
 BlendDesc::BlendDesc(const XMLElement& element) noexcept {

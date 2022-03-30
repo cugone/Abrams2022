@@ -6,18 +6,18 @@
 
 void ForceGenerator::attach(RigidBody* body) noexcept {
     if(!is_attached(body)) {
-        _observers.push_back(body);
+        m_observers.push_back(body);
     }
 }
 
 void ForceGenerator::detach(RigidBody* body) noexcept {
-    _observers.erase(std::remove_if(std::begin(_observers), std::end(_observers), [body](const RigidBody* a) { return a == body; }), std::end(_observers));
+    m_observers.erase(std::remove_if(std::begin(m_observers), std::end(m_observers), [body](const RigidBody* a) { return a == body; }), std::end(m_observers));
 }
 
 bool ForceGenerator::is_attached(const RigidBody* const body) const noexcept {
-    return std::find(std::cbegin(_observers), std::cend(_observers), body) != std::cend(_observers);
+    return std::find(std::cbegin(m_observers), std::cend(m_observers), body) != std::cend(m_observers);
 }
 
 void ForceGenerator::detach_all() noexcept {
-    _observers.clear();
+    m_observers.clear();
 }

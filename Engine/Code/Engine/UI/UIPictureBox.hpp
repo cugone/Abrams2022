@@ -27,6 +27,6 @@ protected:
 private:
     [[nodiscard]] bool LoadFromXml(const XMLElement& elem) noexcept;
 
-    std::unique_ptr<AnimatedSprite> _sprite{};
+    std::unique_ptr<AnimatedSprite> m_sprite{};
 };
 

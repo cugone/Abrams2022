@@ -22,15 +22,16 @@ private:
     static void Initialize() noexcept;
     static void Shutdown() noexcept;
     static void GetLines([[maybe_unused]] StackTrace* st, [[maybe_unused]] unsigned long max_lines) noexcept;
-    unsigned long hash = 0;
-    unsigned long _frame_count = 0;
-    static constexpr auto MAX_FRAMES_PER_CALLSTACK = 128ul;
-    std::array<void*, MAX_FRAMES_PER_CALLSTACK> _frames{};
-    static std::shared_mutex _cs;
-    static std::atomic_uint64_t _refs;
-    static std::atomic_bool _did_init;
+    unsigned long m_hash = 0;
+    unsigned long m_frame_count = 0;
+    static constexpr auto m_max_frames_per_callstack = 128ul;
+    std::array<void*, m_max_frames_per_callstack> m_frames{};
+    static std::shared_mutex m_cs;
+    static std::atomic_uint64_t m_refs;
+    static std::atomic_bool m_did_init;
 };
 
+//TODO: Replace __LINE__ with std::source_location::line
 #ifdef PROFILE_BUILD
     #undef UNIQUE_STACKTRACE
     #define UNIQUE_STACKTRACE \

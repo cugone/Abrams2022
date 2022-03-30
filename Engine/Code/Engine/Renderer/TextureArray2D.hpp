@@ -24,5 +24,5 @@ protected:
 private:
     void SetTexture() noexcept;
 
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> _dx_tex{};
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_dx_tex{};
 };

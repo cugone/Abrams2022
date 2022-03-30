@@ -71,20 +71,20 @@ private:
     void RecalculateProjectionMatrix() noexcept;
     void RecalculateViewMatrix() noexcept;
 
-    float aspect_ratio = MathUtils::M_16_BY_9_RATIO;
-    float fov = 60.0f;
-    float ortho_width = 8.0f;
-    float near_distance = 0.01f;
-    float far_distance = 1.0f;
-    Vector3 position = Vector3::Zero;
+    float m_aspect_ratio = MathUtils::M_16_BY_9_RATIO;
+    float m_fov = 60.0f;
+    float m_ortho_width = 8.0f;
+    float m_near_distance = 0.01f;
+    float m_far_distance = 1.0f;
+    Vector3 m_position = Vector3::Zero;
 
-    Matrix4 view_matrix = Matrix4::I;
-    Matrix4 rotation_matrix = Matrix4::I;
-    Matrix4 projection_matrix = Matrix4::I;
-    Matrix4 view_projection_matrix = Matrix4::I;
-    Matrix4 inv_view_matrix = Matrix4::I;
-    Matrix4 inv_projection_matrix = Matrix4::I;
-    Matrix4 inv_view_projection_matrix = Matrix4::I;
-    Rotator rotation{};
-    ProjectionMode projection_mode = ProjectionMode::Orthographic;
+    Matrix4 m_view_matrix = Matrix4::I;
+    Matrix4 m_rotation_matrix = Matrix4::I;
+    Matrix4 m_projection_matrix = Matrix4::I;
+    Matrix4 m_view_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_matrix = Matrix4::I;
+    Matrix4 m_inv_projection_matrix = Matrix4::I;
+    Matrix4 m_inv_view_projection_matrix = Matrix4::I;
+    Rotator m_rotation{};
+    ProjectionMode m_projection_mode = ProjectionMode::Orthographic;
 };

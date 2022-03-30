@@ -75,8 +75,8 @@ private:
 
     static constexpr unsigned int StructuredBufferSlotOffset = (D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2);
 
-    const RHIDevice& _device;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> _dx_context{};
+    const RHIDevice& m_device;
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_dx_context{};
 
     friend class Renderer;
 };

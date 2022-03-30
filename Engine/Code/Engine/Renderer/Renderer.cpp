@@ -99,7 +99,7 @@ Renderer::Renderer() noexcept {
             DebuggerPrintf("Could not load existing configuration from \"%s\"\n", path.c_str());
         }
     }
-    _current_outputMode = [this, &config]() -> RHIOutputMode {
+    m_current_outputMode = [this, &config]() -> RHIOutputMode {
         auto windowed = true;
         if(config.HasKey("windowed")) {
             config.GetValue("windowed", windowed);
@@ -111,7 +111,7 @@ Renderer::Renderer() noexcept {
             return RHIOutputMode::Borderless_Fullscreen;
         }
     }(); //IIIL
-    _window_dimensions = [this, &config]() -> IntVector2 {
+    m_window_dimensions = [this, &config]() -> IntVector2 {
         const auto width = [this, &config]() -> int {
             auto value = 0;
             if(config.HasKey("width")) {
@@ -149,45 +149,45 @@ Renderer::~Renderer() noexcept {
     UnbindAllShaderResources();
     UnbindComputeShaderResources();
 
-    _temp_vbo.reset();
-    _temp_vbio.reset();
-    _circle_vbo.reset();
-    _temp_ibo.reset();
+    m_temp_vbo.reset();
+    m_temp_vbio.reset();
+    m_circle_vbo.reset();
+    m_temp_ibo.reset();
 
-    _matrix_cb.reset();
-    _time_cb.reset();
-    _lighting_cb.reset();
+    m_matrix_cb.reset();
+    m_time_cb.reset();
+    m_lighting_cb.reset();
 
-    _textures.clear();
-    _textures.shrink_to_fit();
-    _shader_programs.clear();
-    _shader_programs.shrink_to_fit();
-    _materials.clear();
-    _materials.shrink_to_fit();
-    _shaders.clear();
-    _shaders.shrink_to_fit();
-    _samplers.clear();
-    _samplers.shrink_to_fit();
-    _rasters.clear();
-    _rasters.shrink_to_fit();
-    _fonts.clear();
-    _fonts.shrink_to_fit();
-    _depthstencils.clear();
-    _depthstencils.shrink_to_fit();
+    m_textures.clear();
+    m_textures.shrink_to_fit();
+    m_shader_programs.clear();
+    m_shader_programs.shrink_to_fit();
+    m_materials.clear();
+    m_materials.shrink_to_fit();
+    m_shaders.clear();
+    m_shaders.shrink_to_fit();
+    m_samplers.clear();
+    m_samplers.shrink_to_fit();
+    m_rasters.clear();
+    m_rasters.shrink_to_fit();
+    m_fonts.clear();
+    m_fonts.shrink_to_fit();
+    m_depthstencils.clear();
+    m_depthstencils.shrink_to_fit();
 
-    _default_depthstencil = nullptr;
-    _current_target = nullptr;
-    _current_depthstencil = nullptr;
-    _current_depthstencil_state = nullptr;
-    _current_raster_state = nullptr;
-    _current_sampler = nullptr;
-    _current_material = nullptr;
+    m_default_depthstencil = nullptr;
+    m_current_target = nullptr;
+    m_current_depthstencil = nullptr;
+    m_current_depthstencil_state = nullptr;
+    m_current_raster_state = nullptr;
+    m_current_sampler = nullptr;
+    m_current_material = nullptr;
 
-    _rhi_output.reset();
-    _rhi_context.reset();
-    _rhi_device.reset();
+    m_rhi_output.reset();
+    m_rhi_context.reset();
+    m_rhi_device.reset();
     RHIInstance::DestroyInstance();
-    _rhi_instance = nullptr;
+    m_rhi_instance = nullptr;
 }
 
 bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
@@ -208,7 +208,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             return false; //App needs to respond
         }
         case SC_MINIMIZE: {
-            _is_minimized = true;
+            m_is_minimized = true;
             return false; //App needs to respond
         }
         case SC_MONITORPOWER: break;
@@ -217,8 +217,8 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case SC_NEXTWINDOW: break;
         case SC_PREVWINDOW: break;
         case SC_RESTORE: {
-            if(_is_minimized) {
-                _is_minimized = false;
+            if(m_is_minimized) {
+                m_is_minimized = false;
             }
             return false; //UI needs to respond
         }
@@ -258,19 +258,19 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         }
     }
     case WindowsSystemMessage::Window_EnterSizeMove: {
-        _enteredSizeMove = true;
+        m_enteredSizeMove = true;
         return false; //UI needs to respond
     }
     case WindowsSystemMessage::Window_ExitSizeMove: {
-        if(_enteredSizeMove) {
-            _doneSizeMove = true;
+        if(m_enteredSizeMove) {
+            m_doneSizeMove = true;
             return false;
         }
         return false;
     }
     case WindowsSystemMessage::Window_Size: {
         LPARAM lp = msg.lparam;
-        _is_minimized = false;
+        m_is_minimized = false;
         const auto resize_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
         if(auto* window = GetOutput()->GetWindow(); window != nullptr) {
             switch(resize_type) {
@@ -286,9 +286,9 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                     const auto new_position = IntVector2{GetScreenCenter()} - new_size / 2;
                     window->SetDisplayMode(RHIOutputMode::Windowed);
                 } else {
-                    if(_enteredSizeMove && _doneSizeMove) {
-                        _enteredSizeMove = false;
-                        _doneSizeMove = false;
+                    if(m_enteredSizeMove && m_doneSizeMove) {
+                        m_enteredSizeMove = false;
+                        m_doneSizeMove = false;
                         const auto w = LOWORD(lp);
                         const auto h = HIWORD(lp);
                         const auto new_size = IntVector2{w, h};
@@ -298,7 +298,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                 break;
             }
             case WindowResizeType::Minimized: {
-                _is_minimized = true;
+                m_is_minimized = true;
                 return false; //App must be able to respond.
             }
             }
@@ -311,8 +311,8 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 void Renderer::Initialize() noexcept {
-    _rhi_instance = RHIInstance::CreateInstance();
-    _rhi_device = _rhi_instance->CreateDevice();
+    m_rhi_instance = RHIInstance::CreateInstance();
+    m_rhi_device = m_rhi_instance->CreateDevice();
 
     WindowDesc windowDesc{};
     auto& config = ServiceLocator::get<IConfigService>();
@@ -329,7 +329,7 @@ void Renderer::Initialize() noexcept {
         auto& height = windowDesc.dimensions.y;
         config.GetValue("height", height);
     }
-    std::tie(_rhi_output, _rhi_context) = _rhi_device->CreateOutputAndContext(windowDesc);
+    std::tie(m_rhi_output, m_rhi_context) = m_rhi_device->CreateOutputAndContext(windowDesc);
     
     GetOutput()->GetWindow()->SetDisplayMode(windowDesc.mode);
 
@@ -351,14 +351,14 @@ void Renderer::Initialize() noexcept {
     const auto dims = GetOutput()->GetDimensions();
     SetScissorAndViewport(0.0f, 0.0f, static_cast<float>(dims.x), static_cast<float>(dims.y));
     SetSampler(GetSampler("__default"));
-    SetRenderTarget(_current_target, _current_depthstencil);
-    _current_material = nullptr; //User must explicitly set to avoid defaulting to full lighting material.
+    SetRenderTarget(m_current_target, m_current_depthstencil);
+    m_current_material = nullptr; //User must explicitly set to avoid defaulting to full lighting material.
 }
 
 void Renderer::CreateDefaultConstantBuffers() noexcept {
-    _matrix_cb = CreateConstantBuffer(&_matrix_data, sizeof(_matrix_data));
-    _time_cb = CreateConstantBuffer(&_time_data, sizeof(_time_data));
-    _lighting_cb = CreateConstantBuffer(&_lighting_data, sizeof(_lighting_data));
+    m_matrix_cb = CreateConstantBuffer(&m_matrix_data, sizeof(m_matrix_data));
+    m_time_cb = CreateConstantBuffer(&m_time_data, sizeof(m_time_data));
+    m_lighting_cb = CreateConstantBuffer(&m_lighting_data, sizeof(m_lighting_data));
 }
 
 void Renderer::CreateWorkingVboAndIbo() noexcept {
@@ -366,13 +366,13 @@ void Renderer::CreateWorkingVboAndIbo() noexcept {
     IndexBuffer::buffer_t default_ibo(1024);
     VertexCircleBuffer::buffer_t default_circle_vbo(1024);
 
-    _temp_vbo = CreateVertexBuffer(default_vbo);
-    _temp_ibo = CreateIndexBuffer(default_ibo);
-    _circle_vbo = CreateVertexCircleBuffer(default_circle_vbo);
+    m_temp_vbo = CreateVertexBuffer(default_vbo);
+    m_temp_ibo = CreateIndexBuffer(default_ibo);
+    m_circle_vbo = CreateVertexCircleBuffer(default_circle_vbo);
 
-    _current_vbo_size = default_vbo.size();
-    _current_vbco_size = default_circle_vbo.size();
-    _current_ibo_size = default_ibo.size();
+    m_current_vbo_size = default_vbo.size();
+    m_current_vbco_size = default_circle_vbo.size();
+    m_current_ibo_size = default_ibo.size();
 }
 
 void Renderer::LogAvailableDisplays() noexcept {
@@ -386,10 +386,10 @@ void Renderer::LogAvailableDisplays() noexcept {
     ss << std::setw(80) << std::setfill('-') << '\n';
     ss << std::setfill(' ');
     auto refreshRateHzStr = std::string{};
-    for(auto it = std::begin(_rhi_device->displayModes); it != std::end(_rhi_device->displayModes); ) {
+    for(auto it = std::begin(m_rhi_device->displayModes); it != std::end(m_rhi_device->displayModes); ) {
         const auto& display = *it;
         const auto& next_it = std::next(it, 1);
-        if(next_it == std::end(_rhi_device->displayModes)) {
+        if(next_it == std::end(m_rhi_device->displayModes)) {
             if(std::distance(it, next_it) == 1) {
                 refreshRateHzStr += std::to_string(display.refreshRateHz);
             }
@@ -449,8 +449,8 @@ Vector2 Renderer::GetWindowCenter(const Window& window) const noexcept {
 
 void Renderer::UnbindWorkingVboAndIbo() noexcept {
     //Setting the current sizes to zero forces them to be recreated next time they are updated.
-    _current_ibo_size = 0;
-    _current_vbo_size = 0;
+    m_current_ibo_size = 0;
+    m_current_vbo_size = 0;
 }
 
 void Renderer::SetDepthComparison(ComparisonFunction cf) noexcept {
@@ -538,21 +538,21 @@ void Renderer::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    _time_data.game_time += deltaSeconds.count();
-    _time_data.game_frame_time = deltaSeconds.count();
-    _time_cb->Update(*_rhi_context, &_time_data);
-    SetConstantBuffer(GetTimeBufferIndex(), _time_cb.get());
+    m_time_data.game_time += deltaSeconds.count();
+    m_time_data.game_frame_time = deltaSeconds.count();
+    m_time_cb->Update(*m_rhi_context, &m_time_data);
+    SetConstantBuffer(GetTimeBufferIndex(), m_time_cb.get());
 }
 
 void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    _time_data.system_time += deltaSeconds.count();
-    _time_data.system_frame_time = deltaSeconds.count();
-    _time_cb->Update(*_rhi_context, &_time_data);
-    SetConstantBuffer(GetTimeBufferIndex(), _time_cb.get());
+    m_time_data.system_time += deltaSeconds.count();
+    m_time_data.system_frame_time = deltaSeconds.count();
+    m_time_cb->Update(*m_rhi_context, &m_time_data);
+    SetConstantBuffer(GetTimeBufferIndex(), m_time_cb.get());
 }
 
 void Renderer::UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) noexcept {
-    buffer.Update(*_rhi_context, data);
+    buffer.Update(*m_rhi_context, data);
 }
 
 void Renderer::Render() const noexcept {
@@ -591,43 +591,43 @@ void Renderer::BeginHUDRender(Camera2D& ui_camera, const Vector2& camera_positio
 }
 
 TimeUtils::FPSeconds Renderer::GetGameFrameTime() const noexcept {
-    return TimeUtils::FPSeconds{_time_data.game_frame_time};
+    return TimeUtils::FPSeconds{m_time_data.game_frame_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetSystemFrameTime() const noexcept {
-    return TimeUtils::FPSeconds{_time_data.system_frame_time};
+    return TimeUtils::FPSeconds{m_time_data.system_frame_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetGameTime() const noexcept {
-    return TimeUtils::FPSeconds{_time_data.game_time};
+    return TimeUtils::FPSeconds{m_time_data.game_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetSystemTime() const noexcept {
-    return TimeUtils::FPSeconds{_time_data.system_time};
+    return TimeUtils::FPSeconds{m_time_data.system_time};
 }
 
 std::unique_ptr<ConstantBuffer> Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept {
-    return _rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
+    return m_rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 }
 
 std::unique_ptr<VertexBuffer> Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept {
-    return _rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+    return m_rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<VertexCircleBuffer> Renderer::CreateVertexCircleBuffer(const VertexCircleBuffer::buffer_t& vbco) const noexcept {
-    return _rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+    return m_rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<VertexBufferInstanced> Renderer::CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio) const noexcept {
-    return _rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
+    return m_rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<IndexBuffer> Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept {
-    return _rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
+    return m_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
 }
 
 std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept {
-    return _rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
+    return m_rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
 bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept {
@@ -642,9 +642,9 @@ bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture>
         }
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(_textures), std::cend(_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == _textures.end()) {
-        _textures.emplace_back(std::make_pair(name, std::move(texture)));
+    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
+    if(found_texture == m_textures.end()) {
+        m_textures.emplace_back(std::make_pair(name, std::move(texture)));
         return true;
     } else {
         return false;
@@ -658,8 +658,8 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
         p = FS::canonical(p);
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(_textures), std::cend(_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == _textures.end()) {
+    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
+    if(found_texture == m_textures.end()) {
         return nullptr;
     }
     return (*found_texture).second.get();
@@ -934,34 +934,34 @@ void Renderer::DrawDebugSphere(const Rgba& color) noexcept {
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept {
     UpdateVbo(vbo);
-    Draw(topology, _temp_vbo.get(), vbo.size());
+    Draw(topology, m_temp_vbo.get(), vbo.size());
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo) noexcept {
     UpdateVbco(vbo);
-    Draw(topology, _circle_vbo.get(), vbo.size());
+    Draw(topology, m_circle_vbo.get(), vbo.size());
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept {
     UpdateVbo(vbo);
-    Draw(topology, _temp_vbo.get(), vertex_count);
+    Draw(topology, m_temp_vbo.get(), vertex_count);
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo, std::size_t vertex_count) noexcept {
     UpdateVbco(vbo);
-    Draw(topology, _circle_vbo.get(), vertex_count);
+    Draw(topology, m_circle_vbo.get(), vertex_count);
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept {
     UpdateVbo(vbo);
     UpdateIbo(ibo);
-    DrawIndexed(topology, _temp_vbo.get(), _temp_ibo.get(), ibo.size());
+    DrawIndexed(topology, m_temp_vbo.get(), m_temp_ibo.get(), ibo.size());
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t index_count, std::size_t startVertex /*= 0*/, std::size_t baseVertexLocation /*= 0*/) noexcept {
     UpdateVbo(vbo);
     UpdateIbo(ibo);
-    DrawIndexed(topology, _temp_vbo.get(), _temp_ibo.get(), index_count, startVertex, baseVertexLocation);
+    DrawIndexed(topology, m_temp_vbo.get(), m_temp_ibo.get(), index_count, startVertex, baseVertexLocation);
 }
 
 void Renderer::DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept {
@@ -971,7 +971,7 @@ void Renderer::DrawInstanced(const PrimitiveType& topology, const std::vector<Ve
 void Renderer::DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount, std::size_t vertexCount) noexcept {
     UpdateVbo(vbo);
     UpdateVbio(vbio);
-    DrawInstanced(topology, _temp_vbo.get(), _temp_vbio.get(), vertexCount, instanceCount, std::size_t{0u}, std::size_t{0u});
+    DrawInstanced(topology, m_temp_vbo.get(), m_temp_vbio.get(), vertexCount, instanceCount, std::size_t{0u}, std::size_t{0u});
 }
 
 void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, const std::vector<unsigned int>& ibo, std::size_t instanceCount) noexcept {
@@ -982,14 +982,14 @@ void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, const std::ve
     UpdateVbo(vbo);
     UpdateVbio(vbio);
     UpdateIbo(ibo);
-    DrawIndexedInstanced(topology, _temp_vbo.get(), _temp_vbio.get(), _temp_ibo.get(), ibo.size(), instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+    DrawIndexedInstanced(topology, m_temp_vbo.get(), m_temp_vbio.get(), m_temp_ibo.get(), ibo.size(), instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
 
 void Renderer::SetLightingEyePosition(const Vector3& position) noexcept {
-    _lighting_data.eye_position = Vector4(position, 1.0f);
-    _lighting_cb->Update(*_rhi_context, &_lighting_data);
-    SetConstantBuffer(GetLightingBufferIndex(), _lighting_cb.get());
+    m_lighting_data.eye_position = Vector4(position, 1.0f);
+    m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
+    SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 void Renderer::SetAmbientLight(const Rgba& ambient) noexcept {
@@ -999,32 +999,32 @@ void Renderer::SetAmbientLight(const Rgba& ambient) noexcept {
 
 void Renderer::SetAmbientLight(const Rgba& color, float intensity) noexcept {
     const auto&& [r, g, b, _] = color.GetAsFloats();
-    _lighting_data.ambient = Vector4{r, g, b, intensity};
-    _lighting_cb->Update(*_rhi_context, &_lighting_data);
-    SetConstantBuffer(GetLightingBufferIndex(), _lighting_cb.get());
+    m_lighting_data.ambient = Vector4{r, g, b, intensity};
+    m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
+    SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 void Renderer::SetSpecGlossEmitFactors(Material* mat) noexcept {
     float spec = mat ? mat->GetSpecularIntensity() : 1.0f;
     float gloss = mat ? mat->GetGlossyFactor() : 8.0f;
     float emit = mat ? mat->GetEmissiveFactor() : 0.0f;
-    _lighting_data.specular_glossy_emissive_factors = Vector4(spec, gloss, emit, 1.0f);
-    _lighting_cb->Update(*_rhi_context, &_lighting_data);
-    SetConstantBuffer(GetLightingBufferIndex(), _lighting_cb.get());
+    m_lighting_data.specular_glossy_emissive_factors = Vector4(spec, gloss, emit, 1.0f);
+    m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
+    SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 void Renderer::SetUseVertexNormalsForLighting(bool value) noexcept {
     if(value) {
-        _lighting_data.useVertexNormals = 1;
+        m_lighting_data.useVertexNormals = 1;
     } else {
-        _lighting_data.useVertexNormals = 0;
+        m_lighting_data.useVertexNormals = 0;
     }
-    _lighting_cb->Update(*_rhi_context, &_lighting_data);
-    SetConstantBuffer(GetLightingBufferIndex(), _lighting_cb.get());
+    m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
+    SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 const light_t& Renderer::GetLight(unsigned int index) const noexcept {
-    return _lighting_data.lights[index];
+    return m_lighting_data.lights[index];
 }
 
 void Renderer::SetPointLight(unsigned int index, const PointLightDesc& desc) noexcept {
@@ -1072,9 +1072,9 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexc
 }
 
 void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) noexcept {
-    _lighting_data.lights[index] = light;
-    _lighting_cb->Update(*_rhi_context, &_lighting_data);
-    SetConstantBuffer(GetLightingBufferIndex(), _lighting_cb.get());
+    m_lighting_data.lights[index] = light;
+    m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
+    SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 void Renderer::SetPointLight(unsigned int index, const light_t& light) noexcept {
@@ -1157,16 +1157,16 @@ std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const std::filesystem::
 //}
 
 void Renderer::DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, std::size_t vertexPerInstanceCount, std::size_t instanceCount, std::size_t startVertexLocation, std::size_t startInstanceLocation) noexcept {
-    GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+    GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
-    _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+    m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
     unsigned int stride = sizeof(VertexBuffer::arraybuffer_t);
     unsigned int offsets = 0;
     const auto dx_vbo_buffer = vbo->GetDxBuffer();
     const auto dx_vbio_buffer = vbio->GetDxBuffer();
     ID3D11Buffer* const dx_buffers[] = {vbo->GetDxBuffer().Get(), vbio->GetDxBuffer().Get()};
-    _rhi_context->GetDxContext()->IASetVertexBuffers(0, 2, dx_buffers, &stride, &offsets);
-    _rhi_context->DrawInstanced(vertexPerInstanceCount, instanceCount, startVertexLocation, startInstanceLocation);
+    m_rhi_context->GetDxContext()->IASetVertexBuffers(0, 2, dx_buffers, &stride, &offsets);
+    m_rhi_context->DrawInstanced(vertexPerInstanceCount, instanceCount, startVertexLocation, startInstanceLocation);
 }
 
 //TODO (Casey): Audit template usage
@@ -1184,18 +1184,18 @@ void Renderer::DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, V
 //}
 
 void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, IndexBuffer* ibo, std::size_t indexPerInstanceCount, std::size_t instanceCount, std::size_t startIndexLocation, std::size_t baseVertexLocation, std::size_t startInstanceLocation) noexcept {
-    GUARANTEE_OR_DIE(_current_material, "Attempting to call Draw function without a material set!\n");
+    GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
-    _rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
+    m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
     unsigned int stride = sizeof(VertexBuffer::arraybuffer_t);
     unsigned int offsets = 0;
     const auto dx_vbo_buffer = vbo->GetDxBuffer();
     const auto dx_vbio_buffer = vbio->GetDxBuffer();
     ID3D11Buffer* const dx_buffers[] = {vbo->GetDxBuffer().Get(), vbio->GetDxBuffer().Get()};
     auto dx_ibo_buffer = ibo->GetDxBuffer();
-    _rhi_context->GetDxContext()->IASetVertexBuffers(0, 2, dx_buffers, &stride, &offsets);
-    _rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer.Get(), DXGI_FORMAT_R32_UINT, offsets);
-    _rhi_context->DrawIndexedInstanced(indexPerInstanceCount, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+    m_rhi_context->GetDxContext()->IASetVertexBuffers(0, 2, dx_buffers, &stride, &offsets);
+    m_rhi_context->GetDxContext()->IASetIndexBuffer(dx_ibo_buffer.Get(), DXGI_FORMAT_R32_UINT, offsets);
+    m_rhi_context->DrawIndexedInstanced(indexPerInstanceCount, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
 
@@ -1588,7 +1588,7 @@ void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, co
     if(const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers(); !cbs.empty()) {
         auto& font_cb = cbs[0].get();
         Vector4 channel{1.0f, 1.0f, 1.0f, 1.0f};
-        font_cb.Update(*_rhi_context, &channel);
+        font_cb.Update(*m_rhi_context, &channel);
     }
     Mesh::Render(builder);
 }
@@ -1655,7 +1655,7 @@ void Renderer::DrawTextLine(const Matrix4& transform, const KerningFont* font, c
     if(has_constant_buffers) {
         auto& font_cb = cbs[0].get();
         Vector4 channel{1.0f, 1.0f, 1.0f, 1.0f};
-        font_cb.Update(*_rhi_context, &channel);
+        font_cb.Update(*m_rhi_context, &channel);
     }
     SetModelMatrix(transform);
     Mesh::Render(builder);
@@ -1679,7 +1679,7 @@ void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, con
     if(has_constant_buffers) {
         auto& font_cb = cbs[0].get();
         Vector4 channel{1.0f, 1.0f, 1.0f, 1.0f};
-        font_cb.Update(*_rhi_context, &channel);
+        font_cb.Update(*m_rhi_context, &channel);
     }
     SetMaterial(font->GetMaterial());
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
@@ -1794,10 +1794,10 @@ void Renderer::ResizeBuffers() noexcept {
 }
 
 void Renderer::ClearState() noexcept {
-    _current_material = nullptr;
-    _rhi_context->GetDxContext()->OMSetRenderTargets(0, nullptr, nullptr);
-    _rhi_context->ClearState();
-    _rhi_context->Flush();
+    m_current_material = nullptr;
+    m_rhi_context->GetDxContext()->OMSetRenderTargets(0, nullptr, nullptr);
+    m_rhi_context->ClearState();
+    m_rhi_context->Flush();
 }
 
 void Renderer::RequestScreenShot(std::filesystem::path saveLocation) {
@@ -1807,13 +1807,13 @@ void Renderer::RequestScreenShot(std::filesystem::path saveLocation) {
         const auto err_str = folderLocation.string() + " does not exist.\n";
         DebuggerPrintf(err_str.c_str());
     }
-    _screenshot = saveLocation;
-    _last_screenshot_location = saveLocation;
+    m_screenshot = saveLocation;
+    m_last_screenshot_location = saveLocation;
 }
 
 void Renderer::RequestScreenShot() {
     namespace FS = std::filesystem;
-    if(_last_screenshot_location.empty()) {
+    if(m_last_screenshot_location.empty()) {
         const auto folder = screenshot_job_t{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}};
         TimeUtils::DateTimeStampOptions options{};
         options.include_milliseconds = true;
@@ -1821,10 +1821,10 @@ void Renderer::RequestScreenShot() {
         options.use_24_hour_clock = true;
         const auto screenshot_tag = TimeUtils::GetDateTimeStampFromNow(options);
         const auto filepath = folder / FS::path{"Screenshot_" + screenshot_tag + ".png"};
-        _last_screenshot_location = filepath;
-        _screenshot = _last_screenshot_location;
+        m_last_screenshot_location = filepath;
+        m_screenshot = m_last_screenshot_location;
     }
-    RequestScreenShot(_last_screenshot_location);
+    RequestScreenShot(m_last_screenshot_location);
 }
 
 constexpr unsigned int Renderer::GetMatrixBufferIndex() const noexcept {
@@ -1858,7 +1858,7 @@ Image Renderer::GetBackbufferAsImage() const noexcept {
 }
 
 void Renderer::FulfillScreenshotRequest() noexcept {
-    if(_screenshot && !_last_screenshot_location.empty()) {
+    if(m_screenshot && !m_last_screenshot_location.empty()) {
         //TODO: Make this a job so game doesn't lag
         //const auto cb = [this](void*) {
         //TODO: Replace with FrameBuffer object
@@ -1884,7 +1884,7 @@ void Renderer::DispatchComputeJob(const ComputeJob& job) noexcept {
 }
 
 Texture* Renderer::GetDefaultDepthStencil() const noexcept {
-    return _default_depthstencil;
+    return m_default_depthstencil;
 }
 
 void Renderer::SetFullscreen(bool isFullscreen) noexcept {
@@ -2130,7 +2130,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.name = "__default";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
@@ -2140,7 +2140,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2224,17 +2224,17 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.name = "__unlit";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = _rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2361,17 +2361,17 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.name = "__normal";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = _rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2498,17 +2498,17 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.name = "__normalmap";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = _rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2605,17 +2605,17 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
     desc.name = "__font";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = _rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2701,17 +2701,17 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0{
     desc.name = "__circle2d";
     {
         ID3D11VertexShader* vs = nullptr;
-        _rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
+        m_rhi_device->GetDxDevice()->CreateVertexShader(g_VertexFunction.data(), g_VertexFunction.size(), nullptr, &vs);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_VertexFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = _rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
-        _rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
+        m_rhi_device->GetDxDevice()->CreatePixelShader(g_PixelFunction.data(), g_PixelFunction.size(), nullptr, &ps);
         ID3DBlob* blob = nullptr;
         ::D3DCreateBlob(g_PixelFunction.size(), &blob);
         std::memcpy(blob->GetBufferPointer(), g_PixelFunction.data(), g_PixelFunction.size());
@@ -2941,7 +2941,7 @@ void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
 }
 
 std::unique_ptr<Sampler> Renderer::CreateDefaultSampler() noexcept {
-    return std::make_unique<Sampler>(_rhi_device.get(), SamplerDesc{});
+    return std::make_unique<Sampler>(m_rhi_device.get(), SamplerDesc{});
 }
 
 std::unique_ptr<Sampler> Renderer::CreateLinearSampler() noexcept {
@@ -2949,7 +2949,7 @@ std::unique_ptr<Sampler> Renderer::CreateLinearSampler() noexcept {
     desc.mag_filter = FilterMode::Linear;
     desc.min_filter = FilterMode::Linear;
     desc.mip_filter = FilterMode::Linear;
-    return std::make_unique<Sampler>(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<Sampler> Renderer::CreatePointSampler() noexcept {
@@ -2957,7 +2957,7 @@ std::unique_ptr<Sampler> Renderer::CreatePointSampler() noexcept {
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
     desc.mip_filter = FilterMode::Point;
-    return std::make_unique<Sampler>(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
@@ -2968,7 +2968,7 @@ std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
     desc.UaddressMode = TextureAddressMode::Wrap;
     desc.VaddressMode = TextureAddressMode::Wrap;
     desc.WaddressMode = TextureAddressMode::Wrap;
-    return std::make_unique<Sampler>(_rhi_device.get(), desc);
+    return std::make_unique<Sampler>(m_rhi_device.get(), desc);
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
@@ -3020,19 +3020,19 @@ void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
 
 std::unique_ptr<RasterState> Renderer::CreateDefaultRaster() noexcept {
     RasterDesc default_raster{};
-    return std::make_unique<RasterState>(_rhi_device.get(), default_raster);
+    return std::make_unique<RasterState>(m_rhi_device.get(), default_raster);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateScissorEnableRaster() noexcept {
     RasterDesc scissorenable{};
     scissorenable.scissorEnable = true;
-    return std::make_unique<RasterState>(_rhi_device.get(), scissorenable);
+    return std::make_unique<RasterState>(m_rhi_device.get(), scissorenable);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateScissorDisableRaster() noexcept {
     RasterDesc scissordisable{};
     scissordisable.scissorEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), scissordisable);
+    return std::make_unique<RasterState>(m_rhi_device.get(), scissordisable);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeRaster() noexcept {
@@ -3040,7 +3040,7 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeRaster() noexcept {
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Back;
     wireframe.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
+    return std::make_unique<RasterState>(m_rhi_device.get(), wireframe);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidRaster() noexcept {
@@ -3048,7 +3048,7 @@ std::unique_ptr<RasterState> Renderer::CreateSolidRaster() noexcept {
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Back;
     solid.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), solid);
+    return std::make_unique<RasterState>(m_rhi_device.get(), solid);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeNoCullingRaster() noexcept {
@@ -3056,7 +3056,7 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeNoCullingRaster() noexcept
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::None;
     wireframe.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
+    return std::make_unique<RasterState>(m_rhi_device.get(), wireframe);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidNoCullingRaster() noexcept {
@@ -3064,7 +3064,7 @@ std::unique_ptr<RasterState> Renderer::CreateSolidNoCullingRaster() noexcept {
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::None;
     solid.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), solid);
+    return std::make_unique<RasterState>(m_rhi_device.get(), solid);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeFrontCullingRaster() noexcept {
@@ -3072,7 +3072,7 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeFrontCullingRaster() noexc
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Front;
     wireframe.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), wireframe);
+    return std::make_unique<RasterState>(m_rhi_device.get(), wireframe);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept {
@@ -3080,7 +3080,7 @@ std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept 
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Front;
     solid.antialiasedLineEnable = false;
-    return std::make_unique<RasterState>(_rhi_device.get(), solid);
+    return std::make_unique<RasterState>(m_rhi_device.get(), solid);
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
@@ -3112,21 +3112,21 @@ void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDefaultDepthStencilState() noexcept {
     DepthStencilDesc desc{};
-    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
+    return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDisabledDepth() noexcept {
     DepthStencilDesc desc{};
     desc.depth_enabled = false;
     desc.depth_comparison = ComparisonFunction::Always;
-    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
+    return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateEnabledDepth() noexcept {
     DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
-    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
+    return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDisabledStencil() noexcept {
@@ -3134,7 +3134,7 @@ std::unique_ptr<DepthStencilState> Renderer::CreateDisabledStencil() noexcept {
     desc.stencil_enabled = false;
     desc.stencil_read = false;
     desc.stencil_write = false;
-    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
+    return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateEnabledStencil() noexcept {
@@ -3142,7 +3142,7 @@ std::unique_ptr<DepthStencilState> Renderer::CreateEnabledStencil() noexcept {
     desc.stencil_enabled = true;
     desc.stencil_read = true;
     desc.stencil_write = true;
-    return std::make_unique<DepthStencilState>(_rhi_device.get(), desc);
+    return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 void Renderer::CreateAndRegisterDefaultFonts() noexcept {
@@ -3215,28 +3215,28 @@ void Renderer::UnbindAllBuffers() noexcept {
 }
 
 void Renderer::UnbindAllShaderResources() noexcept {
-    if(_rhi_context) {
-        _materials_need_updating = true;
-        _rhi_context->UnbindAllShaderResources();
+    if(m_rhi_context) {
+        m_materials_need_updating = true;
+        m_rhi_context->UnbindAllShaderResources();
     }
 }
 
 void Renderer::UnbindAllConstantBuffers() noexcept {
-    if(_rhi_context) {
-        _materials_need_updating = true;
-        _rhi_context->UnbindAllConstantBuffers();
+    if(m_rhi_context) {
+        m_materials_need_updating = true;
+        m_rhi_context->UnbindAllConstantBuffers();
     }
 }
 
 void Renderer::UnbindComputeShaderResources() noexcept {
-    if(_rhi_context) {
-        _rhi_context->UnbindAllShaderResources();
+    if(m_rhi_context) {
+        m_rhi_context->UnbindAllShaderResources();
     }
 }
 
 void Renderer::UnbindComputeConstantBuffers() noexcept {
-    if(_rhi_context) {
-        _rhi_context->UnbindAllConstantBuffers();
+    if(m_rhi_context) {
+        m_rhi_context->UnbindAllConstantBuffers();
     }
 }
 
@@ -3269,76 +3269,76 @@ void Renderer::RegisterDepthStencilState(const std::string& name, std::unique_pt
     if(depthstencil == nullptr) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_depthstencils), std::end(_depthstencils), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _depthstencils.end()) {
+    auto found_iter = std::find_if(std::begin(m_depthstencils), std::end(m_depthstencils), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_depthstencils.end()) {
         found_iter->second.reset();
-        _depthstencils.erase(found_iter);
+        m_depthstencils.erase(found_iter);
     }
-    _depthstencils.emplace_back(name, std::move(depthstencil));
+    m_depthstencils.emplace_back(name, std::move(depthstencil));
 }
 
 RasterState* Renderer::GetRasterState(const std::string& name) noexcept {
-    auto found_iter = std::find_if(std::cbegin(_rasters), std::cend(_rasters), [&name](const auto& s) { return s.first == name; });
-    if(found_iter == _rasters.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_rasters), std::cend(m_rasters), [&name](const auto& s) { return s.first == name; });
+    if(found_iter == m_rasters.end()) {
         return nullptr;
     }
     return found_iter->second.get();
 }
 
 void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) noexcept {
-    RegisterSampler(name, std::make_unique<Sampler>(_rhi_device.get(), desc));
+    RegisterSampler(name, std::make_unique<Sampler>(m_rhi_device.get(), desc));
 }
 
 Sampler* Renderer::GetSampler(const std::string& name) noexcept {
-    auto found_iter = std::find_if(std::cbegin(_samplers), std::cend(_samplers), [&name](const auto& s) { return s.first == name; });
-    if(found_iter == _samplers.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_samplers), std::cend(m_samplers), [&name](const auto& s) { return s.first == name; });
+    if(found_iter == m_samplers.end()) {
         return nullptr;
     }
     return found_iter->second.get();
 }
 
 void Renderer::SetSampler(Sampler* sampler) noexcept {
-    if(sampler == _current_sampler) {
+    if(sampler == m_current_sampler) {
         return;
     }
-    _rhi_context->SetSampler(sampler);
-    _current_sampler = sampler;
+    m_rhi_context->SetSampler(sampler);
+    m_current_sampler = sampler;
 }
 
 void Renderer::RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept {
     if(raster == nullptr) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_rasters), std::end(_rasters), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _rasters.end()) {
+    auto found_iter = std::find_if(std::begin(m_rasters), std::end(m_rasters), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_rasters.end()) {
         found_iter->second.reset();
-        _rasters.erase(found_iter);
+        m_rasters.erase(found_iter);
     }
-    _rasters.emplace_back(name, std::move(raster));
+    m_rasters.emplace_back(name, std::move(raster));
 }
 
 void Renderer::RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept {
     if(sampler == nullptr) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_samplers), std::end(_samplers), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _samplers.end()) {
+    auto found_iter = std::find_if(std::begin(m_samplers), std::end(m_samplers), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_samplers.end()) {
         found_iter->second.reset();
-        _samplers.erase(found_iter);
+        m_samplers.erase(found_iter);
     }
-    _samplers.emplace_back(name, std::move(sampler));
+    m_samplers.emplace_back(name, std::move(sampler));
 }
 
 void Renderer::RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept {
     if(!shader) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_shaders), std::end(_shaders), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _shaders.end()) {
+    auto found_iter = std::find_if(std::begin(m_shaders), std::end(m_shaders), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_shaders.end()) {
         found_iter->second.reset();
-        _shaders.erase(found_iter);
+        m_shaders.erase(found_iter);
     }
-    _shaders.emplace_back(name, std::move(shader));
+    m_shaders.emplace_back(name, std::move(shader));
 }
 
 bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
@@ -3374,25 +3374,25 @@ void Renderer::RegisterShader(std::unique_ptr<Shader> shader) noexcept {
         return;
     }
     std::string name = shader->GetName();
-    auto found_iter = std::find_if(std::begin(_shaders), std::end(_shaders), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _shaders.end()) {
+    auto found_iter = std::find_if(std::begin(m_shaders), std::end(m_shaders), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_shaders.end()) {
         DebuggerPrintf("Shader \"%s\" already exists. Overwriting.\n", name.c_str());
         found_iter->second.reset();
-        _shaders.erase(found_iter);
+        m_shaders.erase(found_iter);
     }
-    _shaders.emplace_back(name, std::move(shader));
+    m_shaders.emplace_back(name, std::move(shader));
 }
 
 void Renderer::RegisterFont(const std::string& name, std::unique_ptr<KerningFont> font) noexcept {
     if(font == nullptr) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_fonts), std::end(_fonts), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _fonts.end()) {
+    auto found_iter = std::find_if(std::begin(m_fonts), std::end(m_fonts), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_fonts.end()) {
         found_iter->second.reset();
-        _fonts.erase(found_iter);
+        m_fonts.erase(found_iter);
     }
-    _fonts.emplace_back(name, std::move(font));
+    m_fonts.emplace_back(name, std::move(font));
 }
 
 void Renderer::RegisterFont(std::unique_ptr<KerningFont> font) noexcept {
@@ -3400,12 +3400,12 @@ void Renderer::RegisterFont(std::unique_ptr<KerningFont> font) noexcept {
         return;
     }
     std::string name = font->GetName();
-    auto found_iter = std::find_if(std::begin(_fonts), std::end(_fonts), [&name](const auto& s) { return s.first == name; });
-    if(found_iter != _fonts.end()) {
+    auto found_iter = std::find_if(std::begin(m_fonts), std::end(m_fonts), [&name](const auto& s) { return s.first == name; });
+    if(found_iter != m_fonts.end()) {
         found_iter->second.reset();
-        _fonts.erase(found_iter);
+        m_fonts.erase(found_iter);
     }
-    _fonts.emplace_back(name, std::move(font));
+    m_fonts.emplace_back(name, std::move(font));
 }
 
 bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
@@ -3823,13 +3823,13 @@ void Renderer::RegisterMaterial(const std::string& name, std::unique_ptr<Materia
     if(mat == nullptr) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_materials), std::end(_materials), [&name](const auto& m) { return m.first == name; });
-    if(found_iter != _materials.end()) {
+    auto found_iter = std::find_if(std::begin(m_materials), std::end(m_materials), [&name](const auto& m) { return m.first == name; });
+    if(found_iter != m_materials.end()) {
         DebuggerPrintf("Material \"%s\" already exists. Overwriting.\n", name.c_str());
         found_iter->second.reset();
-        _materials.erase(found_iter);
+        m_materials.erase(found_iter);
     }
-    _materials.emplace_back(name, std::move(mat));
+    m_materials.emplace_back(name, std::move(mat));
 }
 
 void Renderer::RegisterMaterial(std::unique_ptr<Material> mat) noexcept {
@@ -3837,13 +3837,13 @@ void Renderer::RegisterMaterial(std::unique_ptr<Material> mat) noexcept {
         return;
     }
     std::string name = mat->GetName();
-    auto found_iter = std::find_if(std::begin(_materials), std::end(_materials), [&name](const auto& m) { return m.first == name; });
-    if(found_iter != _materials.end()) {
+    auto found_iter = std::find_if(std::begin(m_materials), std::end(m_materials), [&name](const auto& m) { return m.first == name; });
+    if(found_iter != m_materials.end()) {
         DebuggerPrintf("Material \"%s\" already exists. Overwriting.\n", name.c_str());
         found_iter->second.reset();
-        _materials.erase(found_iter);
+        m_materials.erase(found_iter);
     }
-    _materials.emplace_back(name, std::move(mat));
+    m_materials.emplace_back(name, std::move(mat));
 }
 
 bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
@@ -3883,16 +3883,16 @@ void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, boo
 }
 
 void Renderer::ReloadMaterials() noexcept {
-    _textures.clear();
+    m_textures.clear();
 
     CreateAndRegisterDefaultTextures();
 
-    _materials.clear();
+    m_materials.clear();
     CreateAndRegisterDefaultMaterials();
     RegisterMaterialsFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineMaterials));
     RegisterMaterialsFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameMaterials));
 
-    _fonts.clear();
+    m_fonts.clear();
     CreateAndRegisterDefaultFonts();
     RegisterMaterialsFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineFonts));
     RegisterMaterialsFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameFonts));
@@ -3902,61 +3902,61 @@ void Renderer::RegisterShaderProgram(const std::string& name, std::unique_ptr<Sh
     if(!sp) {
         return;
     }
-    auto found_iter = std::find_if(std::begin(_shader_programs), std::end(_shader_programs), [&name](const auto& sp) { return sp.first == name; });
-    if(found_iter != _shader_programs.end()) {
+    auto found_iter = std::find_if(std::begin(m_shader_programs), std::end(m_shader_programs), [&name](const auto& sp) { return sp.first == name; });
+    if(found_iter != m_shader_programs.end()) {
         sp->SetDescription(std::move(found_iter->second->GetDescription()));
         found_iter->second.reset(nullptr);
-        _shader_programs.erase(found_iter);
+        m_shader_programs.erase(found_iter);
     }
-    _shader_programs.emplace_back(name, std::move(sp));
+    m_shader_programs.emplace_back(name, std::move(sp));
 }
 
 void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
-    if(_current_vbo_size < vbo.size()) {
-        _temp_vbo = std::move(_rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
-        _current_vbo_size = vbo.size();
+    if(m_current_vbo_size < vbo.size()) {
+        m_temp_vbo = std::move(m_rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
+        m_current_vbo_size = vbo.size();
     }
-    _temp_vbo->Update(*_rhi_context, vbo);
+    m_temp_vbo->Update(*m_rhi_context, vbo);
 }
 
 void Renderer::UpdateVbco(const VertexCircleBuffer::buffer_t& vbco) noexcept {
-    if(_current_vbco_size < vbco.size()) {
-        _circle_vbo = std::move(_rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
-        _current_vbco_size = vbco.size();
+    if(m_current_vbco_size < vbco.size()) {
+        m_circle_vbo = std::move(m_rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
+        m_current_vbco_size = vbco.size();
     }
-    _circle_vbo->Update(*_rhi_context, vbco);
+    m_circle_vbo->Update(*m_rhi_context, vbco);
 }
 
 void Renderer::UpdateVbio(const VertexBufferInstanced::buffer_t& vbio) noexcept {
-    if(_current_vbio_size < vbio.size()) {
-        _temp_vbio = std::move(_rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
-        _current_vbio_size = vbio.size();
+    if(m_current_vbio_size < vbio.size()) {
+        m_temp_vbio = std::move(m_rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
+        m_current_vbio_size = vbio.size();
     }
-    _temp_vbio->Update(*_rhi_context, vbio);
+    m_temp_vbio->Update(*m_rhi_context, vbio);
 }
 
 void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept {
-    if(_current_ibo_size < ibo.size()) {
-        _temp_ibo = std::move(_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer));
-        _current_ibo_size = ibo.size();
+    if(m_current_ibo_size < ibo.size()) {
+        m_temp_ibo = std::move(m_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer));
+        m_current_ibo_size = ibo.size();
     }
-    _temp_ibo->Update(*_rhi_context, ibo);
+    m_temp_ibo->Update(*m_rhi_context, ibo);
 }
 
 RHIDeviceContext* Renderer::GetDeviceContext() const noexcept {
-    return _rhi_context.get();
+    return m_rhi_context.get();
 }
 
 RHIDevice* Renderer::GetDevice() const noexcept {
-    return _rhi_device.get();
+    return m_rhi_device.get();
 }
 
 RHIOutput* Renderer::GetOutput() const noexcept {
-    return _rhi_output.get();
+    return m_rhi_output.get();
 }
 
 RHIInstance* Renderer::GetInstance() const noexcept {
-    return _rhi_instance;
+    return m_rhi_instance;
 }
 
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcept {
@@ -3966,8 +3966,8 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcep
         p = FS::canonical(p);
     }
     p.make_preferred();
-    auto found_iter = std::find_if(std::cbegin(_shader_programs), std::cend(_shader_programs), [&p](const auto& sp) { return sp.first == p.string(); });
-    if(found_iter == _shader_programs.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_shader_programs), std::cend(m_shader_programs), [&p](const auto& sp) { return sp.first == p.string(); });
+    if(found_iter == m_shader_programs.end()) {
         return nullptr;
     }
     return found_iter->second.get();
@@ -4009,15 +4009,15 @@ void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path f
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) noexcept {
-    RegisterRasterState(name, std::make_unique<RasterState>(_rhi_device.get(), desc));
+    RegisterRasterState(name, std::make_unique<RasterState>(m_rhi_device.get(), desc));
 }
 
 void Renderer::SetRasterState(RasterState* raster) noexcept {
-    if(raster == _current_raster_state) {
+    if(raster == m_current_raster_state) {
         return;
     }
-    _rhi_context->SetRasterState(raster);
-    _current_raster_state = raster;
+    m_rhi_context->SetRasterState(raster);
+    m_current_raster_state = raster;
 }
 
 void Renderer::SetRasterState(FillMode fillmode, CullMode cullmode) noexcept {
@@ -4034,12 +4034,12 @@ void Renderer::SetRasterState(FillMode fillmode, CullMode cullmode) noexcept {
 }
 
 void Renderer::SetVSync(bool value) noexcept {
-    _vsync = value;
+    m_vsync = value;
 }
 
 Material* Renderer::GetMaterial(const std::string& nameOrFile) noexcept {
-    auto found_iter = std::find_if(std::cbegin(_materials), std::cend(_materials), [&nameOrFile](const auto& m) { return m.first == nameOrFile; });
-    if(found_iter == _materials.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_materials), std::cend(m_materials), [&nameOrFile](const auto& m) { return m.first == nameOrFile; });
+    if(found_iter == m_materials.end()) {
         return GetMaterial("__invalid");
     }
     return found_iter->second.get();
@@ -4050,11 +4050,11 @@ void Renderer::SetMaterial(Material* material) noexcept {
         material = GetMaterial("__invalid");
     }
     ResetMaterial();
-    _rhi_context->SetMaterial(material);
-    _current_material = material;
-    _current_raster_state = material->GetShader()->GetRasterState();
-    _current_depthstencil_state = material->GetShader()->GetDepthStencilState();
-    _current_sampler = material->GetShader()->GetSampler();
+    m_rhi_context->SetMaterial(material);
+    m_current_material = material;
+    m_current_raster_state = material->GetShader()->GetRasterState();
+    m_current_depthstencil_state = material->GetShader()->GetDepthStencilState();
+    m_current_sampler = material->GetShader()->GetSampler();
     //_materials_need_updating = false;
 }
 
@@ -4063,13 +4063,13 @@ void Renderer::SetMaterial(const std::string& nameOrFile) noexcept {
 }
 
 void Renderer::ResetMaterial() noexcept {
-    _rhi_context->UnbindAllShaderResources();
-    _rhi_context->SetShader(nullptr);
-    _current_material = nullptr;
-    _current_raster_state = nullptr;
-    _current_depthstencil_state = nullptr;
-    _current_sampler = nullptr;
-    _materials_need_updating = true;
+    m_rhi_context->UnbindAllShaderResources();
+    m_rhi_context->SetShader(nullptr);
+    m_current_material = nullptr;
+    m_current_raster_state = nullptr;
+    m_current_depthstencil_state = nullptr;
+    m_current_sampler = nullptr;
+    m_materials_need_updating = true;
 }
 
 bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
@@ -4082,8 +4082,8 @@ bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
             return false;
         }
     }
-    const auto found_iter = std::find_if(std::cbegin(_textures), std::cend(_textures), [&p](const auto& t) { return t.first == p.string(); });
-    return found_iter != std::cend(_textures);
+    const auto found_iter = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
+    return found_iter != std::cend(m_textures);
 }
 
 bool Renderer::IsTextureNotLoaded(const std::string& nameOrFile) const noexcept {
@@ -4091,8 +4091,8 @@ bool Renderer::IsTextureNotLoaded(const std::string& nameOrFile) const noexcept 
 }
 
 Shader* Renderer::GetShader(const std::string& nameOrFile) noexcept {
-    const auto found_iter = std::find_if(std::cbegin(_shaders), std::cend(_shaders), [&nameOrFile](const auto& s) { return s.first == nameOrFile; });
-    if(found_iter == _shaders.end()) {
+    const auto found_iter = std::find_if(std::cbegin(m_shaders), std::cend(m_shaders), [&nameOrFile](const auto& s) { return s.first == nameOrFile; });
+    if(found_iter == m_shaders.end()) {
         return nullptr;
     }
     return found_iter->second.get();
@@ -4111,36 +4111,36 @@ std::string Renderer::GetShaderName(const std::filesystem::path filepath) noexce
 
 void Renderer::SetComputeShader(Shader* shader) noexcept {
     if(shader == nullptr) {
-        _rhi_context->SetComputeShaderProgram(nullptr);
+        m_rhi_context->SetComputeShaderProgram(nullptr);
     } else {
-        _rhi_context->SetComputeShaderProgram(shader->GetShaderProgram());
+        m_rhi_context->SetComputeShaderProgram(shader->GetShaderProgram());
     }
 }
 
 KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
-    auto found_iter = std::find_if(std::cbegin(_fonts), std::cend(_fonts), [&nameOrFile](const auto& f) { return f.first == nameOrFile; });
-    if(found_iter == _fonts.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_fonts), std::cend(m_fonts), [&nameOrFile](const auto& f) { return f.first == nameOrFile; });
+    if(found_iter == m_fonts.end()) {
         return nullptr;
     }
     return found_iter->second.get();
 }
 
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
-    _matrix_data.model = mat;
-    _matrix_cb->Update(*_rhi_context, &_matrix_data);
-    SetConstantBuffer(GetMatrixBufferIndex(), _matrix_cb.get());
+    m_matrix_data.model = mat;
+    m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
+    SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetViewMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
-    _matrix_data.view = mat;
-    _matrix_cb->Update(*_rhi_context, &_matrix_data);
-    SetConstantBuffer(GetMatrixBufferIndex(), _matrix_cb.get());
+    m_matrix_data.view = mat;
+    m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
+    SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
-    _matrix_data.projection = mat;
-    _matrix_cb->Update(*_rhi_context, &_matrix_data);
-    SetConstantBuffer(GetMatrixBufferIndex(), _matrix_cb.get());
+    m_matrix_data.projection = mat;
+    m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
+    SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::ResetModelViewProjection() noexcept {
@@ -4150,9 +4150,9 @@ void Renderer::ResetModelViewProjection() noexcept {
 }
 
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) noexcept {
-    _matrix_data.model = Matrix4::MakeRT(modelMatrix, _matrix_data.model);
-    _matrix_cb->Update(*_rhi_context, &_matrix_data);
-    SetConstantBuffer(GetMatrixBufferIndex(), _matrix_cb.get());
+    m_matrix_data.model = Matrix4::MakeRT(modelMatrix, m_matrix_data.model);
+    m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
+    SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far) noexcept {
@@ -4205,27 +4205,27 @@ void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) noexce
 }
 
 void Renderer::SetCamera(const Camera3D& camera) noexcept {
-    _camera = camera;
+    m_camera = camera;
     SetViewMatrix(camera.GetViewMatrix());
     SetProjectionMatrix(camera.GetProjectionMatrix());
 }
 
 void Renderer::SetCamera(const Camera2D& camera) noexcept {
-    _camera = camera;
+    m_camera = camera;
     SetViewMatrix(camera.GetViewMatrix());
     SetProjectionMatrix(camera.GetProjectionMatrix());
 }
 
 Camera3D Renderer::GetCamera() const noexcept {
-    return _camera;
+    return m_camera;
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Vector3& worldCoords) const noexcept {
-    return ConvertWorldToScreenCoords(_camera, worldCoords);
+    return ConvertWorldToScreenCoords(m_camera, worldCoords);
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Vector2& worldCoords) const noexcept {
-    return ConvertWorldToScreenCoords(_camera, Vector3{worldCoords, 0.0f});
+    return ConvertWorldToScreenCoords(m_camera, Vector3{worldCoords, 0.0f});
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const noexcept {
@@ -4242,7 +4242,7 @@ Vector2 Renderer::ConvertWorldToScreenCoords(const Camera3D& camera, const Vecto
 }
 
 Vector3 Renderer::ConvertScreenToWorldCoords(const Vector2& mouseCoords) const noexcept {
-    return ConvertScreenToWorldCoords(_camera, mouseCoords);
+    return ConvertScreenToWorldCoords(m_camera, mouseCoords);
 }
 
 Vector3 Renderer::ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const noexcept {
@@ -4269,23 +4269,23 @@ Vector2 Renderer::ConvertScreenToNdcCoords(const Camera2D& camera, const Vector2
 }
 
 Vector3 Renderer::ConvertScreenToNdcCoords(const Vector2& mouseCoords) const noexcept {
-    return ConvertScreenToNdcCoords(_camera, mouseCoords);
+    return ConvertScreenToNdcCoords(m_camera, mouseCoords);
 }
 
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept {
-    _rhi_context->SetConstantBuffer(index, buffer);
+    m_rhi_context->SetConstantBuffer(index, buffer);
 }
 
 void Renderer::SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept {
-    _rhi_context->SetComputeConstantBuffer(index, buffer);
+    m_rhi_context->SetComputeConstantBuffer(index, buffer);
 }
 
 void Renderer::SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept {
-    _rhi_context->SetStructuredBuffer(index, buffer);
+    m_rhi_context->SetStructuredBuffer(index, buffer);
 }
 
 void Renderer::SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept {
-    _rhi_context->SetComputeStructuredBuffer(index, buffer);
+    m_rhi_context->SetComputeStructuredBuffer(index, buffer);
 }
 
 void Renderer::DrawCube(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::ONE * 0.5f*/, const Rgba& color /*= Rgba::White*/) {
@@ -4373,8 +4373,8 @@ void Renderer::DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vec
 }
 
 void Renderer::ClearRenderTargets(const RenderTargetType& rtt) noexcept {
-    ID3D11DepthStencilView* dsv = _current_depthstencil->GetDepthStencilView();
-    ID3D11RenderTargetView* rtv = _current_target->GetRenderTargetView();
+    ID3D11DepthStencilView* dsv = m_current_depthstencil->GetDepthStencilView();
+    ID3D11RenderTargetView* rtv = m_current_target->GetRenderTargetView();
     switch(rtt) {
     case RenderTargetType::None:
         return;
@@ -4392,7 +4392,7 @@ void Renderer::ClearRenderTargets(const RenderTargetType& rtt) noexcept {
         /* DO NOTHING */
         return;
     }
-    _rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
+    m_rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
 }
 
 void Renderer::SetRenderTarget(FrameBuffer& frameBuffer) noexcept {
@@ -4401,19 +4401,19 @@ void Renderer::SetRenderTarget(FrameBuffer& frameBuffer) noexcept {
 
 void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* depthstencil_target /*= nullptr*/) noexcept {
     if(color_target != nullptr) {
-        _current_target = color_target;
+        m_current_target = color_target;
     } else {
-        _current_target = _rhi_output->GetBackBuffer();
+        m_current_target = m_rhi_output->GetBackBuffer();
     }
 
     if(depthstencil_target != nullptr) {
-        _current_depthstencil = depthstencil_target;
+        m_current_depthstencil = depthstencil_target;
     } else {
-        _current_depthstencil = _rhi_output->GetDepthStencil();
+        m_current_depthstencil = m_rhi_output->GetDepthStencil();
     }
-    ID3D11DepthStencilView* dsv = _current_depthstencil->GetDepthStencilView();
-    ID3D11RenderTargetView* rtv = _current_target->GetRenderTargetView();
-    _rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
+    ID3D11DepthStencilView* dsv = m_current_depthstencil->GetDepthStencilView();
+    ID3D11RenderTargetView* rtv = m_current_target->GetRenderTargetView();
+    m_rhi_context->GetDxContext()->OMSetRenderTargets(1, &rtv, dsv);
 }
 
 void Renderer::SetRenderTargetsToBackBuffer() noexcept {
@@ -4433,14 +4433,14 @@ float Renderer::GetCurrentViewportAspectRatio() const {
 
 [[nodiscard]] unsigned int Renderer::GetViewportCount() const noexcept {
     unsigned int viewportsCount = 1u;
-    _rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, nullptr);
+    m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, nullptr);
     return viewportsCount;
 }
 
 ViewportDesc Renderer::GetViewport(std::size_t index) const noexcept {
     auto viewportsCount = GetViewportCount();
     std::vector<D3D11_VIEWPORT> viewports(viewportsCount, D3D11_VIEWPORT{});
-    _rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
+    m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
     std::vector<ViewportDesc> viewportDescs = GetAllViewports();
     if(!viewportDescs.empty()) {
         return viewportDescs[index];
@@ -4451,7 +4451,7 @@ ViewportDesc Renderer::GetViewport(std::size_t index) const noexcept {
 std::vector<ViewportDesc> Renderer::GetAllViewports() const noexcept {
     auto viewportsCount = GetViewportCount();
     std::vector<D3D11_VIEWPORT> viewports(viewportsCount, D3D11_VIEWPORT{});
-    _rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
+    m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
 
     std::vector<ViewportDesc> viewportDescs(viewportsCount, ViewportDesc{});
     for(std::size_t vpIdx = 0u; vpIdx < viewportsCount; ++vpIdx) {
@@ -4485,7 +4485,7 @@ void Renderer::SetViewport(float x, float y, float width, float height) noexcept
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
 
-    _rhi_context->GetDxContext()->RSSetViewports(1, &viewport);
+    m_rhi_context->GetDxContext()->RSSetViewports(1, &viewport);
 }
 
 void Renderer::SetViewport(const AABB2& viewport) noexcept {
@@ -4512,7 +4512,7 @@ void Renderer::SetViewports(const std::vector<AABB3>& viewports) noexcept {
         dxViewports[i].MinDepth = viewports[i].mins.z;
         dxViewports[i].MaxDepth = viewports[i].maxs.z;
     }
-    _rhi_context->GetDxContext()->RSSetViewports(static_cast<unsigned int>(dxViewports.size()), dxViewports.data());
+    m_rhi_context->GetDxContext()->RSSetViewports(static_cast<unsigned int>(dxViewports.size()), dxViewports.data());
 }
 
 void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept {
@@ -4521,7 +4521,7 @@ void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, un
     scissor.right = x + width;
     scissor.top = y;
     scissor.bottom = y + height;
-    _rhi_context->GetDxContext()->RSSetScissorRects(1, &scissor);
+    m_rhi_context->GetDxContext()->RSSetScissorRects(1, &scissor);
 }
 
 void Renderer::SetScissor(const AABB2& scissor) noexcept {
@@ -4565,7 +4565,7 @@ void Renderer::SetScissors(const std::vector<AABB2>& scissors) noexcept {
         dxScissors[i].right = static_cast<long>(std::floor(scissors[i].maxs.x));
         dxScissors[i].bottom = static_cast<long>(std::floor(scissors[i].maxs.y));
     }
-    _rhi_context->GetDxContext()->RSSetScissorRects(static_cast<unsigned int>(dxScissors.size()), dxScissors.data());
+    m_rhi_context->GetDxContext()->RSSetScissorRects(static_cast<unsigned int>(dxScissors.size()), dxScissors.data());
 }
 
 void Renderer::SetViewportAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 1.0f*/, float h /*= 1.0f*/) noexcept {
@@ -4622,23 +4622,23 @@ void Renderer::DisableScissorTest() {
 }
 
 void Renderer::ClearColor(const Rgba& color) noexcept {
-    _rhi_context->ClearColorTarget(_current_target, color);
+    m_rhi_context->ClearColorTarget(m_current_target, color);
 }
 
 void Renderer::ClearTargetColor(Texture* target, const Rgba& color) noexcept {
-    _rhi_context->ClearColorTarget(target, color);
+    m_rhi_context->ClearColorTarget(target, color);
 }
 
 void Renderer::ClearDepthStencilBuffer() noexcept {
-    _rhi_context->ClearDepthStencilTarget(_current_depthstencil);
+    m_rhi_context->ClearDepthStencilTarget(m_current_depthstencil);
 }
 
 void Renderer::ClearTargetDepthStencilBuffer(Texture* target, bool depth /*= true*/, bool stencil /*= true*/, float depthValue /*= 1.0f*/, unsigned char stencilValue /*= 0*/) noexcept {
-    _rhi_context->ClearDepthStencilTarget(target, depth, stencil, depthValue, stencilValue);
+    m_rhi_context->ClearDepthStencilTarget(target, depth, stencil, depthValue, stencilValue);
 }
 
 void Renderer::Present() noexcept {
-    _rhi_output->Present(_vsync);
+    m_rhi_output->Present(m_vsync);
 }
 
 Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) noexcept {
@@ -4646,8 +4646,8 @@ Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, con
     FS::path p(filepath);
     p = FS::canonical(p);
     p.make_preferred();
-    auto texture_iter = std::find_if(std::cbegin(_textures), std::cend(_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(texture_iter == _textures.end()) {
+    auto texture_iter = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
+    if(texture_iter == m_textures.end()) {
         return CreateTexture(p.string(), dimensions);
     } else {
         return GetTexture(p.string());
@@ -4698,11 +4698,11 @@ void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) 
     if(texture == nullptr) {
         texture = GetTexture("__invalid");
     }
-    if(_current_target == texture) {
+    if(m_current_target == texture) {
         return;
     }
-    _current_target = texture;
-    _rhi_context->SetTexture(registerIndex, _current_target);
+    m_current_target = texture;
+    m_rhi_context->SetTexture(registerIndex, m_current_target);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept {
@@ -4751,23 +4751,23 @@ std::unique_ptr<Texture> Renderer::CreateRenderableDepthStencil(const RHIDevice&
 }
 
 void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) noexcept {
-    if(depthstencil == _current_depthstencil_state) {
+    if(depthstencil == m_current_depthstencil_state) {
         return;
     }
-    _rhi_context->SetDepthStencilState(depthstencil);
-    _current_depthstencil_state = depthstencil;
+    m_rhi_context->SetDepthStencilState(depthstencil);
+    m_current_depthstencil_state = depthstencil;
 }
 
 DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) noexcept {
-    auto found_iter = std::find_if(std::cbegin(_depthstencils), std::cend(_depthstencils), [&name](const auto& ds) { return ds.first == name; });
-    if(found_iter == _depthstencils.end()) {
+    auto found_iter = std::find_if(std::cbegin(m_depthstencils), std::cend(m_depthstencils), [&name](const auto& ds) { return ds.first == name; });
+    if(found_iter == m_depthstencils.end()) {
         return nullptr;
     }
     return found_iter->second.get();
 }
 
 void Renderer::CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) noexcept {
-    RegisterDepthStencilState(name, std::make_unique<DepthStencilState>(_rhi_device.get(), desc));
+    RegisterDepthStencilState(name, std::make_unique<DepthStencilState>(m_rhi_device.get(), desc));
 }
 
 void Renderer::EnableDepth(bool isDepthEnabled) noexcept {
@@ -4903,10 +4903,10 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto tex = std::make_unique<Texture1D>(*_rhi_device, dx_tex);
+        auto tex = std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
         auto* tex_ptr = tex.get();
@@ -4955,10 +4955,10 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture1D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5001,10 +5001,10 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture1D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5064,14 +5064,14 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
         std::unique_ptr<Texture> tex{};
         if(is_gif) {
-            tex = std::make_unique<TextureArray2D>(*_rhi_device, dx_tex);
+            tex = std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
         } else {
-            tex = std::make_unique<Texture2D>(*_rhi_device, dx_tex);
+            tex = std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
         }
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
@@ -5126,10 +5126,10 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture2D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5175,10 +5175,10 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, s
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture2D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5224,10 +5224,10 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture2D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5273,12 +5273,12 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
     delete[] subresource_data;
     subresource_data = nullptr;
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<TextureArray2D>(*_rhi_device, dx_tex);
+        return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5331,10 +5331,10 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        auto tex = std::make_unique<Texture3D>(*_rhi_device, dx_tex);
+        auto tex = std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
         auto* tex_ptr = tex.get();
@@ -5386,10 +5386,10 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture3D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }
@@ -5433,10 +5433,10 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     bool isImmutable = bufferUsage == BufferUsage::Static;
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
-    HRESULT hr = _rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
     if(succeeded) {
-        return std::make_unique<Texture3D>(*_rhi_device, dx_tex);
+        return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
     }

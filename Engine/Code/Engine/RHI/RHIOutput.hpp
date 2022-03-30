@@ -42,10 +42,10 @@ protected:
     [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil() noexcept;
     [[nodiscard]] std::unique_ptr<Texture> CreateFullscreenTexture() noexcept;
 
-    const RHIDevice& _parent_device;
-    std::unique_ptr<Window> _window = nullptr;
-    std::unique_ptr<Texture> _back_buffer = nullptr;
-    std::unique_ptr<Texture> _depthstencil = nullptr;
+    const RHIDevice& m_parent_device;
+    std::unique_ptr<Window> m_window = nullptr;
+    std::unique_ptr<Texture> m_back_buffer = nullptr;
+    std::unique_ptr<Texture> m_depthstencil = nullptr;
 
 private:
 };

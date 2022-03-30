@@ -10,7 +10,7 @@
 
 void RasterState::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
-    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
+    m_dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
 #endif
 }
 
@@ -20,29 +20,29 @@ RasterState::RasterState(const RHIDevice* device, const XMLElement& element) noe
 }
 
 RasterState::RasterState(const RHIDevice* device, const RasterDesc& desc) noexcept
-: _desc(desc) {
-    if(!CreateRasterState(device, _desc)) {
-        if(_dx_state) {
-            _dx_state->Release();
-            _dx_state = nullptr;
+: m_desc(desc) {
+    if(!CreateRasterState(device, m_desc)) {
+        if(m_dx_state) {
+            m_dx_state->Release();
+            m_dx_state = nullptr;
         }
         ERROR_AND_DIE("RasterState: dx Rasterizer failed to create.\n");
     }
 }
 
 RasterState::~RasterState() noexcept {
-    if(_dx_state) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+    if(m_dx_state) {
+        m_dx_state->Release();
+        m_dx_state = nullptr;
     }
 }
 
 const RasterDesc& RasterState::GetDesc() const noexcept {
-    return _desc;
+    return m_desc;
 }
 
 ID3D11RasterizerState* RasterState::GetDxRasterState() noexcept {
-    return _dx_state;
+    return m_dx_state;
 }
 
 bool RasterState::CreateRasterState(const RHIDevice* device, const RasterDesc& raster_desc /*= RasterDesc()*/) noexcept {
@@ -58,7 +58,7 @@ bool RasterState::CreateRasterState(const RHIDevice* device, const RasterDesc& r
     desc.DepthClipEnable = raster_desc.depthClipEnable;
     desc.ScissorEnable = raster_desc.scissorEnable;
 
-    HRESULT hr = device->GetDxDevice()->CreateRasterizerState(&desc, &_dx_state);
+    HRESULT hr = device->GetDxDevice()->CreateRasterizerState(&desc, &m_dx_state);
     return SUCCEEDED(hr);
 }
 

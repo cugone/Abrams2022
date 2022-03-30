@@ -40,9 +40,9 @@ static SymCleanup_t LSymCleanup;
 
 #endif
 
-std::atomic_uint64_t StackTrace::_refs(0);
-std::shared_mutex StackTrace::_cs{};
-std::atomic_bool StackTrace::_did_init(false);
+std::atomic_uint64_t StackTrace::m_refs(0);
+std::shared_mutex StackTrace::m_cs{};
+std::atomic_bool StackTrace::m_did_init(false);
 
 StackTrace::StackTrace() noexcept
 : StackTrace(1ul, 30ul) {
@@ -52,16 +52,16 @@ StackTrace::StackTrace() noexcept
 StackTrace::StackTrace([[maybe_unused]] unsigned long framesToSkip,
                        [[maybe_unused]] unsigned long framesToCapture) noexcept {
 #ifdef PROFILE_BUILD
-    if(!_refs) {
+    if(!m_refs) {
         Initialize();
     }
-    ++_refs;
-    unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, _frames.data(), &hash);
+    ++m_refs;
+    unsigned long count = ::CaptureStackBackTrace(1ul + framesToSkip, framesToCapture, m_frames.data(), &m_hash);
     if(!count) {
         DebuggerPrintf("StackTrace unavailable. All frames were skipped.\n");
         return;
     }
-    _frame_count = (std::min)(count, MAX_FRAMES_PER_CALLSTACK);
+    m_frame_count = (std::min)(count, m_max_frames_per_callstack);
 
     GetLines(this, MAX_CALLSTACK_LINES);
 #else
@@ -71,8 +71,8 @@ StackTrace::StackTrace([[maybe_unused]] unsigned long framesToSkip,
 
 StackTrace::~StackTrace() noexcept {
 #ifdef PROFILE_BUILD
-    --_refs;
-    if(!_refs) {
+    --m_refs;
+    if(!m_refs) {
         Shutdown();
     }
 #endif
@@ -90,18 +90,18 @@ void StackTrace::Initialize() noexcept {
     LSymCleanup = reinterpret_cast<SymCleanup_t>(::GetProcAddress(debugHelpModule, "SymCleanup"));
 
     {
-        std::scoped_lock<std::shared_mutex> lock(_cs);
+        std::scoped_lock<std::shared_mutex> lock(m_cs);
         LSymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
     }
     process = ::GetCurrentProcess();
     {
-        std::scoped_lock<std::shared_mutex> lock(_cs);
-        if(!_did_init) {
-            _did_init = LSymInitialize(process, nullptr, true);
+        std::scoped_lock<std::shared_mutex> lock(m_cs);
+        if(!m_did_init) {
+            m_did_init = LSymInitialize(process, nullptr, true);
         }
     }
-    if(!_did_init) {
-        --_refs;
+    if(!m_did_init) {
+        --m_refs;
         Shutdown();
         ERROR_AND_DIE("Could not initialize StackTrace!\n");
     }
@@ -122,16 +122,16 @@ void StackTrace::GetLines([[maybe_unused]] StackTrace* st,
     DWORD line_offset = 0;
     line_info.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-    uint32_t count = std::min(max_lines, st->_frame_count);
+    uint32_t count = std::min(max_lines, st->m_frame_count);
     if(!count) {
         DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
         return;
     }
     for(uint32_t i = 0; i < count; ++i) {
-        auto ptr = reinterpret_cast<DWORD64>(st->_frames[i]);
+        auto ptr = reinterpret_cast<DWORD64>(st->m_frames[i]);
         bool got_addr = false;
         {
-            std::scoped_lock<std::shared_mutex> lock(_cs);
+            std::scoped_lock<std::shared_mutex> lock(m_cs);
             got_addr = LSymFromAddr(process, ptr, nullptr, symbol);
         }
         if(!got_addr) {
@@ -140,7 +140,7 @@ void StackTrace::GetLines([[maybe_unused]] StackTrace* st,
         }
         bool got_line = false;
         {
-            std::scoped_lock<std::shared_mutex> lock(_cs);
+            std::scoped_lock<std::shared_mutex> lock(m_cs);
             got_line = LSymGetLineFromAddr64(process, ptr, &line_offset, &line_info);
         }
         if(got_line) {
@@ -174,13 +174,13 @@ void StackTrace::Shutdown() noexcept {
     }
 
     {
-        std::scoped_lock<std::shared_mutex> lock(_cs);
+        std::scoped_lock<std::shared_mutex> lock(m_cs);
         LSymCleanup(process);
     }
 
     ::FreeLibrary(debugHelpModule);
     debugHelpModule = nullptr;
-    _did_init = false;
+    m_did_init = false;
 #endif
 }
 
@@ -189,5 +189,5 @@ bool StackTrace::operator!=(const StackTrace& rhs) const noexcept {
 }
 
 bool StackTrace::operator==(const StackTrace& rhs) const noexcept {
-    return hash == rhs.hash;
+    return m_hash == rhs.m_hash;
 }

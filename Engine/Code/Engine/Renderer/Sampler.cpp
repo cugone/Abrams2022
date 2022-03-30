@@ -7,7 +7,7 @@
 
 void Sampler::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
-    _dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
+    m_dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
 #endif
 }
 
@@ -18,23 +18,23 @@ Sampler::Sampler(const RHIDevice* device, const XMLElement& element) noexcept
 
 Sampler::Sampler(const RHIDevice* device, const SamplerDesc& desc) noexcept {
     if(!CreateSamplerState(device, desc)) {
-        if(_dx_state) {
-            _dx_state->Release();
-            _dx_state = nullptr;
+        if(m_dx_state) {
+            m_dx_state->Release();
+            m_dx_state = nullptr;
         }
         ERROR_AND_DIE("Sampler: dx Sample failed to create.\n");
     }
 }
 
 Sampler::~Sampler() noexcept {
-    if(_dx_state) {
-        _dx_state->Release();
-        _dx_state = nullptr;
+    if(m_dx_state) {
+        m_dx_state->Release();
+        m_dx_state = nullptr;
     }
 }
 
 ID3D11SamplerState* Sampler::GetDxSampler() const noexcept {
-    return _dx_state;
+    return m_dx_state;
 }
 
 bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& desc /*= SamplerDesc()*/) noexcept {
@@ -61,7 +61,7 @@ bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& des
     dx_desc.BorderColor[2] = b;
     dx_desc.BorderColor[3] = a;
 
-    HRESULT hr = device->GetDxDevice()->CreateSamplerState(&dx_desc, &_dx_state);
+    HRESULT hr = device->GetDxDevice()->CreateSamplerState(&dx_desc, &m_dx_state);
     return SUCCEEDED(hr);
 }
 

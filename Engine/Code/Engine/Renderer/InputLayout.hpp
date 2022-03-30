@@ -21,8 +21,8 @@ protected:
 private:
     [[nodiscard]] D3D11_INPUT_ELEMENT_DESC CreateInputElementFromSignature(D3D11_SIGNATURE_PARAMETER_DESC& input_desc, unsigned int& last_input_slot) noexcept;
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> _elements{};
-    Microsoft::WRL::ComPtr<ID3D11InputLayout> _dx_input_layout{};
+    std::vector<D3D11_INPUT_ELEMENT_DESC> m_elements{};
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> m_dx_input_layout{};
 
     friend class RHIDevice;
 };

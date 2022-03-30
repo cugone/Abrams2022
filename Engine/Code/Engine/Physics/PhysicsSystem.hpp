@@ -111,30 +111,30 @@ private:
     void SolvePositionConstraints() const noexcept;
     void SolveVelocityConstraints() const noexcept;
 
-    PhysicsSystemDesc _desc{};
-    bool _is_running = false;
-    std::vector<RigidBody*> _rigidBodies{};
-    std::deque<CollisionData> _contacts{};
-    std::vector<RigidBody*> _pending_removal{};
-    std::vector<RigidBody*> _pending_addition{};
-    GravityForceGenerator _gravityFG{Vector2::Zero};
-    DragForceGenerator _dragFG{Vector2::Zero};
-    QuadTree<RigidBody> _world_partition{};
-    TimeUtils::FPSeconds _deltaSeconds = TimeUtils::FPSeconds::zero();
-    TimeUtils::FPSeconds _accumulatedTime = TimeUtils::FPSeconds::zero();
-    TimeUtils::FPFrames _targetFrameRate = TimeUtils::FPFrames{1};
-    bool _show_colliders = false;
-    bool _show_object_bounds = false;
-    bool _show_world_partition = false;
-    bool _show_contacts = false;
-    bool _show_joints = false;
+    PhysicsSystemDesc m_desc{};
+    bool m_is_running = false;
+    std::vector<RigidBody*> m_rigidBodies{};
+    std::deque<CollisionData> m_contacts{};
+    std::vector<RigidBody*> m_pending_removal{};
+    std::vector<RigidBody*> m_pending_addition{};
+    GravityForceGenerator m_gravityFG{Vector2::Zero};
+    DragForceGenerator m_dragFG{Vector2::Zero};
+    QuadTree<RigidBody> m_world_partition{};
+    TimeUtils::FPSeconds m_deltaSeconds = TimeUtils::FPSeconds::zero();
+    TimeUtils::FPSeconds m_accumulatedTime = TimeUtils::FPSeconds::zero();
+    TimeUtils::FPFrames m_targetFrameRate = TimeUtils::FPFrames{1};
+    bool m_show_colliders = false;
+    bool m_show_object_bounds = false;
+    bool m_show_world_partition = false;
+    bool m_show_contacts = false;
+    bool m_show_joints = false;
 };
 
 template<typename CollisionDetectionFunction, typename CollisionResolutionFunction>
 PhysicsSystem::CollisionDataSet PhysicsSystem::NarrowPhaseCollision(const std::vector<RigidBody*>& potential_collisions, CollisionDetectionFunction&& cd, CollisionResolutionFunction&& cr) noexcept {
     CollisionDataSet result{};
     if(potential_collisions.size() < 2) {
-        _contacts.clear();
+        m_contacts.clear();
         return {};
     }
     for(auto iter_a = std::begin(potential_collisions); iter_a != std::end(potential_collisions); ++iter_a) {
@@ -154,10 +154,10 @@ PhysicsSystem::CollisionDataSet PhysicsSystem::NarrowPhaseCollision(const std::v
                 if(!was_inserted) {
                     DebuggerPrintf("Physics System: Attempting to insert already existing element.");
                 } else {
-                    while(_contacts.size() >= 10) {
-                        _contacts.pop_front();
+                    while(m_contacts.size() >= 10) {
+                        m_contacts.pop_front();
                     }
-                    _contacts.push_back(contact);
+                    m_contacts.push_back(contact);
                 }
             }
         }

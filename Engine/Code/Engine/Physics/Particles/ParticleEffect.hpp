@@ -40,10 +40,10 @@ public:
 
 protected:
 private:
-    std::string _definitionName{};
-    std::vector<ParticleEmitter> _emitters{};
-    bool _is_playing{false};
-    bool _destroy_on_finish{false};
+    std::string m_definitionName{};
+    std::vector<ParticleEmitter> m_emitters{};
+    bool m_is_playing{false};
+    bool m_destroy_on_finish{false};
 
     void LoadFromXml(const XMLElement& element);
     float GetLongestLifetime() const;

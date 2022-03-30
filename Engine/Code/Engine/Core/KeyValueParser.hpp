@@ -38,5 +38,5 @@ private:
     void SetValue(const std::string& key, const std::string& value) noexcept;
     void SetValue(const std::string& key, const bool& value) noexcept;
 
-    std::map<std::string, std::string> _kv_pairs{};
+    std::map<std::string, std::string> m_kv_pairs{};
 };

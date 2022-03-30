@@ -20,30 +20,30 @@ UIPictureBox::UIPictureBox(const XMLElement& elem, UIPanel* parent /*= nullptr*/
 }
 
 void UIPictureBox::SetImage(std::unique_ptr<AnimatedSprite> sprite) noexcept {
-    _sprite.reset(sprite.release());
+    m_sprite.reset(sprite.release());
     GetSlot()->CalcPivot();
 }
 
 const AnimatedSprite* const UIPictureBox::GetImage() const noexcept {
-    return _sprite.get();
+    return m_sprite.get();
 }
 
 void UIPictureBox::Update(TimeUtils::FPSeconds deltaSeconds) {
     if(IsDisabled()) {
         return;
     }
-    _sprite->Update(deltaSeconds);
+    m_sprite->Update(deltaSeconds);
 }
 
 void UIPictureBox::Render() const {
     if(IsHidden()) {
         return;
     }
-    auto* material = _sprite->GetMaterial();
+    auto* material = m_sprite->GetMaterial();
     auto&& renderer = ServiceLocator::get<IRendererService>();
     renderer.SetModelMatrix(GetWorldTransform());
     renderer.SetMaterial(material);
-    const auto cur_tc = _sprite->GetCurrentTexCoords();
+    const auto cur_tc = m_sprite->GetCurrentTexCoords();
     Vector4 tex_coords(cur_tc.mins, cur_tc.maxs);
     renderer.DrawQuad2D(tex_coords);
 }
@@ -53,7 +53,7 @@ void UIPictureBox::DebugRender() const {
 }
 
 Vector4 UIPictureBox::CalcDesiredSize() const noexcept {
-    const auto dims = _sprite->GetFrameDimensions();
+    const auto dims = m_sprite->GetFrameDimensions();
     const auto w = static_cast<float>(dims.x);
     const auto h = static_cast<float>(dims.y);
     return Vector4{Vector2::Zero, Vector2{w, h}};
@@ -61,10 +61,10 @@ Vector4 UIPictureBox::CalcDesiredSize() const noexcept {
 
 bool UIPictureBox::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "picturebox", "", "name,src", "");
-    _name = DataUtils::ParseXmlAttribute(elem, "name", _name);
+    m_name = DataUtils::ParseXmlAttribute(elem, "name", m_name);
     if(const auto src = DataUtils::ParseXmlAttribute(elem, "src", std::string{}); FileUtils::IsSafeReadPath(src)) {
         auto&& renderer = ServiceLocator::get<IRendererService>();
-        _sprite = renderer.CreateAnimatedSprite(src);
+        m_sprite = renderer.CreateAnimatedSprite(src);
         return true;
     }
     return false;

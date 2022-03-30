@@ -108,8 +108,8 @@ public:
 
     static void enable([[maybe_unused]] bool e) noexcept {
 #ifdef TRACK_MEMORY
-        _active = e;
-        if(_active) {
+        m_active = e;
+        if(m_active) {
             resetallcounters();
         }
 #endif
@@ -117,7 +117,7 @@ public:
 
     [[nodiscard]] static bool is_enabled() noexcept {
 #ifdef TRACK_MEMORY
-        return _active;
+        return m_active;
 #else
         return false;
 #endif
@@ -125,7 +125,7 @@ public:
 
     static void trace([[maybe_unused]] bool doTrace) noexcept {
 #ifdef TRACK_MEMORY
-        _trace = doTrace;
+        m_trace = doTrace;
 #endif
     }
 
@@ -190,8 +190,8 @@ public:
 
 protected:
 private:
-    inline static bool _active = false;
-    inline static bool _trace = false;
+    inline static bool m_active = false;
+    inline static bool m_trace = false;
 };
 
 #ifdef TRACK_MEMORY

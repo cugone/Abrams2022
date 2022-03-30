@@ -24,49 +24,49 @@
 ID3DBlob* CreateD3DBlobFromBuffer(std::optional<std::vector<uint8_t>> buffer, std::string_view error_msg) noexcept;
 
 Shader::Shader(ShaderProgram* shaderProgram /*= nullptr*/, DepthStencilState* depthStencil /*= nullptr*/, RasterState* rasterState /*= nullptr*/, BlendState* blendState /*= nullptr*/, Sampler* sampler /*= nullptr*/) noexcept
-: _shader_program(shaderProgram)
-, _depth_stencil_state(depthStencil)
-, _raster_state(rasterState)
-, _blend_state(blendState)
-, _sampler(sampler) {
-    _name += "_" + std::to_string(_defaultNameId++);
+: m_shader_program(shaderProgram)
+, m_depth_stencil_state(depthStencil)
+, m_raster_state(rasterState)
+, m_blend_state(blendState)
+, m_sampler(sampler) {
+    m_name += "_" + std::to_string(m_defaultNameId++);
 }
 
 Shader::Shader(const XMLElement& element) noexcept
 {
-    _name += "_" + std::to_string(_defaultNameId++);
+    m_name += "_" + std::to_string(m_defaultNameId++);
 
     LoadFromXml(element);
 }
 
 const std::string& Shader::GetName() const noexcept {
-    return _name;
+    return m_name;
 }
 
 ShaderProgram* Shader::GetShaderProgram() const noexcept {
-    return _shader_program;
+    return m_shader_program;
 }
 
 RasterState* Shader::GetRasterState() const noexcept {
-    return _raster_state;
+    return m_raster_state;
 }
 
 DepthStencilState* Shader::GetDepthStencilState() const noexcept {
-    return _depth_stencil_state.get();
+    return m_depth_stencil_state.get();
 }
 
 BlendState* Shader::GetBlendState() const noexcept {
-    return _blend_state.get();
+    return m_blend_state.get();
 }
 
 Sampler* Shader::GetSampler() const noexcept {
-    return _sampler;
+    return m_sampler;
 }
 
 std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetConstantBuffers() const noexcept {
     std::vector<std::reference_wrapper<ConstantBuffer>> cbufferRefs{};
-    cbufferRefs.reserve(_cbuffers.size());
-    for(auto& ptr : _cbuffers) {
+    cbufferRefs.reserve(m_cbuffers.size());
+    for(auto& ptr : m_cbuffers) {
         cbufferRefs.push_back(std::ref(*ptr));
     }
     cbufferRefs.shrink_to_fit();
@@ -75,8 +75,8 @@ std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetConstantBuffers()
 
 std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetComputeConstantBuffers() const noexcept {
     std::vector<std::reference_wrapper<ConstantBuffer>> cbufferRefs{};
-    cbufferRefs.reserve(_ccbuffers.size());
-    for(auto& ptr : _ccbuffers) {
+    cbufferRefs.reserve(m_ccbuffers.size());
+    for(auto& ptr : m_ccbuffers) {
         cbufferRefs.push_back(std::ref(*ptr));
     }
     cbufferRefs.shrink_to_fit();
@@ -100,7 +100,7 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
     namespace FS = std::filesystem;
     DataUtils::ValidateXmlElement(element, "shader", "shaderprogram", "name", "depth,stencil,blends,raster,sampler,cbuffers");
 
-    _name = DataUtils::ParseXmlAttribute(element, std::string("name"), _name);
+    m_name = DataUtils::ParseXmlAttribute(element, std::string("name"), m_name);
 
     auto* xml_SP = element.FirstChildElement("shaderprogram");
     DataUtils::ValidateXmlElement(*xml_SP, "shaderprogram", "", "src", "pipelinestages");
@@ -121,16 +121,16 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
     }
     p.make_preferred();
     auto& renderer = ServiceLocator::get<IRendererService>();
-    if(nullptr == (_shader_program = renderer.GetShaderProgram(p.string()))) {
+    if(nullptr == (m_shader_program = renderer.GetShaderProgram(p.string()))) {
         const bool is_cso = p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".cso";
         GUARANTEE_OR_DIE(is_cso, "ShaderProgram source path must be a compiled shader '.cso' file.");
         {
-            const auto error_msg = std::string{"Intrinsic ShaderProgram referenced in Shader file \""} + _name + "\" does not already exist.";
+            const auto error_msg = std::string{"Intrinsic ShaderProgram referenced in Shader file \""} + m_name + "\" does not already exist.";
             GUARANTEE_OR_DIE(!StringUtils::StartsWith(p.string(), "__"), error_msg.c_str());
         }
         if(is_cso) {
             ShaderProgramDesc desc{};
-            desc.name = _name;
+            desc.name = m_name;
             auto& device = *renderer.GetDevice();
             DataUtils::ForEachChildElement(element, "shaderprogram", [this, &desc, &device](const XMLElement& elem) {
                 const auto sp_src = DataUtils::ParseXmlAttribute(elem, "src", std::string{});
@@ -176,30 +176,30 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
             });
             auto sp = renderer.CreateShaderProgramFromDesc(std::move(desc));
             auto* sp_ptr = sp.get();
-            renderer.RegisterShaderProgram(_name, std::move(sp));
-            _shader_program = sp_ptr;
+            renderer.RegisterShaderProgram(m_name, std::move(sp));
+            m_shader_program = sp_ptr;
         }
     }
-    _cbuffers = std::move(RHIDevice::CreateConstantBuffersFromShaderProgram(*renderer.GetDevice(), _shader_program));
-    _ccbuffers = std::move(RHIDevice::CreateComputeConstantBuffersFromShaderProgram(*renderer.GetDevice(), _shader_program));
-    _depth_stencil_state = std::make_unique<DepthStencilState>(renderer.GetDevice(), element);
-    _blend_state = std::make_unique<BlendState>(renderer.GetDevice(), element);
+    m_cbuffers = std::move(RHIDevice::CreateConstantBuffersFromShaderProgram(*renderer.GetDevice(), m_shader_program));
+    m_ccbuffers = std::move(RHIDevice::CreateComputeConstantBuffersFromShaderProgram(*renderer.GetDevice(), m_shader_program));
+    m_depth_stencil_state = std::make_unique<DepthStencilState>(renderer.GetDevice(), element);
+    m_blend_state = std::make_unique<BlendState>(renderer.GetDevice(), element);
 
-    _raster_state = renderer.GetRasterState("__default");
+    m_raster_state = renderer.GetRasterState("__default");
     if(auto* xml_raster = element.FirstChildElement("raster")) {
         std::string rs_src = DataUtils::ParseXmlAttribute(*xml_raster, "src", std::string{});
         if(auto* found_raster = renderer.GetRasterState(rs_src)) {
-            _raster_state = found_raster;
+            m_raster_state = found_raster;
         } else {
             CreateAndRegisterNewRasterFromXml(element);
         }
     }
 
-    _sampler = renderer.GetSampler("__default");
+    m_sampler = renderer.GetSampler("__default");
     if(auto* xml_sampler = element.FirstChildElement("sampler")) {
         std::string s_src = DataUtils::ParseXmlAttribute(*xml_sampler, "src", std::string{});
         if(auto* found_sampler = renderer.GetSampler(s_src)) {
-            _sampler = found_sampler;
+            m_sampler = found_sampler;
         } else {
             CreateAndRegisterNewSamplerFromXml(element);
         }
@@ -298,7 +298,7 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
         result = valid_cs || valid_gs || valid_vsps || valid_hsds;
     }
     {
-        const auto error_msg = std::string{"Error in shader file: \""} + _name + "\": Pipeline stages must include at least compute stage, geometry stage, or both vertex and pixel stages, or both hull and domain stages.";
+        const auto error_msg = std::string{"Error in shader file: \""} + m_name + "\": Pipeline stages must include at least compute stage, geometry stage, or both vertex and pixel stages, or both hull and domain stages.";
         GUARANTEE_OR_DIE(result, error_msg.c_str());
     }
 }
@@ -306,15 +306,15 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
 void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexcept {
     auto&& renderer = ServiceLocator::get<IRendererService>();
     auto new_sampler = std::make_unique<Sampler>(renderer.GetDevice(), element);
-    std::string ns = _name + "_sampler";
-    _sampler = new_sampler.get();
+    std::string ns = m_name + "_sampler";
+    m_sampler = new_sampler.get();
     renderer.RegisterSampler(ns, std::move(new_sampler));
 }
 
 void Shader::CreateAndRegisterNewRasterFromXml(const XMLElement& element) noexcept {
     auto&& renderer = ServiceLocator::get<IRendererService>();
     auto new_raster_state = std::make_unique<RasterState>(renderer.GetDevice(), element);
-    std::string nr = _name + "_raster";
-    _raster_state = new_raster_state.get();
+    std::string nr = m_name + "_raster";
+    m_raster_state = new_raster_state.get();
     renderer.RegisterRasterState(nr, std::move(new_raster_state));
 }

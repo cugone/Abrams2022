@@ -42,14 +42,14 @@ public:
     }
 
 protected:
-    const RHIDevice& _device;
-    IntVector3 _dimensions = IntVector3::Zero;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _dsv{};
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _rtv{};
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _srv{};
-    Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> _uav{};
-    bool _isLoaded = false;
-    bool _isArray = false;
+    const RHIDevice& m_device;
+    IntVector3 m_dimensions = IntVector3::Zero;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_dsv{};
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_rtv{};
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv{};
+    Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_uav{};
+    bool m_isLoaded = false;
+    bool m_isArray = false;
 
 private:
 };

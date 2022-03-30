@@ -7,75 +7,75 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 
 bool XboxController::WasAnyButtonJustPressed() const noexcept {
-    return (_previousButtonState.to_ulong() < _currentButtonState.to_ulong());
+    return (m_previousButtonState.to_ulong() < m_currentButtonState.to_ulong());
 }
 
 bool XboxController::WasAnyButtonJustReleased() const noexcept {
-    return (_currentButtonState.to_ulong() < _previousButtonState.to_ulong());
+    return (m_currentButtonState.to_ulong() < m_previousButtonState.to_ulong());
 }
 
 bool XboxController::IsAnyButtonDown() const noexcept {
-    return _currentButtonState.any();
+    return m_currentButtonState.any();
 }
 
 const Vector2& XboxController::GetLeftThumbPosition() const noexcept {
-    return _leftThumbDistance;
+    return m_leftThumbDistance;
 }
 
 const Vector2& XboxController::GetRightThumbPosition() const noexcept {
-    return _rightThumbDistance;
+    return m_rightThumbDistance;
 }
 
 float XboxController::GetLeftTriggerPosition() const noexcept {
-    return _triggerDistances.x;
+    return m_triggerDistances.x;
 }
 
 float XboxController::GetRightTriggerPosition() const noexcept {
-    return _triggerDistances.y;
+    return m_triggerDistances.y;
 }
 
 bool XboxController::IsButtonUp(const Button& button) const noexcept {
-    return !_currentButtonState[(std::size_t)button];
+    return !m_currentButtonState[(std::size_t)button];
 }
 
 bool XboxController::WasButtonJustPressed(const Button& button) const noexcept {
-    return !_previousButtonState[(std::size_t)button] && _currentButtonState[(std::size_t)button];
+    return !m_previousButtonState[(std::size_t)button] && m_currentButtonState[(std::size_t)button];
 }
 
 bool XboxController::IsButtonDown(const Button& button) const noexcept {
-    return _currentButtonState[(std::size_t)button];
+    return m_currentButtonState[(std::size_t)button];
 }
 
 bool XboxController::WasButtonJustReleased(const Button& button) const noexcept {
-    return _previousButtonState[(std::size_t)button] && !_currentButtonState[(std::size_t)button];
+    return m_previousButtonState[(std::size_t)button] && !m_currentButtonState[(std::size_t)button];
 }
 
 bool XboxController::WasJustConnected() const noexcept {
-    return !_previousActiveState[(std::size_t)ActiveState::Connected] && _currentActiveState[(std::size_t)ActiveState::Connected];
+    return !m_previousActiveState[(std::size_t)ActiveState::Connected] && m_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::IsConnected() const noexcept {
-    return _previousActiveState[(std::size_t)ActiveState::Connected] && _currentActiveState[(std::size_t)ActiveState::Connected];
+    return m_previousActiveState[(std::size_t)ActiveState::Connected] && m_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::WasJustDisconnected() const noexcept {
-    return _previousActiveState[(std::size_t)ActiveState::Connected] && !_currentActiveState[(std::size_t)ActiveState::Connected];
+    return m_previousActiveState[(std::size_t)ActiveState::Connected] && !m_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 bool XboxController::IsDisconnected() const noexcept {
-    return !_previousActiveState[(std::size_t)ActiveState::Connected] && !_currentActiveState[(std::size_t)ActiveState::Connected];
+    return !m_previousActiveState[(std::size_t)ActiveState::Connected] && !m_currentActiveState[(std::size_t)ActiveState::Connected];
 }
 
 void XboxController::Update(int controller_number) noexcept {
     XINPUT_STATE state{};
 
     const auto error_status = ::XInputGetState(controller_number, &state);
-    _previousPacketNumber = _currentPacketNumber;
-    _currentPacketNumber = state.dwPacketNumber;
+    m_previousPacketNumber = m_currentPacketNumber;
+    m_currentPacketNumber = state.dwPacketNumber;
 
     if(error_status == ERROR_DEVICE_NOT_CONNECTED) {
-        _previousActiveState = _currentActiveState;
-        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
+        m_previousActiveState = m_currentActiveState;
+        m_currentActiveState[(std::size_t)ActiveState::Connected] = false;
         return;
     }
 
@@ -85,46 +85,46 @@ void XboxController::Update(int controller_number) noexcept {
         return;
     }
 
-    _previousActiveState[(std::size_t)ActiveState::Connected] = _currentActiveState[(std::size_t)ActiveState::Connected];
-    if(!_currentActiveState[(std::size_t)ActiveState::Connected]) {
-        _currentActiveState[(std::size_t)ActiveState::Connected] = true;
+    m_previousActiveState[(std::size_t)ActiveState::Connected] = m_currentActiveState[(std::size_t)ActiveState::Connected];
+    if(!m_currentActiveState[(std::size_t)ActiveState::Connected]) {
+        m_currentActiveState[(std::size_t)ActiveState::Connected] = true;
     }
 
-    if(_previousPacketNumber == _currentPacketNumber) {
+    if(m_previousPacketNumber == m_currentPacketNumber) {
         return;
     }
 
-    _previousRawInput = _currentRawInput;
-    _currentRawInput = state.Gamepad.wButtons;
+    m_previousRawInput = m_currentRawInput;
+    m_currentRawInput = state.Gamepad.wButtons;
 
     UpdateState();
 
-    _leftThumbDistance = Vector2(state.Gamepad.sThumbLX, state.Gamepad.sThumbLY);
-    _rightThumbDistance = Vector2(state.Gamepad.sThumbRX, state.Gamepad.sThumbRY);
-    _triggerDistances = Vector2(state.Gamepad.bLeftTrigger, state.Gamepad.bRightTrigger);
+    m_leftThumbDistance = Vector2(state.Gamepad.sThumbLX, state.Gamepad.sThumbLY);
+    m_rightThumbDistance = Vector2(state.Gamepad.sThumbRX, state.Gamepad.sThumbRY);
+    m_triggerDistances = Vector2(state.Gamepad.bLeftTrigger, state.Gamepad.bRightTrigger);
 
-    auto leftRadius = _leftThumbDistance.CalcLength();
+    auto leftRadius = m_leftThumbDistance.CalcLength();
 
     leftRadius = MathUtils::RangeMap<float>(leftRadius, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, 32000, 0.0f, 1.0f);
     leftRadius = std::clamp(leftRadius, 0.0f, 1.0f);
 
-    _leftThumbDistance.SetLength(leftRadius);
+    m_leftThumbDistance.SetLength(leftRadius);
 
-    auto rightRadius = _rightThumbDistance.CalcLength();
+    auto rightRadius = m_rightThumbDistance.CalcLength();
 
     rightRadius = MathUtils::RangeMap<float>(rightRadius, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE, 32000, 0.0f, 1.0f);
     rightRadius = std::clamp(rightRadius, 0.0f, 1.0f);
 
-    _rightThumbDistance.SetLength(rightRadius);
+    m_rightThumbDistance.SetLength(rightRadius);
 
-    _triggerDistances.x = MathUtils::RangeMap<float>(_triggerDistances.x, static_cast<float>(XINPUT_GAMEPAD_TRIGGER_THRESHOLD), 255.0f, 0.0f, 1.0f);
-    _triggerDistances.x = std::clamp(_triggerDistances.x, 0.0f, 1.0f);
-    _triggerDistances.y = MathUtils::RangeMap<float>(_triggerDistances.y, static_cast<float>(XINPUT_GAMEPAD_TRIGGER_THRESHOLD), 255.0f, 0.0f, 1.0f);
-    _triggerDistances.y = std::clamp(_triggerDistances.y, 0.0f, 1.0f);
+    m_triggerDistances.x = MathUtils::RangeMap<float>(m_triggerDistances.x, static_cast<float>(XINPUT_GAMEPAD_TRIGGER_THRESHOLD), 255.0f, 0.0f, 1.0f);
+    m_triggerDistances.x = std::clamp(m_triggerDistances.x, 0.0f, 1.0f);
+    m_triggerDistances.y = MathUtils::RangeMap<float>(m_triggerDistances.y, static_cast<float>(XINPUT_GAMEPAD_TRIGGER_THRESHOLD), 255.0f, 0.0f, 1.0f);
+    m_triggerDistances.y = std::clamp(m_triggerDistances.y, 0.0f, 1.0f);
 
     if(DidMotorStateChange()) {
-        SetMotorSpeed(controller_number, Motor::Left, _leftMotorState);
-        SetMotorSpeed(controller_number, Motor::Right, _rightMotorState);
+        SetMotorSpeed(controller_number, Motor::Left, m_leftMotorState);
+        SetMotorSpeed(controller_number, Motor::Right, m_rightMotorState);
     }
 }
 
@@ -155,12 +155,12 @@ void XboxController::StartMotors(float percent) noexcept {
 
 void XboxController::StopLeftMotor() noexcept {
     SetLeftMotorSpeed(0);
-    _currentActiveState[(std::size_t)ActiveState::LMotor] = false;
+    m_currentActiveState[(std::size_t)ActiveState::LMotor] = false;
 }
 
 void XboxController::StopRightMotor() noexcept {
     SetRightMotorSpeed(0);
-    _currentActiveState[(std::size_t)ActiveState::RMotor] = false;
+    m_currentActiveState[(std::size_t)ActiveState::RMotor] = false;
 }
 
 void XboxController::StopMotors() noexcept {
@@ -169,21 +169,21 @@ void XboxController::StopMotors() noexcept {
 }
 
 void XboxController::SetLeftMotorSpeed(unsigned short speed) noexcept {
-    if(speed == _leftMotorState) {
+    if(speed == m_leftMotorState) {
         return;
     }
-    _leftMotorState = speed;
-    _previousActiveState[(std::size_t)ActiveState::LMotor] = _currentActiveState[(std::size_t)ActiveState::LMotor];
-    _currentActiveState[(std::size_t)ActiveState::LMotor] = true;
+    m_leftMotorState = speed;
+    m_previousActiveState[(std::size_t)ActiveState::LMotor] = m_currentActiveState[(std::size_t)ActiveState::LMotor];
+    m_currentActiveState[(std::size_t)ActiveState::LMotor] = true;
 }
 
 void XboxController::SetRightMotorSpeed(unsigned short speed) noexcept {
-    if(speed == _rightMotorState) {
+    if(speed == m_rightMotorState) {
         return;
     }
-    _rightMotorState = speed;
-    _previousActiveState[(std::size_t)ActiveState::RMotor] = _currentActiveState[(std::size_t)ActiveState::RMotor];
-    _currentActiveState[(std::size_t)ActiveState::RMotor] = true;
+    m_rightMotorState = speed;
+    m_previousActiveState[(std::size_t)ActiveState::RMotor] = m_currentActiveState[(std::size_t)ActiveState::RMotor];
+    m_currentActiveState[(std::size_t)ActiveState::RMotor] = true;
 }
 
 void XboxController::SetBothMotorSpeed(unsigned short speed) noexcept {
@@ -224,36 +224,36 @@ void XboxController::UpdateConnectedState(int controller_number) noexcept {
     const auto error_status = ::XInputGetState(controller_number, &state);
 
     if(error_status == ERROR_DEVICE_NOT_CONNECTED) {
-        _previousActiveState[(std::size_t)ActiveState::Connected] = _currentActiveState[(std::size_t)ActiveState::Connected];
-        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
+        m_previousActiveState[(std::size_t)ActiveState::Connected] = m_currentActiveState[(std::size_t)ActiveState::Connected];
+        m_currentActiveState[(std::size_t)ActiveState::Connected] = false;
     } else if(error_status == ERROR_SUCCESS) {
-        _previousActiveState[(std::size_t)ActiveState::Connected] = _currentActiveState[(std::size_t)ActiveState::Connected];
-        if(!_currentActiveState[(std::size_t)ActiveState::Connected]) {
-            _currentActiveState[(std::size_t)ActiveState::Connected] = true;
+        m_previousActiveState[(std::size_t)ActiveState::Connected] = m_currentActiveState[(std::size_t)ActiveState::Connected];
+        if(!m_currentActiveState[(std::size_t)ActiveState::Connected]) {
+            m_currentActiveState[(std::size_t)ActiveState::Connected] = true;
         }
     }
 }
 
 void XboxController::UpdateState() noexcept {
-    _previousButtonState = _currentButtonState;
+    m_previousButtonState = m_currentButtonState;
 
-    _currentButtonState[(std::size_t)Button::Up] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_UP) != 0;
-    _currentButtonState[(std::size_t)Button::Down] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
-    _currentButtonState[(std::size_t)Button::Left] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
-    _currentButtonState[(std::size_t)Button::Right] = (_currentRawInput & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
+    m_currentButtonState[(std::size_t)Button::Up] = (m_currentRawInput & XINPUT_GAMEPAD_DPAD_UP) != 0;
+    m_currentButtonState[(std::size_t)Button::Down] = (m_currentRawInput & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+    m_currentButtonState[(std::size_t)Button::Left] = (m_currentRawInput & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+    m_currentButtonState[(std::size_t)Button::Right] = (m_currentRawInput & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
 
-    _currentButtonState[(std::size_t)Button::Start] = (_currentRawInput & XINPUT_GAMEPAD_START) != 0;
-    _currentButtonState[(std::size_t)Button::Back] = (_currentRawInput & XINPUT_GAMEPAD_BACK) != 0;
-    _currentButtonState[(std::size_t)Button::LeftThumb] = (_currentRawInput & XINPUT_GAMEPAD_LEFT_THUMB) != 0;
-    _currentButtonState[(std::size_t)Button::RightThumb] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_THUMB) != 0;
+    m_currentButtonState[(std::size_t)Button::Start] = (m_currentRawInput & XINPUT_GAMEPAD_START) != 0;
+    m_currentButtonState[(std::size_t)Button::Back] = (m_currentRawInput & XINPUT_GAMEPAD_BACK) != 0;
+    m_currentButtonState[(std::size_t)Button::LeftThumb] = (m_currentRawInput & XINPUT_GAMEPAD_LEFT_THUMB) != 0;
+    m_currentButtonState[(std::size_t)Button::RightThumb] = (m_currentRawInput & XINPUT_GAMEPAD_RIGHT_THUMB) != 0;
 
-    _currentButtonState[(std::size_t)Button::LeftBumper] = (_currentRawInput & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
-    _currentButtonState[(std::size_t)Button::RightBumper] = (_currentRawInput & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
+    m_currentButtonState[(std::size_t)Button::LeftBumper] = (m_currentRawInput & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+    m_currentButtonState[(std::size_t)Button::RightBumper] = (m_currentRawInput & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
 
-    _currentButtonState[(std::size_t)Button::A] = (_currentRawInput & XINPUT_GAMEPAD_A) != 0;
-    _currentButtonState[(std::size_t)Button::B] = (_currentRawInput & XINPUT_GAMEPAD_B) != 0;
-    _currentButtonState[(std::size_t)Button::X] = (_currentRawInput & XINPUT_GAMEPAD_X) != 0;
-    _currentButtonState[(std::size_t)Button::Y] = (_currentRawInput & XINPUT_GAMEPAD_Y) != 0;
+    m_currentButtonState[(std::size_t)Button::A] = (m_currentRawInput & XINPUT_GAMEPAD_A) != 0;
+    m_currentButtonState[(std::size_t)Button::B] = (m_currentRawInput & XINPUT_GAMEPAD_B) != 0;
+    m_currentButtonState[(std::size_t)Button::X] = (m_currentRawInput & XINPUT_GAMEPAD_X) != 0;
+    m_currentButtonState[(std::size_t)Button::Y] = (m_currentRawInput & XINPUT_GAMEPAD_Y) != 0;
 }
 
 void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, unsigned short value) noexcept {
@@ -261,11 +261,11 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
     switch(motor) {
     case Motor::Left:
         vibration.wLeftMotorSpeed = value;
-        vibration.wRightMotorSpeed = _rightMotorState;
+        vibration.wRightMotorSpeed = m_rightMotorState;
         break;
     case Motor::Right:
         vibration.wRightMotorSpeed = value;
-        vibration.wLeftMotorSpeed = _leftMotorState;
+        vibration.wLeftMotorSpeed = m_leftMotorState;
         break;
     case Motor::Both:
         vibration.wLeftMotorSpeed = value;
@@ -279,7 +279,7 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
     if(errorStatus == ERROR_SUCCESS) {
         return;
     } else if(errorStatus == ERROR_DEVICE_NOT_CONNECTED) {
-        _currentActiveState[(std::size_t)ActiveState::Connected] = false;
+        m_currentActiveState[(std::size_t)ActiveState::Connected] = false;
         return;
     } else {
         return;
@@ -287,7 +287,7 @@ void XboxController::SetMotorSpeed(int controller_number, const Motor& motor, un
 }
 
 bool XboxController::DidMotorStateChange() const noexcept {
-    const bool r = _previousActiveState[(std::size_t)ActiveState::RMotor] ^ _currentActiveState[(std::size_t)ActiveState::RMotor];
-    const bool l = _previousActiveState[(std::size_t)ActiveState::LMotor] ^ _currentActiveState[(std::size_t)ActiveState::LMotor];
+    const bool r = m_previousActiveState[(std::size_t)ActiveState::RMotor] ^ m_currentActiveState[(std::size_t)ActiveState::RMotor];
+    const bool l = m_previousActiveState[(std::size_t)ActiveState::LMotor] ^ m_currentActiveState[(std::size_t)ActiveState::LMotor];
     return r || l;
 }

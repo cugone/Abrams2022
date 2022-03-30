@@ -15,60 +15,60 @@ ParticleIntegrator Particle::semi_implicit_euler = [](float /*time*/, const Part
 };
 
 Particle::Particle(const ParticleRenderState& initialRenderState, const ParticleState& initialState)
-: _renderState(initialRenderState)
-, _nextState(initialState)
-, _curState(initialState)
-, _model(semi_implicit_euler)
+: m_renderState(initialRenderState)
+, m_nextState(initialState)
+, m_curState(initialState)
+, m_model(semi_implicit_euler)
 {
     /* DO NOTHING */
 }
 
 Particle::Particle(const ParticleRenderState& initialRenderState, const ParticleState& initialState, const ParticleIntegrator& model)
-: _renderState(initialRenderState)
-, _nextState(initialState)
-, _curState(initialState)
-, _model(model)
+: m_renderState(initialRenderState)
+, m_nextState(initialState)
+, m_curState(initialState)
+, m_model(model)
 {
     /* DO NOTHING */
 }
 
 const ParticleState& Particle::GetState() const {
-    return _nextState;
+    return m_nextState;
 }
 
 ParticleState& Particle::GetState() {
-    return _nextState;
+    return m_nextState;
 }
 
 const ParticleRenderState& Particle::GetRenderState() const {
-    return _renderState;
+    return m_renderState;
 }
 
 ParticleRenderState& Particle::GetRenderState() {
-    return _renderState;
+    return m_renderState;
 }
 
 void Particle::SetIntegrationModel(const ParticleIntegrator& model) {
-    _model = model;
+    m_model = model;
 }
 
 void Particle::Update(float time, float deltaSeconds) {
-    _renderState.age -= deltaSeconds;
+    m_renderState.m_age -= deltaSeconds;
 
-    if(_renderState.age <= 0.0f) {
+    if(m_renderState.m_age <= 0.0f) {
         Kill();
         return;
     }
 
     //Update visuals
-    float ageRatio = _renderState.age / _renderState.start_age;
+    float ageRatio = m_renderState.m_age / m_renderState.m_start_age;
     //Interpolate "backwards" because age starts at 1 and goes to 0
-    _renderState.scale = MathUtils::Interpolate(_renderState.end_scale, _renderState.start_scale, ageRatio);
-    _renderState.color = MathUtils::Interpolate(_renderState.end_color, _renderState.start_color, ageRatio);
+    m_renderState.m_scale = MathUtils::Interpolate(m_renderState.m_end_scale, m_renderState.m_start_scale, ageRatio);
+    m_renderState.m_color = MathUtils::Interpolate(m_renderState.m_end_color, m_renderState.m_start_color, ageRatio);
 
     //Update physics
-    _nextState = _curState + _model(time, _nextState) * deltaSeconds;
-    _curState = _nextState;
+    m_nextState = m_curState + m_model(time, m_nextState) * deltaSeconds;
+    m_curState = m_nextState;
 }
 
 void Particle::Render(Mesh::Builder& builder) const {
@@ -76,10 +76,10 @@ void Particle::Render(Mesh::Builder& builder) const {
         return;
     }
 
-    const auto vert_left = _curState.position.x - 0.5f;
-    const auto vert_right = _curState.position.x + 0.5f;
-    const auto vert_top = _curState.position.y - 0.5f;
-    const auto vert_bottom = _curState.position.y + 0.5f;
+    const auto vert_left = m_curState.position.x - 0.5f;
+    const auto vert_right = m_curState.position.x + 0.5f;
+    const auto vert_top = m_curState.position.y - 0.5f;
+    const auto vert_bottom = m_curState.position.y + 0.5f;
 
     const auto vert_bl = Vector2(vert_left, vert_bottom);
     const auto vert_tl = Vector2(vert_left, vert_top);
@@ -97,9 +97,9 @@ void Particle::Render(Mesh::Builder& builder) const {
     const auto tx_br = Vector2(tx_right, tx_bottom);
 
     builder.Begin(PrimitiveType::Triangles);
-    builder.SetColor(_renderState.color);
+    builder.SetColor(m_renderState.m_color);
 
-    switch(_renderState.shape) {
+    switch(m_renderState.m_shape) {
     case ParticleRenderState::ParticleShape::Quad: {
         builder.SetUV(tx_bl);
         builder.SetNormal(Vector3::Z_Axis);
@@ -184,34 +184,34 @@ void Particle::Render(Mesh::Builder& builder) const {
         break;
     }
     }
-    builder.End(_renderState.particle_material);
+    builder.End(m_renderState.m_particle_material);
 }
 
 bool Particle::IsTransparent() const {
-    return _renderState.color.a == 0;
+    return m_renderState.m_color.a == 0;
 }
 
 bool Particle::IsAlive() const {
-    return _renderState.age > 0.0f;
+    return m_renderState.m_age > 0.0f;
 }
 
 bool Particle::IsDead() const {
     return !IsAlive();
 }
 void Particle::Kill() {
-    _renderState.age = 0.0f;
+    m_renderState.m_age = 0.0f;
 }
 
 const Matrix4& Particle::GetParentTransform() const {
-    return _parentTransform;
+    return m_parentTransform;
 }
 
 Matrix4& Particle::GetParentTransform() {
-    return _parentTransform;
+    return m_parentTransform;
 }
 
 void Particle::SetParentTransform(const Matrix4& transform) {
-    _parentTransform = transform;
+    m_parentTransform = transform;
 }
 
 bool operator<(const Particle& a, const Particle& b) {
@@ -219,59 +219,59 @@ bool operator<(const Particle& a, const Particle& b) {
 }
 
 void ParticleRenderState::SetLifetime(float lifetimeSeconds) {
-    start_age = lifetimeSeconds;
-    age = start_age;
+    m_start_age = lifetimeSeconds;
+    m_age = m_start_age;
 }
 
 void ParticleRenderState::SetScales(const Vector3& start, const Vector3& end) {
-    start_scale = start;
-    end_scale = end;
-    scale = start;
+    m_start_scale = start;
+    m_end_scale = end;
+    m_scale = start;
 }
 
 void ParticleRenderState::SetColors(const Rgba& start, const Rgba& end) {
-    start_color = start;
-    end_color = end;
-    color = start;
+    m_start_color = start;
+    m_end_color = end;
+    m_color = start;
 }
 
 const Rgba& ParticleRenderState::GetColor() const {
-    return color;
+    return m_color;
 }
 
 Rgba& ParticleRenderState::GetColor() {
-    return color;
+    return m_color;
 }
 
 void ParticleRenderState::SetMaterial(Material* material) {
-    particle_material = material;
+    m_particle_material = material;
 }
 
 void ParticleRenderState::SetBillboarding(bool isBillboarded) {
-    billboarded = isBillboarded;
+    m_billboarded = isBillboarded;
 }
 
 void ParticleRenderState::SetShape(const ParticleShape& renderShape) {
-    shape = renderShape;
+    m_shape = renderShape;
 }
 const ParticleRenderState::ParticleShape& ParticleRenderState::GetShape() const {
-    return shape;
+    return m_shape;
 }
 
 const Rgba& ParticleRenderState::GetStartColor() const {
-    return start_color;
+    return m_start_color;
 }
 
 const Rgba& ParticleRenderState::GetEndColor() const {
-    return end_color;
+    return m_end_color;
 }
 
 const Vector3& ParticleRenderState::GetStartScale() const {
-    return start_scale;
+    return m_start_scale;
 }
 
 const Vector3& ParticleRenderState::GetEndScale() const {
-    return end_scale;
+    return m_end_scale;
 }
 
 //------------------------------------------------------------------------------

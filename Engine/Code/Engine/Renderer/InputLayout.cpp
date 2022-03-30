@@ -13,15 +13,15 @@ void InputLayout::AddElement(std::size_t memberByteOffset, const ImageFormat& fo
     e_desc.SemanticIndex = 0;
     e_desc.InputSlot = inputSlot;
     e_desc.AlignedByteOffset = static_cast<unsigned int>(memberByteOffset);
-    _elements.push_back(e_desc);
+    m_elements.push_back(e_desc);
 }
 
 void InputLayout::AddElement(const D3D11_INPUT_ELEMENT_DESC& desc) noexcept {
-    _elements.push_back(desc);
+    m_elements.push_back(desc);
 }
 
 ID3D11InputLayout* InputLayout::GetDxInputLayout() const noexcept {
-    return _dx_input_layout.Get();
+    return m_dx_input_layout.Get();
 }
 
 void InputLayout::PopulateInputLayoutUsingReflection(ID3D11ShaderReflection& vertexReflection) noexcept {

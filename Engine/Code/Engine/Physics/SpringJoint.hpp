@@ -41,7 +41,7 @@ public:
 
 protected:
 private:
-    SpringJointDef _def{};
+    SpringJointDef m_def{};
 
     [[nodiscard]] bool ConstraintViolated() const noexcept override;
     void SolvePositionConstraint() const noexcept override;

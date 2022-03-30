@@ -19,5 +19,5 @@ public:
 
 protected:
 private:
-    Vector2 _k1k2{};
+    Vector2 m_k1k2{};
 };

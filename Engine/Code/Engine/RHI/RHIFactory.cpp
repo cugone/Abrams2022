@@ -7,9 +7,9 @@
 
 RHIFactory::RHIFactory() noexcept {
 #ifdef RENDER_DEBUG
-    auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), &_dxgi_factory);
+    auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), &m_dxgi_factory);
 #else
-    auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), &_dxgi_factory);
+    auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), &m_dxgi_factory);
 #endif
     GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
 }
@@ -30,7 +30,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIFactory::CreateSwapChainForHwnd(const
     namespace MWRL = Microsoft::WRL;
     MWRL::ComPtr<IDXGISwapChain1> swap_chain1{};
     MWRL::ComPtr<IDXGISwapChain4> swap_chain4{};
-    auto hr_createsc4hwnd = _dxgi_factory->CreateSwapChainForHwnd(device.GetDxDevice(), static_cast<HWND>(window.GetWindowHandle()), &swapchain_desc, nullptr, nullptr, &swap_chain1);
+    auto hr_createsc4hwnd = m_dxgi_factory->CreateSwapChainForHwnd(device.GetDxDevice(), static_cast<HWND>(window.GetWindowHandle()), &swapchain_desc, nullptr, nullptr, &swap_chain1);
     const auto hr_create = StringUtils::FormatWindowsMessage(hr_createsc4hwnd);
     GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), hr_create.c_str());
     auto hr_dxgisc4 = swap_chain1.As(&swap_chain4);
@@ -58,7 +58,7 @@ std::vector<AdapterInfo> RHIFactory::GetAdaptersByPreference(const AdapterPrefer
     std::vector<AdapterInfo> adapters{};
     Microsoft::WRL::ComPtr<IDXGIAdapter4> cur_adapter{};
     for(unsigned int i = 0u;
-        SUCCEEDED(_dxgi_factory->EnumAdapterByGpuPreference(
+        SUCCEEDED(m_dxgi_factory->EnumAdapterByGpuPreference(
         i,
         dx_preference,
         __uuidof(IDXGIAdapter4),

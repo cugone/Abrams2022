@@ -45,18 +45,18 @@ public:
     virtual void SetToDefault() noexcept;
 
 protected:
-    int _windowWidth = 1600;
-    int _defaultWindowWidth = 1600;
-    int _windowHeight = 900;
-    int _defaultWindowHeight = 900;
-    float _fov = 70.0f;
-    float _defaultFov = 70.0f;
-    bool _invertMouseY = false;
-    bool _defaultInvertMouseY = false;
-    bool _invertMouseX = false;
-    bool _defaultInvertMouseX = false;
-    bool _vsync = false;
-    bool _defaultvsync = false;
+    int m_windowWidth = 1600;
+    int m_defaultWindowWidth = 1600;
+    int m_windowHeight = 900;
+    int m_defaultWindowHeight = 900;
+    float m_fov = 70.0f;
+    float m_defaultFov = 70.0f;
+    bool m_invertMouseY = false;
+    bool m_defaultInvertMouseY = false;
+    bool m_invertMouseX = false;
+    bool m_defaultInvertMouseX = false;
+    bool m_vsync = false;
+    bool m_defaultvsync = false;
 private:
 };
 

@@ -91,29 +91,29 @@ namespace StringUtils {
 }
 
 Material::Material() noexcept
-: _textures(CustomTextureIndexSlotOffset, nullptr) {
+: m_textures(CustomTextureIndexSlotOffset, nullptr) {
     auto&& rs = ServiceLocator::get<IRendererService>();
-    _textures[0] = rs.GetTexture("__diffuse");
-    _textures[1] = rs.GetTexture("__normal");
-    _textures[2] = rs.GetTexture("__displacement");
-    _textures[3] = rs.GetTexture("__specular");
-    _textures[4] = rs.GetTexture("__occlusion");
-    _textures[5] = rs.GetTexture("__emissive");
+    m_textures[0] = rs.GetTexture("__diffuse");
+    m_textures[1] = rs.GetTexture("__normal");
+    m_textures[2] = rs.GetTexture("__displacement");
+    m_textures[3] = rs.GetTexture("__specular");
+    m_textures[4] = rs.GetTexture("__occlusion");
+    m_textures[5] = rs.GetTexture("__emissive");
 
-    _name += "_" + std::to_string(_defaultNameId++);
+    m_name += "_" + std::to_string(m_defaultNameId++);
 }
 
 Material::Material(const XMLElement& element) noexcept
-: _textures(CustomTextureIndexSlotOffset, nullptr) {
+: m_textures(CustomTextureIndexSlotOffset, nullptr) {
     auto&& rs = ServiceLocator::get<IRendererService>();
-    _textures[0] = rs.GetTexture("__diffuse");
-    _textures[1] = rs.GetTexture("__normal");
-    _textures[2] = rs.GetTexture("__displacement");
-    _textures[3] = rs.GetTexture("__specular");
-    _textures[4] = rs.GetTexture("__occlusion");
-    _textures[5] = rs.GetTexture("__emissive");
+    m_textures[0] = rs.GetTexture("__diffuse");
+    m_textures[1] = rs.GetTexture("__normal");
+    m_textures[2] = rs.GetTexture("__displacement");
+    m_textures[3] = rs.GetTexture("__specular");
+    m_textures[4] = rs.GetTexture("__occlusion");
+    m_textures[5] = rs.GetTexture("__emissive");
 
-    _name += "_" + std::to_string(_defaultNameId++);
+    m_name += "_" + std::to_string(m_defaultNameId++);
 
     GUARANTEE_OR_DIE(LoadFromXml(element), "Material constructor failed to load.");
 }
@@ -123,7 +123,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
 
     DataUtils::ValidateXmlElement(element, "material", "shader", "name", "lighting,textures");
 
-    _name = DataUtils::ParseXmlAttribute(element, "name", _name);
+    m_name = DataUtils::ParseXmlAttribute(element, "name", m_name);
     {
         const auto* xml_shader = element.FirstChildElement("shader");
         DataUtils::ValidateXmlElement(*xml_shader, "shader", "", "src");
@@ -136,7 +136,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
                 std::ostringstream ss;
                 ss << "Shader:\n";
                 ss << file << "\n";
-                ss << "Referenced in Material file \"" << _name << "\" could not be found.\n";
+                ss << "Referenced in Material file \"" << m_name << "\" could not be found.\n";
                 ss << "The filesystem returned an error:\n"
                    << ec.message() << '\n';
                 return ss.str();
@@ -146,9 +146,9 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         shader_src.make_preferred();
         auto& rs = ServiceLocator::get<IRendererService>();
         if(auto* shader = rs.GetShader(shader_src.string())) {
-            _shader = shader;
+            m_shader = shader;
         } else {
-            DebuggerPrintf("Shader: %s\n referenced in Material file \"%s\" did not already exist. Attempting to create from source...", shader_src.string().c_str(), _name.c_str());
+            DebuggerPrintf("Shader: %s\n referenced in Material file \"%s\" did not already exist. Attempting to create from source...", shader_src.string().c_str(), m_name.c_str());
             if(!rs.RegisterShader(shader_src.string())) {
                 DebuggerPrintf("failed.\n");
                 return false;
@@ -156,7 +156,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
             DebuggerPrintf("done.\n");
             if(shader = rs.GetShader(shader_src.string()); shader == nullptr) {
                 if(shader = rs.GetShader(rs.GetShaderName(shader_src)); shader != nullptr) {
-                    _shader = shader;
+                    m_shader = shader;
                 }
             }
         }
@@ -166,20 +166,20 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         DataUtils::ValidateXmlElement(*xml_lighting, "lighting", "", "", "specularIntensity,specularFactor,specularPower,glossFactor,emissiveFactor");
         //specularIntensity and specularFactor are synonyms
         if(const auto* xml_specInt = xml_lighting->FirstChildElement("specularIntensity")) {
-            _specularIntensity = DataUtils::ParseXmlElementText(*xml_specInt, _specularIntensity);
+            m_specularIntensity = DataUtils::ParseXmlElementText(*xml_specInt, m_specularIntensity);
         }
         if(const auto* xml_specFactor = xml_lighting->FirstChildElement("specularFactor")) {
-            _specularIntensity = DataUtils::ParseXmlElementText(*xml_specFactor, _specularIntensity);
+            m_specularIntensity = DataUtils::ParseXmlElementText(*xml_specFactor, m_specularIntensity);
         }
         //specularPower and glossFactor are synonyms
         if(const auto* xml_specPower = xml_lighting->FirstChildElement("specularPower")) {
-            _specularPower = DataUtils::ParseXmlElementText(*xml_specPower, _specularPower);
+            m_specularPower = DataUtils::ParseXmlElementText(*xml_specPower, m_specularPower);
         }
         if(const auto* xml_glossFactor = xml_lighting->FirstChildElement("glossFactor")) {
-            _specularPower = DataUtils::ParseXmlElementText(*xml_glossFactor, _specularPower);
+            m_specularPower = DataUtils::ParseXmlElementText(*xml_glossFactor, m_specularPower);
         }
         if(const auto* xml_emissiveFactor = xml_lighting->FirstChildElement("emissiveFactor")) {
-            _emissiveFactor = DataUtils::ParseXmlElementText(*xml_emissiveFactor, _emissiveFactor);
+            m_emissiveFactor = DataUtils::ParseXmlElementText(*xml_emissiveFactor, m_emissiveFactor);
         }
     }
 
@@ -236,7 +236,7 @@ void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noe
         if(ec) {
             const auto texIdAsStr = StringUtils::to_string(slotId);
             static const std::string err_msg{" texture referenced in Material file \"%s\" could not be found. The filesystem returned an error: %s\n"};
-            DebuggerPrintf((texIdAsStr + err_msg).c_str(), _name.c_str(), ec.message().c_str());
+            DebuggerPrintf((texIdAsStr + err_msg).c_str(), m_name.c_str(), ec.message().c_str());
             return;
         }
     }
@@ -258,25 +258,25 @@ void Material::SetTextureSlotToInvalid(const TextureID& slotId) noexcept {
     auto& rs = ServiceLocator::get<IRendererService>();
     auto* const invalid_tex = rs.GetTexture("__invalid");
     const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
-    _textures[slotAsIndex] = invalid_tex;
+    m_textures[slotAsIndex] = invalid_tex;
 }
 
 void Material::AddTextureSlots(std::size_t count) noexcept {
-    const auto old_size = _textures.size();
+    const auto old_size = m_textures.size();
     const auto new_size = (std::min)(old_size + MaxCustomTextureSlotCount, old_size + (std::min)(MaxCustomTextureSlotCount, count));
-    _textures.resize(new_size);
+    m_textures.resize(new_size);
     for(std::size_t i = old_size; i < new_size; ++i) {
-        _textures[i] = nullptr;
+        m_textures[i] = nullptr;
     }
 }
 
 void Material::ClearTextureSlot(const TextureID& slotId) noexcept {
     const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
-    _textures[slotAsIndex] = nullptr;
+    m_textures[slotAsIndex] = nullptr;
 }
 
 void Material::ClearAllTextureSlots() noexcept {
-    for(auto* t : _textures) {
+    for(auto* t : m_textures) {
         t = nullptr;
     }
 }
@@ -286,19 +286,19 @@ void Material::AddTextureSlot() noexcept {
 }
 
 std::string Material::GetName() const noexcept {
-    return _name;
+    return m_name;
 }
 
 Shader* Material::GetShader() const noexcept {
-    return _shader;
+    return m_shader;
 }
 
 std::size_t Material::GetTextureCount() const noexcept {
-    return _textures.size();
+    return m_textures.size();
 }
 
 Texture* Material::GetTexture(std::size_t i) const noexcept {
-    return _textures[i];
+    return m_textures[i];
 }
 
 Texture* Material::GetTexture(const TextureID& id) const noexcept {
@@ -306,15 +306,15 @@ Texture* Material::GetTexture(const TextureID& id) const noexcept {
 }
 
 float Material::GetSpecularIntensity() const noexcept {
-    return _specularIntensity;
+    return m_specularIntensity;
 }
 
 float Material::GetGlossyFactor() const noexcept {
-    return _specularPower;
+    return m_specularPower;
 }
 
 float Material::GetEmissiveFactor() const noexcept {
-    return _emissiveFactor;
+    return m_emissiveFactor;
 }
 
 Vector3 Material::GetSpecGlossEmitFactors() const noexcept {
@@ -322,11 +322,11 @@ Vector3 Material::GetSpecGlossEmitFactors() const noexcept {
 }
 
 void Material::SetFilepath(const std::filesystem::path& p) noexcept {
-    _filepath = p;
+    m_filepath = p;
 }
 
 const std::filesystem::path& Material::GetFilepath() const noexcept {
-    return _filepath;
+    return m_filepath;
 }
 
 void Material::SetTextureSlot(const TextureID& slotId, Texture* texture) noexcept {
@@ -336,5 +336,5 @@ void Material::SetTextureSlot(const TextureID& slotId, Texture* texture) noexcep
     if(count <= slotAsIndex) {
         AddTextureSlots(1 + count - slotAsIndex);
     }
-    _textures[slotAsIndex] = texture;
+    m_textures[slotAsIndex] = texture;
 }

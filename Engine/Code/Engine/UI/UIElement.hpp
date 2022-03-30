@@ -121,11 +121,11 @@ protected:
     [[nodiscard]] Vector2 GetBottomLeft() const noexcept;
     [[nodiscard]] Vector2 GetBottomRight() const noexcept;
 
-    std::string _name{};
-    Rgba _fill_color{Rgba::NoAlpha};
-    Rgba _edge_color{Rgba::White};
+    std::string m_name{};
+    Rgba m_fill_color{Rgba::NoAlpha};
+    Rgba m_edge_color{Rgba::White};
 
-    AABB2 _bounds{};
+    AABB2 m_bounds{};
 
 private:
     [[nodiscard]] float GetParentOrientationRadians() const;
@@ -133,15 +133,15 @@ private:
 
     static inline UINullPanelSlot s_NullPanelSlot{};
 
-    Vector4 _position{};
-    Vector2 _pivot{};
+    Vector4 m_position{};
+    Vector2 m_pivot{};
 
-    Rgba _pivot_color{Rgba::Red};
-    UIPanelSlot* _slot{&s_NullPanelSlot};
-    float _orientationRadians{0.0f};
-    UIInvalidateElementReason _dirty_reason{UIInvalidateElementReason::None};
-    bool _hidden{false};
-    bool _enabled{true};
+    Rgba m_pivot_color{Rgba::Red};
+    UIPanelSlot* m_slot{&s_NullPanelSlot};
+    float m_orientationRadians{0.0f};
+    UIInvalidateElementReason m_dirty_reason{UIInvalidateElementReason::None};
+    bool m_hidden{false};
+    bool m_enabled{true};
 
     friend class UIPanel;
     friend struct UIPanelSlot;

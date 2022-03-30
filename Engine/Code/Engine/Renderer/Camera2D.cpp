@@ -3,30 +3,30 @@
 #include <algorithm>
 
 void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar /*= Vector2(0.0f, 1.0f)*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) noexcept {
-    leftBottom_view = leftBottom;
-    rightTop_view = rightTop;
-    aspect_ratio = aspectRatio;
-    nearFar_distance = nearFar;
+    m_leftBottom_view = leftBottom;
+    m_rightTop_view = rightTop;
+    m_aspect_ratio = aspectRatio;
+    m_nearFar_distance = nearFar;
     CalcViewMatrix();
     CalcProjectionMatrix();
     CalcViewProjectionMatrix();
 }
 
 void Camera2D::CalcViewProjectionMatrix() noexcept {
-    view_projection_matrix = Matrix4::MakeViewProjection(view_matrix, projection_matrix);
-    inv_view_projection_matrix = Matrix4::CalculateInverse(view_projection_matrix);
+    m_view_projection_matrix = Matrix4::MakeViewProjection(m_view_matrix, m_projection_matrix);
+    m_inv_view_projection_matrix = Matrix4::CalculateInverse(m_view_projection_matrix);
 }
 
 void Camera2D::CalcProjectionMatrix() noexcept {
-    projection_matrix = Matrix4::CreateDXOrthographicProjection(leftBottom_view.x, rightTop_view.x, leftBottom_view.y, rightTop_view.y, nearFar_distance.x, nearFar_distance.y);
-    inv_projection_matrix = Matrix4::CalculateInverse(projection_matrix);
+    m_projection_matrix = Matrix4::CreateDXOrthographicProjection(m_leftBottom_view.x, m_rightTop_view.x, m_leftBottom_view.y, m_rightTop_view.y, m_nearFar_distance.x, m_nearFar_distance.y);
+    m_inv_projection_matrix = Matrix4::CalculateInverse(m_projection_matrix);
 }
 
 void Camera2D::CalcViewMatrix() noexcept {
     Matrix4 vT = Matrix4::CreateTranslationMatrix(-position);
     Matrix4 vR = Matrix4::Create2DRotationDegreesMatrix(orientation_degrees);
-    view_matrix = Matrix4::MakeRT(vR, vT);
-    inv_view_matrix = Matrix4::CalculateInverse(view_matrix);
+    m_view_matrix = Matrix4::MakeRT(vR, vT);
+    m_inv_view_matrix = Matrix4::CalculateInverse(m_view_matrix);
 }
 
 void Camera2D::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
@@ -79,51 +79,51 @@ void Camera2D::ApplyOrientation(float addAngleRadians) noexcept {
 }
 
 float Camera2D::GetAspectRatio() const noexcept {
-    return aspect_ratio;
+    return m_aspect_ratio;
 }
 
 float Camera2D::GetInverseAspectRatio() const noexcept {
-    return 1.0f / aspect_ratio;
+    return 1.0f / m_aspect_ratio;
 }
 
 float Camera2D::GetNearDistance() const noexcept {
-    return nearFar_distance.x;
+    return m_nearFar_distance.x;
 }
 
 float Camera2D::GetFarDistance() const noexcept {
-    return nearFar_distance.y;
+    return m_nearFar_distance.y;
 }
 
 const Matrix4& Camera2D::GetViewMatrix() const noexcept {
-    return view_matrix;
+    return m_view_matrix;
 }
 
 const Matrix4& Camera2D::GetProjectionMatrix() const noexcept {
-    return projection_matrix;
+    return m_projection_matrix;
 }
 
 const Matrix4& Camera2D::GetViewProjectionMatrix() const noexcept {
-    return view_projection_matrix;
+    return m_view_projection_matrix;
 }
 
 const Matrix4& Camera2D::GetInverseViewMatrix() const noexcept {
-    return inv_view_matrix;
+    return m_inv_view_matrix;
 }
 
 const Matrix4& Camera2D::GetInverseProjectionMatrix() const noexcept {
-    return inv_projection_matrix;
+    return m_inv_projection_matrix;
 }
 
 const Matrix4& Camera2D::GetInverseViewProjectionMatrix() const noexcept {
-    return inv_view_projection_matrix;
+    return m_inv_view_projection_matrix;
 }
 
 const RenderTargetStack::Node& Camera2D::GetRenderTarget() const noexcept {
-    return _render_target;
+    return m_render_target;
 }
 
 RenderTargetStack::Node& Camera2D::GetRenderTarget() noexcept {
-    return _render_target;
+    return m_render_target;
 }
 
 Vector2 Camera2D::GetViewDimensions() const noexcept {
@@ -131,11 +131,11 @@ Vector2 Camera2D::GetViewDimensions() const noexcept {
 }
 
 float Camera2D::GetViewHeight() const noexcept {
-    return leftBottom_view.y - rightTop_view.y;
+    return m_leftBottom_view.y - m_rightTop_view.y;
 }
 
 float Camera2D::GetViewWidth() const noexcept {
-    return rightTop_view.x - leftBottom_view.x;
+    return m_rightTop_view.x - m_leftBottom_view.x;
 }
 
 float Camera2D::GetShake() const noexcept {

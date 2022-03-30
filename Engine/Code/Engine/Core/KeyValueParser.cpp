@@ -29,7 +29,7 @@ KeyValueParser::KeyValueParser(std::istream& input) noexcept {
 }
 
 bool KeyValueParser::HasKey(const std::string& key) const noexcept {
-    return _kv_pairs.find(key) != _kv_pairs.end();
+    return m_kv_pairs.find(key) != m_kv_pairs.end();
 }
 
 void KeyValueParser::Parse(const std::string& input) noexcept {
@@ -120,7 +120,7 @@ void KeyValueParser::Parse(std::istream& input) noexcept {
 }
 
 std::map<std::string, std::string>&& KeyValueParser::Release() noexcept {
-    return std::move(_kv_pairs);
+    return std::move(m_kv_pairs);
 }
 
 void KeyValueParser::ParseMultiParams(const std::string& input) noexcept {
@@ -174,11 +174,11 @@ void KeyValueParser::CollapseMultiParamWhitespace(std::string& whole_line) noexc
 }
 
 void KeyValueParser::SetValue(const std::string& key, const std::string& value) noexcept {
-    _kv_pairs[key] = value;
+    m_kv_pairs[key] = value;
 }
 
 void KeyValueParser::SetValue(const std::string& key, const bool& value) noexcept {
-    _kv_pairs[key] = value ? std::string{"true"} : std::string{"false"};
+    m_kv_pairs[key] = value ? std::string{"true"} : std::string{"false"};
 }
 
 std::size_t KeyValueParser::CountCharNotInQuotes(std::string& cur_line, char c) noexcept {

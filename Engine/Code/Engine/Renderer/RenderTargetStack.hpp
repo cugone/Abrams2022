@@ -29,7 +29,7 @@ public:
 
 protected:
 private:
-    std::stack<RenderTargetStack::Node, std::vector<RenderTargetStack::Node>> _stack{};
+    std::stack<RenderTargetStack::Node, std::vector<RenderTargetStack::Node>> m_stack{};
 };
 
 [[nodiscard]] bool operator==(const RenderTargetStack::Node& lhs, const RenderTargetStack::Node& rhs);

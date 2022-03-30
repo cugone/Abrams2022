@@ -63,16 +63,16 @@ private:
     [[nodiscard]] SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept;
     [[nodiscard]] int GetIndexFromCoords(const IntVector2& coords) noexcept;
 
-    Material* _material = nullptr;
-    std::weak_ptr<SpriteSheet> _sheet{};
-    TimeUtils::FPSeconds _duration_seconds = TimeUtils::FPFrames{1};
-    TimeUtils::FPSeconds _elapsed_seconds{0.0f};
-    TimeUtils::FPSeconds _elapsed_frame_delta_seconds{0.0f};
-    TimeUtils::FPSeconds _max_seconds_per_frame{0.0f};
-    SpriteAnimMode _playback_mode = SpriteAnimMode::Looping;
-    int _start_index{0};
-    int _end_index{1};
-    bool _is_playing = true;
+    Material* m_material = nullptr;
+    std::weak_ptr<SpriteSheet> m_sheet{};
+    TimeUtils::FPSeconds m_duration_seconds = TimeUtils::FPFrames{1};
+    TimeUtils::FPSeconds m_elapsed_seconds{0.0f};
+    TimeUtils::FPSeconds m_elapsed_frame_delta_seconds{0.0f};
+    TimeUtils::FPSeconds m_max_seconds_per_frame{0.0f};
+    SpriteAnimMode m_playback_mode = SpriteAnimMode::Looping;
+    int m_start_index{0};
+    int m_end_index{1};
+    bool m_is_playing = true;
 };
 
 struct AnimatedSpriteDesc {

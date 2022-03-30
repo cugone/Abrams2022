@@ -52,9 +52,9 @@ protected:
     void CalcBoundsMyChildrenThenMe() noexcept;
 
     [[nodiscard]] virtual bool CanHaveManyChildren() const noexcept;
-    std::vector<std::shared_ptr<UIPanelSlot>> _slots{};
+    std::vector<std::shared_ptr<UIPanelSlot>> m_slots{};
 
 private:
-    UIWidget* _owner{};
+    UIWidget* m_owner{};
 };
 

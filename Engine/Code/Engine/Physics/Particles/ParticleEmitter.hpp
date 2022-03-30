@@ -55,10 +55,10 @@ private:
     void UpdateParticles(float time, float deltaSeconds);
     void DestroyDeadEntities();
 
-    std::string _name{};
-    Stopwatch _spawnClock{};
-    std::vector<Particle> _particles{};
-    mutable Mesh::Builder _builder{};
-    float _age{0.0f};
-    bool _isWarming{false};
+    std::string m_name{};
+    Stopwatch m_spawnClock{};
+    std::vector<Particle> m_particles{};
+    mutable Mesh::Builder m_builder{};
+    float m_age{0.0f};
+    bool m_isWarming{false};
 };

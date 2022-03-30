@@ -23,7 +23,7 @@ public:
     void detach_all() noexcept;
 
 protected:
-    std::vector<RigidBody*> _observers{};
+    std::vector<RigidBody*> m_observers{};
 
 private:
 };

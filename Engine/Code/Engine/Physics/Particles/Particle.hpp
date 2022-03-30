@@ -43,17 +43,17 @@ public:
     const Vector3& GetEndScale() const;
 
 private:
-    Vector3 start_scale{Vector3::One};
-    Vector3 scale{Vector3::One};
-    Vector3 end_scale{Vector3::One};
-    float start_age{1.0f};
-    float age{1.0f};
-    Rgba start_color{Rgba::White};
-    Rgba color{Rgba::White};
-    Rgba end_color{Rgba::White};
-    ParticleShape shape{ParticleShape::Quad};
-    Material* particle_material{nullptr};
-    bool billboarded{false};
+    Vector3 m_start_scale{Vector3::One};
+    Vector3 m_scale{Vector3::One};
+    Vector3 m_end_scale{Vector3::One};
+    float m_start_age{1.0f};
+    float m_age{1.0f};
+    Rgba m_start_color{Rgba::White};
+    Rgba m_color{Rgba::White};
+    Rgba m_end_color{Rgba::White};
+    ParticleShape m_shape{ParticleShape::Quad};
+    Material* m_particle_material{nullptr};
+    bool m_billboarded{false};
 
     friend class Particle;
 };
@@ -109,11 +109,11 @@ public:
 
 protected:
 private:
-    ParticleRenderState _renderState{};
-    ParticleState _nextState{};
-    ParticleState _curState{};
-    ParticleIntegrator _model{};
-    Matrix4 _parentTransform{Matrix4::I};
+    ParticleRenderState m_renderState{};
+    ParticleState m_nextState{};
+    ParticleState m_curState{};
+    ParticleIntegrator m_model{};
+    Matrix4 m_parentTransform{Matrix4::I};
 };
 
 bool operator<(const Particle& a, const Particle& b);

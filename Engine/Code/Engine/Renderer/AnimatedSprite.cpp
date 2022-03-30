@@ -15,23 +15,23 @@ AnimatedSprite::AnimatedSprite(std::weak_ptr<SpriteSheet> spriteSheet,
                                int startSpriteIndex,
                                int frameLength,
                                SpriteAnimMode playbackMode /*= SpriteAnimMode::LOOPING*/) noexcept
-: _sheet(spriteSheet)
-, _duration_seconds(durationSeconds)
-, _playback_mode(playbackMode)
-, _start_index(startSpriteIndex)
-, _end_index(startSpriteIndex + frameLength) {
+: m_sheet(spriteSheet)
+, m_duration_seconds(durationSeconds)
+, m_playback_mode(playbackMode)
+, m_start_index(startSpriteIndex)
+, m_end_index(startSpriteIndex + frameLength) {
     bool has_frames = frameLength > 0;
-    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+    m_max_seconds_per_frame = TimeUtils::FPSeconds{m_duration_seconds / (has_frames ? static_cast<float>(m_end_index - m_start_index) : 1.0f)};
 }
 
 AnimatedSprite::AnimatedSprite(std::weak_ptr<SpriteSheet> spriteSheet, TimeUtils::FPSeconds durationSeconds, const IntVector2& startSpriteCoords, int frameLength, SpriteAnimMode playbackMode /*= SpriteAnimMode::Looping*/) noexcept
-: _sheet(spriteSheet)
-, _duration_seconds(durationSeconds)
-, _playback_mode(playbackMode)
-, _start_index(startSpriteCoords.x + startSpriteCoords.y * _sheet.lock()->GetLayout().x)
-, _end_index(_start_index + frameLength) {
+: m_sheet(spriteSheet)
+, m_duration_seconds(durationSeconds)
+, m_playback_mode(playbackMode)
+, m_start_index(startSpriteCoords.x + startSpriteCoords.y * m_sheet.lock()->GetLayout().x)
+, m_end_index(m_start_index + frameLength) {
     bool has_frames = frameLength > 0;
-    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+    m_max_seconds_per_frame = TimeUtils::FPSeconds{m_duration_seconds / (has_frames ? static_cast<float>(m_end_index - m_start_index) : 1.0f)};
 }
 
 AnimatedSprite::AnimatedSprite(const XMLElement& elem) noexcept
@@ -40,7 +40,7 @@ AnimatedSprite::AnimatedSprite(const XMLElement& elem) noexcept
 }
 
 AnimatedSprite::AnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept
-: _sheet(sheet) {
+: m_sheet(sheet) {
     LoadFromXml(elem);
 }
 
@@ -50,86 +50,86 @@ AnimatedSprite::AnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector
 }
 
 AnimatedSprite::AnimatedSprite(const AnimatedSpriteDesc& desc) noexcept
-: _material(desc.material)
-, _sheet(desc.spriteSheet)
-, _duration_seconds(desc.durationSeconds)
-, _playback_mode(desc.playbackMode)
-, _start_index(desc.startSpriteIndex > -1 ? desc.startSpriteIndex : (desc.startSpriteCoords.x > -1 && desc.startSpriteCoords.y > -1 ? (desc.startSpriteCoords.x + desc.startSpriteCoords.y * _sheet.lock()->GetLayout().x) : 0))
-, _end_index(desc.startSpriteIndex + desc.frameLength) {
+: m_material(desc.material)
+, m_sheet(desc.spriteSheet)
+, m_duration_seconds(desc.durationSeconds)
+, m_playback_mode(desc.playbackMode)
+, m_start_index(desc.startSpriteIndex > -1 ? desc.startSpriteIndex : (desc.startSpriteCoords.x > -1 && desc.startSpriteCoords.y > -1 ? (desc.startSpriteCoords.x + desc.startSpriteCoords.y * m_sheet.lock()->GetLayout().x) : 0))
+, m_end_index(desc.startSpriteIndex + desc.frameLength) {
     bool has_frames = desc.frameLength > 0;
-    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+    m_max_seconds_per_frame = TimeUtils::FPSeconds{m_duration_seconds / (has_frames ? static_cast<float>(m_end_index - m_start_index) : 1.0f)};
 }
 
 AnimatedSprite::~AnimatedSprite() noexcept {
-    _sheet.reset();
+    m_sheet.reset();
 }
 
 void AnimatedSprite::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    _elapsed_frame_delta_seconds += deltaSeconds;
-    while(_elapsed_frame_delta_seconds >= _max_seconds_per_frame) {
-        _elapsed_frame_delta_seconds -= _max_seconds_per_frame;
+    m_elapsed_frame_delta_seconds += deltaSeconds;
+    while(m_elapsed_frame_delta_seconds >= m_max_seconds_per_frame) {
+        m_elapsed_frame_delta_seconds -= m_max_seconds_per_frame;
     }
-    switch(_playback_mode) {
+    switch(m_playback_mode) {
     case SpriteAnimMode::Looping:
         if(IsFinished()) {
-            while(_elapsed_seconds >= _duration_seconds) {
-                _elapsed_seconds -= _duration_seconds;
+            while(m_elapsed_seconds >= m_duration_seconds) {
+                m_elapsed_seconds -= m_duration_seconds;
             }
         }
         break;
     case SpriteAnimMode::Looping_Reverse:
         if(IsFinished()) {
-            _elapsed_seconds = _duration_seconds;
+            m_elapsed_seconds = m_duration_seconds;
             deltaSeconds *= -1.0f;
         }
         break;
     case SpriteAnimMode::Play_To_Beginning:
         if(IsFinished()) {
-            _is_playing = false;
-            _elapsed_seconds = TimeUtils::FPSeconds{0.0f};
+            m_is_playing = false;
+            m_elapsed_seconds = TimeUtils::FPSeconds{0.0f};
         }
         break;
     case SpriteAnimMode::Play_To_End:
         if(IsFinished()) {
-            _is_playing = false;
-            _elapsed_seconds = _duration_seconds;
+            m_is_playing = false;
+            m_elapsed_seconds = m_duration_seconds;
         }
         break;
     case SpriteAnimMode::Ping_Pong:
-        if(_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
+        if(m_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
             deltaSeconds *= -1.0f;
-            while(_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
-                _elapsed_seconds += _duration_seconds;
+            while(m_elapsed_seconds < TimeUtils::FPSeconds{0.0f}) {
+                m_elapsed_seconds += m_duration_seconds;
             }
-        } else if(_elapsed_seconds >= _duration_seconds) {
+        } else if(m_elapsed_seconds >= m_duration_seconds) {
             deltaSeconds *= -1.0f;
-            while(_elapsed_seconds >= _duration_seconds) {
-                _elapsed_seconds -= _duration_seconds;
+            while(m_elapsed_seconds >= m_duration_seconds) {
+                m_elapsed_seconds -= m_duration_seconds;
             }
         }
         break;
     default:
         break;
     }
-    _elapsed_seconds += deltaSeconds;
+    m_elapsed_seconds += deltaSeconds;
 }
 
 AABB2 AnimatedSprite::GetCurrentTexCoords() const noexcept {
     const auto&& [x, y] = GetCurrentSpriteCoords();
-    if(!_sheet.expired()) {
-        return _sheet.lock()->GetTexCoordsFromSpriteCoords(x, y);
+    if(!m_sheet.expired()) {
+        return m_sheet.lock()->GetTexCoordsFromSpriteCoords(x, y);
     }
     return {};
 }
 
 IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
-    int length = _end_index - _start_index;
-    const auto framesPerSecond = TimeUtils::FPSeconds{1.0f} / _max_seconds_per_frame;
-    auto frameIndex = static_cast<int>(_elapsed_seconds.count() * framesPerSecond);
-    switch(_playback_mode) {
+    int length = m_end_index - m_start_index;
+    const auto framesPerSecond = TimeUtils::FPSeconds{1.0f} / m_max_seconds_per_frame;
+    auto frameIndex = static_cast<int>(m_elapsed_seconds.count() * framesPerSecond);
+    switch(m_playback_mode) {
     case SpriteAnimMode::Play_To_End:
         if(frameIndex >= length) {
-            frameIndex = _end_index - 1;
+            frameIndex = m_end_index - 1;
         }
         break;
     case SpriteAnimMode::Play_To_Beginning:
@@ -143,12 +143,12 @@ IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
             frameIndex = 0;
         }
         if(frameIndex < 0) {
-            frameIndex = _end_index - 1;
+            frameIndex = m_end_index - 1;
         }
         break;
     case SpriteAnimMode::Ping_Pong:
         if(frameIndex >= length) {
-            frameIndex = _end_index - 1;
+            frameIndex = m_end_index - 1;
         }
         if(frameIndex < 0) {
             frameIndex = 0;
@@ -157,10 +157,10 @@ IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
     default:
         break;
     }
-    const auto spriteIndex = _start_index + frameIndex;
+    const auto spriteIndex = m_start_index + frameIndex;
     const auto tileWidth = [this]() {
-        if(!_sheet.expired()) {
-            return _sheet.lock()->GetLayout().x;
+        if(!m_sheet.expired()) {
+            return m_sheet.lock()->GetLayout().x;
         }
         return 1;
     }();
@@ -170,112 +170,112 @@ IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
 }
 
 const Texture* const AnimatedSprite::GetTexture() const noexcept {
-    if(!_sheet.expired()) {
-        return _sheet.lock()->GetTexture();
+    if(!m_sheet.expired()) {
+        return m_sheet.lock()->GetTexture();
     }
     return nullptr;
 }
 
 int AnimatedSprite::GetNumSprites() const noexcept {
-    if(!_sheet.expired()) {
-        return _sheet.lock()->GetNumSprites();
+    if(!m_sheet.expired()) {
+        return m_sheet.lock()->GetNumSprites();
     }
     return 0;
 }
 
 IntVector2 AnimatedSprite::GetFrameDimensions() const noexcept {
-    if(!_sheet.expired()) {
-        return _sheet.lock()->GetFrameDimensions();
+    if(!m_sheet.expired()) {
+        return m_sheet.lock()->GetFrameDimensions();
     }
     return {};
 }
 
 int AnimatedSprite::GetFrameCount() const noexcept {
-    return _end_index - _start_index;
+    return m_end_index - m_start_index;
 }
 
 void AnimatedSprite::TogglePause() noexcept {
-    _is_playing = !_is_playing;
+    m_is_playing = !m_is_playing;
 }
 
 void AnimatedSprite::Pause() noexcept {
-    _is_playing = false;
+    m_is_playing = false;
 }
 
 void AnimatedSprite::Resume() noexcept {
-    _is_playing = true;
+    m_is_playing = true;
 }
 
 void AnimatedSprite::Reset() noexcept {
-    _elapsed_seconds = TimeUtils::FPSeconds{0.0f};
+    m_elapsed_seconds = TimeUtils::FPSeconds{0.0f};
 }
 
 bool AnimatedSprite::IsFinished() const noexcept {
-    if(!_is_playing) {
+    if(!m_is_playing) {
         return false;
     }
-    switch(_playback_mode) {
+    switch(m_playback_mode) {
     case SpriteAnimMode::Looping: /* FALL THROUGH */
     case SpriteAnimMode::Play_To_End:
-        return !(_elapsed_seconds < _duration_seconds);
+        return !(m_elapsed_seconds < m_duration_seconds);
     case SpriteAnimMode::Looping_Reverse: /* FALL THROUGH */
     case SpriteAnimMode::Play_To_Beginning:
-        return _elapsed_seconds < TimeUtils::FPSeconds{0.0f};
+        return m_elapsed_seconds < TimeUtils::FPSeconds{0.0f};
     case SpriteAnimMode::Ping_Pong:
         return false;
     default:
-        return !(_elapsed_seconds < _duration_seconds);
+        return !(m_elapsed_seconds < m_duration_seconds);
     }
 }
 
 bool AnimatedSprite::IsPlaying() const noexcept {
-    return _is_playing;
+    return m_is_playing;
 }
 
 TimeUtils::FPSeconds AnimatedSprite::GetDurationSeconds() const noexcept {
-    return _duration_seconds;
+    return m_duration_seconds;
 }
 
 TimeUtils::FPSeconds AnimatedSprite::GetSecondsElapsed() const noexcept {
-    return _elapsed_seconds;
+    return m_elapsed_seconds;
 }
 
 TimeUtils::FPSeconds AnimatedSprite::GetSecondsRemaining() const noexcept {
-    return _duration_seconds - _elapsed_seconds;
+    return m_duration_seconds - m_elapsed_seconds;
 }
 
 float AnimatedSprite::GetFractionElapsed() const noexcept {
-    return _elapsed_seconds / _duration_seconds;
+    return m_elapsed_seconds / m_duration_seconds;
 }
 
 float AnimatedSprite::GetFractionRemaining() const noexcept {
-    return (_duration_seconds - _elapsed_seconds) / _duration_seconds;
+    return (m_duration_seconds - m_elapsed_seconds) / m_duration_seconds;
 }
 
 void AnimatedSprite::SetSecondsElapsed(TimeUtils::FPSeconds secondsElapsed) noexcept {
-    _elapsed_seconds = secondsElapsed;
+    m_elapsed_seconds = secondsElapsed;
 }
 
 void AnimatedSprite::SetFractionElapsed(float fractionElapsed) noexcept {
-    _elapsed_seconds = _duration_seconds * fractionElapsed;
+    m_elapsed_seconds = m_duration_seconds * fractionElapsed;
 }
 
 void AnimatedSprite::SetDuration(TimeUtils::FPSeconds durationSeconds) noexcept {
-    _duration_seconds = durationSeconds;
-    bool has_frames = _end_index - _start_index > 0;
-    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+    m_duration_seconds = durationSeconds;
+    bool has_frames = m_end_index - m_start_index > 0;
+    m_max_seconds_per_frame = TimeUtils::FPSeconds{m_duration_seconds / (has_frames ? static_cast<float>(m_end_index - m_start_index) : 1.0f)};
 }
 
 void AnimatedSprite::SetMaterial(Material* mat) noexcept {
-    _material = mat;
+    m_material = mat;
 }
 
 Material* AnimatedSprite::GetMaterial() const noexcept {
-    return _material;
+    return m_material;
 }
 
 const AnimatedSprite::SpriteAnimMode& AnimatedSprite::GetPlaybackMode() const noexcept {
-    return _playback_mode;
+    return m_playback_mode;
 }
 
 AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept {
@@ -296,8 +296,8 @@ AnimatedSprite::SpriteAnimMode AnimatedSprite::GetAnimModeFromOptions(bool loopi
 }
 
 int AnimatedSprite::GetIndexFromCoords(const IntVector2& coords) noexcept {
-    if(!_sheet.expired()) {
-        const auto& layout = _sheet.lock()->GetLayout();
+    if(!m_sheet.expired()) {
+        const auto& layout = m_sheet.lock()->GetLayout();
         return coords.x + coords.y * layout.x;
     }
     return 0;
@@ -307,32 +307,32 @@ void AnimatedSprite::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "spritesheet", "name");
     if(const auto* xml_sheet = elem.FirstChildElement("spritesheet")) {
         DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");
-        _sheet = ServiceLocator::get<IRendererService>().CreateSpriteSheet(*xml_sheet);
+        m_sheet = ServiceLocator::get<IRendererService>().CreateSpriteSheet(*xml_sheet);
     }
 
     const auto* xml_animset = elem.FirstChildElement("animationset");
     DataUtils::ValidateXmlElement(*xml_animset, "animationset", "", "startindex,framelength,duration", "", "loop,reverse,pingpong");
 
-    _start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", -1);
-    if(_start_index == -1) {
+    m_start_index = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", -1);
+    if(m_start_index == -1) {
         const auto start_index_coords = DataUtils::ParseXmlAttribute(*xml_animset, "startindex", IntVector2::Zero);
-        _start_index = GetIndexFromCoords(start_index_coords);
+        m_start_index = GetIndexFromCoords(start_index_coords);
     }
 
     const auto frameLength = DataUtils::ParseXmlAttribute(*xml_animset, "framelength", 0);
-    _end_index = _start_index + frameLength;
+    m_end_index = m_start_index + frameLength;
 
     TimeUtils::FPSeconds min_duration = TimeUtils::FPFrames{1};
-    _duration_seconds = TimeUtils::FPSeconds{DataUtils::ParseXmlAttribute(*xml_animset, "duration", 0.0f)};
-    if(_duration_seconds < min_duration) {
-        _duration_seconds = min_duration;
+    m_duration_seconds = TimeUtils::FPSeconds{DataUtils::ParseXmlAttribute(*xml_animset, "duration", 0.0f)};
+    if(m_duration_seconds < min_duration) {
+        m_duration_seconds = min_duration;
     }
 
     const auto is_looping = DataUtils::ParseXmlAttribute(*xml_animset, "loop", false);
     const auto is_reverse = DataUtils::ParseXmlAttribute(*xml_animset, "reverse", false);
     const auto is_pingpong = DataUtils::ParseXmlAttribute(*xml_animset, "pingpong", false);
-    _playback_mode = GetAnimModeFromOptions(is_looping, is_reverse, is_pingpong);
+    m_playback_mode = GetAnimModeFromOptions(is_looping, is_reverse, is_pingpong);
 
     const auto has_frames = frameLength > 0;
-    _max_seconds_per_frame = TimeUtils::FPSeconds{_duration_seconds / (has_frames ? static_cast<float>(_end_index - _start_index) : 1.0f)};
+    m_max_seconds_per_frame = TimeUtils::FPSeconds{m_duration_seconds / (has_frames ? static_cast<float>(m_end_index - m_start_index) : 1.0f)};
 }

@@ -98,11 +98,11 @@ private:
     void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const noexcept;
     [[nodiscard]] DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) noexcept;
 
-    RHIFactory _rhi_factory{};
-    D3D_FEATURE_LEVEL _dx_highestSupportedFeatureLevel{};
-    Microsoft::WRL::ComPtr<IDXGISwapChain4> _dxgi_swapchain{};
-    Microsoft::WRL::ComPtr<ID3D11Device5> _dx_device{};
-    bool _allow_tearing_supported = false;
+    RHIFactory m_rhi_factory{};
+    D3D_FEATURE_LEVEL m_dx_highestSupportedFeatureLevel{};
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgi_swapchain{};
+    Microsoft::WRL::ComPtr<ID3D11Device5> m_dx_device{};
+    bool m_allow_tearing_supported = false;
 
     void SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityOrLower = true) noexcept;
 };

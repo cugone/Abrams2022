@@ -8,12 +8,12 @@
 #include "Engine/Renderer/Window.hpp"
 
 RHIInstance* const RHIInstance::CreateInstance() noexcept {
-    if(_instance) {
-        return _instance;
+    if(m_instance) {
+        return m_instance;
     }
-    _instance = new RHIInstance();
+    m_instance = new RHIInstance();
 
-    _instance->_debuggerInstance = nullptr;
+    m_instance->m_debuggerInstance = nullptr;
 
 #if defined(RENDER_DEBUG)
 
@@ -25,19 +25,19 @@ RHIInstance* const RHIInstance::CreateInstance() noexcept {
     if(debug_module) {
         using GetDebugModuleCB = HRESULT(WINAPI*)(REFIID, void**);
         GetDebugModuleCB cb = (GetDebugModuleCB)::GetProcAddress(debug_module, "DXGIGetDebugInterface");
-        HRESULT hr = cb(__uuidof(IDXGIDebug), reinterpret_cast<void**>(_instance->_debuggerInstance.GetAddressOf()));
+        HRESULT hr = cb(__uuidof(IDXGIDebug), reinterpret_cast<void**>(m_instance->m_debuggerInstance.GetAddressOf()));
         bool succeeded = SUCCEEDED(hr);
         ASSERT_OR_DIE(succeeded, "DXGIDugger failed to initialize.");
-        _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+        m_instance->m_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
     }
 #endif
-    return _instance;
+    return m_instance;
 }
 
 void RHIInstance::DestroyInstance() noexcept {
-    if(_instance) {
-        delete _instance;
-        _instance = nullptr;
+    if(m_instance) {
+        delete m_instance;
+        m_instance = nullptr;
     }
 }
 
@@ -47,17 +47,17 @@ std::unique_ptr<RHIDevice> RHIInstance::CreateDevice() noexcept {
 
 void RHIInstance::ReportLiveObjects() noexcept {
 #ifdef RENDER_DEBUG
-    if(_instance && _instance->_debuggerInstance) {
-        _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+    if(m_instance && m_instance->m_debuggerInstance) {
+        m_instance->m_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
     }
 #endif
 }
 
 RHIInstance::~RHIInstance() noexcept {
 #ifdef RENDER_DEBUG
-    if(_instance && _instance->_debuggerInstance) {
-        _instance->_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
-        _instance->_debuggerInstance = nullptr;
+    if(m_instance && m_instance->m_debuggerInstance) {
+        m_instance->m_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+        m_instance->m_debuggerInstance = nullptr;
     }
 #endif
 }

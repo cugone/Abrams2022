@@ -42,13 +42,13 @@ private:
     void CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexcept;
     void CreateAndRegisterNewRasterFromXml(const XMLElement& element) noexcept;
 
-    std::string _name = "SHADER";
-    ShaderProgram* _shader_program = nullptr;
-    std::unique_ptr<DepthStencilState> _depth_stencil_state;
-    RasterState* _raster_state = nullptr;
-    std::unique_ptr<BlendState> _blend_state;
-    Sampler* _sampler = nullptr;
-    std::vector<std::unique_ptr<ConstantBuffer>> _cbuffers;
-    std::vector<std::unique_ptr<ConstantBuffer>> _ccbuffers;
-    static inline std::size_t _defaultNameId{0};
+    std::string m_name = "SHADER";
+    ShaderProgram* m_shader_program = nullptr;
+    std::unique_ptr<DepthStencilState> m_depth_stencil_state;
+    RasterState* m_raster_state = nullptr;
+    std::unique_ptr<BlendState> m_blend_state;
+    Sampler* m_sampler = nullptr;
+    std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;
+    std::vector<std::unique_ptr<ConstantBuffer>> m_ccbuffers;
+    static inline std::size_t m_defaultNameId{0};
 };

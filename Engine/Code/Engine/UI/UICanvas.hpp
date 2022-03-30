@@ -62,7 +62,7 @@ private:
     [[nodiscard]] std::pair<Vector2, float> CalcDimensionsAndAspectRatio() const;
     [[nodiscard]] AABB2 CalcAlignedAbsoluteBounds() const noexcept;
 
-    mutable Camera2D _camera{};
+    mutable Camera2D m_camera{};
 
     friend class UICanvasSlot;
     friend class UIWidget;

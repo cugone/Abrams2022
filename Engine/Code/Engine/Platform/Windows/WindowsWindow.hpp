@@ -61,28 +61,28 @@ protected:
     [[nodiscard]] bool Create() noexcept;
 
 private:
-    RHIOutputMode _currentDisplayMode = RHIOutputMode::Windowed;
-    HWND _hWnd{};
-    HDC _hdc{};
-    HINSTANCE _hInstance{};
-    std::string _title{"Created with Abrams 2022 (c) Casey Ugone "};
-    INT _cmdShow{};
-    WNDCLASSEX _wc{};
-    int _positionX{};
-    int _positionY{};
-    unsigned int _width{1600u};
-    unsigned int _height{900u};
-    unsigned int _oldclientWidth{1600u};
-    unsigned int _oldclientHeight{900u};
-    unsigned int _clientWidth{1600u};
-    unsigned int _clientHeight{900u};
-    unsigned long _styleFlags{};
-    unsigned long _styleFlagsEx{};
-    bool _hasMenu{};
-    static inline std::size_t _refCount{0u};
-    static inline constexpr unsigned long _defaultWindowedStyleFlags{WS_OVERLAPPEDWINDOW | WS_BORDER /* WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX */};
-    static inline constexpr unsigned long _defaultBorderlessStyleFlags{WS_POPUP};
-    static inline constexpr unsigned long _defaultStyleFlagsEx{WS_EX_APPWINDOW | WS_EX_ACCEPTFILES};
+    RHIOutputMode m_currentDisplayMode = RHIOutputMode::Windowed;
+    HWND m_hWnd{};
+    HDC m_hdc{};
+    HINSTANCE m_hInstance{};
+    std::string m_title{"Created with Abrams 2022 (c) Casey Ugone "};
+    INT m_cmdShow{};
+    WNDCLASSEX m_wc{};
+    int m_positionX{};
+    int m_positionY{};
+    unsigned int m_width{1600u};
+    unsigned int m_height{900u};
+    unsigned int m_oldclientWidth{1600u};
+    unsigned int m_oldclientHeight{900u};
+    unsigned int m_clientWidth{1600u};
+    unsigned int m_clientHeight{900u};
+    unsigned long m_styleFlags{};
+    unsigned long m_styleFlagsEx{};
+    bool m_hasMenu{};
+    static inline std::size_t m_refCount{0u};
+    static inline constexpr unsigned long m_defaultWindowedStyleFlags{WS_OVERLAPPEDWINDOW | WS_BORDER /* WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX */};
+    static inline constexpr unsigned long m_defaultBorderlessStyleFlags{WS_POPUP};
+    static inline constexpr unsigned long m_defaultStyleFlagsEx{WS_EX_APPWINDOW | WS_EX_ACCEPTFILES};
 };
 
 #endif

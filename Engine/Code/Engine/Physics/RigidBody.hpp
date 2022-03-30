@@ -162,25 +162,25 @@ protected:
 private:
     void SetAcceleration(const Vector2& newAccleration) noexcept;
 
-    RigidBodyDesc rigidbodyDesc{};
-    RigidBody* parent = nullptr;
-    std::vector<RigidBody*> children{};
-    Vector2 position{};
-    Vector2 velocity{};
-    Vector2 acceleration{};
-    float prev_orientationDegrees = 0.0f;
-    float orientationDegrees = 0.0f;
-    float angular_acceleration = 0.0f;
-    TimeUtils::FPSeconds dt{};
-    TimeUtils::FPSeconds time_since_last_move{};
-    std::vector<std::pair<Vector2, TimeUtils::FPSeconds>> linear_forces{};
-    std::vector<Vector2> linear_impulses{};
-    std::vector<std::pair<float, TimeUtils::FPSeconds>> angular_forces{};
-    std::vector<float> angular_impulses{};
-    bool is_colliding = false;
-    bool is_awake = true;
-    bool should_kill = false;
-    bool should_lock_rotation = false;
+    RigidBodyDesc m_rigidbodyDesc{};
+    RigidBody* m_parent = nullptr;
+    std::vector<RigidBody*> m_children{};
+    Vector2 m_position{};
+    Vector2 m_velocity{};
+    Vector2 m_acceleration{};
+    float m_prev_orientationDegrees = 0.0f;
+    float m_orientationDegrees = 0.0f;
+    float m_angular_acceleration = 0.0f;
+    TimeUtils::FPSeconds m_dt{};
+    TimeUtils::FPSeconds m_time_since_last_move{};
+    std::vector<std::pair<Vector2, TimeUtils::FPSeconds>> m_linear_forces{};
+    std::vector<Vector2> m_linear_impulses{};
+    std::vector<std::pair<float, TimeUtils::FPSeconds>> m_angular_forces{};
+    std::vector<float> m_angular_impulses{};
+    bool m_is_colliding = false;
+    bool m_is_awake = true;
+    bool m_should_kill = false;
+    bool m_should_lock_rotation = false;
 
     friend class PhysicsSystem;
 };

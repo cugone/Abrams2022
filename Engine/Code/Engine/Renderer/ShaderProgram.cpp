@@ -5,56 +5,56 @@
 #include "Engine/Renderer/InputLayoutInstanced.hpp"
 
 ShaderProgram::ShaderProgram(ShaderProgramDesc&& desc) noexcept
-: _desc(std::move(desc)) {
+: m_desc(std::move(desc)) {
     /* DO NOTHING */
 }
 
 ShaderProgramDesc&& ShaderProgram::GetDescription() noexcept {
-    return std::move(_desc);
+    return std::move(m_desc);
 }
 
 void ShaderProgram::SetDescription(ShaderProgramDesc&& description) noexcept {
-    _desc = std::move(description);
+    m_desc = std::move(description);
 }
 
 const std::string& ShaderProgram::GetName() const noexcept {
-    return _desc.name;
+    return m_desc.name;
 }
 
 ID3DBlob* ShaderProgram::GetVSByteCode() const noexcept {
-    return _desc.vs_bytecode;
+    return m_desc.vs_bytecode;
 }
 
 ID3DBlob* ShaderProgram::GetHSByteCode() const noexcept {
-    return _desc.hs_bytecode;
+    return m_desc.hs_bytecode;
 }
 
 ID3DBlob* ShaderProgram::GetDSByteCode() const noexcept {
-    return _desc.ds_bytecode;
+    return m_desc.ds_bytecode;
 }
 
 ID3DBlob* ShaderProgram::GetGSByteCode() const noexcept {
-    return _desc.gs_bytecode;
+    return m_desc.gs_bytecode;
 }
 
 ID3DBlob* ShaderProgram::GetPSByteCode() const noexcept {
-    return _desc.ps_bytecode;
+    return m_desc.ps_bytecode;
 }
 
 ID3DBlob* ShaderProgram::GetCSByteCode() const noexcept {
-    return _desc.cs_bytecode;
+    return m_desc.cs_bytecode;
 }
 
 InputLayout* ShaderProgram::GetInputLayout() const noexcept {
-    return _desc.input_layout.get();
+    return m_desc.input_layout.get();
 }
 
 InputLayoutInstanced* ShaderProgram::GetInputLayoutInstanced() const noexcept {
-    return _desc.input_layout_instanced.get();
+    return m_desc.input_layout_instanced.get();
 }
 
 ID3D11VertexShader* ShaderProgram::GetVS() const noexcept {
-    return _desc.vs;
+    return m_desc.vs;
 }
 
 bool ShaderProgram::HasVS() const noexcept {
@@ -62,7 +62,7 @@ bool ShaderProgram::HasVS() const noexcept {
 }
 
 ID3D11HullShader* ShaderProgram::GetHS() const noexcept {
-    return _desc.hs;
+    return m_desc.hs;
 }
 
 bool ShaderProgram::HasHS() const noexcept {
@@ -70,7 +70,7 @@ bool ShaderProgram::HasHS() const noexcept {
 }
 
 ID3D11DomainShader* ShaderProgram::GetDS() const noexcept {
-    return _desc.ds;
+    return m_desc.ds;
 }
 
 bool ShaderProgram::HasDS() const noexcept {
@@ -78,7 +78,7 @@ bool ShaderProgram::HasDS() const noexcept {
 }
 
 ID3D11GeometryShader* ShaderProgram::GetGS() const noexcept {
-    return _desc.gs;
+    return m_desc.gs;
 }
 
 bool ShaderProgram::HasGS() const noexcept {
@@ -86,7 +86,7 @@ bool ShaderProgram::HasGS() const noexcept {
 }
 
 ID3D11PixelShader* ShaderProgram::GetPS() const noexcept {
-    return _desc.ps;
+    return m_desc.ps;
 }
 
 bool ShaderProgram::HasPS() const noexcept {
@@ -94,7 +94,7 @@ bool ShaderProgram::HasPS() const noexcept {
 }
 
 ID3D11ComputeShader* ShaderProgram::GetCS() const noexcept {
-    return _desc.cs;
+    return m_desc.cs;
 }
 
 bool ShaderProgram::HasCS() const noexcept {

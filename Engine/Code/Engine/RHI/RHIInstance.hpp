@@ -23,6 +23,6 @@ protected:
     ~RHIInstance() noexcept;
 
 private:
-    static inline RHIInstance* _instance = nullptr;
-    static inline Microsoft::WRL::ComPtr<IDXGIDebug> _debuggerInstance = nullptr;
+    static inline RHIInstance* m_instance = nullptr;
+    static inline Microsoft::WRL::ComPtr<IDXGIDebug> m_debuggerInstance = nullptr;
 };

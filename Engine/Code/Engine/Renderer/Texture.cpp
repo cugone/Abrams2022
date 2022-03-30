@@ -3,14 +3,14 @@
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
 Texture::Texture(const RHIDevice& device) noexcept
-: _device(device) {
+: m_device(device) {
     /* DO NOTHING */
 }
 
 Texture::~Texture() = default;
 
 const IntVector3& Texture::GetDimensions() const noexcept {
-    return _dimensions;
+    return m_dimensions;
 }
 
 ID3D11Resource* Texture::GetDxResource() const noexcept {
@@ -18,45 +18,45 @@ ID3D11Resource* Texture::GetDxResource() const noexcept {
 }
 
 void Texture::IsLoaded(bool is_loaded) noexcept {
-    _isLoaded = is_loaded;
+    m_isLoaded = is_loaded;
 }
 
 bool Texture::IsLoaded() const noexcept {
-    return _isLoaded;
+    return m_isLoaded;
 }
 
 bool Texture::IsArray() const noexcept {
-    return _isArray;
+    return m_isArray;
 }
 
 ID3D11DepthStencilView* Texture::GetDepthStencilView() const noexcept {
-    return _dsv.Get();
+    return m_dsv.Get();
 }
 
 ID3D11RenderTargetView* Texture::GetRenderTargetView() const noexcept {
-    return _rtv.Get();
+    return m_rtv.Get();
 }
 
 ID3D11ShaderResourceView* Texture::GetShaderResourceView() const noexcept {
-    return _srv.Get();
+    return m_srv.Get();
 }
 
 ID3D11UnorderedAccessView* Texture::GetUnorderedAccessView() const noexcept {
-    return _uav.Get();
+    return m_uav.Get();
 }
 
 ID3D11DepthStencilView* Texture::GetDepthStencilView() noexcept {
-    return _dsv.Get();
+    return m_dsv.Get();
 }
 
 ID3D11RenderTargetView* Texture::GetRenderTargetView() noexcept {
-    return _rtv.Get();
+    return m_rtv.Get();
 }
 
 ID3D11ShaderResourceView* Texture::GetShaderResourceView() noexcept {
-    return _srv.Get();
+    return m_srv.Get();
 }
 
 ID3D11UnorderedAccessView* Texture::GetUnorderedAccessView() noexcept {
-    return _uav.Get();
+    return m_uav.Get();
 }
