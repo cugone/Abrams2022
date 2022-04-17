@@ -143,9 +143,8 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     } else {
         m_time_since_last_move = TimeUtils::FPSeconds{0.0f};
     }
-    m_is_awake = m_time_since_last_move < TimeUtils::FPSeconds{1.0f};
 
-    SetPosition(new_position);
+    SetPosition(new_position, true);
     SetVelocity(new_velocity);
     SetAcceleration(new_acceleration);
 
@@ -246,7 +245,6 @@ Matrix4 RigidBody::GetParentTransform() const {
 }
 
 void RigidBody::ApplyImpulse(const Vector2& impulse) {
-    SetAwake(true);
     m_linear_impulses.push_back(impulse);
 }
 
@@ -255,7 +253,6 @@ void RigidBody::ApplyImpulse(const Vector2& direction, float magnitude) {
 }
 
 void RigidBody::ApplyForce(const Vector2& force, const TimeUtils::FPSeconds& duration) {
-    SetAwake(true);
     m_linear_forces.push_back(std::make_pair(force, duration));
 }
 
@@ -264,7 +261,6 @@ void RigidBody::ApplyForce(const Vector2& direction, float magnitude, const Time
 }
 
 void RigidBody::ApplyTorque(float force, const TimeUtils::FPSeconds& duration) {
-    SetAwake(true);
     if(!IsRotationLocked()) {
         if(duration == TimeUtils::FPSeconds::zero()) {
             m_angular_impulses.push_back(force);
