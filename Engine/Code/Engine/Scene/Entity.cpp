@@ -4,9 +4,10 @@
 
 #include "Engine/Scene/Scene.hpp"
 
+namespace a2de {
+
 Entity::Entity(std::uint32_t handle, std::weak_ptr<Scene> scene) noexcept
-    : m_id(static_cast<entt::entity>(handle))
-{
+: m_id(static_cast<entt::entity>(handle)) {
     GUARANTEE_OR_DIE(!scene.expired(), "Scene reference has expired.");
     m_Scene = scene;
 }
@@ -18,7 +19,6 @@ Entity::operator bool() const noexcept {
 Entity::operator std::uint32_t() const noexcept {
     return static_cast<std::uint32_t>(m_id);
 }
-
 
 Scene* Entity::GetScene() const noexcept {
     if(auto scene = m_Scene.lock(); scene) {
@@ -86,3 +86,5 @@ bool Entity::HasComponents() const noexcept {
     GUARANTEE_OR_DIE(!m_Scene.expired(), "Scene reference has expired.");
     return m_Scene.lock()->m_registry.orphan(m_id) == false;
 }
+
+} // namespace a2de

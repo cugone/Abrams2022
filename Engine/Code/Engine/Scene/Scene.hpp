@@ -6,7 +6,9 @@
 
 #include <memory>
 
+namespace a2de {
 class Entity;
+}
 
 class Scene : public std::enable_shared_from_this<Scene> {
 public:
@@ -17,10 +19,10 @@ public:
     Scene& operator=(Scene&& other) = default;
     virtual ~Scene() noexcept;
 
-    Entity CreateEntity() noexcept;
-    Entity CreateEntity(const std::string& name) noexcept;
-    Entity CreateEntityWithUUID(a2de::UUID uuid, const std::string& name) noexcept;
-    void DestroyEntity(Entity e) noexcept;
+    a2de::Entity CreateEntity() noexcept;
+    a2de::Entity CreateEntity(const std::string& name) noexcept;
+    a2de::Entity CreateEntityWithUUID(a2de::UUID uuid, const std::string& name) noexcept;
+    void DestroyEntity(a2de::Entity e) noexcept;
 
     std::weak_ptr<const Scene> get() const noexcept;
     std::weak_ptr<Scene> get() noexcept;
@@ -53,6 +55,6 @@ private:
 
     entt::registry m_registry{};
     
-    friend class Entity;
+    friend class a2de::Entity;
 
 };

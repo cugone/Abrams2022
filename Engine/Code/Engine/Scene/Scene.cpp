@@ -9,22 +9,22 @@ Scene::~Scene() noexcept {
     m_registry.clear();
 }
 
-Entity Scene::CreateEntity() noexcept {
+a2de::Entity Scene::CreateEntity() noexcept {
     return CreateEntity("Entity");
 }
 
-Entity Scene::CreateEntity(const std::string& name) noexcept {
+a2de::Entity Scene::CreateEntity(const std::string& name) noexcept {
     return CreateEntityWithUUID(a2de::UUID(), name);
 }
 
-Entity Scene::CreateEntityWithUUID(a2de::UUID uuid, const std::string& name) noexcept {
-    auto entity = Entity(static_cast<std::uint32_t>(m_registry.create()), get());
+a2de::Entity Scene::CreateEntityWithUUID(a2de::UUID uuid, const std::string& name) noexcept {
+    auto entity = a2de::Entity(static_cast<std::uint32_t>(m_registry.create()), get());
     entity.AddComponent<IdComponent>(uuid);
     entity.AddComponent<TagComponent>(name);
     return entity;
 }
 
-void Scene::DestroyEntity(Entity e) noexcept {
+void Scene::DestroyEntity(a2de::Entity e) noexcept {
     m_registry.destroy(e.m_id);
 }
 

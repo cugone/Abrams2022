@@ -7,6 +7,8 @@
 
 #include <memory>
 
+namespace a2de {
+
 class Entity {
 public:
     Entity() noexcept = default;
@@ -37,7 +39,6 @@ public:
     [[nodiscard]] const std::vector<Entity>& GetChildren() const noexcept;
     [[nodiscard]] std::vector<Entity>& GetChildren() noexcept;
 
-
     [[nodiscard]] bool HasComponents() const noexcept;
 
     template<typename... Component>
@@ -45,7 +46,7 @@ public:
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
         return m_Scene.lock()->m_registry.all_of<Component...>(m_id);
     }
-    
+
     template<typename... Component>
     [[nodiscard]] bool HasAnyOfComponents() const noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
@@ -71,14 +72,14 @@ public:
         GUARANTEE_OR_DIE(HasComponent<Component>(), "Entity does not have specified component!");
         return m_Scene.lock()->m_registry.get<Component>(m_id);
     }
-    
+
     template<typename Component>
     [[nodiscard]] decltype(auto) GetComponent() noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
         GUARANTEE_OR_DIE(HasComponent<Component>(), "Entity does not have specified component!");
         return m_Scene.lock()->m_registry.get<Component>(m_id);
     }
-    
+
     template<typename Component>
     std::size_t RemoveComponent() noexcept {
         GUARANTEE_OR_DIE(!m_Scene.expired(), "Entity scene context has expired!");
@@ -94,6 +95,7 @@ public:
 
 protected:
     std::weak_ptr<Scene> m_Scene{};
+
 private:
     entt::entity m_id{entt::null};
 
@@ -102,3 +104,5 @@ private:
 
     friend class Scene;
 };
+
+} // namespace a2de
