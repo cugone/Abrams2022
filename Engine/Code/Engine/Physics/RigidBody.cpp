@@ -42,13 +42,46 @@ void RigidBody::BeginFrame() {
 }
 
 void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
-    if(!IsPhysicsEnabled() || !IsDynamic() || !IsAwake() || MathUtils::IsEquivalentToZero(GetInverseMass())) {
+    if(!(IsPhysicsEnabled() && IsDynamic() && IsAwake()) || MathUtils::IsEquivalentToZero(GetInverseMass())) {
         m_linear_impulses.clear();
         m_angular_impulses.clear();
         m_linear_forces.clear();
         m_angular_forces.clear();
+        Integrate(deltaSeconds);
         return;
     }
+
+    Integrate(deltaSeconds);
+
+    if(auto* const collider = GetCollider(); collider != nullptr) {
+        const auto S = Matrix4::CreateScaleMatrix(collider->GetHalfExtents());
+        const auto R = Matrix4::Create2DRotationDegreesMatrix(m_orientationDegrees);
+        const auto T = Matrix4::CreateTranslationMatrix(m_position);
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        auto new_transform = Matrix4::I;
+        if(!m_parent) {
+            new_transform = M;
+        } else {
+            auto p = m_parent;
+            while(p) {
+                new_transform = Matrix4::MakeRT(p->GetParentTransform(), M);
+                p = p->m_parent;
+            }
+        }
+        transform = new_transform;
+        collider->SetPosition(m_position);
+        collider->SetOrientationDegrees(m_orientationDegrees);
+    }
+
+    for(auto& force : m_linear_forces) {
+        force.second -= deltaSeconds;
+    }
+    for(auto& force : m_angular_forces) {
+        force.second -= deltaSeconds;
+    }
+}
+
+void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     const auto inv_mass = GetInverseMass();
     const auto linear_impulse_sum = std::accumulate(std::begin(m_linear_impulses), std::end(m_linear_impulses), Vector2::Zero);
     const auto angular_impulse_sum = std::accumulate(std::begin(m_angular_impulses), std::end(m_angular_impulses), 0.0f);
@@ -132,33 +165,6 @@ void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
     const auto new_orientationDegrees = MathUtils::Wrap(new_angular_velocity + new_angular_acceleration * t * t, 0.0f, 360.0f);
     m_prev_orientationDegrees = m_orientationDegrees;
     m_orientationDegrees = new_orientationDegrees;
-
-    if(auto* const collider = GetCollider(); collider != nullptr) {
-        const auto S = Matrix4::CreateScaleMatrix(collider->GetHalfExtents());
-        const auto R = Matrix4::Create2DRotationDegreesMatrix(m_orientationDegrees);
-        const auto T = Matrix4::CreateTranslationMatrix(m_position);
-        const auto M = Matrix4::MakeSRT(S, R, T);
-        auto new_transform = Matrix4::I;
-        if(!m_parent) {
-            new_transform = M;
-        } else {
-            auto p = m_parent;
-            while(p) {
-                new_transform = Matrix4::MakeRT(p->GetParentTransform(), M);
-                p = p->m_parent;
-            }
-        }
-        transform = new_transform;
-        collider->SetPosition(m_position);
-        collider->SetOrientationDegrees(m_orientationDegrees);
-    }
-
-    for(auto& force : m_linear_forces) {
-        force.second -= deltaSeconds;
-    }
-    for(auto& force : m_angular_forces) {
-        force.second -= deltaSeconds;
-    }
 }
 
 void RigidBody::DebugRender() const {

@@ -161,6 +161,7 @@ public:
 protected:
 private:
     void SetAcceleration(const Vector2& newAccleration) noexcept;
+    void Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept;
 
     RigidBodyDesc m_rigidbodyDesc{};
     RigidBody* m_parent = nullptr;
