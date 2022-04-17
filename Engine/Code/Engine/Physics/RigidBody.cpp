@@ -170,12 +170,7 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
 void RigidBody::DebugRender() const {
     auto& renderer = ServiceLocator::get<IRendererService>();
     if(auto* const collider = GetCollider(); collider != nullptr) {
-        const auto he = this->GetBounds().half_extents * 2.0f;
-        const auto S = Matrix4::CreateScaleMatrix(he);
-        const auto R = Matrix4::Create2DRotationDegreesMatrix(GetOrientationDegrees());
-        const auto T = Matrix4::CreateTranslationMatrix(GetPosition());
-        const auto M = Matrix4::MakeSRT(S, R, T);
-        renderer.SetModelMatrix(M);
+        renderer.SetModelMatrix(transform);
         collider->DebugRender();
         renderer.DrawOBB2(GetOrientationDegrees(), Rgba::Green);
     }
