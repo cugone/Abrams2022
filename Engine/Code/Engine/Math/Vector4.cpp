@@ -65,6 +65,36 @@ Vector4::Vector4(float initialX, float initialY, float initialZ, float initialW)
     /* DO NOTHING */
 }
 
+Vector4::Vector4(std::initializer_list<float> initList) noexcept {
+    const auto length = initList.size();
+    switch(length) {
+    case 1:
+        x = y = z = w = (*std::begin(initList));
+        break;
+    case 2:
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+        z = 0.0f;
+        w = 0.0f;
+        break;
+    case 3:
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+        z = (*std::next(std::begin(initList), 2));
+        w = 0.0f;
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    if(length >= std::size_t{4u}) {
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+        z = (*std::next(std::begin(initList), 2));
+        w = (*std::next(std::begin(initList), 3));
+    }
+}
+
 Vector4::Vector4(const std::string& value) noexcept
 : x(0.0f)
 , y(0.0f)
