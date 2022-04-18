@@ -15,6 +15,7 @@ void PhysicsSystem::Enable(bool enable) {
 
 void PhysicsSystem::SetGravity(const Vector2& new_gravity) {
     m_desc.gravity = new_gravity;
+    m_gravityFG.SetGravity(m_desc.gravity);
 }
 
 Vector2 PhysicsSystem::GetGravity() const noexcept {
