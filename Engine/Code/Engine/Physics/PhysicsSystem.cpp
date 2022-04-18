@@ -24,6 +24,7 @@ Vector2 PhysicsSystem::GetGravity() const noexcept {
 
 void PhysicsSystem::SetDragCoefficients(const Vector2& k1k2) {
     m_desc.dragK1K2 = k1k2;
+    m_dragFG.SetCoefficients(k1k2);
 }
 
 void PhysicsSystem::SetDragCoefficients(float linearCoefficient, float squareCoefficient) {
