@@ -105,7 +105,7 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     auto new_position = GetPosition() + GetVelocity() * m_dt.count() + GetAcceleration() * (m_dt.count() * m_dt.count() * 0.5f);
     auto new_acceleration = (linear_impulse_sum + linear_force_sum.first) * inv_mass;
     auto new_velocity = GetVelocity() + (GetAcceleration() + new_acceleration) * (m_dt.count() * 0.5f);
-    new_velocity *= m_rigidbodyDesc.physicsDesc.linearDamping;
+    new_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.linearDamping, 0.0f, 1.0f);
 
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_position);
@@ -150,7 +150,7 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
     const auto& maxAngularSpeed = m_rigidbodyDesc.physicsDesc.maxAngularSpeed;
     auto new_angular_velocity = std::clamp((2.0f * m_orientationDegrees - m_prev_orientationDegrees) / m_dt.count(), -maxAngularSpeed, maxAngularSpeed);
-    new_angular_velocity *= m_rigidbodyDesc.physicsDesc.angularDamping;
+    new_angular_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.angularDamping, 0.0f, 1.0f);
 
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_angular_velocity);

@@ -17,8 +17,8 @@ struct PhysicsMaterial {
 struct PhysicsDesc {
     float mass = 1.0f; //How "heavy" an object is. Expressed in Kilograms. Cannot be lower than 0.001f;
     float maxAngularSpeed = 1000.0f;
-    float linearDamping = 1.0f;
-    float angularDamping = 1.0f;
+    float linearDamping = 0.0f;
+    float angularDamping = 0.0f;
     bool enableGravity = true; //Should gravity be applied.
     bool enableDrag = true;    //Should drag be applied.
     bool enablePhysics = true; //Should object be subject to physics calculations.
