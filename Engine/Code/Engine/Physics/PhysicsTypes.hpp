@@ -8,21 +8,21 @@
 class RigidBody;
 
 struct PhysicsMaterial {
-    float friction = 0.0f;      //0.7f; //Range: [0.0,1.0]; How quickly an object comes to rest during a contact. Values closer to 1.0 cause resting contacts to lose velocity faster.
+    float friction = 0.0f;      //0.7f; //Range: [0.0f, 1.0f]; How quickly an object comes to rest during a contact. Values closer to 1.0 cause resting contacts to lose velocity faster.
     float restitution = 0.0f;   //0.3f; //Range: [-1.0f, 1.0f]; The bouncyness of a material. Negative values cause an object to gain velocity after a collision.
     float density = 1.0f;       //Affect mass calculation for "bigger" objects.
-    float massExponent = 0.01f; //Raise final mass calculation to this exponent.
+    float massExponent = 0.01f; //Raise final mass calculation to this exponent. A value of zero forces the mass to 1.0f.
 };
 
 struct PhysicsDesc {
-    float mass = 1.0f; //How "heavy" an object is. Expressed in Kilograms. Cannot be lower than 0.001f;
-    float maxAngularSpeed = 1000.0f;
-    float linearDamping = 0.0f;
-    float angularDamping = 0.0f;
-    bool enableGravity = true; //Should gravity be applied.
-    bool enableDrag = true;    //Should drag be applied.
-    bool enablePhysics = true; //Should object be subject to physics calculations.
-    bool startAwake = true;    //Should the object be awake on creation.
+    float mass = 1.0f;               //How "heavy" an object is. Expressed in Kilograms. Cannot be lower than 0.001f;
+    float maxAngularSpeed = 1000.0f; //Prevent objects from spinning out of control.
+    float linearDamping = 0.0f;      //[Range: 0.0f, 1.0f]; How much damping should be applied to velocity.
+    float angularDamping = 0.0f;     //[Range: 0.0f, 1.0f]; How much damping should be applied to angular velocity.
+    bool enableGravity = true;       //Should gravity be applied.
+    bool enableDrag = true;          //Should drag be applied.
+    bool enablePhysics = true;       //Should object be subject to physics calculations.
+    bool startAwake = true;          //Should the object be awake on creation.
 };
 
 struct Velocity;
