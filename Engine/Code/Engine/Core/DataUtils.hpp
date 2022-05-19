@@ -16,7 +16,6 @@
 
 #include <bit>
 #include <functional>
-#include <intrin.h>
 #include <string>
 
 using XMLElement = tinyxml2::XMLElement;
