@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugProfile|x64">
@@ -67,7 +67,6 @@
     <ClCompile Include="Audio\Wav.cpp" />
     <ClCompile Include="Audio\XAudio.cpp" />
     <ClCompile Include="Core\App.cpp" />
-    <ClCompile Include="Core\Argb.cpp" />
     <ClCompile Include="Core\ArgumentParser.cpp" />
     <ClCompile Include="Core\Base64.cpp" />
     <ClCompile Include="Core\BuildConfig.hpp" />
@@ -305,7 +304,6 @@
     <ClInclude Include="Audio\Wav.hpp" />
     <ClInclude Include="Audio\XAudio.hpp" />
     <ClInclude Include="Core\App.hpp" />
-    <ClInclude Include="Core\Argb.hpp" />
     <ClInclude Include="Core\ArgumentParser.hpp" />
     <ClInclude Include="Core\Base64.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />

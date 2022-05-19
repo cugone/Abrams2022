@@ -6,8 +6,6 @@
 #include <tuple>
 #include <vector>
 
-class Argb;
-
 class Rgba {
 public:
     static const Rgba White;
@@ -57,8 +55,6 @@ public:
     Rgba& operator=(Rgba&& rhs) = default;
     ~Rgba() = default;
 
-    explicit Rgba(const Argb& argb) noexcept;
-    explicit Rgba(Argb&& argb) noexcept;
     explicit Rgba(std::initializer_list<float> fromFloats) noexcept;
     explicit Rgba(std::initializer_list<unsigned char> fromUChar) noexcept;
     explicit Rgba(std::string name) noexcept;
