@@ -172,6 +172,7 @@
     <ClCompile Include="Scene\Entity.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\World.cpp" />
+    <ClCompile Include="Services\IService.cpp" />
     <ClCompile Include="Services\ServiceLocator.cpp" />
     <ClCompile Include="System\Cpu.cpp" />
     <ClCompile Include="System\OS.cpp" />

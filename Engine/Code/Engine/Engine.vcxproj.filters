@@ -589,6 +589,9 @@
     <ClCompile Include="Physics\WindForceGenerator.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Services\IService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
