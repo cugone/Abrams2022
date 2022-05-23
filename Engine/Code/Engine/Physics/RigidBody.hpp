@@ -52,9 +52,14 @@ struct RigidBodyDesc {
     , initialAcceleration(other.initialAcceleration)
     , physicsMaterial(other.physicsMaterial)
     , physicsDesc(other.physicsDesc) {
-        auto* new_collider = other.collider->Clone();
-        delete collider;
-        collider = new_collider;
+        if(other.collider) {
+            auto* new_collider = other.collider->Clone();
+            delete collider;
+            collider = new_collider;
+        } else if(collider) {
+            delete collider;
+            collider = nullptr;
+        }
     }
     RigidBodyDesc& operator=(const RigidBodyDesc& other) noexcept {
         if(&other == this) {
@@ -65,9 +70,14 @@ struct RigidBodyDesc {
         initialAcceleration = other.initialAcceleration;
         physicsMaterial = other.physicsMaterial;
         physicsDesc = other.physicsDesc;
-        auto* new_collider = other.collider->Clone();
-        delete collider;
-        collider = new_collider;
+        if(other.collider) {
+            auto* new_collider = other.collider->Clone();
+            delete collider;
+            collider = new_collider;
+        } else if(collider) {
+            delete collider;
+            collider = nullptr;
+        }
         return *this;
     }
     ~RigidBodyDesc() noexcept {
