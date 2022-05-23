@@ -118,6 +118,7 @@
     <ClCompile Include="Physics\RigidBody.cpp" />
     <ClCompile Include="Physics\RodJoint.cpp" />
     <ClCompile Include="Physics\SpringJoint.cpp" />
+    <ClCompile Include="Physics\WindForceGenerator.cpp" />
     <ClCompile Include="Platform\DirectX\DirectX11FrameBuffer.cpp" />
     <ClCompile Include="Platform\Win.cpp" />
     <ClCompile Include="Platform\Windows\WindowsWindow.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="Physics\RigidBody.hpp" />
     <ClInclude Include="Physics\RodJoint.hpp" />
     <ClInclude Include="Physics\SpringJoint.hpp" />
+    <ClInclude Include="Physics\WindForceGenerator.hpp" />
     <ClInclude Include="Platform\DirectX\DirectX11FrameBuffer.hpp" />
     <ClInclude Include="Platform\PlatformUtils.hpp" />
     <ClInclude Include="Platform\Win.hpp" />
