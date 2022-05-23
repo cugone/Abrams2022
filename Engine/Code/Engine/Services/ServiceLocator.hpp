@@ -52,6 +52,6 @@ public:
     }
 protected:
 private:
-    static inline std::unordered_map<std::type_index, IService*> m_services{};
-    static inline std::mutex m_cs{};
+    static inline std::unordered_map<std::type_index, IService*> m_services = std::unordered_map<std::type_index, IService*>{};
+    static inline std::mutex m_cs = std::mutex{};
 };
