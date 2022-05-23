@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Thirdparty">
@@ -85,6 +85,9 @@
     </Filter>
     <Filter Include="Thirdparty\Webp">
       <UniqueIdentifier>{134fafe8-e2e4-405e-b30f-49d8a7cc8af9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\DirectX\Shaders">
+      <UniqueIdentifier>{af4d5889-90f3-42e2-bf0e-38cb68966b9d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
