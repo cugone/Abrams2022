@@ -131,7 +131,7 @@ void AudioSystem::Initialize() noexcept {
     m_master_voice->GetVoiceDetails(&details);
     m_input_channels = details.InputChannels;
 
-    DebuggerPrintf("Mastering voice expects %i input channels.\n", details.InputChannels);
+    DebuggerPrintf(std::format("Mastering voice expects {} input channels.\n", details.InputChannels));
 
     DWORD dwChannelMask;
     m_master_voice->GetChannelMask(&dwChannelMask);
@@ -141,7 +141,7 @@ void AudioSystem::Initialize() noexcept {
     m_idle_channels.reserve(m_max_channels);
     m_active_channels.reserve(m_max_channels);
 
-    FileUtils::Wav::WavFormatChunk fmt{};
+    FileUtils::detail::WavFormatChunk fmt{};
     fmt.formatId = 1;
     fmt.channelCount = 1;
     fmt.samplesPerSecond = 44100;
@@ -190,8 +190,8 @@ const WAVEFORMATEXTENSIBLE& AudioSystem::GetFormat() const noexcept {
     return m_audio_format_ex;
 }
 
-FileUtils::Wav::WavFormatChunk AudioSystem::GetLoadedWavFileFormat() const noexcept {
-    FileUtils::Wav::WavFormatChunk fmt{};
+FileUtils::detail::WavFormatChunk AudioSystem::GetLoadedWavFileFormat() const noexcept {
+    FileUtils::detail::WavFormatChunk fmt{};
     if(m_wave_files.empty()) {
         return fmt;
     }
@@ -268,7 +268,7 @@ void AudioSystem::SetFormat(const WAVEFORMATEXTENSIBLE& format) noexcept {
     m_audio_format_ex = format;
 }
 
-void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexcept {
+void AudioSystem::SetFormat(const FileUtils::detail::WavFormatChunk& format) noexcept {
     auto* fmt_buffer = reinterpret_cast<const unsigned char*>(&format);
     std::memcpy(&m_audio_format_ex, fmt_buffer, sizeof(m_audio_format_ex));
 }
@@ -276,16 +276,16 @@ void AudioSystem::SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexce
 void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        auto& logger = ServiceLocator::get<IFileLoggerService>();
-        logger.LogErrorLine("Attempting to Register Wav Files from unknown path: " + FS::absolute(folderpath).string());
+        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+        logger->LogErrorLine("Attempting to Register Wav Files from unknown path: " + FS::absolute(folderpath).string());
         return;
     }
     {
         std::error_code ec{};
         folderpath = FS::canonical(folderpath, ec);
         if(ec || !FileUtils::IsSafeReadPath(folderpath)) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("Attempting to Register Wav Files from inaccessible path: " + FS::absolute(folderpath).string());
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("Attempting to Register Wav Files from inaccessible path: " + FS::absolute(folderpath).string());
             return;
         }
     }
@@ -380,8 +380,8 @@ void AudioSystem::StopAll() noexcept {
 AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
-        auto& logger = ServiceLocator::get<IFileLoggerService>();
-        logger.LogErrorLine("Could not find file: " + filepath.string());
+        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+        logger->LogErrorLine("Could not find file: " + filepath.string());
         return nullptr;
     }
 
@@ -389,8 +389,8 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noe
         std::error_code ec{};
         filepath = FS::canonical(filepath, ec);
         if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return nullptr;
         }
     }
@@ -407,16 +407,16 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noe
 AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
-        auto& logger = ServiceLocator::get<IFileLoggerService>();
-        logger.LogErrorLine("Could not find file: " + filepath.string());
+        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+        logger->LogErrorLine("Could not find file: " + filepath.string());
         return nullptr;
     }
     {
         std::error_code ec{};
         filepath = FS::canonical(filepath, ec);
         if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return nullptr;
         }
     }
@@ -428,16 +428,16 @@ AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filep
 void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
-        auto& logger = ServiceLocator::get<IFileLoggerService>();
-        logger.LogErrorLine("Attempting to register wav file that does not exist: " + filepath.string());
+        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+        logger->LogErrorLine("Attempting to register wav file that does not exist: " + filepath.string());
         return;
     }
     {
         std::error_code ec{};
         filepath = FS::canonical(filepath, ec);
         if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
         }
     }
     if(const auto found = std::find_if(std::cbegin(m_wave_files), std::cend(m_wave_files), [&filepath](const auto& wav) { return wav.first == filepath; }); found != std::cend(m_wave_files)) {
@@ -454,18 +454,18 @@ void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
            }
        }(); //IIIL
        wav_result != FileUtils::Wav::WAV_SUCCESS) {
-        auto& logger = ServiceLocator::get<IFileLoggerService>();
+        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
         switch(wav_result) {
         case FileUtils::Wav::WAV_ERROR_NOT_A_WAV: {
-            logger.LogErrorLine(filepath.string() + " is not a .wav file.");
+            logger->LogErrorLine(filepath.string() + " is not a .wav file.");
             break;
         }
         case FileUtils::Wav::WAV_ERROR_BAD_FILE: {
-            logger.LogErrorLine(filepath.string() + " is improperly formatted.");
+            logger->LogErrorLine(filepath.string() + " is improperly formatted.");
             break;
         }
         default: {
-            logger.LogErrorLine("Unknown error attempting to load " + filepath.string());
+            logger->LogErrorLine("Unknown error attempting to load " + filepath.string());
             break;
         }
         }
@@ -681,8 +681,8 @@ AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepa
         std::error_code ec{};
         filepath = FS::canonical(filepath, ec);
         if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
         }
     }
     filepath.make_preferred();

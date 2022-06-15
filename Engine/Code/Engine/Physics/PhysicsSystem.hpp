@@ -28,16 +28,6 @@
 
 class Joint;
 
-struct PhysicsSystemDesc {
-    AABB2 world_bounds{Vector2::Zero, 500.0f, 500.0f};
-    Vector2 gravity{0.0f, 10.0f};
-    Vector2 dragK1K2{1.0f, 1.0f};
-    float world_scale{100.0f};
-    float kill_plane_distance{10000.0f};
-    int position_solver_iterations{6};
-    int velocity_solver_iterations{8};
-};
-
 class PhysicsSystem : public EngineSubsystem, public IPhysicsService {
 public:
     explicit PhysicsSystem(const PhysicsSystemDesc& desc = PhysicsSystemDesc{});
@@ -111,9 +101,7 @@ private:
     void SolvePositionConstraints() const noexcept;
     void SolveVelocityConstraints() const noexcept;
 
-    PhysicsSystemDesc m_desc{};
     bool m_is_running = false;
-    std::vector<RigidBody*> m_rigidBodies{};
     std::deque<CollisionData> m_contacts{};
     std::vector<RigidBody*> m_pending_removal{};
     std::vector<RigidBody*> m_pending_addition{};
@@ -132,7 +120,7 @@ private:
 
 template<typename CollisionDetectionFunction, typename CollisionResolutionFunction>
 PhysicsSystem::CollisionDataSet PhysicsSystem::NarrowPhaseCollision(const std::vector<RigidBody*>& potential_collisions, CollisionDetectionFunction&& cd, CollisionResolutionFunction&& cr) noexcept {
-    CollisionDataSet result{};
+    CollisionDataSet result;
     if(potential_collisions.size() < 2) {
         m_contacts.clear();
         return {};

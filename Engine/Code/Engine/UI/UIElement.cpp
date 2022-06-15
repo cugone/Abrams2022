@@ -210,18 +210,18 @@ void UIElement::DebugRenderPivot() const {
     const auto pivot_pos = MathUtils::CalcPointFromNormalizedPoint(m_pivot, m_bounds);
     const auto pivot_pos_matrix = Matrix4::CreateTranslationMatrix(pivot_pos);
     const auto transform = Matrix4::MakeSRT(inv_scale_matrix, world_transform, pivot_pos_matrix);
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetMaterial(renderer.GetMaterial("__2D"));
-    renderer.SetModelMatrix(transform);
-    renderer.DrawX2D(m_pivot_color);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+    renderer->SetModelMatrix(transform);
+    renderer->DrawX2D(m_pivot_color);
 }
 
 void UIElement::DebugRenderBounds() const {
     const auto world_transform = GetWorldTransform();
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix(world_transform);
-    renderer.SetMaterial(renderer.GetMaterial("__2D"));
-    renderer.DrawAABB2(m_edge_color, m_fill_color);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix(world_transform);
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+    renderer->DrawAABB2(m_edge_color, m_fill_color);
 }
 
 AABB2 UIElement::GetParentBounds() const noexcept {

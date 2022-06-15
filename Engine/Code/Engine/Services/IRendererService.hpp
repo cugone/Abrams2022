@@ -20,6 +20,7 @@
 #include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/RenderTargetStack.hpp"
+#include "Engine/Renderer/RendererTypes.hpp"
 #include "Engine/Renderer/Texture.hpp"
 
 class Rgba;
@@ -306,6 +307,9 @@ public:
     virtual void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) = 0;
+    virtual void DrawFilledPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void DrawFilledPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawX2D(const Rgba& color) noexcept = 0;
     virtual void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
@@ -349,39 +353,39 @@ public:
     void BeginRenderToBackbuffer([[maybe_unused]] const Rgba& clear_color = Rgba::Black) noexcept override {}
     void BeginHUDRender([[maybe_unused]] Camera2D& ui_camera, [[maybe_unused]] const Vector2& camera_position, [[maybe_unused]] float window_height) noexcept override {}
 
-    [[nodiscard]] TimeUtils::FPSeconds GetGameFrameTime() const noexcept override {}
-    [[nodiscard]] TimeUtils::FPSeconds GetSystemFrameTime() const noexcept override {}
-    [[nodiscard]] TimeUtils::FPSeconds GetGameTime() const noexcept override {}
-    [[nodiscard]] TimeUtils::FPSeconds GetSystemTime() const noexcept override {}
+    [[nodiscard]] TimeUtils::FPSeconds GetGameFrameTime() const noexcept override { return TimeUtils::FPSeconds::zero(); }
+    [[nodiscard]] TimeUtils::FPSeconds GetSystemFrameTime() const noexcept override { return TimeUtils::FPSeconds::zero(); }
+    [[nodiscard]] TimeUtils::FPSeconds GetGameTime() const noexcept override { return TimeUtils::FPSeconds::zero(); }
+    [[nodiscard]] TimeUtils::FPSeconds GetSystemTime() const noexcept override { return TimeUtils::FPSeconds::zero(); }
 
     void SetFullscreen([[maybe_unused]] bool isFullscreen) noexcept override {}
     void SetFullscreenMode() noexcept override {}
     void SetWindowedMode() noexcept override {}
     void SetWindowTitle([[maybe_unused]] const std::string& newTitle) noexcept override {}
-    [[nodiscard]] std::string GetWindowTitle() const noexcept override {}
+    [[nodiscard]] std::string GetWindowTitle() const noexcept override { return {}; }
 
     void SetWindowIcon([[maybe_unused]] void* iconResource) noexcept override {}
 
-    [[nodiscard]] std::unique_ptr<VertexBuffer> CreateVertexBuffer([[maybe_unused]] const VertexBuffer::buffer_t& vbo) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<VertexCircleBuffer> CreateVertexCircleBuffer([[maybe_unused]] const VertexCircleBuffer::buffer_t& vbco) const noexcept override {};
-    [[nodiscard]] std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced([[maybe_unused]] const VertexBufferInstanced::buffer_t& vbio) const noexcept override {};
-    [[nodiscard]] std::unique_ptr<IndexBuffer> CreateIndexBuffer([[maybe_unused]] const IndexBuffer::buffer_t& ibo) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<ConstantBuffer> CreateConstantBuffer([[maybe_unused]] void* const& buffer, [[maybe_unused]] const std::size_t& buffer_size) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<StructuredBuffer> CreateStructuredBuffer([[maybe_unused]] const StructuredBuffer::buffer_t& sbo, [[maybe_unused]] std::size_t element_size, [[maybe_unused]] std::size_t element_count) const noexcept override {}
+    [[nodiscard]] std::unique_ptr<VertexBuffer> CreateVertexBuffer([[maybe_unused]] const VertexBuffer::buffer_t& vbo) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<VertexCircleBuffer> CreateVertexCircleBuffer([[maybe_unused]] const VertexCircleBuffer::buffer_t& vbco) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<VertexBufferInstanced> CreateVertexBufferInstanced([[maybe_unused]] const VertexBufferInstanced::buffer_t& vbio) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<IndexBuffer> CreateIndexBuffer([[maybe_unused]] const IndexBuffer::buffer_t& ibo) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<ConstantBuffer> CreateConstantBuffer([[maybe_unused]] void* const& buffer, [[maybe_unused]] const std::size_t& buffer_size) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<StructuredBuffer> CreateStructuredBuffer([[maybe_unused]] const StructuredBuffer::buffer_t& sbo, [[maybe_unused]] std::size_t element_size, [[maybe_unused]] std::size_t element_count) const noexcept override { return {}; }
 
-    [[nodiscard]] Texture* CreateOrGetTexture([[maybe_unused]] const std::filesystem::path& filepath, [[maybe_unused]] const IntVector3& dimensions) noexcept override {}
+    [[nodiscard]] Texture* CreateOrGetTexture([[maybe_unused]] const std::filesystem::path& filepath, [[maybe_unused]] const IntVector3& dimensions) noexcept override { return nullptr; }
     void RegisterTexturesFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
-    [[nodiscard]] bool RegisterTexture([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<Texture> texture) noexcept override {}
+    [[nodiscard]] bool RegisterTexture([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<Texture> texture) noexcept override { return false; }
     void SetTexture([[maybe_unused]] Texture* texture, [[maybe_unused]] unsigned int registerIndex = 0) noexcept override {}
 
-    [[nodiscard]] Texture* GetTexture([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
+    [[nodiscard]] Texture* GetTexture([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
 
-    [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> CreateRenderableDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override {}
+    [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override { return {};}
+    [[nodiscard]] std::unique_ptr<Texture> CreateRenderableDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override { return {}; }
 
-    [[nodiscard]] Texture* GetDefaultDepthStencil() const noexcept override {}
+    [[nodiscard]] Texture* GetDefaultDepthStencil() const noexcept override { return nullptr; }
     void SetDepthStencilState([[maybe_unused]] DepthStencilState* depthstencil) noexcept override {}
-    [[nodiscard]] DepthStencilState* GetDepthStencilState([[maybe_unused]] const std::string& name) noexcept override {}
+    [[nodiscard]] DepthStencilState* GetDepthStencilState([[maybe_unused]] const std::string& name) noexcept override { return nullptr; }
     void CreateAndRegisterDepthStencilStateFromDepthStencilDescription([[maybe_unused]] const std::string& name, [[maybe_unused]] const DepthStencilDesc& desc) noexcept override {}
     void EnableDepth([[maybe_unused]] bool isDepthEnabled) noexcept override {}
     void EnableDepth() noexcept override {}
@@ -391,42 +395,42 @@ public:
     void DisableDepthWrite() noexcept override {}
 
     void SetDepthComparison([[maybe_unused]] ComparisonFunction cf) noexcept override {}
-    [[nodiscard]] ComparisonFunction GetDepthComparison() const noexcept override {}
+    [[nodiscard]] ComparisonFunction GetDepthComparison() const noexcept override { return ComparisonFunction::Always; }
     void SetStencilFrontComparison([[maybe_unused]] ComparisonFunction cf) noexcept override {}
     void SetStencilBackComparison([[maybe_unused]] ComparisonFunction cf) noexcept override {}
     void EnableStencilWrite() noexcept override {}
     void DisableStencilWrite() noexcept override {}
 
-    [[nodiscard]] Texture* Create1DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create1DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create1DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
-    [[nodiscard]] Texture* Create2DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
-    [[nodiscard]] Texture* Create3DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const IntVector3& dimensions, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create3DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
-    [[nodiscard]] std::unique_ptr<Texture> Create3DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
-    [[nodiscard]] Texture* CreateTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const IntVector3& dimensions, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override {}
+    [[nodiscard]] Texture* Create1DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override { return nullptr; }
+    [[nodiscard]] std::unique_ptr<Texture> Create1DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<Texture> Create1DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return {}; }
+    [[nodiscard]] Texture* Create2DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override { return nullptr; }
+    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<Texture> Create2DTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return {}; }
+    [[nodiscard]] Texture* Create3DTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const IntVector3& dimensions, [[maybe_unused]] const BufferUsage& bufferUsage, [[maybe_unused]] const BufferBindUsage& bindUsage, [[maybe_unused]] const ImageFormat& imageFormat) noexcept override { return nullptr; }
+    [[nodiscard]] std::unique_ptr<Texture> Create3DTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<Texture> Create3DTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1, [[maybe_unused]] unsigned int depth = 1, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return {}; }
+    [[nodiscard]] Texture* CreateTexture([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const IntVector3& dimensions, [[maybe_unused]] const BufferUsage& bufferUsage = BufferUsage::Static, [[maybe_unused]] const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, [[maybe_unused]] const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override { return nullptr; }
 
-    [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet([[maybe_unused]] const std::filesystem::path& filepath, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1) noexcept override {}
-    [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet([[maybe_unused]] const XMLElement& elem) noexcept override {}
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::filesystem::path filepath) noexcept override {}
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const AnimatedSpriteDesc& desc) noexcept override {}
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override {}
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const XMLElement& elem) noexcept override {}
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const XMLElement& elem) noexcept override {}
+    [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet([[maybe_unused]] const std::filesystem::path& filepath, [[maybe_unused]] unsigned int width = 1, [[maybe_unused]] unsigned int height = 1) noexcept override { return {}; }
+    [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet([[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::filesystem::path filepath) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const AnimatedSpriteDesc& desc) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
 
     void ClearRenderTargets([[maybe_unused]] const RenderTargetType& rtt) noexcept override {}
     void SetRenderTarget([[maybe_unused]] FrameBuffer& frameBuffer) noexcept override {}
     void SetRenderTarget([[maybe_unused]] Texture* color_target = nullptr, [[maybe_unused]] Texture* depthstencil_target = nullptr) noexcept override {}
     void SetRenderTargetsToBackBuffer() noexcept override {}
-    [[nodiscard]] ViewportDesc GetCurrentViewport() const noexcept override {}
-    [[nodiscard]] float GetCurrentViewportAspectRatio() const noexcept override {}
-    [[nodiscard]] ViewportDesc GetViewport([[maybe_unused]] std::size_t index) const noexcept override {}
-    [[nodiscard]] unsigned int GetViewportCount() const noexcept override {}
-    [[nodiscard]] std::vector<ViewportDesc> GetAllViewports() const noexcept override {}
+    [[nodiscard]] ViewportDesc GetCurrentViewport() const noexcept override { return ViewportDesc{}; }
+    [[nodiscard]] float GetCurrentViewportAspectRatio() const noexcept override { return MathUtils::M_16_BY_9_RATIO; }
+    [[nodiscard]] ViewportDesc GetViewport([[maybe_unused]] std::size_t index) const noexcept override { return ViewportDesc{}; }
+    [[nodiscard]] unsigned int GetViewportCount() const noexcept override { return 0u; }
+    [[nodiscard]] std::vector<ViewportDesc> GetAllViewports() const noexcept override { return {}; }
 
     void SetViewport([[maybe_unused]] const ViewportDesc& desc) noexcept override {}
     void SetViewport([[maybe_unused]] float x, [[maybe_unused]] float y, [[maybe_unused]] float width, [[maybe_unused]] float height) noexcept override {}
@@ -482,61 +486,64 @@ public:
     void SetSpecGlossEmitFactors([[maybe_unused]] Material* mat) noexcept override {}
     void SetUseVertexNormalsForLighting([[maybe_unused]] bool value) noexcept override {}
 
-    [[nodiscard]] const light_t& GetLight([[maybe_unused]] unsigned int index) const noexcept override {}
+    [[nodiscard]] const light_t& GetLight([[maybe_unused]] unsigned int index) const noexcept override {
+        static light_t l{};
+        return l;
+    }
     void SetPointLight([[maybe_unused]] unsigned int index, [[maybe_unused]] const PointLightDesc& desc) noexcept override {}
     void SetDirectionalLight([[maybe_unused]] unsigned int index, [[maybe_unused]] const DirectionalLightDesc& desc) noexcept override {}
     void SetSpotlight([[maybe_unused]] unsigned int index, [[maybe_unused]] const SpotLightDesc& desc) noexcept override {}
 
-    [[nodiscard]] RHIDeviceContext* GetDeviceContext() const noexcept override {}
-    [[nodiscard]] RHIDevice* GetDevice() const noexcept override {}
-    [[nodiscard]] RHIOutput* GetOutput() const noexcept override {}
-    [[nodiscard]] RHIInstance* GetInstance() const noexcept override {}
+    [[nodiscard]] RHIDeviceContext* GetDeviceContext() const noexcept override { return nullptr; }
+    [[nodiscard]] RHIDevice* GetDevice() const noexcept override { return nullptr; }
+    [[nodiscard]] RHIOutput* GetOutput() const noexcept override { return nullptr; }
+    [[nodiscard]] RHIInstance* GetInstance() const noexcept override { return nullptr; }
 
-    [[nodiscard]] ShaderProgram* GetShaderProgram([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
-    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateShaderProgramFromCsoFile([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const PipelineStage& target) const noexcept override {}
-    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateShaderProgramFromDesc([[maybe_unused]] ShaderProgramDesc&& desc) const noexcept override {}
+    [[nodiscard]] ShaderProgram* GetShaderProgram([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
+    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateShaderProgramFromCsoFile([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const PipelineStage& target) const noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateShaderProgramFromDesc([[maybe_unused]] ShaderProgramDesc&& desc) const noexcept override { return {}; }
     void CreateAndRegisterShaderProgramFromCsoFile([[maybe_unused]] std::filesystem::path filepath, [[maybe_unused]] const PipelineStage& target) noexcept override {}
     void CreateAndRegisterRasterStateFromRasterDescription([[maybe_unused]] const std::string& name, [[maybe_unused]] const RasterDesc& desc) noexcept override {}
     void SetRasterState([[maybe_unused]] RasterState* raster) noexcept override {}
     void SetRasterState([[maybe_unused]] FillMode fillmode, [[maybe_unused]] CullMode cullmode) noexcept override {}
-    [[nodiscard]] RasterState* GetRasterState([[maybe_unused]] const std::string& name) noexcept override {}
+    [[nodiscard]] RasterState* GetRasterState([[maybe_unused]] const std::string& name) noexcept override { return nullptr; }
 
     void SetWireframeRaster([[maybe_unused]] CullMode cullmode = CullMode::Back) noexcept override {}
     void SetSolidRaster([[maybe_unused]] CullMode cullmode = CullMode::Back) noexcept override {}
 
     void CreateAndRegisterSamplerFromSamplerDescription([[maybe_unused]] const std::string& name, [[maybe_unused]] const SamplerDesc& desc) noexcept override {}
-    [[nodiscard]] Sampler* GetSampler([[maybe_unused]] const std::string& name) noexcept override {}
+    [[nodiscard]] Sampler* GetSampler([[maybe_unused]] const std::string& name) noexcept override { return nullptr; }
     void SetSampler([[maybe_unused]] Sampler* sampler) noexcept override {}
 
     void SetVSync([[maybe_unused]] bool value) noexcept override {}
 
-    [[nodiscard]] std::unique_ptr<Material> CreateMaterialFromFont([[maybe_unused]] KerningFont* font) noexcept override {}
-    [[nodiscard]] bool RegisterMaterial([[maybe_unused]] std::filesystem::path filepath) noexcept override {}
+    [[nodiscard]] std::unique_ptr<Material> CreateMaterialFromFont([[maybe_unused]] KerningFont* font) noexcept override { return {}; }
+    [[nodiscard]] bool RegisterMaterial([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterMaterial([[maybe_unused]] std::unique_ptr<Material> mat) noexcept override {}
     void RegisterMaterialsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
     void ReloadMaterials() noexcept override {}
 
-    [[nodiscard]] Material* GetMaterial([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
+    [[nodiscard]] Material* GetMaterial([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
     void SetMaterial([[maybe_unused]] Material* material) noexcept override {}
     void SetMaterial([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
     void ResetMaterial() noexcept override {}
 
-    [[nodiscard]] bool IsTextureLoaded([[maybe_unused]] const std::string& nameOrFile) const noexcept override {}
-    [[nodiscard]] bool IsTextureNotLoaded([[maybe_unused]] const std::string& nameOrFile) const noexcept override {}
+    [[nodiscard]] bool IsTextureLoaded([[maybe_unused]] const std::string& nameOrFile) const noexcept override { return false; }
+    [[nodiscard]] bool IsTextureNotLoaded([[maybe_unused]] const std::string& nameOrFile) const noexcept override { return false; }
 
-    [[nodiscard]] bool RegisterShader([[maybe_unused]] std::filesystem::path filepath) noexcept override {}
+    [[nodiscard]] bool RegisterShader([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterShader([[maybe_unused]] std::unique_ptr<Shader> shader) noexcept override {}
 
-    [[nodiscard]] Shader* GetShader([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
-    [[nodiscard]] std::string GetShaderName([[maybe_unused]] const std::filesystem::path filepath) noexcept override {}
+    [[nodiscard]] Shader* GetShader([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
+    [[nodiscard]] std::string GetShaderName([[maybe_unused]] const std::filesystem::path filepath) noexcept override { return {}; }
 
     void SetComputeShader([[maybe_unused]] Shader* shader) noexcept override {}
     void DispatchComputeJob([[maybe_unused]] const ComputeJob& job) noexcept override {}
 
-    [[nodiscard]] KerningFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override {}
+    [[nodiscard]] KerningFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
 
     void RegisterFont([[maybe_unused]] std::unique_ptr<KerningFont> font) noexcept override {}
-    [[nodiscard]] bool RegisterFont([[maybe_unused]] std::filesystem::path filepath) noexcept override {}
+    [[nodiscard]] bool RegisterFont([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterFontsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
 
     void UpdateGameTime([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept override {}
@@ -555,19 +562,19 @@ public:
     void SetPerspectiveProjectionFromCamera([[maybe_unused]] const Camera3D& camera) noexcept override {}
     void SetCamera([[maybe_unused]] const Camera3D& camera) noexcept override {}
     void SetCamera([[maybe_unused]] const Camera2D& camera) noexcept override {}
-    [[nodiscard]] Camera3D GetCamera() const noexcept override {}
+    [[nodiscard]] Camera3D GetCamera() const noexcept override { return {}; }
 
-    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Vector3& worldCoords) const noexcept override {}
-    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Vector2& worldCoords) const noexcept override {}
-    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector3& worldCoords) const noexcept override {}
-    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& worldCoords) const noexcept override {}
-    [[nodiscard]] Vector3 ConvertScreenToWorldCoords([[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
-    [[nodiscard]] Vector3 ConvertScreenToWorldCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
-    [[nodiscard]] Vector2 ConvertScreenToWorldCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
+    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Vector3& worldCoords) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Vector2& worldCoords) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector3& worldCoords) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 ConvertWorldToScreenCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& worldCoords) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector3 ConvertScreenToWorldCoords([[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector3::Zero; }
+    [[nodiscard]] Vector3 ConvertScreenToWorldCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector3::Zero; }
+    [[nodiscard]] Vector2 ConvertScreenToWorldCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector2::Zero; }
 
-    [[nodiscard]] Vector3 ConvertScreenToNdcCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
-    [[nodiscard]] Vector2 ConvertScreenToNdcCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
-    [[nodiscard]] Vector3 ConvertScreenToNdcCoords([[maybe_unused]] const Vector2& mouseCoords) const noexcept override {}
+    [[nodiscard]] Vector3 ConvertScreenToNdcCoords([[maybe_unused]] const Camera3D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector3::Zero; }
+    [[nodiscard]] Vector2 ConvertScreenToNdcCoords([[maybe_unused]] const Camera2D& camera, [[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector3 ConvertScreenToNdcCoords([[maybe_unused]] const Vector2& mouseCoords) const noexcept override { return Vector3::Zero; }
 
     void SetConstantBuffer([[maybe_unused]] unsigned int index, [[maybe_unused]] ConstantBuffer* buffer) noexcept override {}
     void SetStructuredBuffer([[maybe_unused]] unsigned int index, [[maybe_unused]] StructuredBuffer* buffer) noexcept override {}
@@ -600,6 +607,9 @@ public:
     void DrawPolygon2D([[maybe_unused]] float centerX, [[maybe_unused]] float centerY, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawPolygon2D([[maybe_unused]] const Vector2& center, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawPolygon2D([[maybe_unused]] const Polygon2& polygon, [[maybe_unused]] const Rgba& color = Rgba::White) override {}
+    void DrawFilledPolygon2D([[maybe_unused]] float centerX, [[maybe_unused]] float centerY, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void DrawFilledPolygon2D([[maybe_unused]] const Vector2& center, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void DrawFilledPolygon2D([[maybe_unused]] const Polygon2& polygon, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawX2D([[maybe_unused]] const Vector2& position = Vector2::Zero, [[maybe_unused]] const Vector2& half_extents = Vector2(0.5f, 0.5f), [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawX2D([[maybe_unused]] const Rgba& color) noexcept override {}
     void DrawTextLine([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}

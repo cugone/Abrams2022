@@ -172,7 +172,7 @@ public:
     void ResumeAudio() noexcept;
 
     void SetFormat(const WAVEFORMATEXTENSIBLE& format) noexcept;
-    void SetFormat(const FileUtils::Wav::WavFormatChunk& format) noexcept;
+    void SetFormat(const FileUtils::detail::WavFormatChunk & format) noexcept;
 
     void RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept;
     void RegisterWavFile(std::filesystem::path filepath) noexcept;
@@ -197,7 +197,7 @@ public:
 
     void SetEngineCallback(EngineCallback* callback) noexcept;
     [[nodiscard]] const WAVEFORMATEXTENSIBLE& GetFormat() const noexcept;
-    [[nodiscard]] FileUtils::Wav::WavFormatChunk GetLoadedWavFileFormat() const noexcept;
+    [[nodiscard]] FileUtils::detail::WavFormatChunk GetLoadedWavFileFormat() const noexcept;
 
     AudioDSPResults CalculateDSP(const Audio3DEmitter& emitter, const Audio3DListener& listener, const AudioDSPSettings& settings) const noexcept;
 

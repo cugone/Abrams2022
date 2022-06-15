@@ -42,9 +42,9 @@ public:
     void WarnMsg([[maybe_unused]] const std::string& msg) noexcept override {};
     void ErrorMsg([[maybe_unused]] const std::string& msg) noexcept override {};
 
-    [[nodiscard]] virtual void* GetAcceleratorTable() const noexcept override {};
-    [[nodiscard]] virtual bool IsOpen() const noexcept override { return false; };
-    [[nodiscard]] virtual bool IsClosed() const noexcept override { return true; };
+    [[nodiscard]] void* GetAcceleratorTable() const noexcept override { return nullptr; };
+    [[nodiscard]] bool IsOpen() const noexcept override { return false; };
+    [[nodiscard]] bool IsClosed() const noexcept override { return true; };
 
 protected:
 private:

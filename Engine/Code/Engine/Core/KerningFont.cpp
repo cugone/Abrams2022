@@ -92,14 +92,14 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
         namespace FS = std::filesystem;
         const auto path_exists = FS::exists(filepath);
         if(!path_exists) {
-            DebuggerPrintf("Failed to read file: %s \nDoes not exist.\n", m_filepath.string().c_str());
+            DebuggerPrintf(std::format("Failed to read file: {} \nDoes not exist.\n", m_filepath.string()));
             return false;
         }
         {
             std::error_code ec{};
             filepath = FS::canonical(filepath, ec);
             if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-                DebuggerPrintf("File: %s is inaccessible.\n", filepath.string().c_str());
+                DebuggerPrintf(std::format("File: {} is inaccessible.\n", filepath.string()));
                 return false;
             }
         }
@@ -109,23 +109,23 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
         const auto is_fnt = filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".fnt";
         const auto is_valid = path_exists && is_not_directory && is_file && is_fnt;
         if(!is_valid) {
-            DebuggerPrintf("%s is not a BMFont file.\n", filepath.string().c_str());
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", filepath.string()));
             return false;
         }
         if(m_is_loaded) {
-            DebuggerPrintf("%s is already loaded.\n", filepath.string().c_str());
+            DebuggerPrintf(std::format("{} is already loaded.\n", filepath.string()));
             return false;
         }
         m_filepath = filepath;
     }
     if(const auto& buffer = FileUtils::ReadBinaryBufferFromFile(m_filepath.string()); buffer.has_value()) {
         if(buffer->size() < 4) {
-            DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
             return false;
         }
         return LoadFromBuffer(*buffer);
     } else {
-        DebuggerPrintf("Failed to read file: %s \n", m_filepath.string().c_str());
+        DebuggerPrintf(std::format("Failed to read file: {} \n", m_filepath.string()));
         return false;
     }
 }
@@ -218,7 +218,7 @@ bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) noexcept {
         }
     }
     if(!kerning_count) {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
+        DebuggerPrintf(std::format("No kerning pairs found in font \"{}\"\n", m_name));
     }
     return true;
 }
@@ -636,7 +636,7 @@ bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {
                                            m_kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
                                        });
     } else {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
+        DebuggerPrintf(std::format("No kerning pairs found in font \"{}\"\n", m_name));
     }
     return true;
 }
@@ -720,7 +720,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
     constexpr const uint8_t CURRENT_BMF_VERSION = 3;
     if(bss.read(reinterpret_cast<char*>(&header), sizeof(header))) {
         if(!(header.id[0] == 'B' && header.id[1] == 'M' && header.id[2] == 'F')) {
-            DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
             return false;
         }
         if(header.version != CURRENT_BMF_VERSION) {
@@ -743,7 +743,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             std::string font_name(block_size - sizeof(info), '\0');
             bss.read(font_name.data(), font_name.size());
             if(info.font_size < 0) {
-                DebuggerPrintf("%s uses \"Match char height\" option which will result in negative font sizes.\n", m_filepath.string().c_str());
+                DebuggerPrintf(std::format("{} uses \"Match char height\" option which will result in negative font sizes.\n", m_filepath.string()));
             }
             m_info.charset = info.char_set;
             m_info.em_size = info.font_size;
@@ -794,7 +794,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             uint32_t char_count = block_size / chars_size;
             for(uint32_t i = 0; i < char_count; ++i) {
                 if(!bss.read(reinterpret_cast<char*>(&chars), chars_size)) {
-                    DebuggerPrintf("%s is not a BMFont file.\n", m_filepath.string().c_str());
+                    DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
                     return false;
                 }
                 CharDef d{};
@@ -832,7 +832,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
         }
     }
     if(successful_block_reads < BLOCK_ID_KERNINGS) {
-        DebuggerPrintf("No kerning pairs found in font \"%s\"\n", m_name.c_str());
+        DebuggerPrintf(std::format("No kerning pairs found in font \"{}\"\n", m_name));
     }
     return true;
 }

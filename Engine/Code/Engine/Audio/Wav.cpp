@@ -1,6 +1,6 @@
 #include "Engine/Audio/Wav.hpp"
 
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/Riff.hpp"
 
 #include <sstream>
 
@@ -15,14 +15,14 @@ constexpr const bool IsValid(const char* id) noexcept {
 } // namespace WavChunkID
 
 unsigned int Wav::Load(std::filesystem::path filepath) noexcept {
-    if(Riff riff_data{}; riff_data.Load(filepath) != Riff::RIFF_SUCCESS) {
+    if(Riff riff_data; riff_data.Load(filepath) != Riff::RIFF_SUCCESS) {
         return WAV_ERROR_NOT_A_WAV;
     } else {
         if(const auto* next_chunk = riff_data.GetNextChunk(); next_chunk != nullptr) {
-            if(!next_chunk->data) {
+            if(!next_chunk->data.subdata_length) {
                 return WAV_SUCCESS; //Successfully read an empty file!
             }
-            if(const auto wavfcc = StringUtils::FourCC(next_chunk->data->fourcc); wavfcc != RiffChunkID::WAVE) {
+            if(const auto wavfcc = StringUtils::FourCC(next_chunk->data.fourcc); wavfcc != RiffChunkID::WAVE) {
                 return WAV_ERROR_NOT_A_WAV;
             }
 
@@ -30,11 +30,11 @@ unsigned int Wav::Load(std::filesystem::path filepath) noexcept {
                 return WAV_ERROR_BAD_FILE;
             }
             std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-            ss.write(reinterpret_cast<const char*>(next_chunk->data->subdata.get()), std::streamsize{next_chunk->header.length - uint32_t{4u}});
+            ss.write(reinterpret_cast<const char*>(next_chunk->data.subdata.get()), std::streamsize{next_chunk->header.length - uint32_t{4u}});
             ss.clear();
             ss.seekp(0);
             ss.seekg(0);
-            WavHeader cur_header{};
+            detail::WavHeader cur_header{};
             while(ss.read(reinterpret_cast<char*>(&cur_header), sizeof(cur_header))) {
                 switch(StringUtils::FourCC(cur_header.fourcc)) {
                 case WavChunkID::FMT: {
@@ -81,11 +81,11 @@ uint32_t Wav::GetDataBufferSize() const noexcept {
     return m_data.length;
 }
 
-const Wav::WavFormatChunk& Wav::GetFormatChunk() const noexcept {
+const detail::WavFormatChunk& Wav::GetFormatChunk() const noexcept {
     return m_fmt;
 }
 
-const Wav::WavDataChunk& Wav::GetDataChunk() const noexcept {
+const detail::WavDataChunk& Wav::GetDataChunk() const noexcept {
     return m_data;
 }
 

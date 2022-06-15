@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Engine/Core/Riff.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
 #include <filesystem>
-#include <string>
 
 namespace FileUtils {
 
@@ -15,34 +13,38 @@ constexpr const uint32_t DATA = StringUtils::FourCC("data");
 constexpr const bool IsValid(const char* id) noexcept;
 } // namespace WavChunkID
 
+namespace detail {
+struct WavHeader {
+    char fourcc[4]{0, 0, 0, 0};
+    uint32_t length{0u};
+};
+
+struct WavFormatChunk {
+    uint16_t formatId{0u};
+    uint16_t channelCount{0u};
+    uint32_t samplesPerSecond{0u};
+    uint32_t bytesPerSecond{0u}; //samplesPerSecond * channelCount * bitsPerSample / 8
+    uint16_t dataBlockSize{0u};  //channelCount * bitsPerSample / 8
+    uint16_t bitsPerSample{0u};
+    uint16_t extensionSize{0u};
+    uint16_t validBitsPerSample{0u};
+    uint32_t speakerPositionMask{0u};
+    uint32_t subFormat[4]{0u, 0u, 0u, 0u};
+};
+
+struct WavFactChunk {
+    uint32_t samplesPerChannel{0u};
+};
+
+struct WavDataChunk {
+    uint32_t length{0u};
+    std::unique_ptr<uint8_t[]> data{nullptr};
+};
+
+}
+
 class Wav {
 public:
-    struct WavHeader {
-        char fourcc[4]{};
-        uint32_t length{};
-    };
-
-    struct WavFormatChunk {
-        uint16_t formatId{};
-        uint16_t channelCount{};
-        uint32_t samplesPerSecond{};
-        uint32_t bytesPerSecond{}; //samplesPerSecond * channelCount * bitsPerSample / 8
-        uint16_t dataBlockSize{};  //channelCount * bitsPerSample / 8
-        uint16_t bitsPerSample{};
-        uint16_t extensionSize{};
-        uint16_t validBitsPerSample{};
-        uint32_t speakerPositionMask{};
-        uint32_t subFormat[4]{};
-    };
-
-    struct WavFactChunk {
-        uint32_t samplesPerChannel{};
-    };
-
-    struct WavDataChunk {
-        uint32_t length{};
-        std::unique_ptr<uint8_t[]> data;
-    };
 
     static constexpr const unsigned int WAV_SUCCESS = 0;
     static constexpr const unsigned int WAV_ERROR_NOT_A_WAV = 1;
@@ -51,15 +53,15 @@ public:
     [[nodiscard]] unsigned int Load(std::filesystem::path filepath) noexcept;
     [[nodiscard]] unsigned char* GetFormatAsBuffer() noexcept;
     [[nodiscard]] unsigned char* GetDataBuffer() const noexcept;
-    [[nodiscard]] const WavFormatChunk& GetFormatChunk() const noexcept;
-    [[nodiscard]] const WavDataChunk& GetDataChunk() const noexcept;
+    [[nodiscard]] const detail::WavFormatChunk& GetFormatChunk() const noexcept;
+    [[nodiscard]] const detail::WavDataChunk& GetDataChunk() const noexcept;
     [[nodiscard]] uint32_t GetDataBufferSize() const noexcept;
 
 protected:
 private:
-    WavFormatChunk m_fmt{};
-    WavFactChunk m_fact{};
-    WavDataChunk m_data{};
+    detail::WavFormatChunk m_fmt;
+    detail::WavFactChunk m_fact;
+    detail::WavDataChunk m_data;
 };
 
 } // namespace FileUtils

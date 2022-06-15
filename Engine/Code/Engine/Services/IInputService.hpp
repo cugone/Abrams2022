@@ -5,8 +5,11 @@
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/Vector2.hpp"
 
+#include "Engine/Input/XboxController.hpp"
+
+#include <array>
+
 class Window;
-class XboxController;
 
 enum class KeyCode;
 
@@ -85,55 +88,57 @@ class NullInputService : public IInputService {
 public:
     virtual ~NullInputService() noexcept {};
 
-    [[nodiscard]] bool WasAnyKeyPressed() const noexcept override {}
-    [[nodiscard]] bool WasAnyMouseButtonPressed() const noexcept override {}
-    [[nodiscard]] bool WasMouseMoved() const noexcept override {}
-    [[nodiscard]] bool WasMouseJustUsed() const noexcept override {}
-    [[nodiscard]] bool IsKeyUp([[maybe_unused]] const KeyCode& key) const noexcept override {}
-    [[nodiscard]] bool WasKeyJustPressed([[maybe_unused]] const KeyCode& key) const noexcept override {}
-    [[nodiscard]] bool IsKeyDown([[maybe_unused]] const KeyCode& key) const noexcept override {}
-    [[nodiscard]] bool WasKeyJustPressedOrIsKeyDown([[maybe_unused]] const KeyCode& key) const noexcept override {}
-    [[nodiscard]] bool IsAnyKeyDown() const noexcept override {}
-    [[nodiscard]] bool WasKeyJustReleased([[maybe_unused]] const KeyCode& key) const noexcept override {}
-    [[nodiscard]] bool WasMouseWheelJustScrolledUp() const noexcept override {}
-    [[nodiscard]] bool WasMouseWheelJustScrolledDown() const noexcept override {}
-    [[nodiscard]] bool WasMouseWheelJustScrolledLeft() const noexcept override {}
-    [[nodiscard]] bool WasMouseWheelJustScrolledRight() const noexcept override {}
-    [[nodiscard]] bool WasMouseWheelJustUsed() const noexcept override {}
-    [[nodiscard]] std::size_t GetConnectedControllerCount() const noexcept override {}
-    [[nodiscard]] bool IsAnyControllerConnected() const noexcept override {}
-    [[nodiscard]] const XboxController& GetXboxController([[maybe_unused]] const std::size_t& controllerIndex) const noexcept override {}
-    [[nodiscard]] XboxController& GetXboxController([[maybe_unused]] const std::size_t& controllerIndex) noexcept override {}
-    [[nodiscard]] bool IsMouseCursorVisible() const noexcept override {}
+    [[nodiscard]] bool WasAnyKeyPressed() const noexcept override { return false; }
+    [[nodiscard]] bool WasAnyMouseButtonPressed() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseMoved() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseJustUsed() const noexcept override { return false; }
+    [[nodiscard]] bool IsKeyUp([[maybe_unused]] const KeyCode& key) const noexcept override { return false; }
+    [[nodiscard]] bool WasKeyJustPressed([[maybe_unused]] const KeyCode& key) const noexcept override { return false; }
+    [[nodiscard]] bool IsKeyDown([[maybe_unused]] const KeyCode& key) const noexcept override { return false; }
+    [[nodiscard]] bool WasKeyJustPressedOrIsKeyDown([[maybe_unused]] const KeyCode& key) const noexcept override { return false; }
+    [[nodiscard]] bool IsAnyKeyDown() const noexcept override { return false; }
+    [[nodiscard]] bool WasKeyJustReleased([[maybe_unused]] const KeyCode& key) const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseWheelJustScrolledUp() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseWheelJustScrolledDown() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseWheelJustScrolledLeft() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseWheelJustScrolledRight() const noexcept override { return false; }
+    [[nodiscard]] bool WasMouseWheelJustUsed() const noexcept override { return false; }
+    [[nodiscard]] std::size_t GetConnectedControllerCount() const noexcept override { return std::size_t{0u}; }
+    [[nodiscard]] bool IsAnyControllerConnected() const noexcept override { return false; }
+    [[nodiscard]] const XboxController& GetXboxController([[maybe_unused]] const std::size_t& controllerIndex) const noexcept override { return m_xboxControllers[controllerIndex]; }
+    [[nodiscard]] XboxController& GetXboxController([[maybe_unused]] const std::size_t& controllerIndex) noexcept override { return m_xboxControllers[controllerIndex]; }
+    [[nodiscard]] bool IsMouseCursorVisible() const noexcept override { return false; }
     void ToggleMouseCursorVisibility() noexcept override {}
     void HideMouseCursor() noexcept override {}
     void ShowMouseCursor() noexcept override {}
     void SetCursorScreenPosition([[maybe_unused]] const Vector2& screen_pos) noexcept override {}
-    [[nodiscard]] Vector2 GetCursorScreenPosition() const noexcept override {}
+    [[nodiscard]] Vector2 GetCursorScreenPosition() const noexcept override { return Vector2::Zero; }
     void SetCursorWindowPosition([[maybe_unused]] const Window& window, [[maybe_unused]] const Vector2& window_pos) noexcept override {}
-    [[nodiscard]] Vector2 GetCursorWindowPosition([[maybe_unused]] const Window& window_ref) const noexcept override {}
+    [[nodiscard]] Vector2 GetCursorWindowPosition([[maybe_unused]] const Window& window_ref) const noexcept override { return Vector2::Zero; }
     void SetCursorWindowPosition([[maybe_unused]] const Vector2& window_pos) noexcept override {}
-    [[nodiscard]] Vector2 GetCursorWindowPosition() noexcept override {}
+    [[nodiscard]] Vector2 GetCursorWindowPosition() noexcept override { return Vector2::Zero; }
     void SetCursorToScreenCenter() noexcept override {}
     void SetCursorToWindowCenter([[maybe_unused]] const Window& window_ref) noexcept override {}
     void SetCursorToWindowCenter() noexcept override {}
-    [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter() const noexcept override {}
-    [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter([[maybe_unused]] const Window& window_ref) const noexcept override {}
+    [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter() const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter([[maybe_unused]] const Window& window_ref) const noexcept override { return Vector2::Zero; }
     [[nodiscard]] const Vector2& GetMouseCoords() const noexcept override {}
     [[nodiscard]] const Vector2& GetMouseDelta() const noexcept override {}
-    [[nodiscard]] int GetMouseWheelPosition() const noexcept override {}
-    [[nodiscard]] int GetMouseWheelPositionNormalized() const noexcept override {}
-    [[nodiscard]] int GetMouseWheelHorizontalPosition() const noexcept override {}
-    [[nodiscard]] int GetMouseWheelHorizontalPositionNormalized() const noexcept override {}
-    [[nodiscard]] IntVector2 GetMouseWheelPositionAsIntVector2() const noexcept override {}
-    [[nodiscard]] bool IsMouseLockedToViewport() const noexcept override {}
+    [[nodiscard]] int GetMouseWheelPosition() const noexcept override { return 0; }
+    [[nodiscard]] int GetMouseWheelPositionNormalized() const noexcept override { return 0; }
+    [[nodiscard]] int GetMouseWheelHorizontalPosition() const noexcept override { return 0; }
+    [[nodiscard]] int GetMouseWheelHorizontalPositionNormalized() const noexcept override { return 0; }
+    [[nodiscard]] IntVector2 GetMouseWheelPositionAsIntVector2() const noexcept override { return IntVector2::Zero; }
+    [[nodiscard]] bool IsMouseLockedToViewport() const noexcept override { return false; }
     void LockMouseToViewport([[maybe_unused]] const Window& window) const noexcept override {}
     void LockMouseToWindowViewport() const noexcept override {}
     void UnlockMouseFromViewport() const noexcept override {}
-    [[nodiscard]] Vector2 GetScreenCenter() const noexcept override {}
-    [[nodiscard]] Vector2 GetWindowCenter() const noexcept override {}
-    [[nodiscard]] Vector2 GetWindowCenter([[maybe_unused]] const Window& window) const noexcept override {}
-    [[nodiscard]] bool WasAnyControllerJustUsed() const noexcept override {}
+    [[nodiscard]] Vector2 GetScreenCenter() const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 GetWindowCenter() const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 GetWindowCenter([[maybe_unused]] const Window& window) const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] bool WasAnyControllerJustUsed() const noexcept override { return false; }
+
 protected:
 private:
+    std::array<XboxController, 4> m_xboxControllers{};
 };

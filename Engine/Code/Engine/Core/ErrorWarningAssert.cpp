@@ -38,24 +38,15 @@ bool IsDebuggerAvailable() noexcept {
 }
 
 //-----------------------------------------------------------------------------------------------
-void DebuggerPrintf(const char* messageFormat, ...) noexcept {
-    const int MESSAGE_MAX_LENGTH = 2048;
-    char messageLiteral[MESSAGE_MAX_LENGTH];
-    va_list variableArgumentList;
-    va_start(variableArgumentList, messageFormat);
-    vsnprintf_s(messageLiteral, MESSAGE_MAX_LENGTH, _TRUNCATE, messageFormat, variableArgumentList);
-    va_end(variableArgumentList);
-    messageLiteral[MESSAGE_MAX_LENGTH - 1] = '\0'; // In case vsnprintf overran (doesn't auto-terminate)
-
+void DebuggerPrintf(const std::string& messageFormat) noexcept {
 #if defined(PLATFORM_WINDOWS)
     if(IsDebuggerAvailable()) {
-        OutputDebugStringA(messageLiteral);
+        OutputDebugStringA(messageFormat.c_str());
     }
 #endif
 
-    std::cout << messageLiteral;
+    std::cout << messageFormat;
 }
-
 //-----------------------------------------------------------------------------------------------
 // Converts a SeverityLevel to a Windows MessageBox icon type (MB_etc)
 //
@@ -170,14 +161,14 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
     }
 
     DebuggerPrintf("\n==============================================================================\n");
-    DebuggerPrintf("RUN-TIME FATAL ERROR on line %i of %s, in %s()\n", lineNum, fileName.c_str(), functionName);
-    DebuggerPrintf("%s(%d): %s\n", filePath, lineNum, errorMessage.c_str()); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
+    DebuggerPrintf(std::format("RUN-TIME FATAL ERROR on line {} of {}, in {}()\n", lineNum, fileName.c_str(), functionName));
+    DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("==============================================================================\n\n");
 
-    auto& logger = ServiceLocator::get<IFileLoggerService>();
-    logger.LogError(fullMessageText);
-    logger.LogLineAndFlush("Shutting down");
-    logger.SaveLog();
+    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+    logger->LogError(fullMessageText);
+    logger->LogLineAndFlush("Shutting down");
+    logger->SaveLog();
 
     if(isDebuggerPresent) {
         bool isAnswerYes = SystemDialogue_YesNo(fullMessageTitle, fullMessageText, SeverityLevel::Fatal);
@@ -224,34 +215,34 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
     }
 
     DebuggerPrintf("\n------------------------------------------------------------------------------\n");
-    DebuggerPrintf("RUN-TIME RECOVERABLE WARNING on line %i of %s, in %s()\n", lineNum, fileName.c_str(), functionName);
-    DebuggerPrintf("%s(%d): %s\n", filePath, lineNum, errorMessage.c_str()); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
+    DebuggerPrintf(std::format("RUN-TIME RECOVERABLE WARNING on line {} of {}, in {}()\n", lineNum, fileName.c_str(), functionName));
+    DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("------------------------------------------------------------------------------\n\n");
 
 
-    auto& logger = ServiceLocator::get<IFileLoggerService>();
-    logger.LogWarnLine(fullMessageText);
+    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+    logger->LogWarnLine(fullMessageText);
 
     if(isDebuggerPresent) {
         int answerCode = SystemDialogue_YesNoCancel(fullMessageTitle, fullMessageText, SeverityLevel::Warning);
         ShowCursor(TRUE);
         if(answerCode == 0) // "NO"
         {
-            logger.LogLineAndFlush("Shutting down");
-            logger.SaveLog();
+            logger->LogLineAndFlush("Shutting down");
+            logger->SaveLog();
             exit(0);
         } else if(answerCode == -1) // "CANCEL"
         {
-            logger.Flush();
-            logger.SaveLog();
+            logger->Flush();
+            logger->SaveLog();
             __debugbreak();
         }
     } else {
         bool isAnswerYes = SystemDialogue_YesNo(fullMessageTitle, fullMessageText, SeverityLevel::Warning);
         ShowCursor(TRUE);
         if(!isAnswerYes) {
-            logger.LogLineAndFlush("Shutting down");
-            logger.SaveLog();
+            logger->LogLineAndFlush("Shutting down");
+            logger->SaveLog();
             exit(0);
         }
     }

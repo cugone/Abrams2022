@@ -41,6 +41,22 @@ void SetRandomEngineSeed(unsigned int seed) noexcept {
     }
 }
 
+bool IsValid(Vector2 v) noexcept {
+    return IsValid(v.x) && IsValid(v.y);
+}
+
+bool IsValid(Vector3 v) noexcept {
+    return IsValid(v.x) && IsValid(v.y) && IsValid(v.z);
+}
+
+bool IsValid(Vector4 v) noexcept {
+    return IsValid(v.x) && IsValid(v.y) && IsValid(v.z) && IsValid(v.w);
+}
+
+bool IsValid(Matrix4 v) noexcept {
+    return IsValid(v.GetXComponents()) && IsValid(v.GetYComponents()) && IsValid(v.GetZComponents()) && IsValid(v.GetWComponents());
+}
+
 float ConvertDegreesToRadians(float degrees) noexcept {
     return degrees * (MathUtils::pi_v<float> / 180.0f);
 }

@@ -24,7 +24,7 @@ UICanvas::UICanvas(UIWidget* owner)
     auto desc = DepthStencilDesc{};
     desc.stencil_enabled = true;
     desc.stencil_testFront = ComparisonFunction::Equal;
-    ServiceLocator::get<IRendererService>().CreateAndRegisterDepthStencilStateFromDepthStencilDescription("UIDepthStencil", desc);
+    ServiceLocator::get<IRendererService, NullRendererService>()->CreateAndRegisterDepthStencilStateFromDepthStencilDescription("UIDepthStencil", desc);
 }
 
 UICanvas::UICanvas(UIWidget* owner, const XMLElement& elem)
@@ -44,11 +44,11 @@ void UICanvas::Render() const {
     if(IsHidden()) {
         return;
     }
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    const auto old_camera = renderer.GetCamera();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto old_camera = renderer->GetCamera();
     SetupMVPFromTargetAndCamera();
     RenderChildren();
-    renderer.SetCamera(old_camera);
+    renderer->SetCamera(old_camera);
 }
 
 void UICanvas::SetupMVPFromTargetAndCamera() const {
@@ -56,9 +56,9 @@ void UICanvas::SetupMVPFromTargetAndCamera() const {
 }
 
 void UICanvas::SetupMVPFromViewportAndCamera() const {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.ResetModelViewProjection();
-    const auto& vp = renderer.GetCurrentViewport();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->ResetModelViewProjection();
+    const auto& vp = renderer->GetCurrentViewport();
     const auto target_dims = Vector2(vp.width, vp.height);
     const auto leftBottom = Vector2(0.0f, 1.0f) * target_dims;
     const auto rightTop = Vector2(1.0f, 0.0f) * target_dims;
@@ -68,19 +68,19 @@ void UICanvas::SetupMVPFromViewportAndCamera() const {
     const auto view_extents = Vector2{rightTop.x - leftBottom.x, leftBottom.y - rightTop.y};
     const auto view_half_extents = Vector2{view_extents * 0.5f};
     m_camera.SetPosition(view_half_extents);
-    renderer.SetCamera(m_camera);
-    renderer.SetModelMatrix(GetWorldTransform());
+    renderer->SetCamera(m_camera);
+    renderer->SetModelMatrix(GetWorldTransform());
 }
 
 void UICanvas::DebugRender() const {
     const auto& target = m_camera.GetRenderTarget();
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetRenderTarget(target.color_target, target.depthstencil_target);
-    renderer.DisableDepth();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetRenderTarget(target.color_target, target.depthstencil_target);
+    renderer->DisableDepth();
     DebugRenderBottomUp();
-    renderer.EnableDepth();
-    renderer.SetRenderTarget();
-    renderer.SetMaterial(nullptr);
+    renderer->EnableDepth();
+    renderer->SetRenderTarget();
+    renderer->SetMaterial(nullptr);
 }
 
 void UICanvas::EndFrame() {
@@ -249,7 +249,7 @@ void UICanvas::ArrangeChildren() noexcept {
 }
 
 std::pair<Vector2, float> UICanvas::CalcDimensionsAndAspectRatio() const {
-    const auto& viewport = ServiceLocator::get<IRendererService>().GetCurrentViewport();
+    const auto& viewport = ServiceLocator::get<IRendererService, NullRendererService>()->GetCurrentViewport();
     const auto viewport_dims = Vector2{viewport.width, viewport.height};
 
     const auto target_AR = viewport_dims.x / viewport_dims.y;

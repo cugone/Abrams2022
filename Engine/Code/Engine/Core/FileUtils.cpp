@@ -61,8 +61,8 @@ std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::pa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
     }
@@ -91,8 +91,8 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
     }
@@ -121,8 +121,8 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
     }
@@ -168,8 +168,8 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto& logger = ServiceLocator::get<IFileLoggerService>();
-            logger.LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
     }
@@ -561,10 +561,10 @@ bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
         const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_temp_dir || is_next_to_exe || is_known_OS_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
-        DebuggerPrintf("\nFilesystem Error:\nWhat: %s\nCode: %i\nPath1: %s\nPath2: %s\n", e.what(), e.code().value(), e.path1().string().c_str(), e.path2().string().c_str());
+        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), e.path1().string(), e.path2().string()));
         return false;
     } catch(...) {
-        DebuggerPrintf("\nUnspecified error trying to determine if path:\n%s\n is a safe write path.", p.string().c_str());
+        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{}\n is a safe write path.", p.string()));
         return false;
     }
 }
@@ -592,10 +592,10 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
     } catch(const std::filesystem::filesystem_error& e) {
         const auto path1_str = e.path1().string();
         const auto path2_str = e.path1().string();
-        DebuggerPrintf("\nFilesystem Error:\nWhat: %s\nCode: %i\nPath1: %s\nPath2: %s\n", e.what(), e.code().value(), path1_str.c_str(), path2_str.c_str());
+        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), path1_str, path2_str));
         return false;
     } catch(...) {
-        DebuggerPrintf("\nUnspecified error trying to determine if path:\n%s\n is a safe read path.", p.string().c_str());
+        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe read path.", p.string()));
         return false;
     }
 }
@@ -658,7 +658,7 @@ std::size_t CountFilesInFolders(const std::filesystem::path& folderpath, const s
 
 std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
-    std::vector<FS::path> paths{};
+    std::vector<FS::path> paths;
     paths.reserve(CountFilesInFolders(folderpath));
     const auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
     ForEachFileInFolder(folderpath, validExtensionList, add_path_cb, recursive);

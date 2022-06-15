@@ -16,7 +16,7 @@ void DragForceGenerator::notify([[maybe_unused]] TimeUtils::FPSeconds deltaSecon
             dragCoeff = m_k1k2.x * dragCoeff + m_k1k2.y * dragCoeff * dragCoeff;
             dragForce.Normalize();
             dragForce *= -dragCoeff;
-            body->ApplyForce(dragForce, TimeUtils::FPSeconds::zero());
+            body->ApplyForce(dragForce, deltaSeconds);
         }
     }
 }

@@ -137,12 +137,12 @@ UISystem::~UISystem() noexcept {
 void UISystem::Initialize() noexcept {
     namespace FS = std::filesystem;
 
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    auto* hwnd = renderer.GetOutput()->GetWindow()->GetWindowHandle();
-    auto* dx_device = renderer.GetDevice()->GetDxDevice();
-    auto* dx_context = renderer.GetDeviceContext()->GetDxContext();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* hwnd = renderer->GetOutput()->GetWindow()->GetWindowHandle();
+    auto* dx_device = renderer->GetDevice()->GetDxDevice();
+    auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
 
-    const auto dims = Vector2{renderer.GetOutput()->GetDimensions()};
+    const auto dims = Vector2{renderer->GetOutput()->GetDimensions()};
     auto& io = ImGui::GetIO();
     io.DisplaySize.x = dims.x;
     io.DisplaySize.y = dims.y;
@@ -180,9 +180,9 @@ void UISystem::BeginFrame() noexcept {
 }
 
 void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
-    const auto& app = ServiceLocator::get<IAppService>();
+    const auto* const app = ServiceLocator::get<IAppService, NullAppService>();
     auto& io = ImGui::GetIO();
-    io.AddFocusEvent(app.HasFocus());
+    io.AddFocusEvent(app->HasFocus());
 
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     if(m_show_imgui_demo_window) {
@@ -199,8 +199,8 @@ void UISystem::Render() const noexcept {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     //2D View / HUD
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    const float ui_view_height = renderer.GetCurrentViewport().height;
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const float ui_view_height = renderer->GetCurrentViewport().height;
     const float ui_view_width = ui_view_height * m_ui_camera.GetAspectRatio();
     const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
     const auto ui_view_half_extents = ui_view_extents * 0.5f;
@@ -210,8 +210,8 @@ void UISystem::Render() const noexcept {
     auto ui_cam_pos = ui_view_half_extents;
     m_ui_camera.position = ui_cam_pos;
     m_ui_camera.orientation_degrees = 0.0f;
-    m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer.GetCurrentViewportAspectRatio());
-    renderer.SetCamera(m_ui_camera);
+    m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer->GetCurrentViewportAspectRatio());
+    renderer->SetCamera(m_ui_camera);
 
     for(const auto* cur_widget : m_active_widgets) {
         cur_widget->Render();
@@ -260,9 +260,9 @@ bool UISystem::IsImguiDemoWindowVisible() const noexcept {
 void UISystem::ToggleImguiDemoWindow() noexcept {
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     m_show_imgui_demo_window = !m_show_imgui_demo_window;
-    auto&& input = ServiceLocator::get<IInputService>();
-    if(!input.IsMouseCursorVisible()) {
-        input.ShowMouseCursor();
+    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    if(!input->IsMouseCursorVisible()) {
+        input->ShowMouseCursor();
     }
 #endif
 }
@@ -278,9 +278,9 @@ bool UISystem::IsImguiMetricsWindowVisible() const noexcept {
 void UISystem::ToggleImguiMetricsWindow() noexcept {
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
     m_show_imgui_metrics_window = !m_show_imgui_metrics_window;
-    auto&& input = ServiceLocator::get<IInputService>();
-    if(!input.IsMouseCursorVisible()) {
-        input.ShowMouseCursor();
+    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    if(!input->IsMouseCursorVisible()) {
+        input->ShowMouseCursor();
     }
 #endif
 }
@@ -330,8 +330,8 @@ void UISystem::UnloadUiWidget(const std::string& name) {
 }
 
 void UISystem::AddUiWidgetToViewport(UIWidget& widget) {
-    //auto&& renderer = ServiceLocator::get<IRendererService>();
-    //const auto viewport = renderer.GetCurrentViewport();
+    //auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    //const auto viewport = renderer->GetCurrentViewport();
     //const auto viewportDims = Vector2{viewport.width, viewport.height};
     if(!IsWidgetLoaded(widget)) {
         LoadUiWidget(widget.name);

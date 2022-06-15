@@ -74,11 +74,11 @@ private:
 class NullConfigService : public IConfigService {
 public:
     virtual ~NullConfigService() noexcept {};
-    bool LoadFromFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override {}
-    bool AppendFromFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override {}
-    bool AppendToFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override {}
-    bool SaveToFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override {}
-    bool HasKey([[maybe_unused]] const std::string& key) const noexcept override {}
+    [[nodiscard]] bool LoadFromFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override { return false; }
+    [[nodiscard]] bool AppendFromFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override { return false; }
+    [[nodiscard]] bool AppendToFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override { return false; }
+    [[nodiscard]] bool SaveToFile([[maybe_unused]] const std::filesystem::path& filepath) noexcept override { return false; }
+    [[nodiscard]] bool HasKey([[maybe_unused]] const std::string& key) const noexcept override { return false; }
     void GetValue([[maybe_unused]] const std::string& key, [[maybe_unused]] bool& value) const noexcept override {}
     void GetValue([[maybe_unused]] const std::string& key, [[maybe_unused]] char& value) const noexcept override {}
     void GetValue([[maybe_unused]] const std::string& key, [[maybe_unused]] unsigned char& value) const noexcept override {}

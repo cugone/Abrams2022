@@ -19,14 +19,16 @@ RigidBody::RigidBody(const RigidBodyDesc& desc /*= RigidBodyDesc{}*/)
 , m_velocity(m_rigidbodyDesc.initialVelocity)
 , m_position(m_rigidbodyDesc.initialPosition)
 , m_acceleration(m_rigidbodyDesc.initialAcceleration) {
-    const auto area = m_rigidbodyDesc.collider->CalcArea();
-    if(MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsMaterial.density) || MathUtils::IsEquivalentToZero(area)) {
-        m_rigidbodyDesc.physicsDesc.mass = 0.0f;
-    } else {
-        m_rigidbodyDesc.physicsDesc.mass = m_rigidbodyDesc.physicsMaterial.density * area;
-        m_rigidbodyDesc.physicsDesc.mass = std::pow(m_rigidbodyDesc.physicsDesc.mass, m_rigidbodyDesc.physicsMaterial.massExponent);
-        if(!MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsDesc.mass) && m_rigidbodyDesc.physicsDesc.mass < 0.001f) {
-            m_rigidbodyDesc.physicsDesc.mass = 0.001f;
+    if(m_rigidbodyDesc.collider) {
+        const auto area = m_rigidbodyDesc.collider->CalcArea();
+        if(MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsMaterial.density) || MathUtils::IsEquivalentToZero(area)) {
+            m_rigidbodyDesc.physicsDesc.mass = 0.0f;
+        } else {
+            m_rigidbodyDesc.physicsDesc.mass = m_rigidbodyDesc.physicsMaterial.density * area;
+            m_rigidbodyDesc.physicsDesc.mass = std::pow(m_rigidbodyDesc.physicsDesc.mass, m_rigidbodyDesc.physicsMaterial.massExponent);
+            if(!MathUtils::IsEquivalentToZero(m_rigidbodyDesc.physicsDesc.mass) && m_rigidbodyDesc.physicsDesc.mass < 0.001f) {
+                m_rigidbodyDesc.physicsDesc.mass = 0.001f;
+            }
         }
     }
 }
@@ -84,64 +86,40 @@ void RigidBody::Update(TimeUtils::FPSeconds deltaSeconds) {
 void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     const auto inv_mass = GetInverseMass();
     const auto linear_impulse_sum = std::accumulate(std::begin(m_linear_impulses), std::end(m_linear_impulses), Vector2::Zero);
-    const auto angular_impulse_sum = std::accumulate(std::begin(m_angular_impulses), std::end(m_angular_impulses), 0.0f);
     m_linear_impulses.clear();
-    m_angular_impulses.clear();
 
     using LinearForceType = typename std::decay<decltype(*m_linear_forces.begin())>::type;
     const auto linear_acc = [](const LinearForceType& a, const LinearForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
     const auto linear_force_sum = std::accumulate(std::begin(m_linear_forces), std::end(m_linear_forces), std::make_pair(Vector2::Zero, TimeUtils::FPSeconds::zero()), linear_acc);
 
-    using AngularForceType = typename std::decay<decltype(*m_angular_forces.begin())>::type;
-    const auto angular_acc = [](const AngularForceType& a, const AngularForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
-    const auto angular_force_sum = std::accumulate(std::begin(m_angular_forces), std::end(m_angular_forces), std::make_pair(0.0f, TimeUtils::FPSeconds::zero()), angular_acc);
+    const auto dt = deltaSeconds.count();
 
-    //https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
-
-    const auto new_angular_acceleration = (angular_impulse_sum + angular_force_sum.first) * inv_mass;
-    const auto t = deltaSeconds.count();
-    m_dt = deltaSeconds;
-
-    auto new_position = GetPosition() + GetVelocity() * m_dt.count() + GetAcceleration() * (m_dt.count() * m_dt.count() * 0.5f);
     auto new_acceleration = (linear_impulse_sum + linear_force_sum.first) * inv_mass;
-    auto new_velocity = GetVelocity() + (GetAcceleration() + new_acceleration) * (m_dt.count() * 0.5f);
-    new_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.linearDamping, 0.0f, 1.0f);
-
-    {
-        const bool is_near_zero = MathUtils::IsEquivalentToZero(new_position);
-        const bool is_inf = (std::isinf(new_position.x) || std::isinf(new_position.y));
-        const bool is_nan = (std::isnan(new_position.x) || std::isnan(new_position.y));
-        const bool should_clamp = is_near_zero || is_nan || is_inf;
-        if(should_clamp) {
-            new_position = Vector2::Zero;
-        }
-    }
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_acceleration);
-        const bool is_inf = (std::isinf(new_acceleration.x) || std::isinf(new_acceleration.y));
-        const bool is_nan = (std::isnan(new_acceleration.x) || std::isnan(new_acceleration.y));
-        const bool should_clamp = is_near_zero || is_nan || is_inf;
-        if(should_clamp) {
+        const bool is_valid = MathUtils::IsValid(new_acceleration);
+        if(const bool should_clamp = is_near_zero || is_valid; should_clamp) {
             new_acceleration = Vector2::Zero;
         }
     }
+    auto new_velocity = new_acceleration * dt;
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_velocity);
         const bool is_inf = (std::isinf(new_velocity.x) || std::isinf(new_velocity.y));
         const bool is_nan = (std::isnan(new_velocity.x) || std::isnan(new_velocity.y));
-        const bool should_clamp = is_near_zero || is_nan || is_inf;
-        if(should_clamp) {
+        if(const bool should_clamp = is_near_zero || is_nan || is_inf; should_clamp) {
             new_velocity = Vector2::Zero;
         }
     }
-
-    auto deltaPosition = m_position - new_position;
-    auto deltaOrientation = m_orientationDegrees - m_prev_orientationDegrees;
-    if(MathUtils::IsEquivalentToZero(deltaPosition)
-       && MathUtils::IsEquivalentToZero(deltaOrientation)) {
-        m_time_since_last_move += m_dt;
-    } else {
-        m_time_since_last_move = TimeUtils::FPSeconds{0.0f};
+    new_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.linearDamping, 0.0f, 1.0f);
+    auto new_position = GetPosition() + new_velocity * dt;
+    {
+        const bool is_near_zero = MathUtils::IsEquivalentToZero(new_position);
+        const bool is_inf = (std::isinf(new_position.x) || std::isinf(new_position.y));
+        const bool is_nan = (std::isnan(new_position.x) || std::isnan(new_position.y));
+        if(const bool should_clamp = is_near_zero || is_nan || is_inf; should_clamp) {
+            new_position = Vector2::Zero;
+        }
     }
 
     SetPosition(new_position, true);
@@ -149,9 +127,7 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     SetAcceleration(new_acceleration);
 
     const auto& maxAngularSpeed = m_rigidbodyDesc.physicsDesc.maxAngularSpeed;
-    auto new_angular_velocity = std::clamp((2.0f * m_orientationDegrees - m_prev_orientationDegrees) / m_dt.count(), -maxAngularSpeed, maxAngularSpeed);
-    new_angular_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.angularDamping, 0.0f, 1.0f);
-
+    auto new_angular_velocity = std::clamp((2.0f * m_orientationDegrees - m_prev_orientationDegrees) / dt, -maxAngularSpeed, maxAngularSpeed);
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_angular_velocity);
         const bool is_inf = std::isinf(new_angular_velocity);
@@ -161,24 +137,50 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
             new_angular_velocity = 0.0f;
         }
     }
-    const auto new_orientationDegrees = MathUtils::Wrap(new_angular_velocity + new_angular_acceleration * t * t, 0.0f, 360.0f);
+    new_angular_velocity *= std::clamp(1.0f - m_rigidbodyDesc.physicsDesc.angularDamping, 0.0f, 1.0f);
+
+    const auto new_angular_acceleration = [this, inv_mass]() {
+        auto result{0.0f};
+        if(!IsRotationLocked()) {
+            const auto angular_impulse_sum = std::accumulate(std::begin(m_angular_impulses), std::end(m_angular_impulses), 0.0f);
+            using AngularForceType = typename std::decay<decltype(*m_angular_forces.begin())>::type;
+            const auto angular_acc = [](const AngularForceType& a, const AngularForceType& b) { return std::make_pair(a.first + b.first, TimeUtils::FPSeconds::zero()); };
+            const auto angular_force_sum = std::accumulate(std::begin(m_angular_forces), std::end(m_angular_forces), std::make_pair(0.0f, TimeUtils::FPSeconds::zero()), angular_acc);
+            result = (angular_impulse_sum + angular_force_sum.first) * inv_mass;
+        }
+        m_angular_impulses.clear();
+        return result;
+    }();
+
+    m_dt = deltaSeconds;
+
+    const auto new_orientationDegrees = MathUtils::Wrap(new_angular_velocity + new_angular_acceleration * dt * dt, 0.0f, 360.0f);
     m_prev_orientationDegrees = m_orientationDegrees;
     m_orientationDegrees = new_orientationDegrees;
+
+    auto deltaPosition = m_position - new_position;
+    auto deltaOrientation = m_orientationDegrees - m_prev_orientationDegrees;
+    if(MathUtils::IsEquivalentToZero(deltaPosition)
+       && MathUtils::IsEquivalentToZero(deltaOrientation)) {
+        m_time_since_last_move += m_dt;
+    } else {
+        m_time_since_last_move = TimeUtils::FPSeconds{0.0f};
+    }
 }
 
 void RigidBody::DebugRender() const {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     if(auto* const collider = GetCollider(); collider != nullptr) {
-        renderer.SetModelMatrix(transform);
+        renderer->SetModelMatrix(transform);
         collider->DebugRender();
-        renderer.DrawOBB2(GetOrientationDegrees(), Rgba::Green);
+        renderer->DrawOBB2(GetOrientationDegrees(), Rgba::Green);
     }
 }
 
 void RigidBody::Endframe() {
     if(m_should_kill) {
-        auto& physics = ServiceLocator::get<IPhysicsService>();
-        physics.RemoveObject(this);
+        auto* physics = ServiceLocator::get<IPhysicsService, NullPhysicsService>();
+        physics->RemoveObject(this);
     }
 }
 
@@ -394,7 +396,7 @@ const bool RigidBody::IsRotationLocked() const noexcept {
 }
 
 void RigidBody::LockRotation(bool shouldLockRotation) noexcept {
-    shouldLockRotation = shouldLockRotation;
+    m_should_lock_rotation = shouldLockRotation;
 }
 
 void RigidBody::SetAcceleration(const Vector2& newAccleration) noexcept {

@@ -1,6 +1,6 @@
 #include "Engine/Services/IService.hpp"
 
-IService::~IService() {
+IService::~IService() noexcept {
     /* DO NOTHING */
 }
 

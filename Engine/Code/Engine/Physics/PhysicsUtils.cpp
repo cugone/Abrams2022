@@ -87,7 +87,7 @@ GJKResult PhysicsUtils::GJK(const Collider& a, const Collider& b) {
             if(MathUtils::DotProduct(A, Vector2{D}) <= 0.0f) {
                 return false;
             }
-            simplex.insert(std::begin(simplex), Vector3{A});
+            simplex.insert(std::begin(simplex), Vector3(A));
             const auto no_new_point = [&]() -> bool {
                 if(simplex.size() < 2)
                     return false;

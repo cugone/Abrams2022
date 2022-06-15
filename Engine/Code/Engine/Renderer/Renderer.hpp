@@ -19,6 +19,7 @@
 #include "Engine/Renderer/FrameBuffer.hpp"
 #include "Engine/Renderer/IndexBuffer.hpp"
 #include "Engine/Renderer/RenderTargetStack.hpp"
+#include "Engine/Renderer/RendererTypes.hpp"
 #include "Engine/Renderer/StructuredBuffer.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"
 #include "Engine/Renderer/Vertex3D.hpp"
@@ -65,117 +66,6 @@ class Texture1D;
 class Texture2D;
 class Texture3D;
 class VertexBuffer;
-
-struct screenshot_job_t {
-public:
-    screenshot_job_t()
-    : m_saveLocation{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}} {
-        namespace FS = std::filesystem;
-        FileUtils::CreateFolders(m_saveLocation);
-        const std::filesystem::path folder = m_saveLocation;
-        const auto screenshot_count = FileUtils::CountFilesInFolders(folder);
-        const auto filepath = folder / FS::path{"Screenshot_" + std::to_string(screenshot_count + 1) + ".png"};
-        m_saveLocation = filepath;
-    }
-    screenshot_job_t(std::filesystem::path location)
-    : m_saveLocation{location} {
-        /* DO NOTHING */
-    }
-    screenshot_job_t(std::string location)
-    : m_saveLocation{location} {
-        /* DO NOTHING */
-    }
-    operator bool() const noexcept {
-        return !m_saveLocation.empty() && std::filesystem::exists(m_saveLocation.parent_path());
-    }
-    operator std::string() const noexcept {
-        return m_saveLocation.string();
-    }
-    operator std::filesystem::path() const noexcept {
-        return m_saveLocation;
-    }
-    void clear() noexcept {
-        m_saveLocation.clear();
-    }
-
-private:
-    std::filesystem::path m_saveLocation{};
-};
-
-struct matrix_buffer_t {
-    Matrix4 model{};
-    Matrix4 view{};
-    Matrix4 projection{};
-};
-
-struct time_buffer_t {
-    float game_time = 0.0f;
-    float system_time = 0.0f;
-    float game_frame_time = 0.0f;
-    float system_frame_time = 0.0f;
-};
-
-struct PointLightDesc {
-    Vector3 position = Vector3::Zero;
-    Vector3 attenuation = Vector3::Z_Axis;
-    float intensity = 1.0f;
-    Rgba color = Rgba::White;
-};
-
-struct DirectionalLightDesc {
-    Vector3 direction = Vector3::X_Axis;
-    Vector3 attenuation = Vector3::X_Axis;
-    float intensity = 1.0f;
-    Rgba color = Rgba::White;
-};
-
-struct SpotLightDesc {
-    Vector3 position = Vector3::Zero;
-    Vector3 direction = Vector3::X_Axis;
-    Vector3 attenuation = Vector3::Z_Axis;
-    Vector2 inner_outer_anglesDegrees = Vector2{30.0f, 60.0f};
-    float intensity = 1.0f;
-    Rgba color = Rgba::White;
-};
-
-struct light_t {
-    Vector4 position = Vector4::Zero;
-    Vector4 color = Vector4::One_XYZ_Zero_W;
-    Vector4 attenuation = Vector4::Z_Axis;
-    Vector4 specAttenuation = Vector4::X_Axis;
-    Vector4 innerOuterDotThresholds = Vector4(-2.0f, -3.0f, 0.0f, 0.0f);
-    Vector4 direction = -Vector4::Z_Axis;
-};
-
-constexpr const unsigned int max_light_count = 16;
-
-struct lighting_buffer_t {
-    light_t lights[max_light_count] = {light_t{}};
-    Vector4 ambient = Vector4::Zero;
-    Vector4 specular_glossy_emissive_factors = Vector4(1.0f, 8.0f, 0.0f, 1.0f);
-    Vector4 eye_position = Vector4::Zero;
-    int useVertexNormals = 0;
-    float padding[3] = {0.0f, 0.0f, 0.0f};
-};
-
-struct ComputeJob {
-    Renderer& renderer;
-    std::size_t uavCount = 0;
-    std::vector<Texture*> uavTextures{};
-    Shader* computeShader = nullptr;
-    unsigned int threadGroupCountX = 1;
-    unsigned int threadGroupCountY = 1;
-    unsigned int threadGroupCountZ = 1;
-    ComputeJob() = default;
-    ComputeJob(Renderer& renderer,
-               std::size_t uavCount,
-               const std::vector<Texture*>& uavTextures,
-               Shader* computeShader,
-               unsigned int threadGroupCountX,
-               unsigned int threadGroupCountY,
-               unsigned int threadGroupCountZ) noexcept;
-    ~ComputeJob() noexcept;
-};
 
 class Renderer : public EngineSubsystem, public IRendererService {
 public:
@@ -463,7 +353,10 @@ public:
     void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override;
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
     void DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
-    void DrawPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) override;
+    void DrawPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) noexcept override;
+    void DrawFilledPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
+    void DrawFilledPolygon2D(const Vector2& center, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
+    void DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) noexcept override;
     void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept override;
     void DrawX2D(const Rgba& color) noexcept override;
     void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
@@ -577,12 +470,14 @@ private:
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultNormalMapShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultFontShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultCircle2DShaderProgram() noexcept;
+    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultWebPShaderProgram() noexcept;
 
     [[nodiscard]] void CreateAndRegisterDefaultShaders() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultUnlitShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefault2DShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultCircle2DShader() noexcept;
+    [[nodiscard]] std::unique_ptr<Shader> CreateDefaultWebPShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalMapShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultInvalidShader() noexcept;
@@ -597,6 +492,7 @@ private:
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultNormalMapMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultInvalidMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultCircle2DMaterial() noexcept;
+    [[nodiscard]] std::unique_ptr<Material> CreateDefaultWebPMaterial() noexcept;
 
     void CreateAndRegisterDefaultEngineFonts() noexcept;
 

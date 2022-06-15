@@ -39,10 +39,10 @@ void UILabel::Render() const {
     const auto inv_scale = 1.0f / world_transform.GetScale();
     const auto inv_scale_matrix = Matrix4::CreateScaleMatrix(inv_scale);
     const auto model = Matrix4::MakeRT(inv_scale_matrix, world_transform);
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix(model);
-    renderer.SetMaterial(m_font->GetMaterial());
-    renderer.DrawMultilineText(m_font, m_text, m_color);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix(model);
+    renderer->SetMaterial(m_font->GetMaterial());
+    renderer->DrawMultilineText(m_font, m_text, m_color);
 }
 
 const KerningFont* const UILabel::GetFont() const {
@@ -125,7 +125,7 @@ bool UILabel::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "label", "", "name", "canvas,label,panel,picturebox,button,slot", "font,value");
     m_name = DataUtils::ParseXmlAttribute(elem, "name", m_name);
     m_fontname = DataUtils::ParseXmlAttribute(elem, "font", m_fontname);
-    m_font = ServiceLocator::get<IRendererService>().GetFont(m_fontname);
+    m_font = ServiceLocator::get<IRendererService, NullRendererService>()->GetFont(m_fontname);
     m_text = DataUtils::ParseXmlAttribute(elem, "value", std::string{"TEXT"});
 
     if(auto* xml_slot = elem.FirstChildElement("slot")) {

@@ -53,7 +53,7 @@ void PhysicsSystem::EnablePhysics(bool isPhysicsEnabled) noexcept {
 }
 
 const std::vector<std::unique_ptr<Joint>>& PhysicsSystem::Debug_GetJoints() const noexcept {
-    return _joints;
+    return m_joints;
 }
 
 const std::vector<RigidBody*>& PhysicsSystem::Debug_GetBodies() const noexcept {
@@ -73,10 +73,8 @@ void PhysicsSystem::EnableDrag(bool isGravityEnabled) noexcept {
 }
 
 PhysicsSystem::PhysicsSystem(const PhysicsSystemDesc& desc /*= PhysicsSystemDesc{}*/)
-: m_desc(desc)
-//, _world_partition(_desc.world_bounds)
 {
-    /* DO NOTHING */
+    m_desc = desc;
 }
 
 PhysicsSystem::~PhysicsSystem() {
@@ -124,9 +122,9 @@ void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     }
     ApplyGravityAndDrag(m_targetFrameRate);
     ApplyCustomAndJointForces(m_targetFrameRate);
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    const auto camera_position = Vector2(renderer.GetCamera().GetPosition());
-    const auto half_extents = Vector2(renderer.GetOutput()->GetDimensions()) * 0.5f;
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto camera_position = Vector2(renderer->GetCamera().GetPosition());
+    const auto half_extents = Vector2(renderer->GetOutput()->GetDimensions()) * 0.5f;
     const auto query_area = AABB2(camera_position - half_extents, camera_position + half_extents);
     const auto potential_collisions = BroadPhaseCollision(query_area);
     const auto actual_collisions = NarrowPhaseCollision(potential_collisions, PhysicsUtils::GJK, PhysicsUtils::EPA);
@@ -152,10 +150,10 @@ void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noex
 }
 
 void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    for(auto&& fg : _forceGenerators) {
+    for(auto&& fg : m_forceGenerators) {
         fg->notify(deltaSeconds);
     }
-    for(auto&& joint : _joints) {
+    for(auto&& joint : m_joints) {
         joint->Notify(deltaSeconds);
     }
 }
@@ -228,7 +226,7 @@ void PhysicsSystem::SolveConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolvePositionConstraints() const noexcept {
-    for(auto&& joint : _joints) {
+    for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolvePositionConstraint();
         }
@@ -236,7 +234,7 @@ void PhysicsSystem::SolvePositionConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolveVelocityConstraints() const noexcept {
-    for(auto&& joint : _joints) {
+    for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolveVelocityConstraint();
         }
@@ -244,14 +242,14 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 }
 
 void PhysicsSystem::Render() const noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     if(m_show_colliders) {
         for(const auto& body : m_rigidBodies) {
             body->DebugRender();
         }
     }
     if(m_show_joints) {
-        for(const auto& joint : _joints) {
+        for(const auto& joint : m_joints) {
             joint->DebugRender();
         }
     }
@@ -259,7 +257,7 @@ void PhysicsSystem::Render() const noexcept {
         m_world_partition.DebugRender();
     }
     if(m_show_contacts) {
-        renderer.SetModelMatrix(Matrix4::I);
+        renderer->SetModelMatrix(Matrix4::I);
     }
 }
 
@@ -272,16 +270,16 @@ void PhysicsSystem::EndFrame() noexcept {
         m_rigidBodies.erase(std::remove_if(std::begin(m_rigidBodies), std::end(m_rigidBodies), [this, r](const RigidBody* b) { return b == r; }), std::end(m_rigidBodies));
         m_gravityFG.detach(r);
         m_dragFG.detach(r);
-        for(auto&& fg : _forceGenerators) {
+        for(auto&& fg : m_forceGenerators) {
             fg->detach(r);
         }
-        for(auto&& joint : _joints) {
+        for(auto&& joint : m_joints) {
             joint->Detach(r);
         }
     }
     m_pending_removal.clear();
     m_pending_removal.shrink_to_fit();
-    _joints.erase(std::remove_if(std::begin(_joints), std::end(_joints), [](auto&& joint) -> bool { return joint->IsNotAttached(); }), std::end(_joints));
+    m_joints.erase(std::remove_if(std::begin(m_joints), std::end(m_joints), [](auto&& joint) -> bool { return joint->IsNotAttached(); }), std::end(m_joints));
 }
 
 bool PhysicsSystem::ProcessSystemMessage([[maybe_unused]] const EngineMessage& msg) noexcept {
@@ -315,16 +313,16 @@ void PhysicsSystem::RemoveAllObjectsImmediately() noexcept {
     m_rigidBodies.shrink_to_fit();
     m_gravityFG.detach_all();
     m_dragFG.detach_all();
-    for(auto&& fg : _forceGenerators) {
+    for(auto&& fg : m_forceGenerators) {
         fg->detach_all();
     }
-    _forceGenerators.clear();
-    _forceGenerators.shrink_to_fit();
-    for(auto&& joint : _joints) {
+    m_forceGenerators.clear();
+    m_forceGenerators.shrink_to_fit();
+    for(auto&& joint : m_joints) {
         joint->DetachAll();
     }
-    _joints.clear();
-    _joints.shrink_to_fit();
+    m_joints.clear();
+    m_joints.shrink_to_fit();
 }
 
 void PhysicsSystem::Debug_ShowCollision(bool show) {

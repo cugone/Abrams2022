@@ -17,6 +17,8 @@ public:
     static void Initialize(const std::string& title, const std::string& cmdString) noexcept;
     static void Run() noexcept;
     static void Shutdown() noexcept;
+    static const bool Available() noexcept;
+
 private:
     static inline bool m_initCalled{false};
     static inline bool m_shutdownCalled{false};
@@ -24,20 +26,26 @@ private:
 
 template<typename GameType>
 /*static*/
+const bool Engine<GameType>::Available() noexcept {
+    return m_initCalled && !m_shutdownCalled;
+}
+
+template<typename GameType>
+/*static*/
 void Engine<GameType>::Initialize(const std::string& title, const std::string& cmdString) noexcept {
     m_initCalled = true;
     App<GameType>::CreateApp(title, cmdString);
-    auto& app = ServiceLocator::get<IAppService>();
-    app.InitializeService();
+    auto* app = ServiceLocator::get<IAppService, NullAppService>();
+    app->InitializeService();
 }
 
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Run() noexcept {
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
-    auto& app = ServiceLocator::get<IAppService>();
-    while(!app.IsQuitting()) {
-        app.RunFrame();
+    auto* app = ServiceLocator::get<IAppService, NullAppService>();
+    while(!app->IsQuitting()) {
+        app->RunFrame();
     }
 }
 

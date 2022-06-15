@@ -595,6 +595,9 @@
     <ClCompile Include="Services\IService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\RendererTypes.cpp">
+      <Filter>Renderer\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1187,6 +1190,9 @@
     </ClInclude>
     <ClInclude Include="Physics\WindForceGenerator.hpp">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RendererTypes.hpp">
+      <Filter>Renderer\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

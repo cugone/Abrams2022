@@ -410,7 +410,7 @@ std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersUsi
 
     std::vector<std::unique_ptr<ConstantBuffer>> result{};
     result.reserve(shader_desc.ConstantBuffers);
-    const auto& rs = ServiceLocator::get<IRendererService>();
+    const auto* const rs = ServiceLocator::get<IRendererService, NullRendererService>();
     for(auto resource_idx = 0u; resource_idx < shader_desc.BoundResources; ++resource_idx) {
         D3D11_SHADER_INPUT_BIND_DESC input_desc{};
         if(FAILED(cbufferReflection.GetResourceBindingDesc(resource_idx, &input_desc))) {
@@ -419,7 +419,7 @@ std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersUsi
         if(input_desc.Type != D3D_SHADER_INPUT_TYPE::D3D_SIT_CBUFFER) {
             continue;
         }
-        if(input_desc.BindPoint < rs.GetConstantBufferStartIndex()) {
+        if(input_desc.BindPoint < rs->GetConstantBufferStartIndex()) {
             continue;
         }
         for(auto cbuffer_idx = 0u; cbuffer_idx < shader_desc.ConstantBuffers; ++cbuffer_idx) {
@@ -615,16 +615,14 @@ ID3DBlob* RHIDevice::CompileShader(const std::string& name, const void* sourceCo
     case PipelineStage::None:
     case PipelineStage::All:
     default:
-        DebuggerPrintf("Failed to compile [%s]. Invalid PipelineStage parameter.\n", name.c_str());
+        DebuggerPrintf(std::format("Failed to compile [{}]. Invalid PipelineStage parameter.\n", name));
         return nullptr;
     }
     HRESULT compile_hr = ::D3DCompile(sourceCode, sourceCodeSize, name.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint.c_str(), target_string.c_str(), compile_options, 0, &code_blob, &errors);
     if(FAILED(compile_hr) || (errors != nullptr)) {
         if(errors != nullptr) {
-            char* error_string = static_cast<char*>(errors->GetBufferPointer());
-            DebuggerPrintf("Failed to compile [%s].  Compiler gave the following output;\n%s",
-                           name.c_str(),
-                           error_string);
+            std::string error_string = static_cast<char*>(errors->GetBufferPointer());
+            DebuggerPrintf(std::format("Failed to compile [{}].  Compiler gave the following output;\n{}", name, error_string));
             errors->Release();
             errors = nullptr;
         }

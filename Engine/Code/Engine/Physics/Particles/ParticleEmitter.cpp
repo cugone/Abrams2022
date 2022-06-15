@@ -100,9 +100,9 @@ void ParticleEmitter::Update(float time, float deltaSeconds) {
         Vector3 s = definition->m_particleRenderState.GetStartScale();
         Vector3 es = definition->m_particleRenderState.GetEndScale();
         auto particle_count = m_spawnClock.DecrementAll();
-        auto& renderer = ServiceLocator::get<IRendererService>();
+        auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
         for(unsigned int i = 0; i < particle_count; ++i) {
-            SpawnParticle(new_particle_position, new_particle_velocity, definition->m_particleLifetime, c, ec, s, es, renderer.GetMaterial(definition->m_materialName), definition->m_mass);
+            SpawnParticle(new_particle_position, new_particle_velocity, definition->m_particleLifetime, c, ec, s, es, renderer->GetMaterial(definition->m_materialName), definition->m_mass);
         }
     }
     UpdateParticles(time, deltaSeconds);
@@ -116,8 +116,8 @@ void ParticleEmitter::Render() const {
 
     const auto pointlight_model = Matrix4::MakeRT(p, Matrix4::MakeSRT(s, r, t));
 
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix(pointlight_model);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix(pointlight_model);
 
     for(auto& particle : m_particles) {
         particle.Render(m_builder);
@@ -175,11 +175,11 @@ void ParticleEmitter::UpdateParticles(float time, float deltaSeconds) {
     std::sort(std::begin(m_particles), std::end(m_particles));
     auto* definition = ParticleEmitterDefinition::GetParticleEmitterDefinition(m_name);
     const auto loc = Matrix4::CreateTranslationMatrix(definition->m_position);
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    const auto billboard = definition->m_isBillboarded ? renderer.GetCamera().GetInverseViewMatrix() : Matrix4::I;
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto billboard = definition->m_isBillboarded ? renderer->GetCamera().GetInverseViewMatrix() : Matrix4::I;
     const auto result = Matrix4::MakeRT(billboard, loc);
     for(Particle& p : m_particles) {
-        renderer.AppendModelMatrix(result);
+        renderer->AppendModelMatrix(result);
         p.Update(time, deltaSeconds);
     }
 }

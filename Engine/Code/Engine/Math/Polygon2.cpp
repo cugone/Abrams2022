@@ -131,7 +131,7 @@ void Polygon2::CalcVerts() {
         m_verts.reserve(m_sides);
     }
     const auto anglePerVertex = 360.0f / num_sides_as_float;
-    for(auto degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
+    for(auto degrees = 45.0f; degrees < 360.0f; degrees += anglePerVertex) {
         const auto radians = MathUtils::ConvertDegreesToRadians(degrees);
         const auto pX = 0.5f * std::cos(radians);
         const auto pY = 0.5f * std::sin(radians);

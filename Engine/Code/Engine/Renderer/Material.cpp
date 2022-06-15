@@ -92,26 +92,26 @@ namespace StringUtils {
 
 Material::Material() noexcept
 : m_textures(CustomTextureIndexSlotOffset, nullptr) {
-    auto&& rs = ServiceLocator::get<IRendererService>();
-    m_textures[0] = rs.GetTexture("__diffuse");
-    m_textures[1] = rs.GetTexture("__normal");
-    m_textures[2] = rs.GetTexture("__displacement");
-    m_textures[3] = rs.GetTexture("__specular");
-    m_textures[4] = rs.GetTexture("__occlusion");
-    m_textures[5] = rs.GetTexture("__emissive");
+    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    m_textures[0] = rs->GetTexture("__diffuse");
+    m_textures[1] = rs->GetTexture("__normal");
+    m_textures[2] = rs->GetTexture("__displacement");
+    m_textures[3] = rs->GetTexture("__specular");
+    m_textures[4] = rs->GetTexture("__occlusion");
+    m_textures[5] = rs->GetTexture("__emissive");
 
     m_name += "_" + std::to_string(m_defaultNameId++);
 }
 
 Material::Material(const XMLElement& element) noexcept
 : m_textures(CustomTextureIndexSlotOffset, nullptr) {
-    auto&& rs = ServiceLocator::get<IRendererService>();
-    m_textures[0] = rs.GetTexture("__diffuse");
-    m_textures[1] = rs.GetTexture("__normal");
-    m_textures[2] = rs.GetTexture("__displacement");
-    m_textures[3] = rs.GetTexture("__specular");
-    m_textures[4] = rs.GetTexture("__occlusion");
-    m_textures[5] = rs.GetTexture("__emissive");
+    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    m_textures[0] = rs->GetTexture("__diffuse");
+    m_textures[1] = rs->GetTexture("__normal");
+    m_textures[2] = rs->GetTexture("__displacement");
+    m_textures[3] = rs->GetTexture("__specular");
+    m_textures[4] = rs->GetTexture("__occlusion");
+    m_textures[5] = rs->GetTexture("__emissive");
 
     m_name += "_" + std::to_string(m_defaultNameId++);
 
@@ -144,18 +144,18 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
             GUARANTEE_OR_DIE(!ec, error_msg.c_str());
         }
         shader_src.make_preferred();
-        auto& rs = ServiceLocator::get<IRendererService>();
-        if(auto* shader = rs.GetShader(shader_src.string())) {
+        auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+        if(auto* shader = rs->GetShader(shader_src.string())) {
             m_shader = shader;
         } else {
-            DebuggerPrintf("Shader: %s\n referenced in Material file \"%s\" did not already exist. Attempting to create from source...", shader_src.string().c_str(), m_name.c_str());
-            if(!rs.RegisterShader(shader_src.string())) {
+            DebuggerPrintf(std::format("Shader: {}\n referenced in Material file \"{}\" did not already exist. Attempting to create from source...", shader_src.string(), m_name));
+            if(!rs->RegisterShader(shader_src.string())) {
                 DebuggerPrintf("failed.\n");
                 return false;
             }
             DebuggerPrintf("done.\n");
-            if(shader = rs.GetShader(shader_src.string()); shader == nullptr) {
-                if(shader = rs.GetShader(rs.GetShaderName(shader_src)); shader != nullptr) {
+            if(shader = rs->GetShader(shader_src.string()); shader == nullptr) {
+                if(shader = rs->GetShader(rs->GetShaderName(shader_src)); shader != nullptr) {
                     m_shader = shader;
                 }
             }
@@ -211,7 +211,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         {
             const auto numTextures = DataUtils::GetChildElementCount(*xml_textures, "texture");
             if(numTextures >= MaxCustomTextureSlotCount) {
-                DebuggerPrintf("Max custom texture count exceeded. Cannot bind more than %i custom textures.", MaxCustomTextureSlotCount);
+                DebuggerPrintf(std::format("Max custom texture count exceeded. Cannot bind more than {} custom textures.", MaxCustomTextureSlotCount));
             }
             AddTextureSlots(numTextures);
         }
@@ -234,29 +234,27 @@ void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noe
         std::error_code ec{};
         p = std::filesystem::canonical(p, ec);
         if(ec) {
-            const auto texIdAsStr = StringUtils::to_string(slotId);
-            static const std::string err_msg{" texture referenced in Material file \"%s\" could not be found. The filesystem returned an error: %s\n"};
-            DebuggerPrintf((texIdAsStr + err_msg).c_str(), m_name.c_str(), ec.message().c_str());
+            DebuggerPrintf(std::format("{} texture referenced in Material file \"{}\" could not be found. The filesystem returned an error: {}\n", StringUtils::to_string(slotId), m_name, ec.message()));
             return;
         }
     }
     p.make_preferred();
     const auto& p_str = p.string();
     bool empty_path = p.empty();
-    auto& rs = ServiceLocator::get<IRendererService>();
-    bool texture_not_loaded = rs.IsTextureNotLoaded(p_str);
+    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    bool texture_not_loaded = rs->IsTextureNotLoaded(p_str);
     if(texture_not_loaded) {
-        texture_not_loaded = rs.CreateTexture(p.string(), IntVector3::XY_Axis) ? false : true;
+        texture_not_loaded = rs->CreateTexture(p.string(), IntVector3::XY_Axis) ? false : true;
     }
     bool texture_not_exist = !empty_path && texture_not_loaded;
     bool invalid_src = empty_path || texture_not_exist;
-    auto* tex = invalid_src ? rs.GetTexture("__invalid") : (rs.GetTexture(p_str));
+    auto* tex = invalid_src ? rs->GetTexture("__invalid") : (rs->GetTexture(p_str));
     SetTextureSlot(slotId, tex);
 }
 
 void Material::SetTextureSlotToInvalid(const TextureID& slotId) noexcept {
-    auto& rs = ServiceLocator::get<IRendererService>();
-    auto* const invalid_tex = rs.GetTexture("__invalid");
+    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* const invalid_tex = rs->GetTexture("__invalid");
     const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
     m_textures[slotAsIndex] = invalid_tex;
 }

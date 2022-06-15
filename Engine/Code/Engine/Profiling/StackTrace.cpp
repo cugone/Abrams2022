@@ -149,7 +149,8 @@ void StackTrace::GetLines([[maybe_unused]] StackTrace* st,
             if(s) {
                 ::strcpy_s(s, name_length_plus_one, symbol->Name);
                 s[symbol->NameLen] = '\0';
-                DebuggerPrintf("\t%s(%d): %s\n", line_info.FileName, line_info.LineNumber, s);
+                const std::string str = s;
+                DebuggerPrintf(std::format("\t{:s}({}): {:s}\n", line_info.FileName, line_info.LineNumber, str));
                 std::free(s);
             }
         } else {
@@ -158,7 +159,8 @@ void StackTrace::GetLines([[maybe_unused]] StackTrace* st,
             if(s) {
                 ::strcpy_s(s, name_length_plus_one, symbol->Name);
                 s[symbol->NameLen] = '\0';
-                DebuggerPrintf("\tN/A(%d): %s\n", 0, s);
+                const std::string str = s;
+                DebuggerPrintf(std::format("\tN/A({}): {:s}\n", 0, str));
                 std::free(s);
             }
         }

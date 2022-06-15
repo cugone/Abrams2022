@@ -17,14 +17,14 @@ namespace StringUtils {
 [[nodiscard]] const std::string Stringf(const char* format, ...) noexcept;
 [[nodiscard]] const std::string Stringf(const int maxLength, const char* format, ...) noexcept;
 
-[[nodiscard]] std::vector<std::string> Split(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
-[[nodiscard]] std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
-[[nodiscard]] std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim = ',', bool skip_empty = true) noexcept;
-[[nodiscard]] std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim = ',', bool skip_empty = true) noexcept;
-[[nodiscard]] std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept;
-[[nodiscard]] std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept;
-[[nodiscard]] std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept;
-[[nodiscard]] std::pair<std::wstring, std::wstring> SplitOnLast(const std::wstring& string, wchar_t delim) noexcept;
+[[nodiscard]] std::vector<std::string> Split(std::string string, char delim = ',', bool skip_empty = true) noexcept;
+[[nodiscard]] std::vector<std::wstring> Split(std::wstring string, wchar_t delim = ',', bool skip_empty = true) noexcept;
+[[nodiscard]] std::vector<std::string> SplitOnUnquoted(std::string string, char delim = ',', bool skip_empty = true) noexcept;
+[[nodiscard]] std::vector<std::wstring> SplitOnUnquoted(std::wstring string, wchar_t delim = ',', bool skip_empty = true) noexcept;
+[[nodiscard]] std::pair<std::string, std::string> SplitOnFirst(std::string string, char delim) noexcept;
+[[nodiscard]] std::pair<std::wstring, std::wstring> SplitOnFirst(std::wstring string, wchar_t delim) noexcept;
+[[nodiscard]] std::pair<std::string, std::string> SplitOnLast(std::string string, char delim) noexcept;
+[[nodiscard]] std::pair<std::wstring, std::wstring> SplitOnLast(std::wstring string, wchar_t delim) noexcept;
 
 [[nodiscard]] std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty = true) noexcept;
 [[nodiscard]] std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty = true) noexcept;

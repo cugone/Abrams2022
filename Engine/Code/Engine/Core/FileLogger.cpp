@@ -33,8 +33,8 @@ FileLogger::~FileLogger() noexcept {
 void FileLogger::Log_worker() noexcept {
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
-    auto& js = ServiceLocator::get<IJobSystemService>();
-    js.SetCategorySignal(JobType::Logging, &m_signal);
+    auto* js = ServiceLocator::get<IJobSystemService, NullJobSystemService>();
+    js->SetCategorySignal(JobType::Logging, &m_signal);
 
     while(IsRunning()) {
         std::unique_lock<std::mutex> lock(m_cs);
@@ -83,7 +83,7 @@ void FileLogger::DoCopyLog() noexcept {
         to_p.make_preferred();
         job_data->to = to_p;
         job_data->from = from_p;
-        ServiceLocator::get<IJobSystemService>().Run(
+        ServiceLocator::get<IJobSystemService, NullJobSystemService>()->Run(
         JobType::Generic, [this](void* user_data) { CopyLog(user_data); }, job_data);
     }
 }
@@ -178,7 +178,7 @@ void FileLogger::Shutdown() noexcept {
             m_worker.join();
         }
         FinalizeLog();
-        ServiceLocator::get<IJobSystemService>().SetCategorySignal(JobType::Logging, nullptr);
+        ServiceLocator::get<IJobSystemService, NullJobSystemService>()->SetCategorySignal(JobType::Logging, nullptr);
     }
 }
 

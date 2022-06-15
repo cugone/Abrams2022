@@ -23,14 +23,14 @@ ParticleEffectDefinition* ParticleSystem::GetEffectDefinition(const std::string&
 void ParticleSystem::RegisterEffectsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf("Attempting to Register Materials from unknown path: %s\n", FS::absolute(folderpath).string().c_str());
+        DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath).string()));
         return;
     }
     {
         std::error_code ec{};
         folderpath = FS::canonical(folderpath, ec);
         if(ec || !FileUtils::IsSafeReadPath(folderpath)) {
-            DebuggerPrintf("File: %s is inaccessible.\n", folderpath.c_str());
+            DebuggerPrintf(std::format("File: {} is inaccessible.\n", folderpath.string()));
             return;
         }
     }
@@ -39,7 +39,7 @@ void ParticleSystem::RegisterEffectsFromFolder(std::filesystem::path folderpath,
     [this](const FS::path& p) {
         const auto pathAsString = p.string();
         if(!RegisterEffectFromFile(p)) {
-            DebuggerPrintf("Failed to load material at %s\n", pathAsString.c_str());
+            DebuggerPrintf(std::format("Failed to load material at {}\n", pathAsString));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".effect", cb, recursive);

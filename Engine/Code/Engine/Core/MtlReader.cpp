@@ -228,5 +228,5 @@ void PrintErrorToDebugger(std::filesystem::path filepath, std::string_view eleme
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
-    DebuggerPrintf("%s(%lld): Invalid %s\n", filepath.string().c_str(), line_index, elementType.data());
+    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath.string().c_str(), line_index, elementType.data()));
 }

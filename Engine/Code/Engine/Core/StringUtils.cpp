@@ -68,7 +68,7 @@ const std::string Stringf(const int maxLength, const char* format, ...) noexcept
     return returnValue;
 }
 
-std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
+std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     std::size_t potential_count = 1 + std::count(string.begin(), string.end(), delim);
     std::vector<std::string> result;
     result.reserve(potential_count);
@@ -92,7 +92,7 @@ std::vector<std::string> Split(const std::string& string, char delim /*= ','*/, 
     return result;
 }
 
-std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
+std::vector<std::wstring> Split(std::wstring string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     std::size_t potential_count = 1 + std::count(string.begin(), string.end(), delim);
     std::vector<std::wstring> result;
     result.reserve(potential_count);
@@ -116,7 +116,7 @@ std::vector<std::wstring> Split(const std::wstring& string, wchar_t delim /*= ',
     return result;
 }
 
-std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
+std::vector<std::string> SplitOnUnquoted(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     bool inQuote = false;
     std::vector<std::string> result{};
     std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
@@ -153,7 +153,7 @@ std::vector<std::string> SplitOnUnquoted(const std::string& string, char delim /
     return result;
 }
 
-std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
+std::vector<std::wstring> SplitOnUnquoted(std::wstring string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     bool inQuote = false;
     std::vector<std::wstring> result{};
     std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
@@ -190,7 +190,7 @@ std::vector<std::wstring> SplitOnUnquoted(const std::wstring& string, wchar_t de
     return result;
 }
 
-std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char delim) noexcept {
+std::pair<std::string, std::string> SplitOnFirst(std::string string, char delim) noexcept {
     auto eq_loc = string.find_first_of(delim);
     if(eq_loc != std::string::npos) {
         return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
@@ -199,7 +199,7 @@ std::pair<std::string, std::string> SplitOnFirst(const std::string& string, char
     }
 }
 
-std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, wchar_t delim) noexcept {
+std::pair<std::wstring, std::wstring> SplitOnFirst(std::wstring string, wchar_t delim) noexcept {
     auto eq_loc = string.find_first_of(delim);
     if(eq_loc != std::wstring::npos) {
         return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
@@ -208,7 +208,7 @@ std::pair<std::wstring, std::wstring> SplitOnFirst(const std::wstring& string, w
     }
 }
 
-std::pair<std::string, std::string> SplitOnLast(const std::string& string, char delim) noexcept {
+std::pair<std::string, std::string> SplitOnLast(std::string string, char delim) noexcept {
     auto eq_loc = string.find_last_of(delim);
     if(eq_loc != std::string::npos) {
         return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
@@ -217,7 +217,7 @@ std::pair<std::string, std::string> SplitOnLast(const std::string& string, char 
     }
 }
 
-std::pair<std::wstring, std::wstring> SplitOnLast(const std::wstring& string, wchar_t delim) noexcept {
+std::pair<std::wstring, std::wstring> SplitOnLast(std::wstring string, wchar_t delim) noexcept {
     auto eq_loc = string.find_last_of(delim);
     if(eq_loc != std::wstring::npos) {
         return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));

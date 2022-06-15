@@ -33,5 +33,25 @@ private:
 };
 
 class NullJobSystemService : public IJobSystemService {
+public:
+    virtual ~NullJobSystemService() noexcept {/* DO NOTHING */};
 
+    void BeginFrame() noexcept override {}
+    void Shutdown() noexcept override {}
+
+    void SetCategorySignal([[maybe_unused]] const JobType& category_id, [[maybe_unused]] std::condition_variable* signal) noexcept override {}
+    [[nodiscard]] Job* Create([[maybe_unused]] const JobType& category, [[maybe_unused]] const std::function<void(void*)>& cb, [[maybe_unused]] void* user_data) noexcept override { return nullptr; }
+    void Run([[maybe_unused]] const JobType& category, [[maybe_unused]] const std::function<void(void*)>& cb, [[maybe_unused]] void* user_data) noexcept override {}
+    void Dispatch([[maybe_unused]] Job* job) noexcept override {}
+    [[nodiscard]] bool Release([[maybe_unused]] Job* job) noexcept override { return false; }
+    void Wait([[maybe_unused]] Job* job) noexcept override {}
+    void DispatchAndRelease([[maybe_unused]] Job* job) noexcept override {}
+    void WaitAndRelease([[maybe_unused]] Job* job) noexcept override {}
+    [[nodiscard]] bool IsRunning() const noexcept override { return false; }
+    void SetIsRunning([[maybe_unused]] bool value = true) noexcept override {}
+
+    [[nodiscard]] std::condition_variable* GetMainJobSignal() const noexcept override { return nullptr; }
+
+protected:
+private:
 };

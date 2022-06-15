@@ -14,15 +14,15 @@ namespace DataUtils {
 
 namespace detail {
 
-const bool to_bool(const std::string& value) noexcept {
-    if(const auto lowercase = StringUtils::ToLowerCase(StringUtils::TrimWhitespace(value)); lowercase == "false" || lowercase == "true") {
+bool to_bool(const std::string& value) noexcept {
+    if(auto lowercase = StringUtils::ToLowerCase(StringUtils::TrimWhitespace(value)); lowercase == "false" || lowercase == "true") {
         if(lowercase == "false")
             return false;
         if(lowercase == "true")
             return true;
     }
     try {
-        if(const auto asInt = std::stoi(value); !asInt) {
+        if(auto asInt = std::stoi(value); !asInt) {
             return false;
         }
         return true;

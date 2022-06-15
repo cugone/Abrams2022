@@ -131,19 +131,19 @@ std::size_t MeshInstanced::Builder::AddIndicies(const Primitive& type) noexcept 
 }
 
 void MeshInstanced::Render(const MeshInstanced::Builder& builder, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     for(const auto& draw_inst : builder.draw_instructions) {
-        renderer.SetMaterial(draw_inst.material);
+        renderer->SetMaterial(draw_inst.material);
         if(draw_inst.material) {
             auto cbs = draw_inst.material->GetShader()->GetConstantBuffers();
             auto ccbs = draw_inst.material->GetShader()->GetComputeConstantBuffers();
             const auto cb_size = cbs.size();
             for(int i = 0; i < cb_size; ++i) {
-                renderer.SetConstantBuffer(renderer.GetConstantBufferStartIndex() + i, &(cbs.begin() + i)->get());
+                renderer->SetConstantBuffer(renderer->GetConstantBufferStartIndex() + i, &(cbs.begin() + i)->get());
             }
-            renderer.DrawIndexedInstanced(draw_inst.type, builder.verticies, vbio, builder.indicies, instanceCount);
+            renderer->DrawIndexedInstanced(draw_inst.type, builder.verticies, vbio, builder.indicies, instanceCount);
             for(int i = 0; i < cb_size; ++i) {
-                renderer.SetConstantBuffer(renderer.GetConstantBufferStartIndex() + i, nullptr);
+                renderer->SetConstantBuffer(renderer->GetConstantBufferStartIndex() + i, nullptr);
             }
         }
     }

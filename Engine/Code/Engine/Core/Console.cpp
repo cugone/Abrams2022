@@ -325,7 +325,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 bool Console::HandleClipboardCopy() const noexcept {
     bool did_copy = false;
     if(Clipboard::HasText()) {
-        auto hwnd = static_cast<HWND>(ServiceLocator::get<IRendererService>().GetOutput()->GetWindow()->GetWindowHandle());
+        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
         if(m_cursor_position != m_selection_position) {
             std::string copied_text = CopyText(m_cursor_position, m_selection_position);
@@ -339,7 +339,7 @@ bool Console::HandleClipboardCopy() const noexcept {
 
 void Console::HandleClipboardPaste() noexcept {
     if(Clipboard::HasText()) {
-        auto hwnd = static_cast<HWND>(ServiceLocator::get<IRendererService>().GetOutput()->GetWindow()->GetWindowHandle());
+        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
         auto string_to_paste = c.Paste();
         PasteText(string_to_paste, m_cursor_position);
@@ -786,10 +786,10 @@ void Console::Render() const noexcept {
     if(IsClosed()) {
         return;
     }
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.ResetModelViewProjection();
-    renderer.SetRenderTarget();
-    renderer.SetViewportAsPercent(0.0f, 0.0f, 1.0f, 0.957f);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->ResetModelViewProjection();
+    renderer->SetRenderTarget();
+    renderer->SetViewportAsPercent(0.0f, 0.0f, 1.0f, 0.957f);
 
     const auto view_half_extents = SetupViewFromCamera();
     DrawBackground(view_half_extents);
@@ -802,19 +802,19 @@ void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
     if(!m_show_cursor) {
         return;
     }
-    auto&& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     const auto textline_bottom = view_half_extents.y * 0.99f;
     const auto textline_left = -view_half_extents.x * 0.99f;
-    const auto font = renderer.GetFont("System32");
+    const auto font = renderer->GetFont("System32");
     const auto first = m_entryline.begin();
     const auto has_text = !m_entryline.empty();
     const auto text_left_of_cursor = has_text ? std::string(first, m_cursor_position) : std::string("");
     const auto xPosOffsetToCaret = font->CalculateTextWidth(text_left_of_cursor);
     const auto cursor_t = Matrix4::CreateTranslationMatrix(Vector3(textline_left + xPosOffsetToCaret, textline_bottom, 0.0f));
     const auto model_cursor_mat = cursor_t;
-    renderer.SetModelMatrix(model_cursor_mat);
-    renderer.SetMaterial(font->GetMaterial());
-    renderer.DrawTextLine(font, "|", Rgba::White);
+    renderer->SetModelMatrix(model_cursor_mat);
+    renderer->SetMaterial(font->GetMaterial());
+    renderer->DrawTextLine(font, "|", Rgba::White);
 }
 
 void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
@@ -823,8 +823,8 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     }
     std::vector<Vertex3D> vbo{};
     std::vector<unsigned int> ibo{};
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    auto* font = renderer.GetFont("System32");
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* font = renderer->GetFont("System32");
     const auto max_vertical_start_position = (m_output_buffer.size() * (1 + font->GetLineHeight()) - view_half_extents.y * 2.0f);
     if(m_outputStartPosition.y <= max_vertical_start_position && WasMouseWheelJustScrolledUp()) {
         m_outputStartPosition.y += font->GetLineHeight();
@@ -838,16 +838,16 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
         auto draw_loc = m_outputStartPosition + Vector2(draw_x * 0.99f, draw_y * 0.99f);
         for(auto iter = m_output_buffer.cbegin(); iter != m_output_buffer.cend(); ++iter) {
             draw_loc.y -= font->CalculateTextHeight(iter->str);
-            renderer.AppendMultiLineTextBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
+            renderer->AppendMultiLineTextBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
         }
     }
-    renderer.SetMaterial(font->GetMaterial());
-    renderer.EnableScissorTest();
-    renderer.SetScissorAsPercent(0.0f, 0.0f, 1.0f, 0.921f);
-    renderer.SetModelMatrix(Matrix4::I);
-    renderer.DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
-    renderer.DisableScissorTest();
-    renderer.SetScissorAsPercent();
+    renderer->SetMaterial(font->GetMaterial());
+    renderer->EnableScissorTest();
+    renderer->SetScissorAsPercent(0.0f, 0.0f, 1.0f, 0.921f);
+    renderer->SetModelMatrix(Matrix4::I);
+    renderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    renderer->DisableScissorTest();
+    renderer->SetScissorAsPercent();
 }
 
 void Console::OutputMsg(const std::string& msg, const Rgba& color) noexcept {
@@ -909,15 +909,15 @@ void Console::ErrorMsg(const std::string& msg) noexcept {
 }
 
 void Console::DrawBackground(const Vector2& view_half_extents) const noexcept {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
-    renderer.SetMaterial(renderer.GetMaterial("__2D"));
-    renderer.DrawQuad2D(Rgba(0, 0, 0, 128));
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
+    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+    renderer->DrawQuad2D(Rgba(0, 0, 0, 128));
 }
 
 void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    const auto font = renderer.GetFont("System32");
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto font = renderer->GetFont("System32");
     const float textline_bottom = view_half_extents.y * 0.99f;
     const float textline_left = -view_half_extents.x * 0.99f;
 
@@ -934,35 +934,35 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
             std::swap(xPosOffsetToCaret, xPosOffsetToSelect);
         }
 
-        renderer.SetModelMatrix(Matrix4::CreateScaleMatrix(Vector2(500.0f, 500.0f)));
-        renderer.SetMaterial(renderer.GetMaterial("__2D"));
-        renderer.DrawQuad2D();
+        renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(Vector2(500.0f, 500.0f)));
+        renderer->SetMaterial(renderer->GetMaterial("__2D"));
+        renderer->DrawQuad2D();
 
-        renderer.SetModelMatrix(model_entryline_mat);
-        renderer.SetMaterial(font->GetMaterial());
+        renderer->SetModelMatrix(model_entryline_mat);
+        renderer->SetMaterial(font->GetMaterial());
 
-        renderer.DrawTextLine(font, std::string(m_entryline, 0, std::distance(std::cbegin(m_entryline), rangeStart)), Rgba::White);
+        renderer->DrawTextLine(font, std::string(m_entryline, 0, std::distance(std::cbegin(m_entryline), rangeStart)), Rgba::White);
         auto rightside_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToSelect, 0.0f, 0.0f));
         rightside_t = Matrix4::MakeRT(model_entryline_mat, rightside_t);
-        renderer.SetModelMatrix(rightside_t);
-        renderer.DrawTextLine(font, std::string(m_entryline, std::distance(std::cbegin(m_entryline), rangeEnd), std::distance(rangeEnd, std::cend(m_entryline))), Rgba::White);
+        renderer->SetModelMatrix(rightside_t);
+        renderer->DrawTextLine(font, std::string(m_entryline, std::distance(std::cbegin(m_entryline), rangeEnd), std::distance(rangeEnd, std::cend(m_entryline))), Rgba::White);
 
         const auto xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(m_entryline), rangeStart));
         const auto blacktext_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToStart, 0.0f, 0.0f));
         auto model_mat_blacktext = Matrix4::MakeRT(model_entryline_mat, blacktext_t);
-        renderer.SetModelMatrix(model_mat_blacktext);
-        renderer.DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::Black);
+        renderer->SetModelMatrix(model_mat_blacktext);
+        renderer->DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::Black);
 
     } else {
-        renderer.SetModelMatrix(model_entryline_mat);
-        renderer.SetMaterial(font->GetMaterial());
-        renderer.DrawTextLine(font, m_entryline, Rgba::White);
+        renderer->SetModelMatrix(model_entryline_mat);
+        renderer->SetMaterial(font->GetMaterial());
+        renderer->DrawTextLine(font, m_entryline, Rgba::White);
     }
 }
 
 Vector2 Console::SetupViewFromCamera() const noexcept {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
-    const auto& window = renderer.GetOutput();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto& window = renderer->GetOutput();
     const auto& window_dimensions = window->GetDimensions();
     const auto& aspect = window->GetAspectRatio();
     const auto window_width = static_cast<float>(window_dimensions.x);
@@ -974,8 +974,8 @@ Vector2 Console::SetupViewFromCamera() const noexcept {
     const auto nearFar = Vector2(0.0f, 1.0f);
     m_camera->SetupView(leftBottom, rightTop, nearFar, aspect);
 
-    renderer.SetViewMatrix(m_camera->GetViewMatrix());
-    renderer.SetProjectionMatrix(m_camera->GetProjectionMatrix());
+    renderer->SetViewMatrix(m_camera->GetViewMatrix());
+    renderer->SetProjectionMatrix(m_camera->GetProjectionMatrix());
 
     return Vector2(view_half_width, view_half_height);
 }

@@ -118,6 +118,14 @@ private:
     static inline std::unique_ptr<App<GameType>> m_theApp{};
 
     static inline NullAppService m_nullApp{};
+    static inline NullJobSystemService m_nullJobSystem{};
+    static inline NullFileLoggerService m_nullFileLogger{};
+    static inline NullConfigService m_nullConfig{};
+    static inline NullRendererService m_nullRenderer{};
+    static inline NullConsoleService m_nullConsole{};
+    static inline NullPhysicsService m_nullPhysicsSystem{};
+    static inline NullInputService m_nullInputSystem{};
+    static inline NullAudioService m_nullAudioSystem{};
 };
 
 namespace detail {
@@ -131,7 +139,7 @@ template<typename T>
         return;
     }
     m_theApp = std::make_unique<App<T>>(title, cmdString);
-    ServiceLocator::provide(*static_cast<IAppService*>(m_theApp.get()));
+    ServiceLocator::provide(*static_cast<IAppService*>(m_theApp.get()), m_nullApp);
 }
 
 template<typename T>
@@ -161,28 +169,31 @@ App<T>::~App() noexcept {
 
 template<typename T>
 void App<T>::SetupEngineSystemPointers() {
-    ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()));
+    ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
 
     m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
-    ServiceLocator::provide(*static_cast<IJobSystemService*>(m_theJobSystem.get()));
+    ServiceLocator::provide(*static_cast<IJobSystemService*>(m_theJobSystem.get()), m_nullJobSystem);
 
     m_theFileLogger = std::make_unique<FileLogger>("game");
-    ServiceLocator::provide(*static_cast<IFileLoggerService*>(m_theFileLogger.get()));
+    ServiceLocator::provide(*static_cast<IFileLoggerService*>(m_theFileLogger.get()), m_nullFileLogger);
 
     m_thePhysicsSystem = std::make_unique<PhysicsSystem>();
-    ServiceLocator::provide(*static_cast<IPhysicsService*>(m_thePhysicsSystem.get()));
+    ServiceLocator::provide(*static_cast<IPhysicsService*>(m_thePhysicsSystem.get()), m_nullPhysicsSystem);
 
     m_theRenderer = std::make_unique<Renderer>();
-    ServiceLocator::provide(*static_cast<IRendererService*>(m_theRenderer.get()));
+    ServiceLocator::provide(*static_cast<IRendererService*>(m_theRenderer.get()), m_nullRenderer);
 
     m_theInputSystem = std::make_unique<InputSystem>();
-    ServiceLocator::provide(*static_cast<IInputService*>(m_theInputSystem.get()));
+    ServiceLocator::provide(*static_cast<IInputService*>(m_theInputSystem.get()), m_nullInputSystem);
 
     m_theAudioSystem = std::make_unique<AudioSystem>();
-    ServiceLocator::provide(*static_cast<IAudioService*>(m_theAudioSystem.get()));
+    ServiceLocator::provide(*static_cast<IAudioService*>(m_theAudioSystem.get()), m_nullAudioSystem);
 
     m_theUI = std::make_unique<UISystem>();
+
     m_theConsole = std::make_unique<Console>();
+    ServiceLocator::provide(*static_cast<IConsoleService*>(m_theConsole.get()), m_nullConsole);
+
     m_theGame = std::make_unique<GameType>();
 
     g_theJobSystem = m_theJobSystem.get();
@@ -450,23 +461,23 @@ bool App<T>::GainedFocus() const {
 
 template<typename T>
 void App<T>::Minimize() const {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetWindowedMode();
-    auto* hwnd = reinterpret_cast<HWND*>(renderer.GetOutput()->GetWindow()->GetWindowHandle());
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetWindowedMode();
+    auto* hwnd = reinterpret_cast<HWND*>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
     ::SendMessageA(*hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
 }
 
 template<typename T>
 void App<T>::Restore() const {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetWindowedMode();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetWindowedMode();
 }
 
 template<typename T>
 void App<T>::Maximize() const {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetWindowedMode();
-    auto* window = renderer.GetOutput()->GetWindow();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetWindowedMode();
+    auto* window = renderer->GetOutput()->GetWindow();
     auto* hwnd = reinterpret_cast<HWND*>(window->GetWindowHandle());
     const auto desktop_resolution = window->GetDesktopResolution();
     ::SendMessageA(*hwnd, WM_SIZE, SIZE_MAXIMIZED, MAKELPARAM(desktop_resolution.x, desktop_resolution.y));

@@ -30,8 +30,8 @@ std::string FileDialogs::OpenFile(const char* filter = "All Files (*.*)\0*.*\0\0
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
 
-    const auto& renderer = ServiceLocator::get<IRendererService>();
-    ofn.hwndOwner = reinterpret_cast<HWND>(renderer.GetOutput()->GetWindow()->GetWindowHandle());
+    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    ofn.hwndOwner = reinterpret_cast<HWND>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
 
     static const auto initial_dir = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData);
     static const auto initial_dir_str = initial_dir.string();
@@ -53,8 +53,8 @@ std::string FileDialogs::SaveFile(const char* filter = "All Files (*.*)\0*.*\0\0
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
 
-    const auto& renderer = ServiceLocator::get<IRendererService>();
-    ofn.hwndOwner = reinterpret_cast<HWND>(renderer.GetOutput()->GetWindow()->GetWindowHandle());
+    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    ofn.hwndOwner = reinterpret_cast<HWND>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
 
     static const auto initial_dir = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData);
     static const auto initial_dir_str = initial_dir.string();

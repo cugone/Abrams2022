@@ -70,7 +70,8 @@ Image::Image(std::filesystem::path filepath) noexcept
                         GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
                     }
                 } else { //.webp file is animated.
-                    DebuggerPrintf("Loading animated .webp files are not supported by the Image type. Use the WebP or AnimatedWebP types instead.");
+                    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+                    logger->LogWarnLine("Loading animated .webp files are not supported by the Image type. Use the WebP types instead.");
                     m_bytesPerTexel = req_comp;
                     WebPData webp_data{};
                     webp_data.bytes = buf->data();
@@ -174,12 +175,12 @@ Image::Image(const Texture* tex) noexcept {
     m_bytesPerTexel = 4;
     const auto size = desc.Width * desc.Height * m_bytesPerTexel;
     m_texelBytes.resize(size);
-    const auto& renderer = ServiceLocator::get<IRendererService>();
-    auto stage = renderer.Create2DTextureFromMemory(m_texelBytes.data(), desc.Width, desc.Height, BufferUsage::Staging);
-    renderer.CopyTexture(tex, stage.get());
+    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    auto stage = renderer->Create2DTextureFromMemory(m_texelBytes.data(), desc.Width, desc.Height, BufferUsage::Staging);
+    renderer->CopyTexture(tex, stage.get());
 
     D3D11_MAPPED_SUBRESOURCE resource{};
-    auto* dc = renderer.GetDeviceContext();
+    auto* dc = renderer->GetDeviceContext();
     auto* dc_dx = dc->GetDxContext();
     auto hr = dc_dx->Map(stage->GetDxResource(), 0u, D3D11_MAP_READ, 0u, &resource);
     GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr));
@@ -261,7 +262,7 @@ int Image::GetBytesPerTexel() const noexcept {
 
 bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, int jpg_quality /*= 100*/) const noexcept {
     if(m_texelBytes.empty()) {
-        DebuggerPrintf("Attempting to write empty Image: %s", filepath.string().c_str());
+        DebuggerPrintf(std::format("Attempting to write empty Image: {}", filepath.string()));
         return false;
     }
     namespace FS = std::filesystem;

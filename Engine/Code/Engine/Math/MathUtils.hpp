@@ -6,6 +6,7 @@
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
+#include "Engine/Math/Matrix4.hpp"
 
 #include <algorithm>
 #include <numbers>
@@ -83,6 +84,15 @@ template<typename T>
     const auto frac = std::modf(value, &int_part);
     return std::make_pair(int_part, frac);
 }
+
+template<typename T>
+[[nodiscard]] bool IsValid(T value) noexcept {
+    return std::isfinite(value);
+}
+[[nodiscard]] bool IsValid(Vector2 v) noexcept;
+[[nodiscard]] bool IsValid(Vector3 v) noexcept;
+[[nodiscard]] bool IsValid(Vector4 v) noexcept;
+[[nodiscard]] bool IsValid(Matrix4 v) noexcept;
 
 [[nodiscard]] float ConvertDegreesToRadians(float degrees) noexcept;
 [[nodiscard]] float ConvertRadiansToDegrees(float radians) noexcept;
@@ -371,7 +381,7 @@ template<size_t N, size_t K>
 
 template<typename T>
 [[nodiscard]] T Interpolate(const T& a, const T& b, float t) {
-    return ((1.0f - t) * a) + (t * b);
+    return ((T{1} - t) * a) + (t * b);
 }
 
 [[nodiscard]] Vector2 Interpolate(const Vector2& a, const Vector2& b, float t);

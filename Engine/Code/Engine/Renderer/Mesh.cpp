@@ -139,19 +139,19 @@ std::size_t Mesh::Builder::AddIndicies(const Primitive& type) noexcept {
 }
 
 void Mesh::Render(const Mesh::Builder& builder) noexcept {
-    auto&& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     for(const auto& draw_inst : builder.draw_instructions) {
-        renderer.SetMaterial(draw_inst.material);
+        renderer->SetMaterial(draw_inst.material);
         if(draw_inst.material) {
             auto cbs = draw_inst.material->GetShader()->GetConstantBuffers();
             auto ccbs = draw_inst.material->GetShader()->GetComputeConstantBuffers();
             const auto cb_size = cbs.size();
             for(int i = 0; i < cb_size; ++i) {
-                renderer.SetConstantBuffer(renderer.GetConstantBufferStartIndex() + i, &(cbs.begin() + i)->get());
+                renderer->SetConstantBuffer(renderer->GetConstantBufferStartIndex() + i, &(cbs.begin() + i)->get());
             }
-            renderer.DrawIndexed(draw_inst.type, builder.verticies, builder.indicies, draw_inst.indexCount, draw_inst.indexStart, draw_inst.baseVertexLocation);
+            renderer->DrawIndexed(draw_inst.type, builder.verticies, builder.indicies, draw_inst.indexCount, draw_inst.indexStart, draw_inst.baseVertexLocation);
             for(int i = 0; i < cb_size; ++i) {
-                renderer.SetConstantBuffer(renderer.GetConstantBufferStartIndex() + i, nullptr);
+                renderer->SetConstantBuffer(renderer->GetConstantBufferStartIndex() + i, nullptr);
             }
         }
     }

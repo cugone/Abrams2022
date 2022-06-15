@@ -68,9 +68,9 @@ void CableJoint::DebugRender() const noexcept {
     }
     const auto posA = GetAnchorA();
     const auto posB = GetAnchorB();
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix(Matrix4::I);
-    renderer.DrawLine2D(posA, posB);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix(Matrix4::I);
+    renderer->DrawLine2D(posA, posB);
 }
 
 void CableJoint::Attach(RigidBody* a, RigidBody* b, Vector2 localAnchorA /*= Vector2::ZERO*/, Vector2 localAnchorB /*= Vector2::ZERO*/) noexcept {

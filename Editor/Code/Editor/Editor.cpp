@@ -4,6 +4,7 @@
 
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EngineConfig.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Platform/DirectX/DirectX11FrameBuffer.hpp"
 #include "Engine/Platform/PlatformUtils.hpp"
@@ -21,12 +22,94 @@
 #include "Engine/Services/IRendererService.hpp"
 #include "Engine/Services/IInputService.hpp"
 
+#include "Engine/Core/ThreadUtils.hpp"
+#include "Engine/Math/Ray3.hpp"
+
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/UI/UISystem.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <limits>
 #include <numeric>
 #include <sstream>
+#include <thread>
+
+struct hit_record {
+    float t{};
+    Vector3 p{};
+    Vector3 normal{};
+};
+
+class hitable {
+public:
+    virtual bool hit(const Ray3& r, float t_min, float t_max, hit_record& record) const = 0;
+    virtual ~hitable() noexcept = default;
+};
+
+class sphere : public hitable {
+public:
+    sphere() = default;
+    virtual ~sphere() noexcept = default;
+    sphere(Vector3 center, float r)
+    : m_center(center)
+    , m_radius(r){};
+    virtual bool hit(const Ray3& r, float tmin, float tmax, hit_record& record) const override;
+    Vector3 m_center{};
+    float m_radius{0.0f};
+};
+
+bool sphere::hit(const Ray3& r, float t_min, float t_max, hit_record& record) const {
+    Vector3 oc = r.position - m_center;
+    float a = MathUtils::DotProduct(r.direction, r.direction);
+    float b = MathUtils::DotProduct(oc, r.direction);
+    float c = MathUtils::DotProduct(oc, oc) - m_radius * m_radius;
+    float discriminant = b * b - a * c;
+    if(discriminant > 0) {
+        float temp = (-b - std::sqrt(b * b - a * c)) / a;
+        if(temp < t_max && temp > t_min) {
+            record.t = temp;
+            record.p = r.Interpolate(record.t);
+            record.normal = (record.p - m_center) / m_radius;
+            return true;
+        }
+        temp = (-b + std::sqrt(b * b - a * c)) / a;
+        if(temp < t_max && temp > t_min) {
+            record.t = temp;
+            record.p = r.Interpolate(record.t);
+            record.normal = (record.p - m_center) / m_radius;
+            return true;
+        }
+    }
+    return false;
+}
+
+class hitable_list : public hitable {
+public:
+    hitable_list() = default;
+    hitable_list(hitable** l, int n) {
+        list = l;
+        list_size = n;
+    }
+    virtual ~hitable_list() noexcept = default;
+    virtual bool hit(const Ray3& r, float tmin, float tmax, hit_record& record) const override;
+    hitable** list;
+    int list_size;
+};
+
+bool hitable_list::hit(const Ray3& r, float t_min, float t_max, hit_record& record) const {
+    hit_record temp_rec;
+    bool hit_anything = false;
+    float closest_so_far = t_max;
+    for(int i = 0; i < list_size; ++i) {
+        if(list[i]->hit(r, t_min, closest_so_far, temp_rec)) {
+            hit_anything = true;
+            closest_so_far = temp_rec.t;
+            record = temp_rec;
+        }
+    }
+    return hit_anything;
+}
 
 void Editor::ShowSelectedEntityComponents([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     /* DO NOTHING */
@@ -39,6 +122,13 @@ void Editor::HandleInput(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 bool Editor::IsSceneLoaded() const noexcept {
     return m_ActiveScene.get() != nullptr;
+}
+
+Editor::~Editor() noexcept {
+    m_requestquit = true;
+    if(m_rayTraceWorker.joinable()) {
+        m_rayTraceWorker.join();
+    }
 }
 
 void Editor::Initialize() noexcept {
@@ -56,56 +146,163 @@ void Editor::BeginFrame() noexcept {
 }
 
 void Editor::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    renderer.UpdateGameTime(deltaSeconds);
     ShowUI(deltaSeconds);
     HandleInput(deltaSeconds);
+    //GenerateRayTrace();
+}
+
+void Editor::GenerateRayTrace() noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    {
+        const auto start = TimeUtils::Now();
+        std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::Magenta);
+        std::generate(std::begin(data), std::end(data), Rgba::Random);
+        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+        const auto end = TimeUtils::Now();
+        const auto duration = end - start;
+        m_lastRenderTime = duration;
+    }
+}
+
+void Editor::FillRayTrace() noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    {
+        const auto start = TimeUtils::Now();
+        std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::NoAlpha);
+        for(auto& p : data) {
+            p = Rgba::Random();
+        }
+        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+        const auto end = TimeUtils::Now();
+        const auto duration = end - start;
+        m_lastRenderTime = duration;
+    }
+}
+
+void Editor::FastFillRayTrace() noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    {
+        const auto start = TimeUtils::Now();
+        std::vector<unsigned char> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight * 4, 0);
+        for(std::size_t i = 0; i < data.size(); i += 4) {
+            data[i + 0] = 255;
+            data[i + 1] = 0;
+            data[i + 2] = 0;
+            data[i + 3] = 255;
+        }
+        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data.data(), m_ViewportWidth, m_ViewportHeight));
+        const auto end = TimeUtils::Now();
+        const auto duration = end - start;
+        m_lastRenderTime = duration;
+    }
+}
+
+float hit_sphere(const Vector3& center, float radius, const Ray3& r) {
+    Vector3 oc = r.position - center;
+    float a = MathUtils::DotProduct(r.direction, r.direction);
+    float b = 2.0f * MathUtils::DotProduct(oc, r.direction);
+    float c = MathUtils::DotProduct(oc, oc) - radius * radius;
+    float discriminant = b * b - 4 * a * c;
+    if(discriminant < 0) {
+        return -1.0f;
+    }
+    return (-b - std::sqrt(discriminant)) / (2.0f * a);
+}
+
+Vector3 color(const Ray3& r, hitable* world) {
+    hit_record rec;
+    if(world->hit(r, 0.0f, (std::numeric_limits<float>::max)(), rec)) {
+        return 0.5f * Vector3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1);
+    } else {
+        Vector3 unit_direction = r.direction.GetNormalize();
+        float t = 0.5f * (unit_direction.y + 1.0f);
+        return (1.0f - t) * Vector3::One + t * Vector3(0.5f, 0.7f, 1.0f);
+    }
+}
+
+void Editor::raytrace_worker() noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    Vector3 lower_left_corner{-2.0f, -1.0f, -1.0f};
+    Vector3 horizontal = Vector3::X_Axis * 4.0f;
+    Vector3 vertical = Vector3::Y_Axis * 2.0f;
+    Vector3 origin = Vector3::Zero;
+    //static Vector3 prev_origin{};
+    hitable* list[2];
+    list[0] = new sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f);
+    list[1] = new sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f);
+    hitable* world = new hitable_list(list, 2);
+    while(true) {
+        if(m_requestquit) {
+            break;
+        }
+        const auto start = TimeUtils::Now();
+        //31 ms
+        std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::Green);
+        for(long long y = 0LL; y < static_cast<long long>(m_ViewportHeight); ++y) {
+            for(long long x = 0LL; x < static_cast<long long>(m_ViewportWidth); ++x) {
+                const auto u = static_cast<float>(x) / m_ViewportWidth;
+                const auto v = static_cast<float>(y) / m_ViewportHeight;
+                Ray3 ray{origin, lower_left_corner + u * horizontal + v * vertical};
+                Vector3 p = ray.Interpolate(2.0f);
+                Vector3 col = color(ray, world);
+                const auto r = static_cast<unsigned char>(static_cast<int>(255.99 * col.x));
+                const auto g = static_cast<unsigned char>(static_cast<int>(255.99 * col.y));
+                const auto b = static_cast<unsigned char>(static_cast<int>(255.99 * col.z));
+                const auto idx = y * m_ViewportWidth + x;
+                data[idx] = Rgba(r, g, b);
+            }
+        }
+        //if(origin != prev_origin) {
+        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+            //prev_origin = origin;
+        //}
+        const auto end = TimeUtils::Now();
+        const auto duration = end - start;
+        {
+            m_lastRenderTime = duration;
+        }
+    }
+    for(int i = 0; i < 2; ++i) {
+        delete list[i];
+        list[i] = nullptr;
+    }
+    delete world;
+    world = nullptr;
+}
+
+void Editor::JobFillRayTrace() noexcept {
+    m_requestquit = true;
+    if(m_rayTraceWorker.joinable()) {
+        m_rayTraceWorker.join();
+    }
+    m_requestquit = false;
+    m_rayTraceWorker = std::thread(&Editor::raytrace_worker, this);
+    ThreadUtils::SetThreadDescription(m_rayTraceWorker, L"Ray Trace Worker");
+}
+
+void Editor::RenderRayTrace() const noexcept {
+    auto& renderer = ServiceLocator::get<IRendererService>();
+    renderer.SetModelMatrix();
+    renderer.SetMaterial("__2D");
+    renderer.SetTexture(m_raytraceTexture.get());
+    const auto S = Matrix4::CreateScaleMatrix(Vector2{static_cast<float>(m_ViewportWidth), static_cast<float>(m_ViewportHeight)} * 0.5f);
+    const auto R = Matrix4::I;
+    const auto T = Matrix4::I;
+    const auto M = Matrix4::MakeSRT(S, R, T);
+    renderer.DrawQuad2D(M, Rgba::White, Vector4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 void Editor::Render() const noexcept {
 
     auto& renderer = ServiceLocator::get<IRendererService>();
-
     renderer.BeginRender(buffer->GetTexture(), Rgba::Black, buffer->GetDepthStencil());
 
-    renderer.SetOrthoProjectionFromCamera(Camera3D{m_editorCamera.GetCamera()});
+    renderer.SetOrthoProjectionFromViewWidth(static_cast<float>(m_ViewportWidth), m_editorCamera.GetAspectRatio(), 0.01f, 1.0f);
     renderer.SetCamera(m_editorCamera.GetCamera());
 
-    {
-        renderer.SetModelMatrix();
-        renderer.SetMaterial("__2D");
-        renderer.DrawFilledCircle2D(Vector2::X_Axis * -1.0f, 0.5f, Rgba::Red);
-    }
-    {
-        const auto S = Matrix4::I;
-        const auto R = Matrix4::I;
-        const auto T = Matrix4::I;
-        const auto M = Matrix4::MakeSRT(S, R, T);
-        renderer.SetMaterial("__2D");
-        renderer.DrawQuad2D(M, Rgba::Green);
-    }
-    {
-        renderer.SetModelMatrix();
-        renderer.SetMaterial("__2D");
-        renderer.DrawCircle2D(Vector2::X_Axis * 1.0f, 0.5f, Rgba::Red);
-    }
-    {
-        const auto S = Matrix4::CreateScaleMatrix(Vector2::One * 5.0f);
-        const auto R = Matrix4::I;
-        const auto T = Matrix4::CreateTranslationMatrix(Vector2::Y_Axis * 1.0f);
-        const auto M = Matrix4::MakeSRT(S, R, T);
-        renderer.SetMaterial("__2D");
-        renderer.DrawCircle2D(M, 5.0f, Rgba::Orange);
-    }
-
-    {
-        const auto S = Matrix4::CreateScaleMatrix(Vector2::One);
-        const auto R = Matrix4::I;
-        const auto T = Matrix4::CreateTranslationMatrix(Vector2::Y_Axis * -1.0f);
-        const auto M = Matrix4::MakeSRT(S, R, T);
-        renderer.SetMaterial("__2D");
-        renderer.SetTexture(renderer.GetTexture("Data/Images/image_binary.ppm"));
-        renderer.DrawQuad2D(M);
-        renderer.SetTexture(nullptr);
-    }
+    RenderRayTrace();
 
     renderer.BeginRenderToBackbuffer();
 
@@ -247,7 +444,7 @@ void Editor::ShowMinMaxCloseButtons() noexcept {
     ImGui::PopStyleColor();
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::LightGray.GetAsRawValue());
     ImGui::SameLine(maximize_button_offset);
-    const auto max_or_restore_down_button_path = []() {
+    const std::filesystem::path max_or_restore_down_button_path = []() {
         auto& renderer = ServiceLocator::get<IRendererService>();
         if(const auto is_fullscreen = renderer.GetOutput()->GetWindow()->IsFullscreen(); !is_fullscreen) {
             return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MaximizeButtonAsset.png";
@@ -280,6 +477,29 @@ void Editor::ShowWorldInspectorWindow([[maybe_unused]] TimeUtils::FPSeconds delt
 void Editor::ShowSettingsWindow(TimeUtils::FPSeconds deltaSeconds) noexcept {
     ImGui::Begin("Settings");
     {
+        const auto str = std::format("Render Time: {}", m_lastRenderTime);
+        ImGui::Text(str.c_str());
+        if(ImGui::Button("Generate")) {
+            GenerateRayTrace();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Fill")) {
+            FillRayTrace();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Fast Fill")) {
+            FastFillRayTrace();
+        }
+        if(ImGui::Button("Job Fill")) {
+            JobFillRayTrace();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Stop Job")) {
+            m_requestquit = true;
+            if(m_rayTraceWorker.joinable()) {
+                m_rayTraceWorker.join();
+            }
+        }
         ShowSelectedEntityComponents(deltaSeconds);
     }
     ImGui::End();

@@ -23,7 +23,7 @@ enum class SeverityLevel {
 };
 
 //-----------------------------------------------------------------------------------------------
-void DebuggerPrintf(const char* messageFormat, ...) noexcept;
+void DebuggerPrintf(const std::string& messageFormat) noexcept;
 [[nodiscard]] bool IsDebuggerAvailable() noexcept;
 [[noreturn]] void FatalError(const char* filePath, const char* functionName, int lineNum, const std::string& reasonForError, const char* conditionText = nullptr);
 void RecoverableWarning(const char* filePath, const char* functionName, int lineNum, const std::string& reasonForWarning, const char* conditionText = nullptr) noexcept;

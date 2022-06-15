@@ -6,10 +6,11 @@
 #include "Engine/Game/GameBase.hpp"
 
 #include "Engine/Renderer/FrameBuffer.hpp"
-
+#include "Engine/Renderer/Texture.hpp"
 #include "Editor/ContentBrowserPanel.hpp"
 
 #include <filesystem>
+#include <memory>
 #include <vector>
 
 class Texture;
@@ -24,6 +25,8 @@ public:
         , Text
         , Scene
     };
+
+    virtual ~Editor() noexcept;
 
     void Initialize() noexcept override;
     void BeginFrame() noexcept override;
@@ -54,6 +57,12 @@ public:
 
 protected:
 private:
+    void FillRayTrace() noexcept;
+    void FastFillRayTrace() noexcept;
+    void JobFillRayTrace() noexcept;
+    void GenerateRayTrace() noexcept;
+    void RenderRayTrace() const noexcept;
+    void raytrace_worker() noexcept;
 
     void ShowUI([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ShowMainMenu([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
@@ -83,6 +92,11 @@ private:
     ContentBrowserPanel m_ContentBrowser{};
     uint32_t m_ViewportWidth{1600u};
     uint32_t m_ViewportHeight{900u};
+    TimeUtils::FPMilliseconds m_lastRenderTime{};
+    std::unique_ptr<Texture> m_raytraceTexture{};
     bool m_IsViewportWindowActive{false};
     std::shared_ptr<FrameBuffer> buffer{};
+    std::thread m_rayTraceWorker{};
+    std::mutex m_worker_mtx{};
+    std::atomic_bool m_requestquit{false};
 };

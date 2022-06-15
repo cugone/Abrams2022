@@ -39,7 +39,7 @@ bool Obj::Load(std::filesystem::path filepath) noexcept {
     bool not_obj = StringUtils::ToLowerCase(filepath.extension().string()) != valid_extension;
     bool invalid = not_exist || not_obj;
     if(invalid) {
-        DebuggerPrintf("%s is not a .obj file.\n", filepath.string().c_str());
+        DebuggerPrintf(std::format("{} is not a .obj file.\n", filepath.string()));
         return false;
     }
     filepath = FS::canonical(filepath);
@@ -302,7 +302,7 @@ void Obj::PrintErrorToDebugger(std::filesystem::path filepath, const std::string
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
-    DebuggerPrintf("%s(%lld): Invalid %s\n", filepath.string().c_str(), line_index, elementType.c_str());
+    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath.string(), line_index, elementType));
 }
 
 Vertex3D Obj::FaceTriToVertex(const std::string& t) const noexcept {

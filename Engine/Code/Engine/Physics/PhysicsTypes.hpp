@@ -1,11 +1,22 @@
 #pragma once
 
+#include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 
 #include <vector>
 
 class RigidBody;
+
+struct PhysicsSystemDesc {
+    AABB2 world_bounds{Vector2::Zero, 500.0f, 500.0f};
+    Vector2 gravity{0.0f, 10.0f};
+    Vector2 dragK1K2{1.0f, 1.0f};
+    float world_scale{100.0f};
+    float kill_plane_distance{10000.0f};
+    int position_solver_iterations{6};
+    int velocity_solver_iterations{8};
+};
 
 struct PhysicsMaterial {
     float friction = 0.0f;      //0.7f; //Range: [0.0f, 1.0f]; How quickly an object comes to rest during a contact. Values closer to 1.0 cause resting contacts to lose velocity faster.
@@ -87,7 +98,7 @@ private:
 
 struct GJKResult {
     bool collides{false};
-    std::vector<Vector3> simplex{};
+    std::vector<Vector3> simplex;
 };
 
 struct EPAResult {
