@@ -77,8 +77,8 @@ public:
 
     [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter() const noexcept override;
     [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter(const Window& window_ref) const noexcept override;
-    [[nodiscard]] const Vector2& GetMouseCoords() const noexcept override;
-    [[nodiscard]] const Vector2& GetMouseDelta() const noexcept override;
+    [[nodiscard]] Vector2 GetMouseCoords() const noexcept override;
+    [[nodiscard]] Vector2 GetMouseDelta() const noexcept override;
 
     [[nodiscard]] int GetMouseWheelPosition() const noexcept override;
     [[nodiscard]] int GetMouseWheelPositionNormalized() const noexcept override;

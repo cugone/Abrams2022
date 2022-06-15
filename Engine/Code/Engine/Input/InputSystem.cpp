@@ -195,11 +195,11 @@ void InputSystem::SetCursorWindowPosition(const Vector2& window_pos) noexcept {
     SetCursorWindowPosition(*window, window_pos);
 }
 
-const Vector2& InputSystem::GetMouseCoords() const noexcept {
+Vector2 InputSystem::GetMouseCoords() const noexcept {
     return m_mouseCoords;
 }
 
-const Vector2& InputSystem::GetMouseDelta() const noexcept {
+Vector2 InputSystem::GetMouseDelta() const noexcept {
     return m_mouseDelta;
 }
 

@@ -58,8 +58,8 @@ public:
 
     [[nodiscard]] virtual Vector2 GetMouseDeltaFromWindowCenter() const noexcept = 0;
     [[nodiscard]] virtual Vector2 GetMouseDeltaFromWindowCenter([[maybe_unused]] const Window& window_ref) const noexcept = 0;
-    [[nodiscard]] virtual const Vector2& GetMouseCoords() const noexcept = 0;
-    [[nodiscard]] virtual const Vector2& GetMouseDelta() const noexcept = 0;
+    [[nodiscard]] virtual Vector2 GetMouseCoords() const noexcept = 0;
+    [[nodiscard]] virtual Vector2 GetMouseDelta() const noexcept = 0;
 
     [[nodiscard]] virtual int GetMouseWheelPosition() const noexcept = 0;
     [[nodiscard]] virtual int GetMouseWheelPositionNormalized() const noexcept = 0;
@@ -122,8 +122,8 @@ public:
     void SetCursorToWindowCenter() noexcept override {}
     [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter() const noexcept override { return Vector2::Zero; }
     [[nodiscard]] Vector2 GetMouseDeltaFromWindowCenter([[maybe_unused]] const Window& window_ref) const noexcept override { return Vector2::Zero; }
-    [[nodiscard]] const Vector2& GetMouseCoords() const noexcept override {}
-    [[nodiscard]] const Vector2& GetMouseDelta() const noexcept override {}
+    [[nodiscard]] Vector2 GetMouseCoords() const noexcept override { return Vector2::Zero; }
+    [[nodiscard]] Vector2 GetMouseDelta() const noexcept override { return Vector2::Zero; }
     [[nodiscard]] int GetMouseWheelPosition() const noexcept override { return 0; }
     [[nodiscard]] int GetMouseWheelPositionNormalized() const noexcept override { return 0; }
     [[nodiscard]] int GetMouseWheelHorizontalPosition() const noexcept override { return 0; }
