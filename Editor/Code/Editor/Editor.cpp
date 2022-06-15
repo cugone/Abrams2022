@@ -132,10 +132,10 @@ Editor::~Editor() noexcept {
 }
 
 void Editor::Initialize() noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     m_ContentBrowser.currentDirectory = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData);
-    renderer.RegisterTexturesFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / std::filesystem::path{"Images"}, true);
-    renderer.RegisterTexturesFromFolder(m_ContentBrowser.currentDirectory / std::filesystem::path{"Resources/Icons"}, true);
+    renderer->RegisterTexturesFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / std::filesystem::path{"Images"}, true);
+    renderer->RegisterTexturesFromFolder(m_ContentBrowser.currentDirectory / std::filesystem::path{"Resources/Icons"}, true);
     m_ContentBrowser.currentDirectory = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EditorContent);
     m_ContentBrowser.UpdateContentBrowserPaths();
     buffer = FrameBuffer::Create(FrameBufferDesc{});
@@ -146,20 +146,20 @@ void Editor::BeginFrame() noexcept {
 }
 
 void Editor::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.UpdateGameTime(deltaSeconds);
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->UpdateGameTime(deltaSeconds);
     ShowUI(deltaSeconds);
     HandleInput(deltaSeconds);
     //GenerateRayTrace();
 }
 
 void Editor::GenerateRayTrace() noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     {
         const auto start = TimeUtils::Now();
         std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::Magenta);
         std::generate(std::begin(data), std::end(data), Rgba::Random);
-        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+        m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
         const auto end = TimeUtils::Now();
         const auto duration = end - start;
         m_lastRenderTime = duration;
@@ -167,14 +167,14 @@ void Editor::GenerateRayTrace() noexcept {
 }
 
 void Editor::FillRayTrace() noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     {
         const auto start = TimeUtils::Now();
         std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::NoAlpha);
         for(auto& p : data) {
             p = Rgba::Random();
         }
-        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+        m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
         const auto end = TimeUtils::Now();
         const auto duration = end - start;
         m_lastRenderTime = duration;
@@ -182,7 +182,7 @@ void Editor::FillRayTrace() noexcept {
 }
 
 void Editor::FastFillRayTrace() noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     {
         const auto start = TimeUtils::Now();
         std::vector<unsigned char> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight * 4, 0);
@@ -192,7 +192,7 @@ void Editor::FastFillRayTrace() noexcept {
             data[i + 2] = 0;
             data[i + 3] = 255;
         }
-        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data.data(), m_ViewportWidth, m_ViewportHeight));
+        m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data.data(), m_ViewportWidth, m_ViewportHeight));
         const auto end = TimeUtils::Now();
         const auto duration = end - start;
         m_lastRenderTime = duration;
@@ -223,7 +223,7 @@ Vector3 color(const Ray3& r, hitable* world) {
 }
 
 void Editor::raytrace_worker() noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     Vector3 lower_left_corner{-2.0f, -1.0f, -1.0f};
     Vector3 horizontal = Vector3::X_Axis * 4.0f;
     Vector3 vertical = Vector3::Y_Axis * 2.0f;
@@ -255,7 +255,7 @@ void Editor::raytrace_worker() noexcept {
             }
         }
         //if(origin != prev_origin) {
-        m_raytraceTexture = std::move(renderer.Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
+        m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
             //prev_origin = origin;
         //}
         const auto end = TimeUtils::Now();
@@ -283,28 +283,28 @@ void Editor::JobFillRayTrace() noexcept {
 }
 
 void Editor::RenderRayTrace() const noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.SetModelMatrix();
-    renderer.SetMaterial("__2D");
-    renderer.SetTexture(m_raytraceTexture.get());
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->SetModelMatrix();
+    renderer->SetMaterial("__2D");
+    renderer->SetTexture(m_raytraceTexture.get());
     const auto S = Matrix4::CreateScaleMatrix(Vector2{static_cast<float>(m_ViewportWidth), static_cast<float>(m_ViewportHeight)} * 0.5f);
     const auto R = Matrix4::I;
     const auto T = Matrix4::I;
     const auto M = Matrix4::MakeSRT(S, R, T);
-    renderer.DrawQuad2D(M, Rgba::White, Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+    renderer->DrawQuad2D(M, Rgba::White, Vector4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 void Editor::Render() const noexcept {
 
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    renderer.BeginRender(buffer->GetTexture(), Rgba::Black, buffer->GetDepthStencil());
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    renderer->BeginRender(buffer->GetTexture(), Rgba::Black, buffer->GetDepthStencil());
 
-    renderer.SetOrthoProjectionFromViewWidth(static_cast<float>(m_ViewportWidth), m_editorCamera.GetAspectRatio(), 0.01f, 1.0f);
-    renderer.SetCamera(m_editorCamera.GetCamera());
+    renderer->SetOrthoProjectionFromViewWidth(static_cast<float>(m_ViewportWidth), m_editorCamera.GetAspectRatio(), 0.01f, 1.0f);
+    renderer->SetCamera(m_editorCamera.GetCamera());
 
     RenderRayTrace();
 
-    renderer.BeginRenderToBackbuffer();
+    renderer->BeginRenderToBackbuffer();
 
 }
 
@@ -364,12 +364,12 @@ void Editor::ShowMainMenu([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) no
             }
             ImGui::Separator();
             if(ImGui::MenuItem("Minimize")) {
-                auto& app = ServiceLocator::get<IAppService>();
-                app.Minimize();
+                auto* app = ServiceLocator::get<IAppService, NullAppService>();
+                app->Minimize();
             }
             if(ImGui::MenuItem("Maximize")) {
-                auto& app = ServiceLocator::get<IAppService>();
-                app.Maximize();
+                auto* app = ServiceLocator::get<IAppService, NullAppService>();
+                app->Maximize();
             }
             ImGui::Separator();
             if(ImGui::MenuItem("Save", "Ctrl+S", nullptr, m_ActiveScene.get())) {
@@ -379,8 +379,8 @@ void Editor::ShowMainMenu([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) no
                 DoFileSaveAs();
             }
             if(ImGui::MenuItem("Exit")) {
-                auto& app = ServiceLocator::get<IAppService>();
-                app.SetIsQuitting(true);
+                auto* app = ServiceLocator::get<IAppService, NullAppService>();
+                app->SetIsQuitting(true);
             }
             ImGui::EndMenu();
         }
@@ -438,28 +438,28 @@ void Editor::ShowMinMaxCloseButtons() noexcept {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::Red.GetAsRawValue());
 
     if(ImGui::ImageButton(GetAssetTextureFromPath(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/CloseButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
-        auto& app = ServiceLocator::get<IAppService>();
-        app.SetIsQuitting(true);
+        auto* app = ServiceLocator::get<IAppService, NullAppService>();
+        app->SetIsQuitting(true);
     }
     ImGui::PopStyleColor();
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Rgba::LightGray.GetAsRawValue());
     ImGui::SameLine(maximize_button_offset);
     const std::filesystem::path max_or_restore_down_button_path = []() {
-        auto& renderer = ServiceLocator::get<IRendererService>();
-        if(const auto is_fullscreen = renderer.GetOutput()->GetWindow()->IsFullscreen(); !is_fullscreen) {
+        auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+        if(const auto is_fullscreen = renderer->GetOutput()->GetWindow()->IsFullscreen(); !is_fullscreen) {
             return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MaximizeButtonAsset.png";
         }
         return FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/RestoreDownButtonAsset.png";
     }(); //IIIL
     if(ImGui::ImageButton(GetAssetTextureFromPath(max_or_restore_down_button_path), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
-        auto& renderer = ServiceLocator::get<IRendererService>();
-        auto& app = ServiceLocator::get<IAppService>();
-        !renderer.GetOutput()->GetWindow()->IsFullscreen() ? app.Maximize() : app.Restore();
+        auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+        auto* app = ServiceLocator::get<IAppService, NullAppService>();
+        !renderer->GetOutput()->GetWindow()->IsFullscreen() ? app->Maximize() : app->Restore();
     }
     ImGui::SameLine(minimize_button_offset);
     if(ImGui::ImageButton(GetAssetTextureFromPath(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Resources/Icons/MinimizeButtonAsset.png"), Vector2{nc_button_sizes, nc_button_sizes}, Vector2::Zero, Vector2::One, 0, Rgba::NoAlpha, Rgba::NoAlpha)) {
-        auto& app = ServiceLocator::get<IAppService>();
-        app.SetIsQuitting(true);
+        auto* app = ServiceLocator::get<IAppService, NullAppService>();
+        app->SetIsQuitting(true);
     }
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
@@ -540,13 +540,13 @@ void Editor::ShowContentBrowserWindow(TimeUtils::FPSeconds deltaSeconds) noexcep
 }
 
 void Editor::HandleMenuKeyboardInput([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    auto& input = ServiceLocator::get<IInputService>();
-    if(input.IsKeyDown(KeyCode::Ctrl)) {
-        if(input.WasKeyJustPressed(KeyCode::N)) {
+    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    if(input->IsKeyDown(KeyCode::Ctrl)) {
+        if(input->WasKeyJustPressed(KeyCode::N)) {
             DoFileNew();
-        } else if(input.WasKeyJustPressed(KeyCode::O)) {
+        } else if(input->WasKeyJustPressed(KeyCode::O)) {
             DoFileOpen();
-        } else if(input.WasKeyJustPressed(KeyCode::S)) {
+        } else if(input->WasKeyJustPressed(KeyCode::S)) {
             DoFileSaveAs();
         }
     }
@@ -563,8 +563,8 @@ bool Editor::HasAssetExtension(const std::filesystem::path& path) const noexcept
 }
 
 Texture* Editor::GetAssetTextureFromPath(const std::filesystem::path& path) const noexcept {
-    auto& renderer = ServiceLocator::get<IRendererService>();
-    auto* defaultTexture = renderer.GetTexture("__white");
+    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* defaultTexture = renderer->GetTexture("__white");
     if(HasAssetExtension(path)) {
         const auto e = path.extension();
         std::filesystem::path p{};
@@ -583,9 +583,9 @@ Texture* Editor::GetAssetTextureFromPath(const std::filesystem::path& path) cons
         } else if(e == ".log") {
             p = BuildPath("Resources/Icons/LogAsset.png");
         } else if(IsImageAssetExtension(e)) {
-            return renderer.CreateOrGetTexture(path, IntVector3::XY_Axis);
+            return renderer->CreateOrGetTexture(path, IntVector3::XY_Axis);
         }
-        return p.empty() ? defaultTexture : renderer.GetTexture(p.string());
+        return p.empty() ? defaultTexture : renderer->GetTexture(p.string());
     }
     return defaultTexture;
 }

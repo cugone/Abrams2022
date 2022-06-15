@@ -37,10 +37,10 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
             }
         }
         const auto padding = 16.0f;
-        const auto& config = ServiceLocator::get<IConfigService>();
+        const auto* const config = ServiceLocator::get<IConfigService, NullConfigService>();
         static auto scale = 0.5f;
-        if(config.HasKey("UIScale")) {
-            config.GetValue("UIScale", scale);
+        if(config->HasKey("UIScale")) {
+            config->GetValue("UIScale", scale);
         }
         scale = std::clamp(scale, 0.125f, 2.0f);
         const auto thumbnailSize = (std::max)(32.0f, 256.0f * scale);
