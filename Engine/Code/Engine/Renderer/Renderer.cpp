@@ -380,7 +380,7 @@ void Renderer::LogAvailableDisplays() noexcept {
     ss << "Available Display Dimensions:\n";
     ss << std::format("{:->80}", '\n');
     ss << std::format("{:<13}{:^10}{:>10}", '|', "Resolution", '|');
-    ss << std::format("{:>26}{:>20}", "Refresh Rage (Hz)", "|\n");
+    ss << std::format("{:>26}{:>20}", "Refresh Range (Hz)", "|\n");
     ss << std::format("{:->80}", '\n');
     auto refreshRateHzStr = std::string{};
     for(auto it = std::begin(m_rhi_device->displayModes); it != std::end(m_rhi_device->displayModes); ) {
