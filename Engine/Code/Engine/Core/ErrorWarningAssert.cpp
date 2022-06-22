@@ -136,7 +136,7 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
     std::string errorMessage = reasonForError;
     if(reasonForError.empty()) {
         if(conditionText)
-            errorMessage = StringUtils::Stringf("ERROR: \"%s\" is false!", conditionText);
+            errorMessage = std::format("ERROR: \"{}\" is false!", conditionText);
         else
             errorMessage = "Unspecified fatal error";
     }
@@ -153,10 +153,10 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
 
     fullMessageText += "\n---------- Debugging Details Follow ----------\n";
     if(conditionText) {
-        fullMessageText += StringUtils::Stringf("\nThis error was triggered by a run-time condition check:\n  %s\n  from %s(), line %i in %s\n",
+        fullMessageText += std::format("\nThis error was triggered by a run-time condition check:\n  {}\n  from {}(), line {} in {}\n",
                                                 conditionText, functionName, lineNum, fileName.c_str());
     } else {
-        fullMessageText += StringUtils::Stringf("\nThis was an unconditional error triggered by reaching\n line %i of %s, in %s()\n",
+        fullMessageText += std::format("\nThis was an unconditional error triggered by reaching\n line {} of {}, in {}()\n",
                                                 lineNum, fileName.c_str(), functionName);
     }
 
@@ -192,7 +192,7 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
     std::string errorMessage = reasonForWarning;
     if(reasonForWarning.empty()) {
         if(conditionText)
-            errorMessage = StringUtils::Stringf("WARNING: \"%s\" is false!", conditionText);
+            errorMessage = std::format("WARNING: \"{}\" is false!", conditionText);
         else
             errorMessage = "Unspecified warning";
     }
@@ -211,11 +211,11 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
 
     fullMessageText += "\n---------- Debugging Details Follow ----------\n";
     if(conditionText) {
-        fullMessageText += StringUtils::Stringf("\nThis warning was triggered by a run-time condition check:\n  %s\n  from %s(), line %i in %s\n",
-                                                conditionText, functionName, lineNum, fileName.c_str());
+        fullMessageText += std::format("\nThis warning was triggered by a run-time condition check:\n  {}\n  from {}(), line {} in {}\n",
+                                       conditionText, functionName, lineNum, fileName.c_str());
     } else {
-        fullMessageText += StringUtils::Stringf("\nThis was an unconditional warning triggered by reaching\n line %i of %s, in %s()\n",
-                                                lineNum, fileName.c_str(), functionName);
+        fullMessageText += std::format("\nThis was an unconditional warning triggered by reaching\n line {} of {}, in {}()\n",
+                                       lineNum, fileName.c_str(), functionName);
     }
 
     DebuggerPrintf("\n------------------------------------------------------------------------------\n");
