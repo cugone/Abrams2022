@@ -62,6 +62,21 @@ public:
                 m_NullServices.try_emplace(provided_typeindex, &null_service);
             }
         }
+    }
+
+    template<typename ServiceInterface, typename NullService>
+    static void revoke() {
+        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
+        static_assert(std::is_base_of_v<ServiceInterface, NullService>, "Provided Null type is not a derived from provided Service.");
+        {
+            std::scoped_lock lock(m_cs);
+            auto provided_typeindex = std::type_index(typeid(ServiceInterface));
+            if(auto it = m_services.find(provided_typeindex); it != m_services.end()) {
+                it->second = GetNullService<NullService>();
+            }
+        }
+    }
+
 
     }
 protected:
