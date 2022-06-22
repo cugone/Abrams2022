@@ -188,10 +188,10 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
                 auto* r = ServiceLocator::get<IRendererService, NullRendererService>();
                 for(int i = 0; WebPAnimDecoderHasMoreFrames(dec); ++i) {
                     uint8_t* buf{};
-                    static int cur_timestamp = 0;
                     static int prev_timestamp = 0;
+                    int cur_timestamp = 0;
                     if(WebPAnimDecoderGetNext(dec, &buf, &cur_timestamp)) {
-                        m_frameDurations[i] = std::chrono::milliseconds{cur_timestamp - prev_timestamp};
+                        m_frameDurations[i] = std::chrono::milliseconds{cur_timestamp - prev_timestamp < 0 ? 0 : cur_timestamp - prev_timestamp};
                         prev_timestamp = cur_timestamp;
                         m_frames[i] = r->Create2DTextureFromMemory(buf, anim_info.canvas_width, anim_info.canvas_height);
                     }
