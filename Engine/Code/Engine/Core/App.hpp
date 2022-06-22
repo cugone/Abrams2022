@@ -180,6 +180,7 @@ App<T>::~App() noexcept {
         ServiceLocator::revoke<IConfigService, NullConfigService>();
         m_theConfig.reset();
     }
+    ServiceLocator::remove_all();
 }
 
 template<typename T>
