@@ -451,12 +451,11 @@ void App<T>::RunFrame() {
 
 template<typename T>
 void App<T>::LogSystemDescription() const {
-    const auto section_break_field_width = std::size_t{80u};
     const auto system = System::GetSystemDesc();
     std::ostringstream ss;
-    ss << std::right << std::setfill('-') << std::setw(section_break_field_width) << '\n';
+    ss << std::format("{:->80}", '\n');
     ss << StringUtils::to_string(system);
-    ss << std::right << std::setfill('-') << std::setw(section_break_field_width) << '\n';
+    ss << std::format("{:->80}", '\n');
     g_theFileLogger->LogAndFlush(ss.str());
 }
 
