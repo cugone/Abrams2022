@@ -71,7 +71,6 @@ private:
     static NullServiceInterface* GetNullService() noexcept {
         const auto requested_typeindex = std::type_index(typeid(NullServiceInterface));
         if(const auto found = m_NullServices.find(requested_typeindex); found != std::end(m_NullServices)) {
-            std::scoped_lock lock(m_cs);
             return dynamic_cast<NullServiceInterface*>(found->second);
         }
         return nullptr;
@@ -81,7 +80,6 @@ private:
     static const NullServiceInterface* GetNullService_const() noexcept {
         const auto requested_typeindex = std::type_index(typeid(NullServiceInterface));
         if(const auto found = m_NullServices.find(requested_typeindex); found != std::end(m_NullServices)) {
-            std::scoped_lock lock(m_cs);
             return dynamic_cast<const NullServiceInterface*>(found->second);
         }
         return nullptr;
