@@ -165,10 +165,14 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
     DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("==============================================================================\n\n");
 
-    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
-    logger->LogError(fullMessageText);
-    logger->LogLineAndFlush("Shutting down");
-    logger->SaveLog();
+    if(auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>(); logger != nullptr) {
+        logger->LogError(fullMessageText);
+        logger->LogLineAndFlush("Shutting down");
+        logger->SaveLog();
+    } else {
+        std::cout << fullMessageText;
+        std::cout << "Shutting down";
+    }
 
     if(isDebuggerPresent) {
         bool isAnswerYes = SystemDialogue_YesNo(fullMessageTitle, fullMessageText, SeverityLevel::Fatal);
@@ -219,30 +223,45 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
     DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("------------------------------------------------------------------------------\n\n");
 
-
     auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
-    logger->LogWarnLine(fullMessageText);
+    if(logger) {
+        logger->LogWarnLine(fullMessageText);
+    } else {
+        std::cout << fullMessageText << '\n';
+    }
 
     if(isDebuggerPresent) {
         int answerCode = SystemDialogue_YesNoCancel(fullMessageTitle, fullMessageText, SeverityLevel::Warning);
         ShowCursor(TRUE);
         if(answerCode == 0) // "NO"
         {
-            logger->LogLineAndFlush("Shutting down");
-            logger->SaveLog();
+            if(logger) {
+                logger->LogLineAndFlush("Shutting down");
+                logger->SaveLog();
+            } else {
+                std::cout << "Shutting down" << std::endl;
+            }
             exit(0);
         } else if(answerCode == -1) // "CANCEL"
         {
-            logger->Flush();
-            logger->SaveLog();
+            if(logger) {
+                logger->Flush();
+                logger->SaveLog();
+            } else {
+                std::cout.flush();
+            }
             __debugbreak();
         }
     } else {
         bool isAnswerYes = SystemDialogue_YesNo(fullMessageTitle, fullMessageText, SeverityLevel::Warning);
         ShowCursor(TRUE);
         if(!isAnswerYes) {
-            logger->LogLineAndFlush("Shutting down");
-            logger->SaveLog();
+            if(logger) {
+                logger->LogLineAndFlush("Shutting down");
+                logger->SaveLog();
+            } else {
+                std::cout << "Shutting down" << std::endl;
+            }
             exit(0);
         }
     }
