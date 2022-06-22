@@ -33,10 +33,13 @@ const bool Engine<GameType>::Available() noexcept {
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Initialize(const std::string& title, const std::string& cmdString) noexcept {
-    m_initCalled = true;
-    App<GameType>::CreateApp(title, cmdString);
-    auto* app = ServiceLocator::get<IAppService, NullAppService>();
-    app->InitializeService();
+    if(!m_initCalled) {
+        m_shutdownCalled = false;
+        m_initCalled = true;
+        App<GameType>::CreateApp(title, cmdString);
+        auto* app = ServiceLocator::get<IAppService, NullAppService>();
+        app->InitializeService();
+    }
 }
 
 template<typename GameType>
