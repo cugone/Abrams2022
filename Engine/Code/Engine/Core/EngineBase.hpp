@@ -42,6 +42,7 @@ void Engine<GameType>::Initialize(const std::string& title, const std::string& c
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Run() noexcept {
+    GUARANTEE_OR_DIE(!m_shutdownCalled, "Engine::Shutdown called before Run!");
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
     auto* app = ServiceLocator::get<IAppService, NullAppService>();
     while(!app->IsQuitting()) {
@@ -55,6 +56,7 @@ void Engine<GameType>::Shutdown() noexcept {
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Shutdown");
     if(!m_shutdownCalled) {
         m_shutdownCalled = true;
+        m_initCalled = false;
         App<GameType>::DestroyApp();
     }
 }
