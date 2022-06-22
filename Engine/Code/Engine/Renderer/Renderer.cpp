@@ -414,7 +414,6 @@ void Renderer::LogAvailableDisplays() noexcept {
         ++it;
     }
     ss << std::format("{:->80}", '\n');
-    DebuggerPrintf(ss.str());
     ServiceLocator::get<IFileLoggerService, NullFileLoggerService>()->LogLineAndFlush(ss.str());
 }
 
