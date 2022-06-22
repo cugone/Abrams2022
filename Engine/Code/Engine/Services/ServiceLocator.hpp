@@ -56,7 +56,7 @@ public:
         }
         {
             std::scoped_lock lock(m_cs);
-            auto provided_typeindex = std::type_index(typeid(ServiceInterface));
+            auto provided_typeindex = std::type_index(typeid(NullService));
             if(auto [it, inserted] = m_NullServices.try_emplace(provided_typeindex, &null_service); !inserted) {
                 m_NullServices.erase(it);
                 m_NullServices.try_emplace(provided_typeindex, &null_service);
