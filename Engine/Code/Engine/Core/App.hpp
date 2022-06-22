@@ -164,6 +164,21 @@ template<typename T>
 App<T>::~App() noexcept {
     if(g_theApp<T>) {
         g_theSubsystemHead = g_theApp<T>;
+        ServiceLocator::revoke<IConsoleService, NullConsoleService>();
+        m_theConsole.reset();
+        ServiceLocator::revoke<IAudioService, NullAudioService>();
+        m_theAudioSystem.reset();
+        ServiceLocator::revoke<IInputService, NullInputService>();
+        m_theInputSystem.reset();
+        ServiceLocator::revoke<IRendererService, NullRendererService>();
+        ServiceLocator::revoke<IPhysicsService, NullPhysicsService>();
+        m_thePhysicsSystem.reset();
+        ServiceLocator::revoke<IFileLoggerService, NullFileLoggerService>();
+        m_theFileLogger.reset();
+        ServiceLocator::revoke<IJobSystemService, NullJobSystemService>();
+        m_theJobSystem.reset();
+        ServiceLocator::revoke<IConfigService, NullConfigService>();
+        m_theConfig.reset();
     }
 }
 
