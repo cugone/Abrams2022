@@ -5,7 +5,7 @@
 #include "Engine/Platform/Win.hpp"
 #include "Engine/System/OS.hpp"
 
-#include <iomanip>
+#include <format>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -46,15 +46,9 @@ System::Cpu::CpuDesc System::Cpu::GetCpuDesc() noexcept {
 }
 
 std::ostream& System::Cpu::operator<<(std::ostream& out, const System::Cpu::CpuDesc& cpu) noexcept {
-    const auto entry_name_field_width = std::size_t{40u};
-    const auto entry_field_width = std::size_t{35u};
-    const auto old_fmt = out.flags();
-    const auto old_w = out.width();
-    out << std::left << std::setw(entry_name_field_width) << "Processor Type:" << std::right << std::setw(entry_field_width) << StringUtils::to_string(cpu.type) << '\n';
-    out << std::left << std::setw(entry_name_field_width) << "Socket Count:" << std::right << std::setw(entry_field_width) << cpu.socketCount << '\n';
-    out << std::left << std::setw(entry_name_field_width) << "Logical Processor Count:" << std::right << std::setw(entry_field_width) << cpu.logicalCount << '\n';
-    out.flags(old_fmt);
-    out.width(old_w);
+    out << std::format("{:<40}{:>35}\n", "Processor Type:",  StringUtils::to_string(cpu.type));
+    out << std::format("{:<40}{:>35}\n", "Socket Count:", cpu.socketCount);
+    out << std::format("{:<40}{:>35}\n", "Logical Processor Count:", cpu.logicalCount);
     return out;
 }
 
