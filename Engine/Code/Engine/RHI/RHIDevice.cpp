@@ -121,7 +121,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
             window.reset();
             ERROR_AND_DIE("RHIDevice: Graphics card not found.")
         }
-        DebuggerPrintf((std::string{"Adapter count: "} + std::to_string(adapters.size()) + std::string{'\n'}).c_str());
+        DebuggerPrintf(std::format("Adapter count: {}\n", adapters.size());
         OutputAdapterInfo(adapters);
         GetDisplayModes(adapters);
         DeviceInfo device_info = CreateDeviceFromFirstAdapter(adapters);
@@ -163,9 +163,7 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
     };
 
     auto first_adapter_info = std::begin(adapters);
-    std::ostringstream ss;
-    ss << "Selected Adapter: " << AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description << std::endl;
-    DebuggerPrintf(ss.str().c_str());
+    DebuggerPrintf(std::format("Selected Adapter: {}\n", AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description));
 
     const auto& first_adapter = first_adapter_info->adapter;
     const auto has_adapter = first_adapter != nullptr;
@@ -185,24 +183,21 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
 }
 
 void RHIDevice::OutputAdapterInfo(const std::vector<AdapterInfo>& adapters) const noexcept {
-    const auto section_break_field_width = std::size_t{80u};
-    const auto entry_name_field_width = std::size_t{40u};
-    const auto entry_field_width = std::size_t{35u};
-    std::ostringstream ss;
-    ss << "ADAPTERS\n";
-    std::size_t monitor_count{0u};
-    for(const auto& adapter : adapters) {
-        ss << std::right << std::setw(section_break_field_width) << std::setfill('-') << '\n'
-           << std::setfill(' ');
-        ss << AdapterInfoToGraphicsCardDesc(adapter) << '\n';
-        const auto outputs = GetOutputsFromAdapter(adapter);
-        monitor_count += outputs.size();
-        ss << std::left << std::setw(entry_name_field_width) << "Monitors connected to this adapter: " << std::right << std::setw(entry_field_width) << outputs.size() << '\n';
-    }
-    ss << std::left << std::setw(entry_name_field_width) << "Total Monitor count: " << std::right << std::setw(entry_field_width) << monitor_count << '\n';
-    ss << std::right << std::setw(section_break_field_width) << std::setfill('-') << '\n';
-    ss << std::flush;
-    DebuggerPrintf(ss.str().c_str());
+    DebuggerPrintf(
+    [&]() {
+        std::ostringstream ss;
+        ss << "ADAPTERS\n";
+        std::size_t monitor_count{0u};
+        for(const auto& adapter : adapters) {
+            const auto outputs = GetOutputsFromAdapter(adapter);
+            monitor_count += outputs.size();
+            ss << std::format("{:->80}{}\n{:<40}{:>35}\n", '\n', AdapterInfoToGraphicsCardDesc(adapter), "Monitors connected to this adapter:", outputs.size());
+        }
+        ss << std::format("{:<40}{:>35}{:->80}\n", "Total Monitor count:", monitor_count, '\n');
+        ss << std::flush;
+        return ss.str();
+    }()
+    );
 }
 
 void RHIDevice::GetDisplayModes(const std::vector<AdapterInfo>& adapters) const noexcept {

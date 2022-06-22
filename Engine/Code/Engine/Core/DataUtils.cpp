@@ -134,7 +134,7 @@ void ValidateXmlElement(const XMLElement& element,
         for(const auto& c : extraOptionalAttributes) {
             err_ss += "\t\"" + c + "\"\n";
         }
-        DebuggerPrintf(err_ss.c_str());
+        DebuggerPrintf(err_ss);
     }
 
     //Find extra children
@@ -148,7 +148,7 @@ void ValidateXmlElement(const XMLElement& element,
         for(const auto& c : extraOptionalChildren) {
             err_ss += "\t\"" + c + "\"\n";
         }
-        DebuggerPrintf(err_ss.c_str());
+        DebuggerPrintf(err_ss);
     }
 #endif //#if DEBUG_BUILD
 }

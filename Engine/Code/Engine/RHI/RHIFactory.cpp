@@ -47,7 +47,7 @@ bool RHIFactory::QueryForAllowTearingSupport(const RHIDevice& device) const noex
     HRESULT hr_cfs = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
     factory.Reset();
     if(FAILED(hr_cfs)) {
-        DebuggerPrintf(StringUtils::FormatWindowsMessage(hr_cfs).c_str());
+        DebuggerPrintf(StringUtils::FormatWindowsMessage(hr_cfs));
         return false;
     }
     return allow_tearing == TRUE;
