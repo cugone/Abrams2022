@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Engine/Core/TypeUtils.hpp"
+#include "Engine/Math/MathUtils.hpp"
 
 #include <cstdint>
+#include <format>
 #include <ratio>
 #include <string>
 #include <type_traits>
@@ -47,6 +49,34 @@ struct GraphicsCardDesc {
     bool is_unspecified = false;
     friend std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& adapterInfo) noexcept;
 };
+
+template<>
+struct std::formatter<GraphicsCardDesc> : std::formatter<std::string> {
+    auto format(GraphicsCardDesc graphicsCardDesc, [[maybe_unused]] format_context& ctx) {
+        return std::vformat(
+        "{:<40}{:>35}\n"
+        "{:<40}{:>35X}\n"
+        "{:<40}{:>35X}\n"
+        "{:<40}{:>35X}\n"
+        "{:<40}{:>35X}\n"
+        "{:<40}{:>35.1f} GB\n"
+        "{:<40}{:>35.1f} GB\n"
+        "{:<40}{:>35.1f} GB\n"
+        "{:<40}{:>35}",
+        std::make_format_args(
+        "Name:", graphicsCardDesc.Description,
+        "Vendor ID:", graphicsCardDesc.VendorId,
+        "Device ID:", graphicsCardDesc.DeviceId,
+        "Subsystem ID:", graphicsCardDesc.SubSysId,
+        "Revision:", graphicsCardDesc.Revision,
+        "Video Memory:", static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        "System Memory:", static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        "Shared System Memory:", static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        "Adapter Type:", graphicsCardDesc.is_unspecified ? (graphicsCardDesc.is_software ? "Hardware" : "Software") : "Unknown"));
+    }
+};
+
+
 // clang-format off
 enum class RHIOutputMode : uint8_t {
     First_
