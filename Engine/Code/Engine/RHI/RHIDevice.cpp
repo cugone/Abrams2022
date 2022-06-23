@@ -121,7 +121,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
             window.reset();
             ERROR_AND_DIE("RHIDevice: Graphics card not found.")
         }
-        DebuggerPrintf(std::format("Adapter count: {}\n", adapters.size());
+        DebuggerPrintf(std::format("Adapter count: {}\n", adapters.size()));
         OutputAdapterInfo(adapters);
         GetDisplayModes(adapters);
         DeviceInfo device_info = CreateDeviceFromFirstAdapter(adapters);
