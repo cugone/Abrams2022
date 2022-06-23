@@ -183,21 +183,17 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
 }
 
 void RHIDevice::OutputAdapterInfo(const std::vector<AdapterInfo>& adapters) const noexcept {
-    DebuggerPrintf(
-    [&]() {
-        std::ostringstream ss;
-        ss << "ADAPTERS\n";
-        std::size_t monitor_count{0u};
-        for(const auto& adapter : adapters) {
-            const auto outputs = GetOutputsFromAdapter(adapter);
-            monitor_count += outputs.size();
-            ss << std::format("{:->80}{}\n{:<40}{:>35}\n", '\n', AdapterInfoToGraphicsCardDesc(adapter), "Monitors connected to this adapter:", outputs.size());
-        }
-        ss << std::format("{:<40}{:>35}{:->80}\n", "Total Monitor count:", monitor_count, '\n');
-        ss << std::flush;
-        return ss.str();
-    }()
-    );
+    std::ostringstream ss;
+    ss << "ADAPTERS\n";
+    std::size_t monitor_count{0u};
+    for(const auto& adapter : adapters) {
+        const auto outputs = GetOutputsFromAdapter(adapter);
+        monitor_count += outputs.size();
+        ss << std::format("{:->80}{}\n{:<40}{:>35}\n", '\n', AdapterInfoToGraphicsCardDesc(adapter), "Monitors connected to this adapter:", outputs.size());
+    }
+    ss << std::format("{:<40}{:>35}{:->80}\n", "Total Monitor count:", monitor_count, '\n');
+    ss << std::flush;
+    DebuggerPrintf(ss.str());
 }
 
 void RHIDevice::GetDisplayModes(const std::vector<AdapterInfo>& adapters) const noexcept {
