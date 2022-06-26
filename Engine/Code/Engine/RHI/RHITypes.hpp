@@ -51,28 +51,31 @@ struct GraphicsCardDesc {
 };
 
 template<>
-struct std::formatter<GraphicsCardDesc> : std::formatter<std::string> {
-    auto format(GraphicsCardDesc graphicsCardDesc, [[maybe_unused]] format_context& ctx) {
-        return std::vformat(
-        "{:<40}{:>35}\n"
-        "{:<40}{:>35X}\n"
-        "{:<40}{:>35X}\n"
-        "{:<40}{:>35X}\n"
-        "{:<40}{:>35X}\n"
-        "{:<40}{:>35.1f} GB\n"
-        "{:<40}{:>35.1f} GB\n"
-        "{:<40}{:>35.1f} GB\n"
-        "{:<40}{:>35}",
-        std::make_format_args(
-        "Name:", graphicsCardDesc.Description,
-        "Vendor ID:", graphicsCardDesc.VendorId,
-        "Device ID:", graphicsCardDesc.DeviceId,
-        "Subsystem ID:", graphicsCardDesc.SubSysId,
-        "Revision:", graphicsCardDesc.Revision,
-        "Video Memory:", static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        "System Memory:", static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        "Shared System Memory:", static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        "Adapter Type:", graphicsCardDesc.is_unspecified ? (graphicsCardDesc.is_software ? "Hardware" : "Software") : "Unknown"));
+struct std::formatter<GraphicsCardDesc> {
+    auto parse(std::format_parse_context& context) -> decltype(context.end()) {
+        return context.end();
+    }
+    auto format(const GraphicsCardDesc& graphicsCardDesc, std::format_context& ctx) -> decltype(ctx.out()) {
+        return std::format_to(ctx.out(),
+        "{0:<40}{1:>35}\n"
+        "{0:<40}{2:>35X}\n"
+        "{0:<40}{2:>35X}\n"
+        "{0:<40}{2:>35X}\n"
+        "{0:<40}{2:>35X}\n"
+        "{0:<40}{3:>35.1f} GB\n"
+        "{0:<40}{3:>35.1f} GB\n"
+        "{0:<40}{3:>35.1f} GB\n"
+        "{0:<40}{1:>35}",
+        std::make_format_args("Name:", graphicsCardDesc.Description, graphicsCardDesc.VendorId, 1.0f)
+        //"Vendor ID:", graphicsCardDesc.VendorId,
+        //"Device ID:", graphicsCardDesc.DeviceId,
+        //"Subsystem ID:", graphicsCardDesc.SubSysId,
+        //"Revision:", graphicsCardDesc.Revision,
+        //"Video Memory:", static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        //"System Memory:", static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        //"Shared System Memory:", static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
+        //"Adapter Type:", (graphicsCardDesc.is_unspecified ? (graphicsCardDesc.is_software ? std::string{"Software"} : std::string{"Hardware"}) : std::string{"Unknown"})
+        );
     }
 };
 
