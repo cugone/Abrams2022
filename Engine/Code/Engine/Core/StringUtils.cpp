@@ -32,8 +32,7 @@ std::string FormatWindowsMessage(unsigned long messageId) noexcept {
 }
 
 std::string FormatWindowsLastErrorMessage() noexcept {
-    const auto err = ::GetLastError();
-    return StringUtils::FormatWindowsMessage(err);
+    return StringUtils::FormatWindowsMessage(::GetLastError());
 }
 
 std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
