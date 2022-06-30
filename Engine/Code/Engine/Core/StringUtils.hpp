@@ -14,9 +14,6 @@ namespace StringUtils {
 [[nodiscard]] std::string FormatWindowsMessage(unsigned long messageId) noexcept;
 [[nodiscard]] std::string FormatWindowsLastErrorMessage() noexcept;
 
-[[nodiscard]] const std::string Stringf(const char* format, ...) noexcept;
-[[nodiscard]] const std::string Stringf(const int maxLength, const char* format, ...) noexcept;
-
 [[nodiscard]] std::vector<std::string> Split(std::string string, char delim = ',', bool skip_empty = true) noexcept;
 [[nodiscard]] std::vector<std::wstring> Split(std::wstring string, wchar_t delim = ',', bool skip_empty = true) noexcept;
 [[nodiscard]] std::vector<std::string> SplitOnUnquoted(std::string string, char delim = ',', bool skip_empty = true) noexcept;

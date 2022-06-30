@@ -13,8 +13,6 @@
 #include <numeric>
 #include <sstream>
 
-const int STRINGF_STACK_LOCAL_TEMP_LENGTH = 2048;
-
 namespace StringUtils {
 
 std::string FormatWindowsMessage(unsigned long messageId) noexcept {
@@ -36,36 +34,6 @@ std::string FormatWindowsMessage(unsigned long messageId) noexcept {
 std::string FormatWindowsLastErrorMessage() noexcept {
     const auto err = ::GetLastError();
     return StringUtils::FormatWindowsMessage(err);
-}
-
-const std::string Stringf(const char* format, ...) noexcept {
-    char textLiteral[STRINGF_STACK_LOCAL_TEMP_LENGTH];
-    va_list variableArgumentList;
-    va_start(variableArgumentList, format);
-    vsnprintf_s(textLiteral, STRINGF_STACK_LOCAL_TEMP_LENGTH, _TRUNCATE, format, variableArgumentList);
-    va_end(variableArgumentList);
-    textLiteral[STRINGF_STACK_LOCAL_TEMP_LENGTH - 1] = '\0'; // In case vsnprintf overran (doesn't auto-terminate)
-
-    return std::string(textLiteral);
-}
-
-const std::string Stringf(const int maxLength, const char* format, ...) noexcept {
-    char textLiteralSmall[STRINGF_STACK_LOCAL_TEMP_LENGTH];
-    char* textLiteral = textLiteralSmall;
-    if(maxLength > STRINGF_STACK_LOCAL_TEMP_LENGTH)
-        textLiteral = new char[maxLength];
-
-    va_list variableArgumentList;
-    va_start(variableArgumentList, format);
-    vsnprintf_s(textLiteral, maxLength, _TRUNCATE, format, variableArgumentList);
-    va_end(variableArgumentList);
-    textLiteral[maxLength - 1] = '\0'; // In case vsnprintf overran (doesn't auto-terminate)
-
-    std::string returnValue(textLiteral);
-    if(maxLength > STRINGF_STACK_LOCAL_TEMP_LENGTH)
-        delete[] textLiteral;
-
-    return returnValue;
 }
 
 std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
