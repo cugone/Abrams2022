@@ -414,7 +414,7 @@ void Renderer::LogAvailableDisplays() noexcept {
         ++it;
     }
     ss << std::format("{:->80}", '\n');
-    ServiceLocator::get<IFileLoggerService, NullFileLoggerService>()->LogLineAndFlush(ss.str());
+    ServiceLocator::get<IFileLoggerService, NullFileLoggerService>()->LogAndFlush(ss.str());
 }
 
 Vector2 Renderer::GetScreenCenter() const noexcept {

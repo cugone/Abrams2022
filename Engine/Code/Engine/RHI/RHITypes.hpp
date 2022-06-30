@@ -47,36 +47,64 @@ struct GraphicsCardDesc {
     unsigned int Revision = 0u;
     bool is_software = false;
     bool is_unspecified = false;
-    friend std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& adapterInfo) noexcept;
 };
 
 template<>
-struct std::formatter<GraphicsCardDesc> {
+class std::formatter<GraphicsCardDesc> {
+public:
     auto parse(std::format_parse_context& context) -> decltype(context.end()) {
+        for(auto it = context.begin(); it != context.end(); ++it) {
+            const auto c = *it;
+            parse_value += c;
+            //Ignore all formatting
+            while(c != '}') {
+                continue;
+            }
+            if(c == '}') {
+                return it;
+            }
+        }
         return context.end();
     }
     auto format(const GraphicsCardDesc& graphicsCardDesc, std::format_context& ctx) -> decltype(ctx.out()) {
+        const auto videoMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+        const auto systemMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+        const auto sharedMemAsGB = static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
         return std::format_to(ctx.out(),
-        "{0:<40}{1:>35}\n"
-        "{0:<40}{2:>35X}\n"
-        "{0:<40}{2:>35X}\n"
-        "{0:<40}{2:>35X}\n"
-        "{0:<40}{2:>35X}\n"
-        "{0:<40}{3:>35.1f} GB\n"
-        "{0:<40}{3:>35.1f} GB\n"
-        "{0:<40}{3:>35.1f} GB\n"
-        "{0:<40}{1:>35}",
-        std::make_format_args("Name:", graphicsCardDesc.Description, graphicsCardDesc.VendorId, 1.0f)
-        //"Vendor ID:", graphicsCardDesc.VendorId,
-        //"Device ID:", graphicsCardDesc.DeviceId,
-        //"Subsystem ID:", graphicsCardDesc.SubSysId,
-        //"Revision:", graphicsCardDesc.Revision,
-        //"Video Memory:", static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        //"System Memory:", static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        //"Shared System Memory:", static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den,
-        //"Adapter Type:", (graphicsCardDesc.is_unspecified ? (graphicsCardDesc.is_software ? std::string{"Software"} : std::string{"Hardware"}) : std::string{"Unknown"})
+        "{0:<40}{9:>35}\n"
+        "{1:<40}{10:>35X}\n"
+        "{2:<40}{11:>35X}\n"
+        "{3:<40}{12:>35X}\n"
+        "{4:<40}{13:>35X}\n"
+        "{5:<40}{14:>35.1f} GB\n"
+        "{6:<40}{15:>35.1f} GB\n"
+        "{7:<40}{16:>35.1f} GB\n"
+        "{8:<40}{17:>35}"
+        ,std::string{"Name:"}
+        ,std::string{"Vendor ID:"}
+        ,std::string{"Device ID:"}
+        ,std::string{"Subsystem ID:"}
+        ,std::string{"Revision:"}
+        ,std::string{"Video Memory:"}
+        ,std::string{"System Memory:"}
+        ,std::string{"Shared System Memory:"}
+        ,std::string{"Adapter Type:"}
+        ,graphicsCardDesc.Description
+            //TODO (casey): Add VendorID friendly names
+        ,graphicsCardDesc.VendorId
+            //TODO (casey): Add DeviceID friendly names
+        ,graphicsCardDesc.DeviceId
+        ,graphicsCardDesc.SubSysId
+        ,graphicsCardDesc.Revision
+        ,videoMemAsGB
+        ,systemMemAsGB
+        ,sharedMemAsGB
+        ,std::string{(graphicsCardDesc.is_unspecified ? "Unknown" : (graphicsCardDesc.is_software ? "Software" : "Hardware"))}
         );
     }
+
+private:
+    std::string parse_value{"{:"};
 };
 
 

@@ -20,12 +20,6 @@ bool operator!=(const ViewportDesc& a, const ViewportDesc& b) noexcept {
     return !(a == b);
 }
 
-std::ostream& operator<<(std::ostream& out_stream, const GraphicsCardDesc& graphicsCardDesc) noexcept {
-    //TODO: Fix formatter
-    out_stream << std::format("{}", graphicsCardDesc);
-    return out_stream;
-}
-
 bool DisplayDescLTComparator::operator()(const DisplayDesc& a, const DisplayDesc& b) const noexcept {
     if(a.width < b.width) {
         return true;
