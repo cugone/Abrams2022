@@ -357,6 +357,8 @@ void Config::SetValue(const std::string& key, const char* value) noexcept {
 void Config::PrintConfig(const std::string& key, std::ostream& output) const noexcept {
     if(const auto iter = m_config.find(key); iter != std::end(m_config)) {
         PrintKeyValue(output, iter->first, iter->second);
+    } else {
+        output << std::format("Key \"{}\" not found in config.", key);
     }
 }
 
@@ -367,25 +369,11 @@ void Config::PrintConfigs(std::ostream& output) const noexcept {
 }
 
 void Config::PrintKeyValue(std::ostream& output, const std::string& key, const std::string& value) const noexcept {
-
-    //TODO: Replace with std::format({}={}, key, value); ?
-
-    bool value_has_space = false;
-    for(const auto& c : value) {
-        value_has_space |= std::isspace(c, std::locale(""));
-        if(value_has_space) {
-            break;
-        }
+    if(const bool value_has_space = value.find_first_of(" \r\n\t\v\f") != std::string::npos; value_has_space) {
+        output << std::format("{}=\"{}\"\n", key, value);
+    } else {
+        output << std::format("{}={}\n", key, value);
     }
-    output << key << '=';
-    if(value_has_space) {
-        output << '"';
-    }
-    output << value;
-    if(value_has_space) {
-        output << '"';
-    }
-    output << '\n';
 }
 
 std::ostream& operator<<(std::ostream& output, const Config& config) noexcept {
