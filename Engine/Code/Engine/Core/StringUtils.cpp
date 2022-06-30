@@ -16,6 +16,7 @@
 namespace StringUtils {
 
 std::string FormatWindowsMessage(unsigned long messageId) noexcept {
+#ifdef PLATFORM_WINDOWS
     HRESULT hresult = static_cast<HRESULT>(messageId);
     LPSTR errorText = nullptr;
     DWORD result = ::FormatMessageA(
@@ -29,10 +30,18 @@ std::string FormatWindowsMessage(unsigned long messageId) noexcept {
         return err;
     }
     return {"Trying to Format unknown error."};
+#else
+    return std::format("Windows Message ID: {}", messageId);
+}
+#endif
 }
 
 std::string FormatWindowsLastErrorMessage() noexcept {
+#ifdef PLATFORM_WINDOWS
     return StringUtils::FormatWindowsMessage(::GetLastError());
+#else
+    return {};
+#endif
 }
 
 std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
