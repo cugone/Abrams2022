@@ -90,9 +90,9 @@ public:
         ,std::string{"Shared System Memory:"}
         ,std::string{"Adapter Type:"}
         ,graphicsCardDesc.Description
-            //TODO (casey): Add VendorID friendly names
+        //TODO (casey): Add VendorID friendly names
         ,graphicsCardDesc.VendorId
-            //TODO (casey): Add DeviceID friendly names
+        //TODO (casey): Add DeviceID friendly names
         ,graphicsCardDesc.DeviceId
         ,graphicsCardDesc.SubSysId
         ,graphicsCardDesc.Revision
