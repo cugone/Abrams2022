@@ -5,14 +5,16 @@
 #include <array>
 #include <atomic>
 #include <shared_mutex>
+#include <source_location>
 #include <string>
 #include <vector>
 
 class StackTrace final {
 public:
-    StackTrace() noexcept;
+    StackTrace(std::source_location sloc = std::source_location::current()) noexcept;
     StackTrace([[maybe_unused]] unsigned long framesToSkip,
-               [[maybe_unused]] unsigned long framesToCapture) noexcept;
+               [[maybe_unused]] unsigned long framesToCapture,
+               [[maybe_unused]] std::source_location sloc = std::source_location::current()) noexcept;
     ~StackTrace() noexcept;
     [[nodiscard]] bool operator==(const StackTrace& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const StackTrace& rhs) const noexcept;
@@ -24,6 +26,7 @@ private:
     static void GetLines([[maybe_unused]] StackTrace* st, [[maybe_unused]] unsigned long max_lines) noexcept;
     unsigned long m_hash = 0;
     unsigned long m_frame_count = 0;
+    std::source_location m_current_source_location{};
     static constexpr auto m_max_frames_per_callstack = 128ul;
     std::array<void*, m_max_frames_per_callstack> m_frames{};
     static std::shared_mutex m_cs;
@@ -31,12 +34,11 @@ private:
     static std::atomic_bool m_did_init;
 };
 
-//TODO: Replace __LINE__ with std::source_location::line
 #ifdef PROFILE_BUILD
     #undef UNIQUE_STACKTRACE
-    #define UNIQUE_STACKTRACE \
+    #define UNIQUE_STACKTRACE() \
         { static StackTrace TOKEN_PASTE(st, __LINE__); }
-    #define STACKTRACE \
+    #define STACKTRACE() \
         { StackTrace TOKEN_PASTE(st, __LINE__); }
     #define STACKTRACE_WITH_ARGS(skip, capture) \
         { StackTrace TOKEN_PASTE(st, __LINE__)(skip, capture); }
@@ -46,9 +48,9 @@ private:
     #undef UNIQUE_STACKTRACE_WITH_ARGS
     #define UNIQUE_STACKTRACE_WITH_ARGS(skip, capture)
     #undef STACKTRACE_WITH_ARGS
-    #define STACKTRACE_WITH_ARGS
+    #define STACKTRACE_WITH_ARGS()
     #undef STACKTRACE
-    #define STACKTRACE
+    #define STACKTRACE()
     #undef UNIQUE_STACKTRACE
-    #define UNIQUE_STACKTRACE
+    #define UNIQUE_STACKTRACE()
 #endif

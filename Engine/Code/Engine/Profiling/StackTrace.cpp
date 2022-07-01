@@ -44,14 +44,16 @@ std::atomic_uint64_t StackTrace::m_refs(0);
 std::shared_mutex StackTrace::m_cs{};
 std::atomic_bool StackTrace::m_did_init(false);
 
-StackTrace::StackTrace() noexcept
-: StackTrace(1ul, 30ul) {
+StackTrace::StackTrace(std::source_location sloc /*= std::source_location::current()*/) noexcept
+: StackTrace(1ul, 30ul, sloc) {
     /* DO NOTHING */
 }
 
 StackTrace::StackTrace([[maybe_unused]] unsigned long framesToSkip,
-                       [[maybe_unused]] unsigned long framesToCapture) noexcept {
+                       [[maybe_unused]] unsigned long framesToCapture,
+                       [[maybe_unused]] std::source_location sloc /*= std::source_location::current()*/) noexcept {
 #ifdef PROFILE_BUILD
+    m_current_source_location = sloc;
     if(!m_refs) {
         Initialize();
     }
@@ -127,6 +129,7 @@ void StackTrace::GetLines([[maybe_unused]] StackTrace* st,
         DebuggerPrintf("StackTrace unavailable. No stack to trace.\n");
         return;
     }
+    DebuggerPrintf(std::format("{0:s}({2:},{3:}): {1:s}: Beginning StackTrace.\n", st->m_current_source_location.file_name(), st->m_current_source_location.function_name(), st->m_current_source_location.line(), st->m_current_source_location.column()));
     for(uint32_t i = 0; i < count; ++i) {
         auto ptr = reinterpret_cast<DWORD64>(st->m_frames[i]);
         bool got_addr = false;
