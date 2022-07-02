@@ -16,6 +16,7 @@ namespace a2de {
         UUID(uint64_t uuid) noexcept;
 
         operator uint64_t() const noexcept { return m_UUID; }
+        operator uint64_t() noexcept { return m_UUID; };
 
     protected:
     private:
