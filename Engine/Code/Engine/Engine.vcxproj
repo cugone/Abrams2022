@@ -123,6 +123,7 @@
     <ClCompile Include="Platform\Win.cpp" />
     <ClCompile Include="Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="Profiling\AllocationTracker.cpp" />
+    <ClCompile Include="Profiling\Instrumentor.cpp" />
     <ClCompile Include="Profiling\ProfileLogScope.cpp" />
     <ClCompile Include="Profiling\StackTrace.cpp" />
     <ClCompile Include="Renderer\AnimatedSprite.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="Platform\Win.hpp" />
     <ClInclude Include="Platform\Windows\WindowsWindow.hpp" />
     <ClInclude Include="Profiling\AllocationTracker.hpp" />
+    <ClInclude Include="Profiling\Instrumentor.hpp" />
     <ClInclude Include="Profiling\ProfileLogScope.hpp" />
     <ClInclude Include="Profiling\StackTrace.hpp" />
     <ClInclude Include="Renderer\AnimatedSprite.hpp" />

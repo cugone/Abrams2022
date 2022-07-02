@@ -598,6 +598,9 @@
     <ClCompile Include="Renderer\RendererTypes.cpp">
       <Filter>Renderer\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Profiling\Instrumentor.cpp">
+      <Filter>Profiling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1193,6 +1196,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\RendererTypes.hpp">
       <Filter>Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiling\Instrumentor.hpp">
+      <Filter>Profiling</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
