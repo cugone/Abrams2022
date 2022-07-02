@@ -454,8 +454,12 @@ std::filesystem::path GetExePath() noexcept {
             }
             filename = filename.substr(0, buffer_length);
             result = FS::path(filename);
-            result = FS::canonical(result);
-            result.make_preferred();
+            {
+                std::error_code ec{};
+                if(result = FS::canonical(result, ec); !ec) {
+                    result.make_preferred();
+                }
+            }
             return result;
         }
     }
