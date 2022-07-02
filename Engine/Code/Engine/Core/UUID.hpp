@@ -27,10 +27,13 @@ namespace a2de {
 
 
 namespace std {
+
+template<typename T> struct hash;
+
 template<>
 struct hash<a2de::UUID> {
     std::size_t operator()(const a2de::UUID& uuid) const noexcept {
-        return hash<uint64_t>()(uuid);
+        return static_cast<std::size_t>(static_cast<uint64_t>(uuid));
     }
 };
 } // namespace std
