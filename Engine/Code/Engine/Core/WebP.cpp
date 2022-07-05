@@ -8,6 +8,8 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Vertex3D.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include <algorithm>
 #include <execution>
 #include <numeric>
@@ -15,15 +17,17 @@
 namespace FileUtils {
 
 WebP::WebP(const std::filesystem::path& path) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     LoadWebPData(path);
 }
 
 WebP::WebP(const XMLElement& elem) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     LoadFromXml(elem);
 }
 
 void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-
+    PROFILE_BENCHMARK_FUNCTION();
     static TimeUtils::FPSeconds frameDuration{};
     static TimeUtils::FPSeconds elapsedDuration{};
     if(frameDuration >= m_frameDurations[m_currentFrame]) {
@@ -105,7 +109,7 @@ void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 void WebP::Render() const noexcept {
     //TODO: Set up using webp shader.
-
+    PROFILE_BENCHMARK_FUNCTION();
     auto* r = ServiceLocator::get<IRendererService, NullRendererService>();
     r->SetMaterial(r->GetMaterial("__2D"));
     const auto S = Matrix4::CreateScaleMatrix(Vector2{1.0f, -1.0f});
@@ -144,6 +148,7 @@ void WebP::SetEndFrame(std::size_t newEndFrame) noexcept {
 }
 
 void WebP::LoadFromXml(const XMLElement& elem) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "", "name");
 
     const auto* xml_animset = elem.FirstChildElement("animationset");
@@ -165,6 +170,7 @@ void WebP::LoadFromXml(const XMLElement& elem) noexcept {
 
 //TODO: Async?
 void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(auto buffer = FileUtils::ReadBinaryBufferFromFile(src); buffer.has_value()) {
 
         WebPData webp_data{};

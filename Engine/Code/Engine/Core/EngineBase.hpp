@@ -5,6 +5,8 @@
 
 #include "Engine/Game/GameBase.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Services/ServiceLocator.hpp"
@@ -33,6 +35,7 @@ const bool Engine<GameType>::Available() noexcept {
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Initialize(const std::string& title, const std::string& cmdString) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(!m_initCalled) {
         m_shutdownCalled = false;
         m_initCalled = true;
@@ -45,6 +48,7 @@ void Engine<GameType>::Initialize(const std::string& title, const std::string& c
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Run() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     GUARANTEE_OR_DIE(!m_shutdownCalled, "Engine::Shutdown called before Run!");
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
     auto* app = ServiceLocator::get<IAppService, NullAppService>();
@@ -56,6 +60,7 @@ void Engine<GameType>::Run() noexcept {
 template<typename GameType>
 /*static*/
 void Engine<GameType>::Shutdown() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Shutdown");
     if(!m_shutdownCalled) {
         m_shutdownCalled = true;

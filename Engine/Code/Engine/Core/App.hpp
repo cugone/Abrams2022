@@ -22,6 +22,7 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Platform/Win.hpp"
+#include "Engine/Profiling/Instrumentor.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
 
@@ -238,6 +239,7 @@ void App<T>::SetupEngineSystemChainOfResponsibility() {
 
 template<typename T>
 void App<T>::Initialize() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     auto& settings = g_theGame->GetSettings();
 
     bool vsync = settings.DefaultVsyncEnabled();
@@ -283,6 +285,7 @@ void App<T>::InitializeService() {
 
 template<typename T>
 void App<T>::BeginFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     g_theJobSystem->BeginFrame();
     g_theUISystem->BeginFrame();
     g_theInputSystem->BeginFrame();
@@ -295,6 +298,7 @@ void App<T>::BeginFrame() noexcept {
 
 template<typename T>
 void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->Update(deltaSeconds);
     g_theInputSystem->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
@@ -306,6 +310,7 @@ void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 template<typename T>
 void App<T>::Render() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     g_theGame->Render();
     g_theUISystem->Render();
     g_theConsole->Render();
@@ -317,6 +322,7 @@ void App<T>::Render() const noexcept {
 
 template<typename T>
 void App<T>::EndFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->EndFrame();
     g_theGame->EndFrame();
     g_theConsole->EndFrame();

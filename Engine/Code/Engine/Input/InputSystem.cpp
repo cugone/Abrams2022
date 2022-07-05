@@ -5,7 +5,11 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
+
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Renderer/Window.hpp"
+
 
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
@@ -972,10 +976,12 @@ InputSystem::~InputSystem() noexcept {
 }
 
 void InputSystem::Initialize() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     UpdateXboxConnectedState();
 }
 
 void InputSystem::BeginFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(m_connection_poll.CheckAndReset()) {
         UpdateXboxConnectedState();
     }
@@ -985,14 +991,17 @@ void InputSystem::BeginFrame() noexcept {
 }
 
 void InputSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     /* DO NOTHING */
 }
 
 void InputSystem::Render() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     /* DO NOTHING */
 }
 
 void InputSystem::EndFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     m_mouseDelta = Vector2::Zero;
     m_mousePrevCoords = m_mouseCoords;
     m_previousKeys = m_currentKeys;

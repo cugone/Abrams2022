@@ -6,8 +6,11 @@
 #include "Engine/Core/JobSystem.hpp"
 #include "Engine/Core/ThreadUtils.hpp"
 #include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Platform/Win.hpp"
+
 #include "Engine/Profiling/AllocationTracker.hpp"
+#include "Engine/Profiling/Instrumentor.hpp"
 
 #include "Engine/Services/IJobSystemService.hpp"
 #include "Engine/Services/ServiceLocator.hpp"
@@ -31,6 +34,7 @@ FileLogger::~FileLogger() noexcept {
 }
 
 void FileLogger::Log_worker() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
     auto* js = ServiceLocator::get<IJobSystemService, NullJobSystemService>();
@@ -124,6 +128,7 @@ void FileLogger::FinalizeLog() noexcept {
 }
 
 void FileLogger::Initialize(const std::string& log_name) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         LogLine("FileLogger already running.");
         return;
@@ -163,6 +168,7 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
 }
 
 void FileLogger::Shutdown() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         {
             auto ss = std::ostringstream{};

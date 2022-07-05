@@ -3,6 +3,8 @@
 #include "Engine/Math/Plane2.hpp"
 #include "Engine/Physics/PhysicsUtils.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
@@ -82,12 +84,14 @@ PhysicsSystem::~PhysicsSystem() {
 }
 
 void PhysicsSystem::Initialize() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     //_is_running = true;
     //_update_thread = std::thread(&PhysicsSystem::Update_Worker, this);
     //ThreadUtils::SetThreadDescription(_update_thread, "Physics Async Update");
 }
 
 void PhysicsSystem::BeginFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(!m_is_running) {
         return;
     }
@@ -111,6 +115,7 @@ void PhysicsSystem::BeginFrame() noexcept {
 }
 
 void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(!this->m_is_running) {
         return;
     }
@@ -242,6 +247,7 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 }
 
 void PhysicsSystem::Render() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
     if(m_show_colliders) {
         for(const auto& body : m_rigidBodies) {
@@ -262,6 +268,7 @@ void PhysicsSystem::Render() const noexcept {
 }
 
 void PhysicsSystem::EndFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     //std::scoped_lock<std::mutex> lock(_cs);
     for(auto& body : m_rigidBodies) {
         body->Endframe();

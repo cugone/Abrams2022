@@ -19,6 +19,7 @@
 #include "Engine/Math/OBB2.hpp"
 #include "Engine/Math/Polygon2.hpp"
 #include "Engine/Math/Vector2.hpp"
+#include "Engine/Profiling/Instrumentor.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
@@ -91,6 +92,7 @@ ComputeJob::~ComputeJob() noexcept {
 }
 
 Renderer::Renderer() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     auto* config = ServiceLocator::get<IConfigService, NullConfigService>();
     if(FS::path path{"Engine/Config/options.config"}; FS::exists(path)) {
@@ -143,6 +145,7 @@ Renderer::Renderer() noexcept {
 }
 
 Renderer::~Renderer() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     UnbindAllConstantBuffers();
     UnbindComputeConstantBuffers();
     UnbindAllShaderResources();
@@ -310,6 +313,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 void Renderer::Initialize() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     m_rhi_instance = RHIInstance::CreateInstance();
     m_rhi_device = m_rhi_instance->CreateDevice();
 
@@ -375,6 +379,7 @@ void Renderer::CreateWorkingVboAndIbo() noexcept {
 }
 
 void Renderer::LogAvailableDisplays() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     std::ostringstream ss;
     ss << std::format("{:->80}", '\n');
     ss << "Available Display Dimensions:\n";
@@ -527,10 +532,12 @@ void Renderer::DisableStencilWrite() noexcept {
 }
 
 void Renderer::BeginFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     UnbindAllShaderResources();
 }
 
 void Renderer::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     UpdateSystemTime(deltaSeconds);
 }
 
@@ -553,10 +560,12 @@ void Renderer::UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) n
 }
 
 void Renderer::Render() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     /* DO NOTHING */
 }
 
 void Renderer::EndFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Present();
     FulfillScreenshotRequest();
 }

@@ -5,6 +5,8 @@
 #include "Engine/Core/TypeUtils.hpp"
 #include "Engine/Platform/Win.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include <chrono>
 #include <sstream>
 
@@ -38,6 +40,7 @@ JobSystem::~JobSystem() noexcept {
 }
 
 void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     auto core_count = static_cast<int>(std::thread::hardware_concurrency());
     if(genericCount <= 0) {
         core_count += genericCount;

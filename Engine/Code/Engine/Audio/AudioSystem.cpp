@@ -13,6 +13,8 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 
@@ -115,6 +117,7 @@ void AudioSystem::InitializeAudioSystem() noexcept {
 }
 
 void AudioSystem::Initialize() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
 #ifdef AUDIO_DEBUG
     XAUDIO2_DEBUG_CONFIGURATION config{};
     config.LogFileline = true;
@@ -233,19 +236,19 @@ AudioDSPResults AudioSystem::CalculateDSP(const Audio3DEmitter& emitter, const A
 }
 
 void AudioSystem::BeginFrame() noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void AudioSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void AudioSystem::Render() const noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void AudioSystem::EndFrame() noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) noexcept {
