@@ -12,6 +12,7 @@
     #include <windowsx.h>
     #include <KnownFolders.h>
     #include <ShObjIdl.h>
+    #include <processthreadsapi.h>
 
     #ifdef NETWORKING
         #include <WS2tcpip.h>
