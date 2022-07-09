@@ -4,7 +4,7 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 
-//#include <format>
+#include <format>
 #include <iostream>
 #include <new>
 #include <string>
@@ -20,7 +20,7 @@ public:
         }
         friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]] const status_t& s) noexcept {
 #ifdef TRACK_MEMORY
-            os << "Hello World."; //std::format("Leaked objects {} for {} bytes.\n", s.leaked_objs, s.leaked_bytes);
+            os << std::vformat("Leaked objects {} for {} bytes.\n", std::make_format_args(s.leaked_objs, s.leaked_bytes));
 #endif
             return os;
         }
@@ -34,7 +34,7 @@ public:
         }
         friend std::ostream& operator<<(std::ostream& os, [[maybe_unused]] const status_frame_t& s) noexcept {
 #ifdef TRACK_MEMORY
-            os << "Hello World 2."; //std::format("Frame {}: Leaked objects {} for {} bytes.\n", s.frame_id, s.leaked_objs, s.leaked_bytes);
+            os << std::vformat("Frame {}: Leaked objects {} for {} bytes.\n", std::make_format_args(s.frame_id, s.leaked_objs, s.leaked_bytes));
 #endif
             return os;
         }
