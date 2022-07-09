@@ -14,6 +14,7 @@
 #include "Engine/Physics/SpringJoint.hpp"
 #include "Engine/Physics/QuadTree.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
+#include "Engine/Profiling/Instrumentor.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 
 #include "Engine/Services/IPhysicsService.hpp"
@@ -120,6 +121,7 @@ private:
 
 template<typename CollisionDetectionFunction, typename CollisionResolutionFunction>
 PhysicsSystem::CollisionDataSet PhysicsSystem::NarrowPhaseCollision(const std::vector<RigidBody*>& potential_collisions, CollisionDetectionFunction&& cd, CollisionResolutionFunction&& cr) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     CollisionDataSet result;
     if(potential_collisions.size() < 2) {
         m_contacts.clear();

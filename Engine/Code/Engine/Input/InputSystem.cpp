@@ -84,6 +84,7 @@ void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) noexcept {
 }
 
 void InputSystem::UpdateXboxConnectedState() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     for(int i = 0; i < m_max_controller_count; ++i) {
         m_xboxControllers[i].UpdateConnectedState(i);
     }

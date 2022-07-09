@@ -4,6 +4,7 @@
 #include "Engine/Core/StringUtils.hpp"
 
 #include "Engine/Platform/Win.hpp"
+#include "Engine/Profiling/Instrumentor.hpp"
 
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
@@ -21,6 +22,7 @@ namespace FileUtils {
 GUID GetKnownPathIdForOS(const KnownPathID& pathid) noexcept;
 
 bool WriteBufferToFile(const std::any& buffer, std::size_t size, std::filesystem::path filepath) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     filepath = FS::absolute(filepath);
     filepath.make_preferred();
@@ -37,6 +39,7 @@ bool WriteBufferToFile(const std::any& buffer, std::size_t size, std::filesystem
 }
 
 bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     filepath = FS::absolute(filepath);
     filepath.make_preferred();
@@ -53,6 +56,7 @@ bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath
 }
 
 std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::path filepath) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     const auto path_not_exist = !FS::exists(filepath);
     if(path_not_exist) {

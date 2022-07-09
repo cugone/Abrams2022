@@ -1,27 +1,29 @@
 #include "Engine/Game/GameBase.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 GameBase::~GameBase() noexcept {
     m_ActiveScene.reset();
 }
 
 void GameBase::Initialize() noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void GameBase::BeginFrame() noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void GameBase::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void GameBase::Render() const noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void GameBase::EndFrame() noexcept {
-    /* DO NOTHING */
+    PROFILE_BENCHMARK_FUNCTION();
 }
 
 void GameBase::HandleWindowResize([[maybe_unused]] unsigned int newWidth, [[maybe_unused]] unsigned int newHeight) noexcept {

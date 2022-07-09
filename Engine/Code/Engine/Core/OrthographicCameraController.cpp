@@ -2,6 +2,8 @@
 
 #include "Engine/Input/KeyCode.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IInputService.hpp"
 #include "Engine/Services/IRendererService.hpp"
@@ -19,6 +21,7 @@ OrthographicCameraController::OrthographicCameraController(float aspectRatio) no
 }
 
 void OrthographicCameraController::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     auto* input = ServiceLocator::get<IInputService, NullInputService>();
     if(input->IsKeyDown(KeyCode::RButton)) {
         const auto up = -Vector2::Y_Axis * static_cast<float>(m_translationSpeedMultiplier * m_cameraSpeedMultiplier) * m_translationSpeed * deltaSeconds.count();

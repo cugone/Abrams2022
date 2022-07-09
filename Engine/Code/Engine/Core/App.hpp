@@ -136,6 +136,7 @@ namespace detail {
 
 template<typename T>
 /*static*/ void App<T>::CreateApp(const std::string& title, const std::string& cmdString) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(m_theApp) {
         return;
     }
@@ -145,6 +146,7 @@ template<typename T>
 
 template<typename T>
 /*static*/ void App<T>::DestroyApp() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(!m_theApp) {
         return;
     }
@@ -156,6 +158,7 @@ App<T>::App(const std::string& title, const std::string& cmdString)
 : EngineSubsystem()
 , m_title{title}
 , m_theConfig{std::make_unique<Config>(KeyValueParser{cmdString})} {
+    PROFILE_BENCHMARK_FUNCTION();
     SetupEngineSystemPointers();
     SetupEngineSystemChainOfResponsibility();
     LogSystemDescription();
@@ -186,6 +189,7 @@ App<T>::~App() noexcept {
 
 template<typename T>
 void App<T>::SetupEngineSystemPointers() {
+    PROFILE_BENCHMARK_FUNCTION();
     ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
 
     m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
@@ -228,6 +232,7 @@ void App<T>::SetupEngineSystemPointers() {
 
 template<typename T>
 void App<T>::SetupEngineSystemChainOfResponsibility() {
+    PROFILE_BENCHMARK_FUNCTION();
     g_theConsole->SetNextHandler(g_theUISystem);
     g_theUISystem->SetNextHandler(g_theInputSystem);
     g_theInputSystem->SetNextHandler(g_thePhysicsSystem);
@@ -280,6 +285,7 @@ void App<T>::Initialize() noexcept {
 
 template<typename T>
 void App<T>::InitializeService() {
+    PROFILE_BENCHMARK_FUNCTION();
     Initialize();
 }
 
@@ -457,6 +463,7 @@ void App<T>::RunFrame() {
 
 template<typename T>
 void App<T>::LogSystemDescription() const {
+    PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
     std::ostringstream ss;
     ss << std::format("{:->80}", '\n');
@@ -506,6 +513,7 @@ void App<T>::Maximize() const {
 
 template<typename T>
 void App<T>::RunMessagePump() const {
+    PROFILE_BENCHMARK_FUNCTION();
     MSG msg{};
     for(;;) {
         const BOOL hasMsg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);

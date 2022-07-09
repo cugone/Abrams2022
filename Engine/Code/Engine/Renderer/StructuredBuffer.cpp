@@ -1,6 +1,9 @@
 #include "Engine/Renderer/StructuredBuffer.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include "Engine/Renderer/DirectX/DX11.hpp"
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
@@ -10,6 +13,7 @@ StructuredBuffer::StructuredBuffer(const RHIDevice& owner, const buffer_t& buffe
 , m_element_count(element_count)
 , m_element_size(element_size)
 , m_buffer_size(element_size * element_count) {
+    PROFILE_BENCHMARK_FUNCTION();
     D3D11_BUFFER_DESC buffer_desc{};
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);
     buffer_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
@@ -36,6 +40,7 @@ StructuredBuffer::StructuredBuffer(const RHIDevice& owner, const buffer_t& buffe
 }
 
 StructuredBuffer::~StructuredBuffer() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(IsValid()) {
         m_dx_buffer.Reset();
         m_dx_buffer = nullptr;
@@ -43,6 +48,7 @@ StructuredBuffer::~StructuredBuffer() noexcept {
 }
 
 void StructuredBuffer::Update(RHIDeviceContext& context, const buffer_t& buffer) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     D3D11_MAPPED_SUBRESOURCE resource = {};
     auto* dx_context = context.GetDxContext();
     HRESULT hr = dx_context->Map(m_dx_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0U, &resource);

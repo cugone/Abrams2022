@@ -29,6 +29,7 @@ private:
 template<typename GameType>
 /*static*/
 const bool Engine<GameType>::Available() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     return m_initCalled && !m_shutdownCalled;
 }
 

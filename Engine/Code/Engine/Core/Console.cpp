@@ -721,6 +721,7 @@ void Console::Initialize() noexcept {
 }
 
 void Console::RegisterDefaultCommands() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Console::Command help{};
     help.command_name = "help";
     help.help_text_short = "Displays every command with brief description.";

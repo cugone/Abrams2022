@@ -32,10 +32,12 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
 
 JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) noexcept
 : m_main_job_signal(mainJobSignal) {
+    PROFILE_BENCHMARK_FUNCTION();
     Initialize(genericCount, categoryCount);
 }
 
 JobSystem::~JobSystem() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Shutdown();
 }
 
@@ -70,10 +72,12 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
 }
 
 void JobSystem::BeginFrame() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     MainStep();
 }
 
 void JobSystem::Shutdown() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(!IsRunning()) {
         return;
     }
@@ -111,6 +115,7 @@ void JobSystem::Shutdown() noexcept {
 }
 
 void JobSystem::MainStep() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     JobConsumer jc;
     jc.AddCategory(JobType::Main);
     SetCategorySignal(JobType::Main, m_main_job_signal);

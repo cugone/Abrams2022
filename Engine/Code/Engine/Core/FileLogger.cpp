@@ -26,10 +26,12 @@ namespace FS = std::filesystem;
 FileLogger::FileLogger(const std::string& logName) noexcept
 : IFileLoggerService()
 {
+    PROFILE_BENCHMARK_FUNCTION();
     Initialize(logName);
 }
 
 FileLogger::~FileLogger() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Shutdown();
 }
 
@@ -76,6 +78,7 @@ struct copy_log_job_t {
 };
 
 void FileLogger::DoCopyLog() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         auto* job_data = new copy_log_job_t;
         std::filesystem::path from_p = m_current_log_path;
@@ -93,6 +96,7 @@ void FileLogger::DoCopyLog() noexcept {
 }
 
 void FileLogger::CopyLog(void* user_data) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         auto* job_data = static_cast<copy_log_job_t*>(user_data);
         std::filesystem::path from = job_data->from;
@@ -108,6 +112,7 @@ void FileLogger::CopyLog(void* user_data) noexcept {
 }
 
 void FileLogger::FinalizeLog() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     std::filesystem::path from_p = m_current_log_path;
     from_p = FS::canonical(from_p);
     from_p.make_preferred();
@@ -274,5 +279,6 @@ void FileLogger::SetIsRunning(bool value /*= true*/) noexcept {
 }
 
 void FileLogger::SaveLog() noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     DoCopyLog();
 }

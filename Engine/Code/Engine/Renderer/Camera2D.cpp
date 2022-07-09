@@ -1,5 +1,7 @@
 #include "Engine/Renderer/Camera2D.hpp"
 
+#include "Engine/Profiling/Instrumentor.hpp"
+
 #include <algorithm>
 
 void Camera2D::SetupView(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& nearFar /*= Vector2(0.0f, 1.0f)*/, float aspectRatio /*= MathUtils::M_16_BY_9_RATIO*/) noexcept {
@@ -30,6 +32,7 @@ void Camera2D::CalcViewMatrix() noexcept {
 }
 
 void Camera2D::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     trauma -= trauma_recovery_rate * deltaSeconds.count();
     trauma = std::clamp(trauma, 0.0f, 1.0f);
 }
