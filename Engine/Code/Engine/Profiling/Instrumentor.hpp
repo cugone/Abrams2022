@@ -190,6 +190,7 @@ public:
 
         m_OutputStream << "{";
         m_OutputStream << std::format("\"name\": \"{}\",", get_category_name());
+        m_OutputStream << "\"cat\": \"__metadata\",";
         m_OutputStream << "\"ph\": \"M\",";
         #ifdef PLATFORM_WINDOWS
         m_OutputStream << std::format("\"pid\": {},", ::GetCurrentProcessId());
