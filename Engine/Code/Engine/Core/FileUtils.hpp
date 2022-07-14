@@ -3,7 +3,6 @@
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-#include <any>
 #include <cstdlib>
 #include <filesystem>
 #include <functional>
@@ -75,7 +74,7 @@ enum class KnownPathID {
     Max
 };
 
-[[nodiscard]] bool WriteBufferToFile(const std::any& buffer, std::size_t size, std::filesystem::path filepath) noexcept;
+[[nodiscard]] bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath) noexcept;
 [[nodiscard]] bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath) noexcept;
 [[nodiscard]] std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::path filepath) noexcept;
 [[nodiscard]] std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepath) noexcept;

@@ -21,7 +21,7 @@ namespace FileUtils {
 
 GUID GetKnownPathIdForOS(const KnownPathID& pathid) noexcept;
 
-bool WriteBufferToFile(const std::any& buffer, std::size_t size, std::filesystem::path filepath) noexcept {
+bool WriteBufferToFile(void* buffer, std::size_t size, std::filesystem::path filepath) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     filepath = FS::absolute(filepath);
@@ -32,7 +32,7 @@ bool WriteBufferToFile(const std::any& buffer, std::size_t size, std::filesystem
         return false;
     }
 
-    if(std::ofstream ofs{filepath, std::ios_base::binary}; ofs.write(reinterpret_cast<const char*>(&buffer), size)) {
+    if(std::ofstream ofs{filepath, std::ios_base::binary}; ofs.write(reinterpret_cast<const char*>(buffer), size)) {
         return true;
     }
     return false;
