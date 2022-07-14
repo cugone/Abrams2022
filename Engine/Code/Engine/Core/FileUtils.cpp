@@ -49,7 +49,7 @@ bool WriteBufferToFile(const std::string& buffer, std::filesystem::path filepath
         return false;
     }
 
-    if(std::ofstream ofs{filepath}; ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size())) {
+    if(std::ofstream ofs{filepath}; ofs << buffer) {
         return true;
     }
     return false;
