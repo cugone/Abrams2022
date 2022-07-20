@@ -138,30 +138,29 @@ void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, con
 template<typename Callable>
 void ForEachFileInFolder(
 const std::filesystem::path& folderpath, const std::string& validExtensionList = std::string{}, Callable&& callback = [](const std::filesystem::path&) {}, bool recursive = false) noexcept {
-    namespace FS = std::filesystem;
-    const auto exists = FS::exists(folderpath);
+    const auto exists = std::filesystem::exists(folderpath);
     if(!exists) {
         return;
     }
-    auto preferred_folderpath = folderpath;
+    std::filesystem::path preferred_folderpath = folderpath;
     {
         std::error_code ec{};
-        preferred_folderpath = FS::canonical(preferred_folderpath, ec);
+        preferred_folderpath = std::filesystem::canonical(preferred_folderpath, ec);
         if(ec) {
             return;
         }
     }
     preferred_folderpath.make_preferred();
-    const auto is_directory = FS::is_directory(preferred_folderpath);
+    const auto is_directory = std::filesystem::is_directory(preferred_folderpath);
     const auto is_folder = exists && is_directory;
     if(!is_folder) {
         return;
     }
     const auto validExtensions = StringUtils::Split(StringUtils::ToLowerCase(validExtensionList));
     if(!recursive) {
-        detail::ForEachFileInFolders<FS::directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::ForEachFileInFolders<std::filesystem::directory_iterator>(preferred_folderpath, validExtensions, callback);
     } else {
-        detail::ForEachFileInFolders<FS::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
+        detail::ForEachFileInFolders<std::filesystem::recursive_directory_iterator>(preferred_folderpath, validExtensions, callback);
     }
 }
 
