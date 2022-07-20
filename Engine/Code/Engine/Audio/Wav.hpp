@@ -45,6 +45,12 @@ struct WavDataChunk {
 
 class Wav {
 public:
+    Wav() = default;
+    Wav(const Wav& other) = delete;
+    Wav(Wav&& rother) = default;
+    Wav& operator=(const Wav& rhs) = delete;
+    Wav& operator=(Wav&& rhs) = default;
+    ~Wav() = default;
 
     static constexpr const unsigned int WAV_SUCCESS = 0;
     static constexpr const unsigned int WAV_ERROR_NOT_A_WAV = 1;
