@@ -36,9 +36,9 @@ namespace detail {
     class RiffSubChunk {
     public:
         RiffSubChunk() noexcept = default;
-        RiffSubChunk(const RiffSubChunk& other) noexcept = default;
+        RiffSubChunk(const RiffSubChunk& other) noexcept = delete;
         RiffSubChunk(RiffSubChunk&& rother) noexcept = default;
-        RiffSubChunk& operator=(const RiffSubChunk& rhs) noexcept = default;
+        RiffSubChunk& operator=(const RiffSubChunk& rhs) noexcept = delete;
         RiffSubChunk& operator=(RiffSubChunk&& rrhs) noexcept = default;
         ~RiffSubChunk() noexcept = default;
 
@@ -49,9 +49,9 @@ namespace detail {
     class RiffChunk {
     public:
         RiffChunk() noexcept = default;
-        RiffChunk(const RiffChunk& other) noexcept = default;
+        RiffChunk(const RiffChunk& other) noexcept = delete;
         RiffChunk(RiffChunk&& rother) noexcept = default;
-        RiffChunk& operator=(const RiffChunk& rhs) noexcept = default;
+        RiffChunk& operator=(const RiffChunk& rhs) noexcept = delete;
         RiffChunk& operator=(RiffChunk&& rrhs) noexcept = default;
         ~RiffChunk() noexcept = default;
 
@@ -62,12 +62,12 @@ namespace detail {
 
 class Riff {
 public:
-    Riff() noexcept = default;
-    Riff(const Riff& other) noexcept = default;
+    Riff() noexcept;
+    Riff(const Riff& other) noexcept = delete;
     Riff(Riff&& rother) noexcept = default;
-    Riff& operator=(const Riff& rhs) noexcept = default;
+    Riff& operator=(const Riff& rhs) noexcept = delete;
     Riff& operator=(Riff&& rrhs) noexcept = default;
-    ~Riff() noexcept = default;
+    ~Riff() noexcept;
     static constexpr const unsigned int RIFF_SUCCESS = 0;
     static constexpr const unsigned int RIFF_ERROR_NOT_A_RIFF = 1;
     static constexpr const unsigned int RIFF_ERROR_INVALID_RIFF = 2;
@@ -75,7 +75,7 @@ public:
 
     [[nodiscard]] detail::RiffChunk* GetNextChunk() const noexcept;
     [[nodiscard]] unsigned int Load(std::filesystem::path filename) noexcept;
-    [[nodiscard]] unsigned int Load(const std::vector<unsigned char>& data) noexcept;
+    [[nodiscard]] unsigned int Load(std::vector<unsigned char>& data) noexcept;
     [[nodiscard]] static std::optional<detail::RiffChunk> ReadListChunk(std::stringstream& stream) noexcept;
 
 protected:

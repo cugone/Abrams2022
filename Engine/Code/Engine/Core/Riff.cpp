@@ -19,6 +19,19 @@ constexpr const bool IsValid(const char* id) noexcept {
 }
 } // namespace RiffChunkID
 
+Riff::Riff() noexcept
+: m_chunks{}
+, m_current_chunk{m_chunks.begin()}
+{
+    /* DO NOTHING */
+}
+
+Riff::~Riff() noexcept {
+    m_chunks.clear();
+    m_chunks.shrink_to_fit();
+    m_current_chunk = m_chunks.end();
+}
+
 bool Riff::ParseDataIntoChunks(std::vector<uint8_t>& buffer) noexcept {
     std::stringstream stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     stream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
