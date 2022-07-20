@@ -126,8 +126,7 @@ void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, con
                       bool is_file = std::filesystem::is_regular_file(cur_path);
                       std::string my_extension = StringUtils::ToLowerCase(cur_path.extension().string());
                       if(is_file) {
-                          bool valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions);
-                          if(valid_file_by_extension) {
+                          if(bool valid_file_by_extension = std::find(std::begin(validExtensions), std::end(validExtensions), my_extension) != std::end(validExtensions); valid_file_by_extension) {
                               std::invoke(callback, cur_path);
                           }
                       }
