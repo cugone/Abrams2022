@@ -35,8 +35,6 @@ Riff::~Riff() noexcept {
 bool Riff::ParseDataIntoChunks(std::vector<uint8_t>& buffer) noexcept {
     std::stringstream stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     stream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-    buffer.clear();
-    buffer.shrink_to_fit();
     stream.clear();
     stream.seekp(0);
     stream.seekg(0);
@@ -130,7 +128,7 @@ detail::RiffChunk* Riff::GetNextChunk() const noexcept {
 }
 
 unsigned int Riff::Load(std::filesystem::path filename) noexcept {
-    if(const auto& buffer = FileUtils::ReadBinaryBufferFromFile(filename)) {
+    if(auto buffer = FileUtils::ReadBinaryBufferFromFile(filename)) {
         if(RIFF_SUCCESS == Load(buffer.value())) {
             return RIFF_SUCCESS;
         }
@@ -138,9 +136,8 @@ unsigned int Riff::Load(std::filesystem::path filename) noexcept {
     return RIFF_ERROR_INVALID_ARGUMENT;
 }
 
-unsigned int Riff::Load(const std::vector<unsigned char>& data) noexcept {
-    std::vector<unsigned char> buffer = data;
-    if(!ParseDataIntoChunks(buffer)) {
+unsigned int Riff::Load(std::vector<unsigned char>& data) noexcept {
+    if(!ParseDataIntoChunks(data)) {
         return RIFF_ERROR_NOT_A_RIFF;
     }
     return RIFF_SUCCESS;
