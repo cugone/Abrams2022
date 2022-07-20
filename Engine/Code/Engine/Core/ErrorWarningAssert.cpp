@@ -141,9 +141,9 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
             errorMessage = "Unspecified fatal error";
     }
 
-    std::string fileName = std::filesystem::path(filePath ? filePath : "").filename().string();
-    std::string appName = "Unnamed Application";
-    std::string fullMessageTitle = appName + " :: Error";
+    const auto fileName = std::filesystem::path(filePath ? filePath : "").filename();
+    const auto appName = std::string{"Unnamed Application"};
+    const auto fullMessageTitle = appName + " :: Error";
     std::string fullMessageText = errorMessage;
     fullMessageText += "\n\nThe application will now close.\n";
     bool isDebuggerPresent = (IsDebuggerPresent() == TRUE);
@@ -151,19 +151,19 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
         fullMessageText += "\nDEBUGGER DETECTED!\nWould you like to break and debug?\n  (Yes=debug, No=quit)\n";
     }
 
-    fullMessageText += "\n---------- Debugging Details Follow ----------\n";
+    fullMessageText += std::format("{:-<10}{:^29}{:->10}", '\n', "Debugging Details Follow", '\n');
     if(conditionText) {
         fullMessageText += std::format("\nThis error was triggered by a run-time condition check:\n  {}\n  from {}(), line {} in {}\n",
-                                                conditionText, functionName, lineNum, fileName.c_str());
+                                                conditionText, functionName, lineNum, fileName.string());
     } else {
         fullMessageText += std::format("\nThis was an unconditional error triggered by reaching\n line {} of {}, in {}()\n",
-                                                lineNum, fileName.c_str(), functionName);
+                                                lineNum, fileName.string(), functionName);
     }
 
-    DebuggerPrintf("\n==============================================================================\n");
-    DebuggerPrintf(std::format("RUN-TIME FATAL ERROR on line {} of {}, in {}()\n", lineNum, fileName.c_str(), functionName));
-    DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
-    DebuggerPrintf("==============================================================================\n\n");
+    DebuggerPrintf(std::format("\n{:=>80}", '\n'));
+    DebuggerPrintf(std::format("RUN-TIME FATAL ERROR on line {} of {}, in {}()\n", lineNum, fileName.string(), functionName));
+    DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage)); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
+    DebuggerPrintf(std::format("\n{:=>80}", '\n'));
 
     if(auto* logger = ServiceLocator::get<IFileLoggerService>(); logger != nullptr) {
         logger->LogError(fullMessageText);

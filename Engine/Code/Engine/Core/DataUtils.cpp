@@ -43,8 +43,8 @@ void ValidateXmlElement(const XMLElement& element,
     {
         const auto* xmlNameAsCStr = element.Name();
         const auto xml_name = std::string{xmlNameAsCStr ? xmlNameAsCStr : ""};
-        const auto err_ss = "Element validation failed. Element name \"" + xml_name + "\" does not match valid name \"" + name + "\"\n";
-        GUARANTEE_OR_DIE(xml_name == name, err_ss.c_str());
+        const auto msg = std::format("Element validation failed. Element name \"{}\" does not match valid name \"{}\"\n", xml_name, name);
+        GUARANTEE_OR_DIE(xml_name == name, msg);
     }
 
     //Get list of required/optional attributes/children
