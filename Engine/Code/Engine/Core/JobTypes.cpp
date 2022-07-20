@@ -81,7 +81,7 @@ void Job::DependentOn(Job* parent) noexcept {
 
 void Job::OnDependancyFinished() noexcept {
     ++num_dependencies;
-    ServiceLocator::get<IJobSystemService, NullJobSystemService>()->DispatchAndRelease(this);
+    ServiceLocator::get<IJobSystemService>()->DispatchAndRelease(this);
 }
 
 void Job::OnFinish() noexcept {

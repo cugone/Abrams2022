@@ -19,27 +19,25 @@
 
 class ServiceLocator {
 public:
-    template<typename ServiceInterface, typename NullableName>
+    template<typename ServiceInterface>
     static ServiceInterface* get() noexcept {
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
-        static_assert(std::is_base_of_v<IService, NullableName>, "Requested Null type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
             std::scoped_lock lock(m_cs);
             return dynamic_cast<ServiceInterface*>(found->second);
         }
-        return GetNullService<NullableName>();
+        return GetNullService<ServiceInterface>();
     };
-    template<typename ServiceInterface, typename NullableName>
+    template<typename ServiceInterface>
     static const ServiceInterface* const const_get() noexcept {
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
-        static_assert(std::is_base_of_v<IService, NullableName>, "Requested Null type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(const auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
             std::scoped_lock lock(m_cs);
             return dynamic_cast<const ServiceInterface*>(found->second);
         }
-        return GetNullService_const<NullableName>();
+        return GetNullService_const<ServiceInterface>();
     };
 
     template<typename ServiceInterface, typename NullService>
@@ -64,23 +62,21 @@ public:
         }
     }
 
-    template<typename ServiceInterface, typename NullService>
+    template<typename ServiceInterface>
     static void revoke() {
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
-        static_assert(std::is_base_of_v<ServiceInterface, NullService>, "Provided Null type is not a derived from provided Service.");
         {
             std::scoped_lock lock(m_cs);
             auto provided_typeindex = std::type_index(typeid(ServiceInterface));
             if(auto it = m_services.find(provided_typeindex); it != m_services.end()) {
-                it->second = GetNullService<NullService>();
+                it->second = GetNullService<ServiceInterface>();
             }
         }
     }
 
-    template<typename ServiceInterface, typename NullService>
+    template<typename ServiceInterface>
     static void remove() {
         static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
-        static_assert(std::is_base_of_v<ServiceInterface, NullService>, "Provided Null type is not a derived from provided Service.");
         {
             std::scoped_lock lock(m_cs);
             auto provided_typeindex = std::type_index(typeid(ServiceInterface));
@@ -90,7 +86,7 @@ public:
         }
         {
             std::scoped_lock lock(m_cs);
-            auto provided_typeindex = std::type_index(typeid(NullService));
+            auto provided_typeindex = std::type_index(typeid(ServiceInterface));
             if(auto it = m_NullServices.find(provided_typeindex); it != m_NullServices.end()) {
                 m_NullServices.erase(it);
             }

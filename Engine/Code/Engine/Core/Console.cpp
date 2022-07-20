@@ -328,7 +328,7 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 bool Console::HandleClipboardCopy() const noexcept {
     bool did_copy = false;
     if(Clipboard::HasText()) {
-        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
+        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
         if(m_cursor_position != m_selection_position) {
             std::string copied_text = CopyText(m_cursor_position, m_selection_position);
@@ -342,7 +342,7 @@ bool Console::HandleClipboardCopy() const noexcept {
 
 void Console::HandleClipboardPaste() noexcept {
     if(Clipboard::HasText()) {
-        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
+        auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
         auto string_to_paste = c.Paste();
         PasteText(string_to_paste, m_cursor_position);
@@ -793,7 +793,7 @@ void Console::Render() const noexcept {
     if(IsClosed()) {
         return;
     }
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->ResetModelViewProjection();
     renderer->SetRenderTarget();
     renderer->SetViewportAsPercent(0.0f, 0.0f, 1.0f, 0.957f);
@@ -809,7 +809,7 @@ void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
     if(!m_show_cursor) {
         return;
     }
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const auto textline_bottom = view_half_extents.y * 0.99f;
     const auto textline_left = -view_half_extents.x * 0.99f;
     const auto font = renderer->GetFont("System32");
@@ -830,7 +830,7 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     }
     std::vector<Vertex3D> vbo{};
     std::vector<unsigned int> ibo{};
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     auto* font = renderer->GetFont("System32");
     const auto max_vertical_start_position = (m_output_buffer.size() * (1 + font->GetLineHeight()) - view_half_extents.y * 2.0f);
     if(m_outputStartPosition.y <= max_vertical_start_position && WasMouseWheelJustScrolledUp()) {
@@ -916,14 +916,14 @@ void Console::ErrorMsg(const std::string& msg) noexcept {
 }
 
 void Console::DrawBackground(const Vector2& view_half_extents) const noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->DrawQuad2D(Rgba(0, 0, 0, 128));
 }
 
 void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const auto font = renderer->GetFont("System32");
     const float textline_bottom = view_half_extents.y * 0.99f;
     const float textline_left = -view_half_extents.x * 0.99f;
@@ -968,7 +968,7 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
 }
 
 Vector2 Console::SetupViewFromCamera() const noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const auto& window = renderer->GetOutput();
     const auto& window_dimensions = window->GetDimensions();
     const auto& aspect = window->GetAspectRatio();

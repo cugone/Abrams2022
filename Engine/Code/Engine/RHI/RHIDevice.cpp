@@ -428,7 +428,7 @@ std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersUsi
 
     std::vector<std::unique_ptr<ConstantBuffer>> result{};
     result.reserve(shader_desc.ConstantBuffers);
-    const auto* const rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto* const rs = ServiceLocator::get<IRendererService>();
     for(auto resource_idx = 0u; resource_idx < shader_desc.BoundResources; ++resource_idx) {
         D3D11_SHADER_INPUT_BIND_DESC input_desc{};
         if(FAILED(cbufferReflection.GetResourceBindingDesc(resource_idx, &input_desc))) {

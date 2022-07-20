@@ -75,7 +75,7 @@ void RodJoint::DebugRender() const noexcept {
     }
     const auto posA = GetAnchorA();
     const auto posB = GetAnchorB();
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetModelMatrix(Matrix4::I);
     renderer->DrawLine2D(posA, posB);
 }

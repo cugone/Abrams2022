@@ -110,7 +110,7 @@ void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
 void WebP::Render() const noexcept {
     //TODO: Set up using webp shader.
     PROFILE_BENCHMARK_FUNCTION();
-    auto* r = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* r = ServiceLocator::get<IRendererService>();
     r->SetMaterial(r->GetMaterial("__2D"));
     const auto S = Matrix4::CreateScaleMatrix(Vector2{1.0f, -1.0f});
     //const auto S = Matrix4::I;
@@ -191,7 +191,7 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
             m_endFrame = m_maxFrames;
             m_currentFrame = m_beginFrame;
             {
-                auto* r = ServiceLocator::get<IRendererService, NullRendererService>();
+                auto* r = ServiceLocator::get<IRendererService>();
                 for(int i = 0; WebPAnimDecoderHasMoreFrames(dec); ++i) {
                     uint8_t* buf{};
                     static int prev_timestamp = 0;

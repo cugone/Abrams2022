@@ -131,7 +131,7 @@ std::size_t MeshInstanced::Builder::AddIndicies(const Primitive& type) noexcept 
 }
 
 void MeshInstanced::Render(const MeshInstanced::Builder& builder, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     for(const auto& draw_inst : builder.draw_instructions) {
         renderer->SetMaterial(draw_inst.material);
         if(draw_inst.material) {

@@ -80,7 +80,7 @@ void XboxController::Update(int controller_number) noexcept {
     }
 
     if(error_status != ERROR_SUCCESS) {
-        auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogErrorLine("XInputGetState returned: " + std::to_string(error_status));
         return;
     }

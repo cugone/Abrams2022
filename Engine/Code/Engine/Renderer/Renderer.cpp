@@ -83,7 +83,7 @@ ComputeJob::ComputeJob(std::size_t uavCount,
 }
 
 ComputeJob::~ComputeJob() noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     auto* dc = renderer->GetDeviceContext();
     dc->UnbindAllComputeConstantBuffers();
     dc->UnbindComputeShaderResources();
@@ -94,7 +94,7 @@ ComputeJob::~ComputeJob() noexcept {
 Renderer::Renderer() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
-    auto* config = ServiceLocator::get<IConfigService, NullConfigService>();
+    auto* config = ServiceLocator::get<IConfigService>();
     if(FS::path path{"Engine/Config/options.config"}; FS::exists(path)) {
         if(!config->AppendFromFile(path)) {
             DebuggerPrintf(std::format("Could not load existing configuration from \"{}\"\n", path.string()));
@@ -318,7 +318,7 @@ void Renderer::Initialize() noexcept {
     m_rhi_device = m_rhi_instance->CreateDevice();
 
     WindowDesc windowDesc{};
-    auto* config = ServiceLocator::get<IConfigService, NullConfigService>();
+    auto* config = ServiceLocator::get<IConfigService>();
     if(config->HasKey("windowed")) {
         auto windowed = windowDesc.mode == RHIOutputMode::Windowed;
         config->GetValue("windowed", windowed);
@@ -421,7 +421,7 @@ void Renderer::LogAvailableDisplays() noexcept {
         ++it;
     }
     ss << std::format("{:->80}", '\n');
-    ServiceLocator::get<IFileLoggerService, NullFileLoggerService>()->LogAndFlush(ss.str());
+    ServiceLocator::get<IFileLoggerService>()->LogAndFlush(ss.str());
 }
 
 Vector2 Renderer::GetScreenCenter() const noexcept {

@@ -140,7 +140,7 @@ void UISystem::Initialize() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
 
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     auto* hwnd = renderer->GetOutput()->GetWindow()->GetWindowHandle();
     auto* dx_device = renderer->GetDevice()->GetDxDevice();
     auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
@@ -185,7 +185,7 @@ void UISystem::BeginFrame() noexcept {
 
 void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
-    const auto* const app = ServiceLocator::get<IAppService, NullAppService>();
+    const auto* const app = ServiceLocator::get<IAppService>();
     auto& io = ImGui::GetIO();
     io.AddFocusEvent(app->HasFocus());
 
@@ -205,7 +205,7 @@ void UISystem::Render() const noexcept {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     //2D View / HUD
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const float ui_view_height = renderer->GetCurrentViewport().height;
     const float ui_view_width = ui_view_height * m_ui_camera.GetAspectRatio();
     const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
@@ -267,7 +267,7 @@ bool UISystem::IsImguiDemoWindowVisible() const noexcept {
 void UISystem::ToggleImguiDemoWindow() noexcept {
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     m_show_imgui_demo_window = !m_show_imgui_demo_window;
-    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    auto* input = ServiceLocator::get<IInputService>();
     if(!input->IsMouseCursorVisible()) {
         input->ShowMouseCursor();
     }
@@ -285,7 +285,7 @@ bool UISystem::IsImguiMetricsWindowVisible() const noexcept {
 void UISystem::ToggleImguiMetricsWindow() noexcept {
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
     m_show_imgui_metrics_window = !m_show_imgui_metrics_window;
-    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    auto* input = ServiceLocator::get<IInputService>();
     if(!input->IsMouseCursorVisible()) {
         input->ShowMouseCursor();
     }

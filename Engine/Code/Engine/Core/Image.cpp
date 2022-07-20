@@ -70,7 +70,7 @@ Image::Image(std::filesystem::path filepath) noexcept
                         GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
                     }
                 } else { //.webp file is animated.
-                    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+                    auto* logger = ServiceLocator::get<IFileLoggerService>();
                     logger->LogWarnLine("Loading animated .webp files are not supported by the Image type. Use the WebP types instead.");
                     m_bytesPerTexel = req_comp;
                     WebPData webp_data{};
@@ -175,7 +175,7 @@ Image::Image(const Texture* tex) noexcept {
     m_bytesPerTexel = 4;
     const auto size = desc.Width * desc.Height * m_bytesPerTexel;
     m_texelBytes.resize(size);
-    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    const auto* const renderer = ServiceLocator::const_get<IRendererService>();
     auto stage = renderer->Create2DTextureFromMemory(m_texelBytes.data(), desc.Width, desc.Height, BufferUsage::Staging);
     renderer->CopyTexture(tex, stage.get());
 

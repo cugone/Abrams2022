@@ -42,7 +42,7 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
         m_Texture.reset();
         m_DepthStencil.reset();
     }
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const auto data = std::vector<Rgba>(m_Desc.width * m_Desc.height, Rgba::Periwinkle);
     const auto usage = BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target;
     m_Texture = renderer->Create2DTextureFromMemory(data, m_Desc.width, m_Desc.height, BufferUsage::Default, usage, m_Desc.format);
@@ -51,12 +51,12 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
 }
 
 void DirectX11FrameBuffer::Bind() noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetRenderTarget(m_Texture.get(), m_DepthStencil.get());
 }
 
 void DirectX11FrameBuffer::Unbind() noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetRenderTarget(nullptr, nullptr);
 }
 

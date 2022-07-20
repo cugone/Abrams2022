@@ -169,7 +169,7 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void RigidBody::DebugRender() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     if(auto* const collider = GetCollider(); collider != nullptr) {
         renderer->SetModelMatrix(transform);
         collider->DebugRender();
@@ -179,7 +179,7 @@ void RigidBody::DebugRender() const {
 
 void RigidBody::Endframe() {
     if(m_should_kill) {
-        auto* physics = ServiceLocator::get<IPhysicsService, NullPhysicsService>();
+        auto* physics = ServiceLocator::get<IPhysicsService>();
         physics->RemoveObject(this);
     }
 }

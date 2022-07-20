@@ -41,7 +41,7 @@ void Engine<GameType>::Initialize(const std::string& title, const std::string& c
         m_shutdownCalled = false;
         m_initCalled = true;
         App<GameType>::CreateApp(title, cmdString);
-        auto* app = ServiceLocator::get<IAppService, NullAppService>();
+        auto* app = ServiceLocator::get<IAppService>();
         app->InitializeService();
     }
 }
@@ -52,7 +52,7 @@ void Engine<GameType>::Run() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     GUARANTEE_OR_DIE(!m_shutdownCalled, "Engine::Shutdown called before Run!");
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
-    auto* app = ServiceLocator::get<IAppService, NullAppService>();
+    auto* app = ServiceLocator::get<IAppService>();
     while(!app->IsQuitting()) {
         app->RunFrame();
     }

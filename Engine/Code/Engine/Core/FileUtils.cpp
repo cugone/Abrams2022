@@ -65,7 +65,7 @@ std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::pa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            auto* logger = ServiceLocator::get<IFileLoggerService>();
             logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
@@ -95,7 +95,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            auto* logger = ServiceLocator::get<IFileLoggerService>();
             logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
@@ -125,7 +125,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            auto* logger = ServiceLocator::get<IFileLoggerService>();
             logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }
@@ -172,7 +172,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     {
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
-            auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+            auto* logger = ServiceLocator::get<IFileLoggerService>();
             logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
             return {};
         }

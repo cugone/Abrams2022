@@ -129,7 +129,7 @@ void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     }
     ApplyGravityAndDrag(m_targetFrameRate);
     ApplyCustomAndJointForces(m_targetFrameRate);
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     const auto camera_position = Vector2(renderer->GetCamera().GetPosition());
     const auto half_extents = Vector2(renderer->GetOutput()->GetDimensions()) * 0.5f;
     const auto query_area = AABB2(camera_position - half_extents, camera_position + half_extents);
@@ -258,7 +258,7 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 
 void PhysicsSystem::Render() const noexcept {
     PROFILE_BENCHMARK_FUNCTION();
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     if(m_show_colliders) {
         for(const auto& body : m_rigidBodies) {
             body->DebugRender();

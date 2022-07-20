@@ -39,7 +39,7 @@ void FileLogger::Log_worker() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
-    auto* js = ServiceLocator::get<IJobSystemService, NullJobSystemService>();
+    auto* js = ServiceLocator::get<IJobSystemService>();
     js->SetCategorySignal(JobType::Logging, &m_signal);
 
     while(IsRunning()) {
@@ -90,7 +90,7 @@ void FileLogger::DoCopyLog() noexcept {
         to_p.make_preferred();
         job_data->to = to_p;
         job_data->from = from_p;
-        ServiceLocator::get<IJobSystemService, NullJobSystemService>()->Run(
+        ServiceLocator::get<IJobSystemService>()->Run(
         JobType::Generic, [this](void* user_data) { CopyLog(user_data); }, job_data);
     }
 }
@@ -189,7 +189,7 @@ void FileLogger::Shutdown() noexcept {
             m_worker.join();
         }
         FinalizeLog();
-        ServiceLocator::get<IJobSystemService, NullJobSystemService>()->SetCategorySignal(JobType::Logging, nullptr);
+        ServiceLocator::get<IJobSystemService>()->SetCategorySignal(JobType::Logging, nullptr);
     }
 }
 

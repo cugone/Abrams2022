@@ -234,7 +234,7 @@ void QuadTree<T>::AddElement(std::add_pointer_t<T> new_element) {
 
 template<typename T>
 void QuadTree<T>::DebugRender() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     renderer->SetModelMatrix(Matrix4::I);
     DebugRender_helper();
@@ -409,7 +409,7 @@ void QuadTree<T>::TakeElementsFromChildren() {
 
 template<typename T>
 void QuadTree<T>::DebugRender_helper() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->DrawAABB2(m_bounds, Rgba::Green, Rgba::NoAlpha);
     for(const auto& child : m_children) {
         if(child) {

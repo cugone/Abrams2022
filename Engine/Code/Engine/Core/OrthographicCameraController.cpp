@@ -22,7 +22,7 @@ OrthographicCameraController::OrthographicCameraController(float aspectRatio) no
 
 void OrthographicCameraController::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
-    auto* input = ServiceLocator::get<IInputService, NullInputService>();
+    auto* input = ServiceLocator::get<IInputService>();
     if(input->IsKeyDown(KeyCode::RButton)) {
         const auto up = -Vector2::Y_Axis * static_cast<float>(m_translationSpeedMultiplier * m_cameraSpeedMultiplier) * m_translationSpeed * deltaSeconds.count();
         const auto down = -up;
@@ -52,7 +52,7 @@ void OrthographicCameraController::Update([[maybe_unused]] TimeUtils::FPSeconds 
     m_ShakyCamera.orientation_degrees += m_Camera.GetShake() * m_maxShakeAngle * MathUtils::GetRandomNegOneToOne<float>();
     m_Camera.SetupView(Vector2{-m_aspectRatio * m_zoomLevel, m_zoomLevel}, Vector2{m_aspectRatio * m_zoomLevel, -m_zoomLevel}, Vector2{0.0f, 1.0f}, m_aspectRatio);
     m_ShakyCamera.SetupView(Vector2{-m_aspectRatio * m_zoomLevel, m_zoomLevel}, Vector2{m_aspectRatio * m_zoomLevel, -m_zoomLevel}, Vector2{0.0f, 1.0f}, m_aspectRatio);
-    ServiceLocator::get<IRendererService, NullRendererService>()->SetCamera(m_ShakyCamera);
+    ServiceLocator::get<IRendererService>()->SetCamera(m_ShakyCamera);
 }
 
 void OrthographicCameraController::SetupCameraShake(float maxShakeOffsetHorizontal, float maxShakeOffsetVertical, float maxShakeAngleDegrees) {
@@ -176,11 +176,11 @@ float OrthographicCameraController::GetShake() const noexcept {
 }
 
 Vector2 OrthographicCameraController::ConvertScreenToWorldCoords(Vector2 screenCoords) const noexcept {
-    const auto* const renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto* const renderer = ServiceLocator::get<IRendererService>();
     return renderer->ConvertScreenToWorldCoords(m_Camera, screenCoords);
 }
 
 Vector2 OrthographicCameraController::ConvertWorldToScreenCoords(Vector2 worldCoords) const noexcept {
-    const auto* const renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    const auto* const renderer = ServiceLocator::get<IRendererService>();
     return renderer->ConvertWorldToScreenCoords(m_Camera, worldCoords);
 }

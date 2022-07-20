@@ -307,7 +307,7 @@ void AnimatedSprite::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "spritesheet", "name");
     if(const auto* xml_sheet = elem.FirstChildElement("spritesheet")) {
         DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");
-        m_sheet = ServiceLocator::get<IRendererService, NullRendererService>()->CreateSpriteSheet(*xml_sheet);
+        m_sheet = ServiceLocator::get<IRendererService>()->CreateSpriteSheet(*xml_sheet);
     }
 
     const auto* xml_animset = elem.FirstChildElement("animationset");

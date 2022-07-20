@@ -92,7 +92,7 @@ namespace StringUtils {
 
 Material::Material() noexcept
 : m_textures(CustomTextureIndexSlotOffset, nullptr) {
-    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* rs = ServiceLocator::get<IRendererService>();
     m_textures[0] = rs->GetTexture("__diffuse");
     m_textures[1] = rs->GetTexture("__normal");
     m_textures[2] = rs->GetTexture("__displacement");
@@ -105,7 +105,7 @@ Material::Material() noexcept
 
 Material::Material(const XMLElement& element) noexcept
 : m_textures(CustomTextureIndexSlotOffset, nullptr) {
-    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* rs = ServiceLocator::get<IRendererService>();
     m_textures[0] = rs->GetTexture("__diffuse");
     m_textures[1] = rs->GetTexture("__normal");
     m_textures[2] = rs->GetTexture("__displacement");
@@ -144,7 +144,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
             GUARANTEE_OR_DIE(!ec, error_msg.c_str());
         }
         shader_src.make_preferred();
-        auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+        auto* rs = ServiceLocator::get<IRendererService>();
         if(auto* shader = rs->GetShader(shader_src.string())) {
             m_shader = shader;
         } else {
@@ -241,7 +241,7 @@ void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noe
     p.make_preferred();
     const auto& p_str = p.string();
     bool empty_path = p.empty();
-    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* rs = ServiceLocator::get<IRendererService>();
     bool texture_not_loaded = rs->IsTextureNotLoaded(p_str);
     if(texture_not_loaded) {
         texture_not_loaded = rs->CreateTexture(p.string(), IntVector3::XY_Axis) ? false : true;
@@ -253,7 +253,7 @@ void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noe
 }
 
 void Material::SetTextureSlotToInvalid(const TextureID& slotId) noexcept {
-    auto* rs = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* rs = ServiceLocator::get<IRendererService>();
     auto* const invalid_tex = rs->GetTexture("__invalid");
     const auto slotAsIndex = TypeUtils::GetUnderlyingValue(slotId);
     m_textures[slotAsIndex] = invalid_tex;

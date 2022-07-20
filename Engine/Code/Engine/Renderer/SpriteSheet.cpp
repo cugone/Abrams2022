@@ -19,7 +19,7 @@ SpriteSheet::SpriteSheet(Texture* texture, int tilesWide, int tilesHigh) noexcep
 }
 
 SpriteSheet::SpriteSheet(const std::filesystem::path& texturePath, int tilesWide, int tilesHigh) noexcept
-: m_spriteSheetTexture(ServiceLocator::get<IRendererService, NullRendererService>()->CreateOrGetTexture(texturePath, IntVector3::XY_Axis))
+: m_spriteSheetTexture(ServiceLocator::get<IRendererService>()->CreateOrGetTexture(texturePath, IntVector3::XY_Axis))
 , m_spriteLayout(tilesWide, tilesHigh) {
     /* DO NOTHING */
 }
@@ -93,5 +93,5 @@ void SpriteSheet::LoadFromXml(const XMLElement& elem) noexcept {
         }
     }
     p.make_preferred();
-    m_spriteSheetTexture = ServiceLocator::get<IRendererService, NullRendererService>()->CreateOrGetTexture(p.string(), IntVector3::XY_Axis);
+    m_spriteSheetTexture = ServiceLocator::get<IRendererService>()->CreateOrGetTexture(p.string(), IntVector3::XY_Axis);
 }

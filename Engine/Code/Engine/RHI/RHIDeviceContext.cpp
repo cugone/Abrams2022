@@ -301,7 +301,7 @@ void RHIDeviceContext::UnbindShaderResources() noexcept {
 }
 
 void RHIDeviceContext::UnbindAllCustomConstantBuffers() noexcept {
-    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    const auto* const renderer = ServiceLocator::const_get<IRendererService>();
     const auto startSlot = renderer->GetConstantBufferStartIndex();
     const auto nobuffers_count = D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - startSlot;
     const std::vector<ID3D11Buffer*> nobuffers(nobuffers_count, nullptr);
@@ -323,7 +323,7 @@ void RHIDeviceContext::UnbindAllComputeUAVs() noexcept {
 }
 
 void RHIDeviceContext::UnbindComputeCustomConstantBuffers() noexcept {
-    const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+    const auto* const renderer = ServiceLocator::const_get<IRendererService>();
     const auto startSlot = renderer->GetConstantBufferStartIndex();
     const auto nobuffers_count = D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - startSlot;
     const std::vector<ID3D11Buffer*> nobuffers(nobuffers_count, nullptr);
@@ -358,7 +358,7 @@ void RHIDeviceContext::SetShader(Shader* shader) noexcept {
         UnbindAllCustomConstantBuffers();
         const auto& cbs = shader->GetConstantBuffers();
         const auto s = cbs.size();
-        const auto* const renderer = ServiceLocator::const_get<IRendererService, NullRendererService>();
+        const auto* const renderer = ServiceLocator::const_get<IRendererService>();
         const auto startSlot = renderer->GetConstantBufferStartIndex();
         for(auto i = 0u; i < s; ++i) {
             SetConstantBuffer(i + startSlot, &(cbs[i].get()));

@@ -44,7 +44,7 @@ void UIWidget::Update(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void UIWidget::Render() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
     if(m_panel) {
         m_panel->Render();

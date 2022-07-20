@@ -120,7 +120,7 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
         }
     }
     p.make_preferred();
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     if(nullptr == (m_shader_program = renderer->GetShaderProgram(p.string()))) {
         const bool is_cso = p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".cso";
         GUARANTEE_OR_DIE(is_cso, "ShaderProgram source path must be a compiled shader '.cso' file.");
@@ -304,7 +304,7 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
 }
 
 void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     auto new_sampler = std::make_unique<Sampler>(renderer->GetDevice(), element);
     std::string ns = m_name + "_sampler";
     m_sampler = new_sampler.get();
@@ -312,7 +312,7 @@ void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexc
 }
 
 void Shader::CreateAndRegisterNewRasterFromXml(const XMLElement& element) noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     auto new_raster_state = std::make_unique<RasterState>(renderer->GetDevice(), element);
     std::string nr = m_name + "_raster";
     m_raster_state = new_raster_state.get();

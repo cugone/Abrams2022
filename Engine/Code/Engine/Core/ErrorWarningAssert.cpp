@@ -165,7 +165,7 @@ int SystemDialogue_YesNoCancel(const std::string& messageTitle, const std::strin
     DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("==============================================================================\n\n");
 
-    if(auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>(); logger != nullptr) {
+    if(auto* logger = ServiceLocator::get<IFileLoggerService>(); logger != nullptr) {
         logger->LogError(fullMessageText);
         logger->LogLineAndFlush("Shutting down");
         logger->SaveLog();
@@ -223,7 +223,7 @@ void RecoverableWarning(const char* filePath, const char* functionName, int line
     DebuggerPrintf(std::format("{}({}): {}\n", filePath, lineNum, errorMessage.c_str())); // Use this specific format so Visual Studio users can double-click to jump to file-and-line of error
     DebuggerPrintf("------------------------------------------------------------------------------\n\n");
 
-    auto* logger = ServiceLocator::get<IFileLoggerService, NullFileLoggerService>();
+    auto* logger = ServiceLocator::get<IFileLoggerService>();
     if(logger) {
         logger->LogWarnLine(fullMessageText);
     } else {

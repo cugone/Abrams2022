@@ -40,7 +40,7 @@ void UIPictureBox::Render() const {
         return;
     }
     auto* material = m_sprite->GetMaterial();
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetModelMatrix(GetWorldTransform());
     renderer->SetMaterial(material);
     const auto cur_tc = m_sprite->GetCurrentTexCoords();
@@ -63,7 +63,7 @@ bool UIPictureBox::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "picturebox", "", "name,src", "");
     m_name = DataUtils::ParseXmlAttribute(elem, "name", m_name);
     if(const auto src = DataUtils::ParseXmlAttribute(elem, "src", std::string{}); FileUtils::IsSafeReadPath(src)) {
-        auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+        auto* renderer = ServiceLocator::get<IRendererService>();
         m_sprite = renderer->CreateAnimatedSprite(src);
         return true;
     }

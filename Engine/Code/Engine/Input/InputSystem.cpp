@@ -31,7 +31,7 @@ Vector2 InputSystem::GetCursorWindowPosition(const Window& window_ref) const noe
 }
 
 Vector2 InputSystem::GetCursorWindowPosition() noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetCursorWindowPosition(*window);
 }
 
@@ -63,12 +63,12 @@ void InputSystem::SetCursorToWindowCenter(const Window& window_ref) noexcept {
 }
 
 void InputSystem::SetCursorToWindowCenter() noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     SetCursorToWindowCenter(*window);
 }
 
 Vector2 InputSystem::GetMouseDeltaFromWindowCenter() const noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetMouseDeltaFromWindowCenter(*window);
 }
 
@@ -134,7 +134,7 @@ Vector2 InputSystem::GetScreenCenter() const noexcept {
 }
 
 Vector2 InputSystem::GetWindowCenter() const noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetWindowCenter(*window);
 }
 
@@ -196,7 +196,7 @@ void InputSystem::SetCursorWindowPosition(const Window& window, const Vector2& w
 }
 
 void InputSystem::SetCursorWindowPosition(const Vector2& window_pos) noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     SetCursorWindowPosition(*window, window_pos);
 }
 
@@ -253,7 +253,7 @@ void InputSystem::LockMouseToViewport(const Window& window) const noexcept {
 }
 
 void InputSystem::LockMouseToWindowViewport() const noexcept {
-    const auto* const window = ServiceLocator::const_get<IRendererService, NullRendererService>()->GetOutput()->GetWindow();
+    const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     LockMouseToViewport(*window);
 }
 

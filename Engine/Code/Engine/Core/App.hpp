@@ -168,20 +168,20 @@ template<typename T>
 App<T>::~App() noexcept {
     if(g_theApp<T>) {
         g_theSubsystemHead = g_theApp<T>;
-        ServiceLocator::revoke<IConsoleService, NullConsoleService>();
+        ServiceLocator::revoke<IConsoleService>();
         m_theConsole.reset();
-        ServiceLocator::revoke<IAudioService, NullAudioService>();
+        ServiceLocator::revoke<IAudioService>();
         m_theAudioSystem.reset();
-        ServiceLocator::revoke<IInputService, NullInputService>();
+        ServiceLocator::revoke<IInputService>();
         m_theInputSystem.reset();
-        ServiceLocator::revoke<IRendererService, NullRendererService>();
-        ServiceLocator::revoke<IPhysicsService, NullPhysicsService>();
+        ServiceLocator::revoke<IRendererService>();
+        ServiceLocator::revoke<IPhysicsService>();
         m_thePhysicsSystem.reset();
-        ServiceLocator::revoke<IFileLoggerService, NullFileLoggerService>();
+        ServiceLocator::revoke<IFileLoggerService>();
         m_theFileLogger.reset();
-        ServiceLocator::revoke<IJobSystemService, NullJobSystemService>();
+        ServiceLocator::revoke<IJobSystemService>();
         m_theJobSystem.reset();
-        ServiceLocator::revoke<IConfigService, NullConfigService>();
+        ServiceLocator::revoke<IConfigService>();
         m_theConfig.reset();
     }
     ServiceLocator::remove_all();
@@ -489,7 +489,7 @@ bool App<T>::GainedFocus() const {
 
 template<typename T>
 void App<T>::Minimize() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
     auto* hwnd = reinterpret_cast<HWND*>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
     ::SendMessageA(*hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
@@ -497,13 +497,13 @@ void App<T>::Minimize() const {
 
 template<typename T>
 void App<T>::Restore() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
 }
 
 template<typename T>
 void App<T>::Maximize() const {
-    auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
+    auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
     auto* window = renderer->GetOutput()->GetWindow();
     auto* hwnd = reinterpret_cast<HWND*>(window->GetWindowHandle());
