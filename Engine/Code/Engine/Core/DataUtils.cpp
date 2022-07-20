@@ -52,27 +52,27 @@ void ValidateXmlElement(const XMLElement& element,
     //Remove duplicates
     //Rational for not using std:set:
     //Profiled code takes average of 10 microseconds to complete.
-    std::vector<std::string> requiredAttributeNames = StringUtils::Split(requiredAttributes);
+    auto requiredAttributeNames{StringUtils::Split(requiredAttributes)};
     std::sort(requiredAttributeNames.begin(), requiredAttributeNames.end());
     requiredAttributeNames.erase(std::unique(requiredAttributeNames.begin(), requiredAttributeNames.end()), requiredAttributeNames.end());
 
-    std::vector<std::string> requiredChildElementNames = StringUtils::Split(requiredChildElements);
+    auto requiredChildElementNames = StringUtils::Split(requiredChildElements);
     std::sort(requiredChildElementNames.begin(), requiredChildElementNames.end());
     requiredChildElementNames.erase(std::unique(requiredChildElementNames.begin(), requiredChildElementNames.end()), requiredChildElementNames.end());
 
-    std::vector<std::string> optionalChildElementNames = StringUtils::Split(optionalChildElements);
+    auto optionalChildElementNames = StringUtils::Split(optionalChildElements);
     std::sort(optionalChildElementNames.begin(), optionalChildElementNames.end());
     optionalChildElementNames.erase(std::unique(optionalChildElementNames.begin(), optionalChildElementNames.end()), optionalChildElementNames.end());
 
-    std::vector<std::string> optionalAttributeNames = StringUtils::Split(optionalAttributes);
+    auto optionalAttributeNames = StringUtils::Split(optionalAttributes);
     std::sort(optionalAttributeNames.begin(), optionalAttributeNames.end());
     optionalAttributeNames.erase(std::unique(optionalAttributeNames.begin(), optionalAttributeNames.end()), optionalAttributeNames.end());
 
-    std::vector<std::string> actualChildElementNames = GetChildElementNames(element);
+    auto actualChildElementNames = GetChildElementNames(element);
     std::sort(actualChildElementNames.begin(), actualChildElementNames.end());
     actualChildElementNames.erase(std::unique(actualChildElementNames.begin(), actualChildElementNames.end()), actualChildElementNames.end());
 
-    std::vector<std::string> actualAttributeNames = GetAttributeNames(element);
+    auto actualAttributeNames = GetAttributeNames(element);
     std::sort(actualAttributeNames.begin(), actualAttributeNames.end());
     actualAttributeNames.erase(std::unique(actualAttributeNames.begin(), actualAttributeNames.end()), actualAttributeNames.end());
 
