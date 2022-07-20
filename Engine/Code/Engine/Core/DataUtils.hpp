@@ -260,47 +260,31 @@ template<typename T>
 
 template<typename T>
 [[nodiscard]] const T CalculateIntegerRangeResult(std::string txt) noexcept {
-    std::vector<std::string> values = StringUtils::Split(txt, '~');
-    if(values.empty() && !txt.empty()) {
+    const auto values = StringUtils::SplitOnFirst(txt, '~');
+    if(values.first.empty() && values.second.empty()) {
         return CalculateUnboundedIntegerRangeResult<T>();
+    } else if(values.first.empty()) {
+        return CalculateUpperBoundedIntegerRangeResult<T>(values.second);
+    } else if(values.second.empty()) {
+        return CalculateLowerBoundedIntegerRangeResult<T>(values.first);
+    } else {
+        return CalculateClosedIntegerRangeResult<T>(values.first, values.second);
     }
-    if(values.size() == 1) {
-        if(txt.front() == '~') {
-            const std::string upper = values[1];
-            return CalculateUpperBoundedIntegerRangeResult<T>(upper);
-        }
-        if(txt.back() == '~') {
-            const std::string lower = values[0];
-            return CalculateLowerBoundedIntegerRangeResult<T>(lower);
-        }
-        return static_cast<T>(std::stoll(values[0]));
-    }
-    const std::string lower = values[0];
-    const std::string upper = values[1];
-    return CalculateClosedIntegerRangeResult<T>(lower, upper);
 }
 
 template<typename T>
 [[nodiscard]] const T CalculateFloatRangeResult(const std::string& txt) noexcept {
     static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
-    const std::vector<std::string> values = StringUtils::Split(txt, '~');
-    if(values.empty() && !txt.empty()) {
+    const auto values = StringUtils::SplitOnFirst(txt, '~');
+    if(values.first.empty() && values.second.empty()) {
         return detail::CalculateUnboundedFloatRangeResult<T>();
+    } else if(values.first.empty()) {
+        return detail::CalculateUpperBoundedFloatRangeResult<T>(values.second);
+    } else if(values.second.empty()) {
+        return detail::CalculateLowerBoundedFloatRangeResult<T>(values.first);
+    } else {
+        return detail::CalculateClosedFloatRangeResult<T>(values.first, values.second);
     }
-    if(values.size() == 1) {
-        if(txt.front() == '~') {
-            const std::string upper = values[1];
-            return detail::CalculateUpperBoundedFloatRangeResult<T>(upper);
-        }
-        if(txt.back() == '~') {
-            const std::string lower = values[0];
-            return detail::CalculateLowerBoundedFloatRangeResult<T>(lower);
-        }
-        return static_cast<T>(std::stold(values[0]));
-    }
-    const std::string lower = values[0];
-    const std::string upper = values[1];
-    return detail::CalculateClosedFloatRangeResult<T>(lower, upper);
 }
 
 template<typename T>
@@ -383,16 +367,16 @@ template<typename T>
             return defaultValue;
         }
     } else {
-        const auto values = StringUtils::Split(attr, '~');
-        if(values.size() == 1) {
+        if (const auto values = StringUtils::SplitOnFirst(attr, '~'); !(values.first.empty() && values.second.empty())) {
+            const std::string value = values.first.empty() ? values.second : (values.second.empty() ? values.first : attr);
             if constexpr(std::is_unsigned_v<T>) {
-                return static_cast<T>(std::stoull(values[0]));
+                return static_cast<T>(std::stoull(value));
             } else if constexpr(std::is_signed_v<T> && !std::is_floating_point_v<T>) {
-                return static_cast<T>(std::stoll(values[0]));
+                return static_cast<T>(std::stoll(value));
             } else if constexpr(std::is_signed_v<T> && std::is_floating_point_v<T>) {
-                return static_cast<T>(std::stold(values[0]));
+                return static_cast<T>(std::stold(value));
             } else {
-                if(attr.empty()) {
+                if (attr.empty()) {
                     return defaultValue;
                 } else {
                     return T{attr};
