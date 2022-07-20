@@ -108,7 +108,7 @@ void RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, std::s
 namespace detail {
 
 template<typename DirectoryIteratorType, typename Callable>
-void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, const std::vector<std::string>& validExtensions, Callable&& callback) noexcept {
+void ForEachFileInFolders(const std::filesystem::path& preferred_folderpath, std::vector<std::string> validExtensions, Callable&& callback) noexcept {
     if(validExtensions.empty()) {
         std::for_each(DirectoryIteratorType{preferred_folderpath}, DirectoryIteratorType{},
                       [&callback](const std::filesystem::directory_entry& entry) {

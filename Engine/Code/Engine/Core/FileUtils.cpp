@@ -665,12 +665,13 @@ std::size_t CountFilesInFolders(const std::filesystem::path& folderpath, const s
 }
 
 std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) noexcept {
-    namespace FS = std::filesystem;
-    std::vector<FS::path> paths;
-    paths.reserve(CountFilesInFolders(folderpath));
-    const auto add_path_cb = [&paths](const FS::path& p) { paths.push_back(p); };
-    ForEachFileInFolder(folderpath, validExtensionList, add_path_cb, recursive);
-    return paths;
+    return [&](){
+        std::vector<std::filesystem::path> paths;
+        paths.reserve(CountFilesInFolders(folderpath));
+        const auto add_path_cb = [&paths](const std::filesystem::path& p) { paths.push_back(p); };
+        ForEachFileInFolder(folderpath, validExtensionList, add_path_cb, recursive);
+        return paths;
+    }();
 }
 
 void FileUtils::RemoveExceptMostRecentFiles(const std::filesystem::path& folderpath, std::size_t mostRecentCountToKeep, const std::string& validExtensionList /*= std::string{}*/) noexcept {
