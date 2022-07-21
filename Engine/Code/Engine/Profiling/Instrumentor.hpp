@@ -96,9 +96,9 @@ public:
         m_OutputStream << "\"name\":\"" << name << "\",";
         m_OutputStream << "\"ph\":\"X\",";
 #ifdef PLATFORM_WINDOWS
-        m_OutputStream << std::format("\"pid\": {},", ::GetCurrentProcessId());
+        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId());
 #else
-        m_OutputStream << std::format("\"pid\": {},", 0);
+        m_OutputStream << "\"pid\": " << 0ul;
 #endif
         m_OutputStream << "\"tid\":" << result.ThreadID << ",";
         m_OutputStream << "\"ts\":" << result.Start;
@@ -193,9 +193,9 @@ public:
         m_OutputStream << "\"cat\": \"__metadata\",";
         m_OutputStream << "\"ph\": \"M\",";
         #ifdef PLATFORM_WINDOWS
-        m_OutputStream << std::format("\"pid\": {},", ::GetCurrentProcessId());
+        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId()) << ",";
         #else
-        m_OutputStream << std::format("\"pid\": {},", 0);
+        m_OutputStream << "\"pid\": " << 0ul << ",";
         #endif
         m_OutputStream << "\"tid\": " << meta.threadID << ',';
         m_OutputStream << "\"args\": {";
