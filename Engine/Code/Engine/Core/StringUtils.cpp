@@ -164,7 +164,7 @@ std::pair<std::string, std::string> SplitOnFirst(std::string string, char delim)
     if(eq_loc != std::string::npos) {
         return std::make_pair(string.substr(0, eq_loc), string.substr(eq_loc + 1));
     } else {
-        return std::make_pair(string, std::string{});
+        return std::make_pair(string.substr(0, eq_loc), std::string{});
     }
 }
 
