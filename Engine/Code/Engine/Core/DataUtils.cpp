@@ -132,7 +132,7 @@ void ValidateXmlElement(const XMLElement& element,
     if(!extraOptionalAttributes.empty()) {
         std::string err_ss = "\nOptional Attribute validation failed. Verify attributes are correct. Found unknown attributes:\n";
         for(const auto& c : extraOptionalAttributes) {
-            err_ss += "\t\"" + c + "\"\n";
+            err_ss += std::format("\t\"{}\"\n", c);
         }
         DebuggerPrintf(err_ss);
     }
@@ -146,7 +146,7 @@ void ValidateXmlElement(const XMLElement& element,
     if(!extraOptionalChildren.empty()) {
         std::string err_ss = "Optional Child validation failed. Verify attributes are correct. Found unknown children:\n";
         for(const auto& c : extraOptionalChildren) {
-            err_ss += "\t\"" + c + "\"\n";
+            err_ss += std::format("\t\"{}\"\n", c);
         }
         DebuggerPrintf(err_ss);
     }
