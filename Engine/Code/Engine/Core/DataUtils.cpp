@@ -34,11 +34,11 @@ bool to_bool(const std::string& value) noexcept {
 } // namespace detail
 
 void ValidateXmlElement(const XMLElement& element,
-                        const std::string& name,
-                        const std::string& requiredChildElements,
-                        const std::string& requiredAttributes,
-                        const std::string& optionalChildElements /*= std::string("")*/,
-                        const std::string& optionalAttributes /*= std::string("")*/) noexcept {
+                        std::string name,
+                        std::string requiredChildElements,
+                        std::string requiredAttributes,
+                        std::string optionalChildElements /*= std::string("")*/,
+                        std::string optionalAttributes /*= std::string("")*/) noexcept {
     GUARANTEE_OR_DIE(!name.empty(), "Element validation failed. Element name is required.");
     {
         const auto* xmlNameAsCStr = element.Name();

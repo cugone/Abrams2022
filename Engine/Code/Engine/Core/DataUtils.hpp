@@ -88,11 +88,11 @@ namespace DataUtils {
 }
 
 void ValidateXmlElement(const XMLElement& element,
-                        const std::string& name,
-                        const std::string& requiredChildElements,
-                        const std::string& requiredAttributes,
-                        const std::string& optionalChildElements = std::string{},
-                        const std::string& optionalAttributes = std::string{}) noexcept;
+                        std::string name,
+                        std::string requiredChildElements,
+                        std::string requiredAttributes,
+                        std::string optionalChildElements = std::string{},
+                        std::string optionalAttributes = std::string{}) noexcept;
 
 std::string GetElementTextAsString(const XMLElement& element);
 std::string GetAttributeAsString(const XMLElement& element, const std::string& attributeName);
