@@ -45,10 +45,8 @@ std::string FormatWindowsLastErrorMessage() noexcept {
 }
 
 std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
-    std::size_t potential_count = 1 + std::count(string.begin(), string.end(), delim);
-    std::vector<std::string> result;
-    result.reserve(potential_count);
-    std::string curString;
+    std::vector<std::string> result{};
+    result.reserve(1u + std::count(string.begin(), string.end(), delim));
 
     std::stringstream ss;
     ss.str(string);
@@ -56,6 +54,7 @@ std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool sk
     ss.seekp(0);
     ss.clear();
 
+    std::string curString;
     while(std::getline(ss, curString, delim)) {
         if(skip_empty && curString.empty())
             continue;
@@ -69,9 +68,8 @@ std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool sk
 }
 
 std::vector<std::wstring> Split(std::wstring string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
-    std::size_t potential_count = 1 + std::count(string.begin(), string.end(), delim);
-    std::vector<std::wstring> result;
-    result.reserve(potential_count);
+    std::vector<std::wstring> result{};
+    result.reserve(1u + std::count(string.begin(), string.end(), delim));
     std::wstring curString;
 
     std::wstringstream ss;
@@ -95,8 +93,7 @@ std::vector<std::wstring> Split(std::wstring string, wchar_t delim /*= ','*/, bo
 std::vector<std::string> SplitOnUnquoted(std::string string, char delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     bool inQuote = false;
     std::vector<std::string> result{};
-    std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
-    result.reserve(potential_count);
+    result.reserve(1u + std::count(std::begin(string), std::end(string), delim));
     auto start = std::begin(string);
     auto end = std::end(string);
     for(auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
@@ -132,8 +129,7 @@ std::vector<std::string> SplitOnUnquoted(std::string string, char delim /*= ','*
 std::vector<std::wstring> SplitOnUnquoted(std::wstring string, wchar_t delim /*= ','*/, bool skip_empty /*= true*/) noexcept {
     bool inQuote = false;
     std::vector<std::wstring> result{};
-    std::size_t potential_count = 1u + std::count(std::begin(string), std::end(string), delim);
-    result.reserve(potential_count);
+    result.reserve(1u + std::count(std::begin(string), std::end(string), delim));
     auto start = std::begin(string);
     auto end = std::end(string);
     for(auto iter = std::begin(string); iter != std::end(string); /* DO NOTHING */) {
