@@ -60,23 +60,10 @@ public:
     void ToggleImguiMetricsWindow() noexcept;
     [[nodiscard]] bool IsAnyImguiDebugWindowVisible() const noexcept;
 
-    void LoadUiWidgetsFromFolder(std::filesystem::path path, bool recursive = false);
-    void LoadUiWidget(const std::string& name);
-    void UnloadUiWidget(const std::string& name);
-
-    void AddUiWidgetToViewport(UIWidget& widget);
-    void RemoveUiWidgetFromViewport(UIWidget& widget);
-    [[nodiscard]] UIWidget* GetWidgetByName(const std::string& nameOrFilepath) const;
-    void RegisterUiWidgetsFromFolder(std::filesystem::path folderpath, bool recursive = false);
-
 protected:
 private:
-    [[nodiscard]] bool IsWidgetLoaded(const UIWidget& widget) const noexcept;
-
     ImGuiContext* m_context{};
     mutable Camera2D m_ui_camera{};
-    std::map<std::string, std::unique_ptr<UIWidget>> m_widgets{};
-    std::vector<UIWidget*> m_active_widgets{};
     std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
     Stopwatch m_ini_saveTimer{};
     bool m_show_imgui_demo_window = false;

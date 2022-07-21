@@ -133,7 +133,6 @@ UISystem::~UISystem() noexcept {
 
     ImGui::DestroyContext(m_context);
     m_context = nullptr;
-    m_widgets.clear();
 }
 
 void UISystem::Initialize() noexcept {
@@ -219,14 +218,6 @@ void UISystem::Render() const noexcept {
     m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer->GetCurrentViewportAspectRatio());
     renderer->SetCamera(m_ui_camera);
 
-    for(const auto* cur_widget : m_active_widgets) {
-        cur_widget->Render();
-    }
-#if defined(RENDER_DEBUG)
-    for(const auto* cur_widget : m_active_widgets) {
-        cur_widget->DebugRender();
-    }
-#endif
 }
 
 void UISystem::EndFrame() noexcept {
@@ -298,61 +289,4 @@ bool UISystem::IsAnyImguiDebugWindowVisible() const noexcept {
 #else
     return false;
 #endif
-}
-
-void UISystem::RegisterUiWidgetsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) {
-    const auto widgets_lambda = [this](const std::filesystem::path& path) {
-        auto newWidget = std::make_unique<UIWidget>(path);
-        const std::string name = newWidget->name;
-        m_widgets.try_emplace(name, std::move(newWidget));
-    };
-    FileUtils::ForEachFileInFolder(folderpath, ".ui", widgets_lambda, recursive);
-}
-
-bool UISystem::IsWidgetLoaded(const UIWidget& widget) const noexcept {
-    return std::find(std::begin(m_active_widgets), std::end(m_active_widgets), &widget) != std::end(m_active_widgets);
-}
-
-void UISystem::LoadUiWidgetsFromFolder(std::filesystem::path path, bool recursive /*= false*/) {
-    const auto widgets_lambda = [this](const std::filesystem::path& path) {
-        if(tinyxml2::XMLDocument doc; tinyxml2::XML_SUCCESS == doc.LoadFile(path.string().c_str())) {
-            if(const auto* root = doc.RootElement(); DataUtils::HasAttribute(*root, "name")) {
-                if(const auto name = DataUtils::ParseXmlAttribute(*root, "name", std::string{}); !name.empty()) {
-                    LoadUiWidget(name);
-                }
-            }
-        }
-    };
-    FileUtils::ForEachFileInFolder(path, ".ui", widgets_lambda, recursive);
-}
-
-void UISystem::LoadUiWidget(const std::string& name) {
-    if(auto* widget = GetWidgetByName(name)) {
-        m_active_widgets.push_back(widget);
-    }
-}
-
-void UISystem::UnloadUiWidget(const std::string& name) {
-    m_active_widgets.erase(std::remove_if(std::begin(m_active_widgets), std::end(m_active_widgets), [&name](UIWidget* widget) { return widget->name == name; }), std::end(m_active_widgets));
-}
-
-void UISystem::AddUiWidgetToViewport(UIWidget& widget) {
-    //auto* renderer = ServiceLocator::get<IRendererService, NullRendererService>();
-    //const auto viewport = renderer->GetCurrentViewport();
-    //const auto viewportDims = Vector2{viewport.width, viewport.height};
-    if(!IsWidgetLoaded(widget)) {
-        LoadUiWidget(widget.name);
-    }
-    //TODO: Implement adding widgets to viewport.
-}
-
-void UISystem::RemoveUiWidgetFromViewport(UIWidget& widget) {
-    UnloadUiWidget(widget.name);
-}
-
-UIWidget* UISystem::GetWidgetByName(const std::string& name) const {
-    if(const auto& found = m_widgets.find(name); found != std::end(m_widgets)) {
-        return found->second.get();
-    }
-    return nullptr;
 }
