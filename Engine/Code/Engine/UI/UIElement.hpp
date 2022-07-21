@@ -9,7 +9,7 @@
 #include "Engine/UI/UITypes.hpp"
 
 class UIPanel;
-struct UIPanelSlot;
+class UIPanelSlot;
 
 class UIElement {
 public:
@@ -144,6 +144,6 @@ private:
     bool m_enabled{true};
 
     friend class UIPanel;
-    friend struct UIPanelSlot;
+    friend class UIPanelSlot;
 };
 

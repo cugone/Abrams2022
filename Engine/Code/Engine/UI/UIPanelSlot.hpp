@@ -5,7 +5,8 @@
 class UIPanel;
 class UIElement;
 
-struct UIPanelSlot {
+class UIPanelSlot {
+public:
     UIElement* content{nullptr};
     UIPanel* parent{nullptr};
     explicit UIPanelSlot(UIElement* content = nullptr, UIPanel* parent = nullptr)
@@ -17,7 +18,8 @@ struct UIPanelSlot {
     [[nodiscard]] virtual Vector2 CalcPosition() const = 0;
 };
 
-struct UINullPanelSlot : public UIPanelSlot {
+class UINullPanelSlot : public UIPanelSlot {
+public:
     virtual ~UINullPanelSlot() = default;
     void CalcPivot() override{};
     [[nodiscard]] Vector2 CalcPosition() const override {
