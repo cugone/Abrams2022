@@ -86,7 +86,7 @@ template<typename E, typename = std::enable_if_t<TypeUtils::is_scoped_enum_v<E>>
 template<typename E, typename = std::enable_if_t<TypeUtils::detail::is_bitflag_enum_v<E>>>
 bool operator!(E a) noexcept {
     using underlying = std::underlying_type_t<E>;
-    return TypeUtils::GetUnderlyingValue(a);
+    return TypeUtils::GetUnderlyingValue(a) == 0;
 }
 
 template<typename E, typename = std::enable_if_t<TypeUtils::detail::is_bitflag_enum_v<E>>>
