@@ -236,7 +236,13 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                 } else if(key == "v") {
                     auto elems = StringUtils::Split(value, ' ');
                     std::string v_str = {"["};
-                    v_str += StringUtils::Join(elems, ',');
+                    auto count = std::size_t{0u};
+                    for(const auto e : elems) {
+                        if(count++) {
+                            v_str += ",";
+                        }
+                        v_str += e;
+                    }
                     switch(elems.size()) {
                     case 4: /* DO NOTHING */ break;
                     case 3: v_str += ",1.0"; break;
@@ -252,7 +258,13 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                 } else if(key == "vt") {
                     auto elems = StringUtils::Split(value, ' ');
                     std::string v_str = {"["};
-                    v_str += StringUtils::Join(elems, ',');
+                    auto count = std::size_t{0u};
+                    for(const auto e : elems) {
+                        if(count++) {
+                            v_str += ",";
+                        }
+                        v_str += e;
+                    }
                     switch(elems.size()) {
                     case 3: /* DO NOTHING */ break;
                     case 2: v_str += ",0.0"; break;
@@ -265,7 +277,13 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                 } else if(key == "vn") {
                     auto elems = StringUtils::Split(value, ' ');
                     std::string v_str = {"["};
-                    v_str += StringUtils::Join(elems, ',');
+                    auto count = std::size_t{0u};
+                    for(const auto e : elems) {
+                        if(count++) {
+                            v_str += ",";
+                        }
+                        v_str += e;
+                    }
                     if(elems.size() != 3) {
                         PrintErrorToDebugger(filepath, "vertex normal", line_index);
                         return false;
