@@ -257,6 +257,8 @@ private:
 };
 
 #ifdef PROFILE_BUILD
+#define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value, thread_id)
+#define PROFILE_BENCHMARK_ADD_METADATA(category, value) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value)
 #define PROFILE_BENCHMARK_BEGIN(name, filename) Instrumentor::Get().BeginSession(name, filename)
 #define PROFILE_BENCHMARK_END() Instrumentor::Get().EndSession()
 #define PROFILE_BENCHMARK_SCOPE(name) InstrumentationTimer TOKEN_PASTE(timer,__LINE__)(name)
@@ -286,11 +288,17 @@ void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const T& 
 } // namespace detail
 
 template<typename T>
-void ProfileBenchmarkMetaData(const MetaDataCategory& category, const T& value) {
+void ProfileBenchmarkMetaData(const MetaDataCategory& category, T value, std::thread::id thread_id = std::thread::id{}) {
     ProfileMetadata meta{};
-    meta.threadID = std::this_thread::get_id();
+    if(thread_id == std::thread::id{}) {
+        meta.threadID = std::this_thread::get_id();
+    } else {
+        meta.threadID = thread_id;
+    }
     if constexpr(std::is_same_v<std::string, T>) {
         detail::ProfileBenchmarkMetaData_helper(category, value);
+    } else if constexpr(std::is_same_v<const char*, T>) {
+        detail::ProfileBenchmarkMetaData_helper(category, std::string{value ? value : ""});
     } else if constexpr(std::is_integral_v<T>) {
         detail::ProfileBenchmarkMetaData_helper<T>(category, value);
     }
@@ -302,6 +310,8 @@ void ProfileBenchmarkMetaData(const MetaDataCategory& category, const T& value) 
 //    #define PROFILE_BENCHMARK_SET_THREAD_NAME(value) ProfileBenchmarkMetaData<std::string>(MetaDataCategory::ThreadName, value)
 //    #define PROFILE_BENCHMARK_SET_THREAD_SORT_INDEX(value) ProfileBenchmarkMetaData<long long>(MetaDataCategory::ThreadSortIndex, static_cast<long long>(value))
 #else
+#define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id)
+#define PROFILE_BENCHMARK_ADD_METADATA(category, value)
 #define PROFILE_BENCHMARK_BEGIN(name, filename)
 #define PROFILE_BENCHMARK_END()
 #define PROFILE_BENCHMARK_SCOPE(name)
