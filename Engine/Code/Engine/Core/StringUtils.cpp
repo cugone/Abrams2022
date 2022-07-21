@@ -56,8 +56,9 @@ std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool sk
 
     std::string curString;
     while(std::getline(ss, curString, delim)) {
-        if(skip_empty && curString.empty())
+        if(skip_empty && curString.empty()) {
             continue;
+        }
         result.push_back(curString);
     }
     if(!skip_empty && ss.eof() && string.back() == delim) {
