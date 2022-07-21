@@ -5036,12 +5036,12 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     subresource_data.SysMemPitch = width * sizeof(unsigned int); // pitch is byte size of a single row)
     subresource_data.SysMemSlicePitch = static_cast<unsigned long long>(width) * static_cast<unsigned long long>(height) * sizeof(unsigned int);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     Microsoft::WRL::ComPtr<ID3D11Texture1D> dx_tex{};
@@ -5078,12 +5078,12 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5123,12 +5123,12 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5195,12 +5195,12 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     subresource_data.SysMemPitch = width * sizeof(unsigned int); // pitch is byte size of a single row)
     subresource_data.SysMemSlicePitch = static_cast<unsigned long long>(width) * static_cast<unsigned long long>(height) * sizeof(unsigned int);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_tex{};
@@ -5246,12 +5246,12 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5295,12 +5295,12 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, s
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5342,12 +5342,12 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5391,12 +5391,12 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5463,7 +5463,7 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
         subresource_data.SysMemPitch = width * sizeof(unsigned int);
         subresource_data.SysMemSlicePitch = static_cast<unsigned long long>(width) * static_cast<unsigned long long>(height) * sizeof(unsigned int);
         //Force specific usages for unordered access
-        if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
+        if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
             tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
             tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
         }
@@ -5506,12 +5506,12 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
@@ -5553,12 +5553,12 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
-    if(bindUsage == BufferBindUsage::Unordered_Access) {
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
         tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
         tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
     }
     //Staging textures can't be bound to the graphics pipeline.
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
+    if(!!(bufferUsage & BufferUsage::Staging)) {
         tex_desc.BindFlags = 0;
     }
     tex_desc.MiscFlags = 0;
