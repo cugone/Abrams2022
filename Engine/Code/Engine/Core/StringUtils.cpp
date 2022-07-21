@@ -10,6 +10,7 @@
 #include "Engine/System/System.hpp"
 
 #include <cstdarg>
+#include <cwctype>
 #include <numeric>
 #include <sstream>
 
