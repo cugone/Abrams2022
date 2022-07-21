@@ -2292,7 +2292,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
@@ -2429,7 +2429,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
@@ -2566,7 +2566,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
@@ -2673,7 +2673,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
@@ -2769,7 +2769,7 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0{
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
@@ -2801,7 +2801,7 @@ std::unique_ptr<ShaderProgram> Renderer::CreateDefaultWebPShaderProgram() noexce
         std::memcpy(blob->GetBufferPointer(), g_VertexFunction.data(), g_VertexFunction.size());
         desc.vs = vs;
         desc.vs_bytecode = blob;
-        desc.input_layout = m_rhi_device->CreateInputLayoutFromByteCode(*GetDevice(), blob);
+        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(*GetDevice(), blob);
     }
     {
         ID3D11PixelShader* ps = nullptr;
