@@ -238,7 +238,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                     std::string v_str = {"["};
                     auto count = std::size_t{0u};
                     for(const auto e : elems) {
-                        if(count++) {
+                        if(count++ > 0) {
                             v_str += ",";
                         }
                         v_str += e;
@@ -260,7 +260,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                     std::string v_str = {"["};
                     auto count = std::size_t{0u};
                     for(const auto e : elems) {
-                        if(count++) {
+                        if(count++ > 0) {
                             v_str += ",";
                         }
                         v_str += e;
@@ -279,7 +279,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                     std::string v_str = {"["};
                     auto count = std::size_t{0u};
                     for(const auto e : elems) {
-                        if(count++) {
+                        if(count++ > 0) {
                             v_str += ",";
                         }
                         v_str += e;
