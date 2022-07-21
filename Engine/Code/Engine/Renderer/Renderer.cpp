@@ -677,9 +677,7 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) noexcept {
-    std::vector<Vertex3D> vbo = {point};
-    std::vector<unsigned int> ibo = {0};
-    DrawIndexed(PrimitiveType::Points, vbo, ibo);
+    DrawIndexed(PrimitiveType::Points, {point}, {0u});
 }
 
 void Renderer::DrawPoint(const Vector3& point, const Rgba& color /*= Rgba::WHITE*/, const Vector2& tex_coords /*= Vector2::ZERO*/) noexcept {
