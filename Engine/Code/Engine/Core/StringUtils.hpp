@@ -20,32 +20,8 @@ namespace StringUtils {
 [[nodiscard]] std::pair<std::string, std::string> SplitOnLast(std::string string, char delim) noexcept;
 [[nodiscard]] std::pair<std::wstring, std::wstring> SplitOnLast(std::wstring string, wchar_t delim) noexcept;
 
-[[nodiscard]] constexpr std::string ToUpperCase(std::string_view stringview) noexcept {
-    std::string copy{stringview};
-    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c, std::locale("")); });
-    return copy;
-}
-
-[[nodiscard]] constexpr std::wstring ToUpperCase(std::wstring_view stringview) noexcept {
-    std::wstring copy{stringview};
-    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](wchar_t c) -> wchar_t { return std::towupper(static_cast<std::wint_t>(c)); });
-    return copy;
-}
-
 [[nodiscard]] std::string ToUpperCase(std::string string) noexcept;
 [[nodiscard]] std::wstring ToUpperCase(std::wstring string) noexcept;
-
-[[nodiscard]] constexpr std::string ToLowerCase(std::string_view stringview) noexcept {
-    std::string copy{stringview};
-    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](unsigned char c) -> unsigned char { return std::tolower(c, std::locale("")); });
-    return copy;
-}
-
-[[nodiscard]] constexpr std::wstring ToLowerCase(std::wstring_view stringview) noexcept {
-    std::wstring copy{stringview};
-    std::transform(stringview.begin(), stringview.end(), copy.begin(), [](wchar_t c) -> wchar_t { return std::towlower(static_cast<std::wint_t>(c)); });
-    return copy;
-}
 
 [[nodiscard]] std::string ToLowerCase(std::string string) noexcept;
 [[nodiscard]] std::wstring ToLowerCase(std::wstring string) noexcept;
