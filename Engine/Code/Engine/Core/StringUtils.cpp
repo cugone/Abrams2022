@@ -325,6 +325,7 @@ std::vector<std::size_t> FindAll(std::string string, const char c) noexcept {
         return std::vector<std::size_t>{};
     }
     std::vector<std::size_t> results{};
+    results.reserve(std::count(std::begin(string), std::end(string), c));
     std::size_t offset = 0;
     while((offset = string.find(c, offset)) != std::string::npos) {
         results.push_back(offset++);
