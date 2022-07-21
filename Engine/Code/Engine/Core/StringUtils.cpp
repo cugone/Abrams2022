@@ -64,7 +64,6 @@ std::vector<std::string> Split(std::string string, char delim /*= ','*/, bool sk
     if(!skip_empty && ss.eof() && string.back() == delim) {
         result.push_back(std::string{});
     }
-    result.shrink_to_fit();
     return result;
 }
 
@@ -87,7 +86,6 @@ std::vector<std::wstring> Split(std::wstring string, wchar_t delim /*= ','*/, bo
     if(!skip_empty && ss.eof() && string.back() == delim) {
         result.push_back(std::wstring{});
     }
-    result.shrink_to_fit();
     return result;
 }
 
@@ -123,7 +121,6 @@ std::vector<std::string> SplitOnUnquoted(std::string string, char delim /*= ','*
     if(!(skip_empty && last_s.empty())) {
         result.push_back(std::string(start, end));
     }
-    result.shrink_to_fit();
     return result;
 }
 
@@ -159,7 +156,6 @@ std::vector<std::wstring> SplitOnUnquoted(std::wstring string, wchar_t delim /*=
     if(!(skip_empty && last_s.empty())) {
         result.push_back(std::wstring(start, end));
     }
-    result.shrink_to_fit();
     return result;
 }
 
