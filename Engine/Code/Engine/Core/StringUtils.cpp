@@ -202,68 +202,6 @@ std::pair<std::wstring, std::wstring> SplitOnLast(std::wstring string, wchar_t d
     }
 }
 
-std::string Join(const std::vector<std::string>& strings, char delim, bool skip_empty /*= true*/) noexcept {
-    auto acc_op = [](const std::size_t& a, const std::string& b) -> std::size_t { return a + static_cast<std::size_t>(1u) + b.size(); };
-    auto total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
-    std::string result{};
-    result.reserve(total_size);
-    for(auto iter = strings.begin(); iter != strings.end(); ++iter) {
-        if(skip_empty && (*iter).empty())
-            continue;
-        result += (*iter);
-        if(iter != strings.end() - 1) {
-            result.push_back(delim);
-        }
-    }
-    result.shrink_to_fit();
-    return result;
-}
-
-std::string Join(const std::vector<std::string>& strings, bool skip_empty /*= true*/) noexcept {
-    auto acc_op = [](const std::size_t& a, const std::string& b) { return a + b.size(); };
-    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
-    std::string result;
-    result.reserve(total_size);
-    for(const auto& string : strings) {
-        if(skip_empty && string.empty())
-            continue;
-        result += string;
-    }
-    result.shrink_to_fit();
-    return result;
-}
-
-std::wstring Join(const std::vector<std::wstring>& strings, wchar_t delim, bool skip_empty /*= true*/) noexcept {
-    auto acc_op = [](const std::size_t& a, const std::wstring& b) -> std::size_t { return a + static_cast<std::size_t>(1u) + b.size(); };
-    auto total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
-    std::wstring result{};
-    result.reserve(total_size);
-    for(auto iter = strings.begin(); iter != strings.end(); ++iter) {
-        if(skip_empty && (*iter).empty())
-            continue;
-        result += (*iter);
-        if(iter != strings.end() - 1) {
-            result.push_back(delim);
-        }
-    }
-    result.shrink_to_fit();
-    return result;
-}
-
-std::wstring Join(const std::vector<std::wstring>& strings, bool skip_empty /*= true*/) noexcept {
-    auto acc_op = [](const std::size_t& a, const std::wstring& b) { return a + b.size(); };
-    std::size_t total_size = std::accumulate(std::begin(strings), std::end(strings), static_cast<std::size_t>(0u), acc_op);
-    std::wstring result;
-    result.reserve(total_size);
-    for(const auto& string : strings) {
-        if(skip_empty && string.empty())
-            continue;
-        result += string;
-    }
-    result.shrink_to_fit();
-    return result;
-}
-
 std::string ToUpperCase(std::string string) noexcept {
     std::transform(string.begin(), string.end(), string.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c, std::locale("")); });
     return string;
