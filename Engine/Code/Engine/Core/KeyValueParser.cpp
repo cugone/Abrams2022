@@ -33,9 +33,9 @@ bool KeyValueParser::HasKey(const std::string& key) const noexcept {
 }
 
 void KeyValueParser::Parse(const std::string& input) noexcept {
-    auto lines = StringUtils::SplitOnUnquoted(input, '\n', true);
+    std::vector<std::string> lines = StringUtils::SplitOnUnquoted(input, '\n', true);
 
-    for(auto& cur_line : lines) {
+    for(auto&& cur_line : lines) {
         cur_line = cur_line.substr(0, cur_line.find_first_of('#'));
         if(cur_line.empty()) {
             continue;
