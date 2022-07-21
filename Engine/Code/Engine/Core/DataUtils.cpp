@@ -43,8 +43,7 @@ void ValidateXmlElement(const XMLElement& element,
     {
         const auto* xmlNameAsCStr = element.Name();
         const auto xml_name = std::string{xmlNameAsCStr ? xmlNameAsCStr : ""};
-        const auto msg = std::format("Element validation failed. Element name \"{}\" does not match valid name \"{}\"\n", xml_name, name);
-        GUARANTEE_OR_DIE(xml_name == name, msg);
+        GUARANTEE_OR_DIE(xml_name == name, "Element validation failed. Element name does not match valid name.\n");
     }
 
     //Get list of required/optional attributes/children
@@ -52,7 +51,7 @@ void ValidateXmlElement(const XMLElement& element,
     //Remove duplicates
     //Rational for not using std:set:
     //Profiled code takes average of 10 microseconds to complete.
-    auto requiredAttributeNames{StringUtils::Split(requiredAttributes)};
+    auto requiredAttributeNames = StringUtils::Split(requiredAttributes);
     std::sort(requiredAttributeNames.begin(), requiredAttributeNames.end());
     requiredAttributeNames.erase(std::unique(requiredAttributeNames.begin(), requiredAttributeNames.end()), requiredAttributeNames.end());
 
@@ -131,8 +130,8 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalAttributes.empty()) {
         std::string err_ss = "\nOptional Attribute validation failed. Verify attributes are correct. Found unknown attributes:\n";
-        for(const auto& c : extraOptionalAttributes) {
-            err_ss += std::format("\t\"{}\"\n", c);
+        for(auto&& c : extraOptionalAttributes) {
+            err_ss += '\t' + c + '\n';
         }
         DebuggerPrintf(err_ss);
     }
@@ -145,8 +144,8 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalChildren.empty()) {
         std::string err_ss = "Optional Child validation failed. Verify attributes are correct. Found unknown children:\n";
-        for(const auto& c : extraOptionalChildren) {
-            err_ss += std::format("\t\"{}\"\n", c);
+        for(auto&& c : extraOptionalChildren) {
+            err_ss += '\t' + c + '\n';
         }
         DebuggerPrintf(err_ss);
     }
