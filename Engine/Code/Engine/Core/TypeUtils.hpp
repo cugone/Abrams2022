@@ -84,6 +84,12 @@ template<typename E, typename = std::enable_if_t<TypeUtils::is_scoped_enum_v<E>>
 /************************************************************************/
 
 template<typename E, typename = std::enable_if_t<TypeUtils::detail::is_bitflag_enum_v<E>>>
+bool operator!(E a) noexcept {
+    using underlying = std::underlying_type_t<E>;
+    return TypeUtils::GetUnderlyingValue(a);
+}
+
+template<typename E, typename = std::enable_if_t<TypeUtils::detail::is_bitflag_enum_v<E>>>
 E& operator|=(E& a, const E& b) noexcept {
     const auto [underlying_a, underlying_b] = TypeUtils::detail::GetUnderlyingValues(a, b);
     a = static_cast<E>(underlying_a | underlying_b);
