@@ -258,7 +258,7 @@ private:
 
 #ifdef PROFILE_BUILD
 #define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value, thread_id)
-#define PROFILE_BENCHMARK_ADD_METADATA(category, value) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value)
+#define PROFILE_BENCHMARK_ADD_METADATA_THIS_THREAD(category, value) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value)
 #define PROFILE_BENCHMARK_BEGIN(name, filename) Instrumentor::Get().BeginSession(name, filename)
 #define PROFILE_BENCHMARK_END() Instrumentor::Get().EndSession()
 #define PROFILE_BENCHMARK_SCOPE(name) InstrumentationTimer TOKEN_PASTE(timer,__LINE__)(name)
@@ -311,7 +311,7 @@ void ProfileBenchmarkMetaData(const MetaDataCategory& category, T value, std::th
 //    #define PROFILE_BENCHMARK_SET_THREAD_SORT_INDEX(value) ProfileBenchmarkMetaData<long long>(MetaDataCategory::ThreadSortIndex, static_cast<long long>(value))
 #else
 #define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id)
-#define PROFILE_BENCHMARK_ADD_METADATA(category, value)
+#define PROFILE_BENCHMARK_ADD_METADATA_THIS_THREAD(category, value)
 #define PROFILE_BENCHMARK_BEGIN(name, filename)
 #define PROFILE_BENCHMARK_END()
 #define PROFILE_BENCHMARK_SCOPE(name)
