@@ -321,6 +321,9 @@ std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std
 }
 
 std::vector<std::size_t> FindAll(std::string string, const char c) noexcept {
+    if(string.empty()) {
+        return std::vector<std::size_t>{};
+    }
     std::vector<std::size_t> results{};
     std::size_t offset = 0;
     while((offset = string.find(c, offset)) != std::string::npos) {
@@ -330,7 +333,10 @@ std::vector<std::size_t> FindAll(std::string string, const char c) noexcept {
 }
 
 std::vector<std::size_t> FindAll(std::string string, const std::string& sequence) noexcept {
-    std::vector<std::size_t> results{};
+    if(string.empty() || sequence.empty()) {
+        return {};
+    }
+    std::vector<std::size_t> results;
     std::size_t offset = 0;
     while((offset = string.find(sequence, offset)) != std::string::npos) {
         results.push_back(offset);
@@ -339,6 +345,9 @@ std::vector<std::size_t> FindAll(std::string string, const std::string& sequence
 }
 
 std::vector<std::size_t> FindAll(std::wstring string, const wchar_t c) noexcept {
+    if(string.empty()) {
+        return {};
+    }
     std::vector<std::size_t> results{};
     std::size_t offset = 0;
     while((offset = string.find(c, offset)) != std::wstring::npos) {
@@ -348,6 +357,9 @@ std::vector<std::size_t> FindAll(std::wstring string, const wchar_t c) noexcept 
 }
 
 std::vector<std::size_t> FindAll(std::wstring string, const std::wstring& sequence) noexcept {
+    if(string.empty() || sequence.empty()) {
+        return {};
+    }
     std::vector<std::size_t> results{};
     std::size_t offset = 0;
     while((offset = string.find(sequence, offset)) != std::wstring::npos) {
