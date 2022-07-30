@@ -33,7 +33,6 @@ std::string FormatWindowsMessage(unsigned long messageId) noexcept {
     return {"Trying to Format unknown error."};
 #else
     return std::format("Windows Message ID: {}", messageId);
-}
 #endif
 }
 
