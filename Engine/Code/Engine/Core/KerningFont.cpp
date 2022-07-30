@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
+#include <format>
 #include <sstream>
 
 float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {

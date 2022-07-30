@@ -24,6 +24,7 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 
 #include <array>
+#include <format>
 #include <sstream>
 #include <numeric>
 

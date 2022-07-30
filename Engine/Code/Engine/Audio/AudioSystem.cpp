@@ -19,6 +19,7 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 
 #include <algorithm>
+#include <format>
 
 void AudioSystem::EmitterListenerDSP_worker() noexcept {
     while(IsRunning()) {

@@ -44,6 +44,7 @@
 
 #include <algorithm>
 #include <condition_variable>
+#include <format>
 #include <iomanip>
 #include <memory>
 

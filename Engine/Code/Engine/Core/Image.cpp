@@ -21,6 +21,7 @@
 #include <Thirdparty/webp/demux.h>
 
 #include <algorithm>
+#include <format>
 #include <sstream>
 #include <vector>
 

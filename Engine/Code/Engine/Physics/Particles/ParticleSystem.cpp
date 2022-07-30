@@ -7,6 +7,7 @@
 #include "Engine/Physics/Particles/ParticleEffectDefinition.hpp"
 
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <sstream>
 

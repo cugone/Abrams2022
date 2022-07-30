@@ -8,6 +8,7 @@
 #include "Engine/Profiling/Instrumentor.hpp"
 
 #include <algorithm>
+#include <format>
 #include <locale>
 #include <sstream>
 

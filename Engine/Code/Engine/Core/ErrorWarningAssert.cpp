@@ -11,6 +11,7 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <stdarg.h>
 

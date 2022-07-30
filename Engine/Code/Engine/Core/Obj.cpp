@@ -9,6 +9,7 @@
 
 #include "Engine/Renderer/Renderer.hpp"
 
+#include <format>
 #include <numeric>
 #include <sstream>
 #include <string>

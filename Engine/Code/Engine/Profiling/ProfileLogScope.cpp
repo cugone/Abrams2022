@@ -3,6 +3,8 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 
+#include <format>
+
 ProfileLogScope::ProfileLogScope(const char* scopeName) noexcept
 : m_scope_name(scopeName)
 , m_time_at_creation(TimeUtils::Now()) {

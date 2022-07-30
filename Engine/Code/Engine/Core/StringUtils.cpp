@@ -11,6 +11,7 @@
 
 #include <cstdarg>
 #include <cwctype>
+#include <format>
 #include <numeric>
 #include <sstream>
 

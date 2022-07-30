@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <format>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
