@@ -270,7 +270,8 @@ namespace detail {
 void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const std::string& value);
 
 template<typename T, typename std::enable_if_t<std::is_integral_v<T>, bool>>
-void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const T& value) {
+void ProfileBenchmarkMetaData_helper([[maybe_unused]] const MetaDataCategory& category, [[maybe_unused]] const T& value) {
+    #ifdef PROFILE_BUILD
     ProfileMetadata meta{};
     meta.threadID = std::this_thread::get_id();
     switch(category) {
@@ -284,12 +285,14 @@ void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const T& 
     /* DO NOTHING */;
     }
     Instrumentor::Get().WriteProfileMetaData(meta, category);
+#endif
 }
 
 } // namespace detail
 
 template<typename T>
-void ProfileBenchmarkMetaData(const MetaDataCategory& category, T value, std::thread::id thread_id = std::thread::id{}) {
+void ProfileBenchmarkMetaData([[maybe_unused]] const MetaDataCategory& category, [[maybe_unused]] T value, [[maybe_unused]] std::thread::id thread_id = std::thread::id{}) {
+#ifdef PROFILE_BUILD
     ProfileMetadata meta{};
     if(thread_id == std::thread::id{}) {
         meta.threadID = std::this_thread::get_id();
@@ -303,13 +306,8 @@ void ProfileBenchmarkMetaData(const MetaDataCategory& category, T value, std::th
     } else if constexpr(std::is_integral_v<T>) {
         detail::ProfileBenchmarkMetaData_helper<T>(category, value);
     }
+#endif
 }
-
-//#define PROFILE_BENCHMARK_SET_PROCESS_NAME(value) ProfileBenchmarkMetaData<std::string>(MetaDataCategory::ProcessName, value)
-//    #define PROFILE_BENCHMARK_SET_PROCESS_LABELS(value) ProfileBenchmarkMetaData<std::string>(MetaDataCategory::ProcessLabels, value)
-//    #define PROFILE_BENCHMARK_SET_PROCESS_SORT_INDEX(value) ProfileBenchmarkMetaData<long long>(MetaDataCategory::ProcessSortIndex, static_cast<long long>(value))
-//    #define PROFILE_BENCHMARK_SET_THREAD_NAME(value) ProfileBenchmarkMetaData<std::string>(MetaDataCategory::ThreadName, value)
-//    #define PROFILE_BENCHMARK_SET_THREAD_SORT_INDEX(value) ProfileBenchmarkMetaData<long long>(MetaDataCategory::ThreadSortIndex, static_cast<long long>(value))
 #else
 #define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id)
 #define PROFILE_BENCHMARK_ADD_METADATA_THIS_THREAD(category, value)

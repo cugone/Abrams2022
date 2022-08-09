@@ -2,7 +2,8 @@
 
 namespace detail {
 
-void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const std::string& value) {
+void ProfileBenchmarkMetaData_helper([[maybe_unused]] const MetaDataCategory& category, [[maybe_unused]] const std::string& value) {
+#ifdef PROFILE_BUILD
     ProfileMetadata meta{};
     meta.threadID = std::this_thread::get_id();
     switch(category) {
@@ -19,6 +20,7 @@ void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const std
     /* DO NOTHING */;
     }
     Instrumentor::Get().WriteProfileMetaData(meta, category);
+#endif
 }
 
 } // namespace detail
