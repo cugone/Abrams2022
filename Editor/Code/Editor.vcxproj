@@ -101,7 +101,6 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../;$(SolutionDir)Editor/Code;$(SolutionDir)Engine/Code</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>IN_EDITOR;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,7 +114,6 @@
       <PreprocessorDefinitions>IN_EDITOR;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../;$(SolutionDir)Editor/Code;$(SolutionDir)Engine/Code</AdditionalIncludeDirectories>
-      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -131,7 +129,6 @@
       <PreprocessorDefinitions>IN_EDITOR;FINAL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../;$(SolutionDir)Editor/Code;$(SolutionDir)Engine/Code</AdditionalIncludeDirectories>
-      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -147,7 +144,6 @@
       <PreprocessorDefinitions>IN_EDITOR;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../;$(SolutionDir)Editor/Code;$(SolutionDir)Engine/Code</AdditionalIncludeDirectories>
-      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
