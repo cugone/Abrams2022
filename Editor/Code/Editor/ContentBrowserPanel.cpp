@@ -37,7 +37,7 @@ void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeco
             }
         }
         const auto padding = 16.0f;
-        const auto* const config = ServiceLocator::get<IConfigService, NullConfigService>();
+        const auto* const config = ServiceLocator::get<IConfigService>();
         static auto scale = 0.5f;
         if(config->HasKey("UIScale")) {
             config->GetValue("UIScale", scale);
