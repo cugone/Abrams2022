@@ -367,21 +367,23 @@ template<typename T>
             return defaultValue;
         }
     } else {
-        if (const auto values = StringUtils::SplitOnFirst(attr, '~'); !(values.first.empty() && values.second.empty())) {
-            const std::string value = values.first.empty() ? values.second : (values.second.empty() ? values.first : attr);
-            if constexpr(std::is_unsigned_v<T>) {
-                return static_cast<T>(std::stoull(value));
-            } else if constexpr(std::is_signed_v<T> && !std::is_floating_point_v<T>) {
-                return static_cast<T>(std::stoll(value));
-            } else if constexpr(std::is_signed_v<T> && std::is_floating_point_v<T>) {
-                return static_cast<T>(std::stold(value));
-            } else {
-                if (attr.empty()) {
-                    return defaultValue;
+        if (const auto values = StringUtils::SplitOnFirst(attr, '~'); (values.first.empty() || values.second.empty())) {
+            if(const std::string value = values.first.empty() ? values.second : (values.second.empty() ? values.first : attr); !value.empty()) {
+                if constexpr(std::is_unsigned_v<T>) {
+                    return static_cast<T>(std::stoull(value));
+                } else if constexpr(std::is_signed_v<T> && !std::is_floating_point_v<T>) {
+                    return static_cast<T>(std::stoll(value));
+                } else if constexpr(std::is_signed_v<T> && std::is_floating_point_v<T>) {
+                    return static_cast<T>(std::stold(value));
                 } else {
-                    return T{attr};
+                    if(attr.empty()) {
+                        return defaultValue;
+                    } else {
+                        return T{attr};
+                    }
                 }
             }
+            return defaultValue;
         }
         retVal = static_cast<T>(detail::CalculateRangeResult<decltype(retVal)>(attr));
     }
