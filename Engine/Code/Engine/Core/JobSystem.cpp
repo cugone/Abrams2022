@@ -59,7 +59,7 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
     m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)] = new std::condition_variable;
 
     for(std::size_t i = 0; i < static_cast<std::size_t>(core_count); ++i) {
-        auto t = std::thread(&JobSystem::GenericJobWorker, this, m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
+        auto t = std::jthread(&JobSystem::GenericJobWorker, this, m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
         std::wstring desc{L"Generic Job Thread "};
         desc += std::to_wstring(i);
         ThreadUtils::SetThreadDescription(t, desc);

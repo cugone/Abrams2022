@@ -42,7 +42,7 @@ private:
 
     static inline std::vector<ThreadSafeQueue<Job*>*> m_queues = std::vector<ThreadSafeQueue<Job*>*>{};
     static inline std::vector<std::condition_variable*> m_signals = std::vector<std::condition_variable*>{};
-    static inline std::vector<std::thread> m_threads = std::vector<std::thread>{};
+    static inline std::vector<std::jthread> m_threads = std::vector<std::jthread>{};
     std::condition_variable* m_main_job_signal = nullptr;
     std::mutex m_cs{};
     std::atomic_bool m_is_running = false;
