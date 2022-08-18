@@ -129,6 +129,7 @@ Editor::~Editor() noexcept {
     if(m_rayTraceWorker.joinable()) {
         m_rayTraceWorker.join();
     }
+    buffer.reset();
 }
 
 void Editor::Initialize() noexcept {
