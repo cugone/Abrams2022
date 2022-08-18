@@ -169,21 +169,16 @@ template<typename T>
 App<T>::~App() noexcept {
     if(g_theApp<T>) {
         g_theSubsystemHead = g_theApp<T>;
-        ServiceLocator::revoke<IConsoleService>();
-        m_theConsole.reset();
-        ServiceLocator::revoke<IAudioService>();
+        m_theGame.reset();
         m_theAudioSystem.reset();
-        ServiceLocator::revoke<IInputService>();
+        m_theUI.reset();
         m_theInputSystem.reset();
-        ServiceLocator::revoke<IRendererService>();
-        ServiceLocator::revoke<IPhysicsService>();
         m_thePhysicsSystem.reset();
-        ServiceLocator::revoke<IFileLoggerService>();
-        m_theFileLogger.reset();
-        ServiceLocator::revoke<IJobSystemService>();
-        m_theJobSystem.reset();
-        ServiceLocator::revoke<IConfigService>();
+        m_theConsole.reset();
+        m_theRenderer.reset();
         m_theConfig.reset();
+        m_theFileLogger.reset();
+        m_theJobSystem.reset();
     }
     ServiceLocator::remove_all();
 }
