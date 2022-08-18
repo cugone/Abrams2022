@@ -63,7 +63,7 @@ private:
     std::string m_logName{};
     std::filesystem::path m_current_log_path{};
     std::streambuf* m_old_cout{};
-    std::thread m_worker{};
+    std::jthread m_worker{};
     std::condition_variable m_signal{};
     ThreadSafeQueue<std::string> m_queue;
     std::atomic_bool m_is_running = false;

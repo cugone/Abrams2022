@@ -166,7 +166,7 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
         return;
     }
     m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
-    m_worker = std::thread(&FileLogger::Log_worker, this);
+    m_worker = std::jthread(&FileLogger::Log_worker, this);
     PROFILE_BENCHMARK_ADD_METADATA(MetaDataCategory::ThreadName, "FileLogger", m_worker.get_id());
     ThreadUtils::SetThreadDescription(m_worker, L"FileLogger");
     const auto ss = std::string{"Initializing Logger: "} + m_current_log_path.string() + "...";
