@@ -40,9 +40,9 @@ private:
     void MainStep() noexcept;
     void GenericJobWorker(std::condition_variable* signal) noexcept;
 
-    static std::vector<ThreadSafeQueue<Job*>*> m_queues;
-    static std::vector<std::condition_variable*> m_signals;
-    static std::vector<std::thread> m_threads;
+    static inline std::vector<ThreadSafeQueue<Job*>*> m_queues = std::vector<ThreadSafeQueue<Job*>*>{};
+    static inline std::vector<std::condition_variable*> m_signals = std::vector<std::condition_variable*>{};
+    static inline std::vector<std::thread> m_threads = std::vector<std::thread>{};
     std::condition_variable* m_main_job_signal = nullptr;
     std::mutex m_cs{};
     std::atomic_bool m_is_running = false;

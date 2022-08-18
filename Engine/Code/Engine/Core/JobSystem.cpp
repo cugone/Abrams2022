@@ -10,10 +10,6 @@
 #include <chrono>
 #include <sstream>
 
-std::vector<ThreadSafeQueue<Job*>*> JobSystem::m_queues = std::vector<ThreadSafeQueue<Job*>*>{};
-std::vector<std::condition_variable*> JobSystem::m_signals = std::vector<std::condition_variable*>{};
-std::vector<std::thread> JobSystem::m_threads = std::vector<std::thread>{};
-
 void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
     JobConsumer jc;
     jc.AddCategory(JobType::Generic);
