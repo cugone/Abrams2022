@@ -16,6 +16,7 @@
 
 #include "Editor/Editor.hpp"
 
+#include <format>
 #include <string>
 
 void ContentBrowserPanel::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
@@ -108,7 +109,7 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
     if(ImGui::BeginPopupContextWindow("##ContentBrowserContextWindow", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup)) {
         if(ImGui::MenuItem("Create Folder")) {
             int count = 0;
-            while(!FileUtils::CreateFolders(count ? (currentDirectory / std::filesystem::path{StringUtils::Stringf("New folder (%d)", count + 1)}) : (currentDirectory / "New folder"))) {
+            while(!FileUtils::CreateFolders(count ? (currentDirectory / std::filesystem::path{std::format("New folder ({})", count + 1)}) : (currentDirectory / "New folder"))) {
                 ++count;
             }
             ImGui::CloseCurrentPopup();
@@ -120,7 +121,7 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
                 static const auto opf_str = [&]() {
                     std::string result;
                     for(auto e : extension_list) {
-                        result.append(std::string(StringUtils::ToUpperCase(std::string{e.substr(1)}) + " file (*"s + e + ")\0*"s + e + "\0"s));
+                        result.append(std::format("{0} file ({1})\\0*{1}\\0", StringUtils::ToUpperCase(e.substr(1)), e));
                     }
                     result += "All Files (*.*)\0*.*\0\0"s;
                     return result;
