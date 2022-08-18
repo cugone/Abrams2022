@@ -51,13 +51,15 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
 }
 
 void DirectX11FrameBuffer::Bind() noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService>();
-    renderer->SetRenderTarget(m_Texture.get(), m_DepthStencil.get());
+    if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
+        renderer->SetRenderTarget(m_Texture.get(), m_DepthStencil.get());
+    }
 }
 
 void DirectX11FrameBuffer::Unbind() noexcept {
-    auto* renderer = ServiceLocator::get<IRendererService>();
-    renderer->SetRenderTarget(nullptr, nullptr);
+    if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
+        renderer->SetRenderTarget(nullptr, nullptr);
+    }
 }
 
 const Texture* DirectX11FrameBuffer::GetTexture() const noexcept {
