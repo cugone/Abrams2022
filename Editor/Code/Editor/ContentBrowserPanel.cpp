@@ -106,6 +106,7 @@ void ContentBrowserPanel::ShowHoveredItemStats(const ContentBrowserItemStats& st
 
 void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
     using namespace std::string_literals;
+    using namespace std::string_view_literals;
     if(ImGui::BeginPopupContextWindow("##ContentBrowserContextWindow", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup)) {
         if(ImGui::MenuItem("Create Folder")) {
             int count = 0;
@@ -120,8 +121,8 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
                 static const auto extension_list = StringUtils::Split(Image::GetSupportedExtensionsList());
                 static const auto opf_str = [&]() {
                     std::string result;
-                    for(auto& e : extension_list) {
-                        result.append(StringUtils::ToUpperCase(e.substr(1)) + " file (*"s + e + ")\0*"s + e + "\0"s);
+                    for(auto e : extension_list) {
+                        result.append(std::format("{0} file ({1})\0*{1}\0"sv, StringUtils::ToUpperCase(e.substr(1)), e));
                     }
                     result += "All Files (*.*)\0*.*\0\0"s;
                     return result;
