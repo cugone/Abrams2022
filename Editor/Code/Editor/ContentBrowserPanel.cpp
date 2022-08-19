@@ -120,8 +120,8 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
                 static const auto extension_list = StringUtils::Split(Image::GetSupportedExtensionsList());
                 static const auto opf_str = [&]() {
                     std::string result;
-                    for(auto e : extension_list) {
-                        result.append(std::format("{0} file ({1})\\0*{1}\\0", StringUtils::ToUpperCase(e.substr(1)), e));
+                    for(auto& e : extension_list) {
+                        result.append(StringUtils::ToUpperCase(e.substr(1)) + " file (*"s + e + ")\0*"s + e + "\0"s);
                     }
                     result += "All Files (*.*)\0*.*\0\0"s;
                     return result;
