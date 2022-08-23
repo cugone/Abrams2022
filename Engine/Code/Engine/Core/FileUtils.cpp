@@ -264,39 +264,6 @@ bool IsSystemPathId(const KnownPathID& pathid) noexcept {
     case KnownPathID::Windows_UserProfile: return true;
     case KnownPathID::Windows_CommonProfile: return true;
     case KnownPathID::Windows_CurrentUserDesktop: return true;
-#elif PLATFORM_LINUX
-    case KnownPathID::Linux_RootUser: return true;
-    case KnownPathID::Linux_Home: return true;
-    case KnownPathID::Linux_Etc: return true;
-    case KnownPathID::Linux_ConfigurationFiles: return true;
-    case KnownPathID::Linux_Bin: return true;
-    case KnownPathID::Linux_UserBinaries: return true;
-    case KnownPathID::Linux_SBin: return true;
-    case KnownPathID::Linux_SystemBinaries: return true;
-    case KnownPathID::Linux_Dev: return true;
-    case KnownPathID::Linux_DeviceFiles: return true;
-    case KnownPathID::Linux_Proc: return true;
-    case KnownPathID::Linux_ProcessInformation: return true;
-    case KnownPathID::Linux_Var: return true;
-    case KnownPathID::Linux_VariableFiles: return true;
-    case KnownPathID::Linux_Usr: return true;
-    case KnownPathID::Linux_UserPrograms: return true;
-    case KnownPathID::Linux_UsrBin: return true;
-    case KnownPathID::Linux_UserProgramsBinaries: return true;
-    case KnownPathID::Linux_UsrSBin: return true;
-    case KnownPathID::Linux_UserProgramsSystemBinaries: return true;
-    case KnownPathID::Linux_Boot: return true;
-    case KnownPathID::Linux_BootLoader: return true;
-    case KnownPathID::Linux_Lib: return true;
-    case KnownPathID::Linux_SystemLibraries: return true;
-    case KnownPathID::Linux_Opt: return true;
-    case KnownPathID::Linux_OptionalAddOnApps: return true;
-    case KnownPathID::Linux_Mnt: return true;
-    case KnownPathID::Linux_MountDirectory: return true;
-    case KnownPathID::Linux_Media: return true;
-    case KnownPathID::Linux_RemovableDevices: return true;
-    case KnownPathID::Linux_Src: return true;
-    case KnownPathID::Linux_ServiceData: return true;
 #endif
     default:
         ERROR_AND_DIE("UNSUPPORTED KNOWNPATHID")
@@ -314,7 +281,7 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         if(FS::exists(p)) {
             p = FS::canonical(p);
         } else {
-            FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Data/Config/"});
+            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Data/Config/"});
             p = GetKnownFolderPath(pathid);
         }
     } else if(pathid == KnownPathID::GameData) {
@@ -342,7 +309,7 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         if(FS::exists(p)) {
             p = FS::canonical(p);
         } else {
-            FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Engine/Config/"});
+            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Engine/Config/"});
             p = GetKnownFolderPath(pathid);
         }
     } else if(pathid == KnownPathID::EngineData) {
@@ -370,7 +337,7 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         if(FS::exists(p)) {
             p = FS::canonical(p);
         } else {
-            FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{ "Content" });
+            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{ "Content" });
             p = GetKnownFolderPath(pathid);
         }
     } else {
