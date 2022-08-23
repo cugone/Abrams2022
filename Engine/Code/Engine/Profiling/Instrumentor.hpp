@@ -97,9 +97,9 @@ public:
         m_OutputStream << "\"name\":\"" << name << "\",";
         m_OutputStream << "\"ph\":\"X\",";
 #ifdef PLATFORM_WINDOWS
-        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId());
+        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId()) << ',';
 #else
-        m_OutputStream << "\"pid\": " << 0ul;
+        m_OutputStream << "\"pid\": " << 0ul << ',';
 #endif
         m_OutputStream << "\"tid\":" << result.ThreadID << ",";
         m_OutputStream << "\"ts\":" << result.Start;
