@@ -1971,8 +1971,8 @@ void Renderer::SetWindowedMode() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultEngineFonts() noexcept {
-    std::filesystem::path p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Fonts"};
-    FileUtils::CreateFolders(p); //If the directory wasn't created, they either already exist or the install was corrupted.
+    std::filesystem::path p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineFonts);
+    (void)FileUtils::CreateFolders(p); //If the directory wasn't created, they either already exist or the install was corrupted.
     RegisterFontsFromFolder(p);
 }
 

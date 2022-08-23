@@ -205,7 +205,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
     return {};
 }
 
-bool CreateFolders(const std::filesystem::path& filepath) noexcept {
+[[nodiscard]] bool CreateFolders(const std::filesystem::path& filepath) noexcept {
     namespace FS = std::filesystem;
     std::filesystem::path p = filepath;
     p.make_preferred();

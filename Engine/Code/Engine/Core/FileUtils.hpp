@@ -82,7 +82,7 @@ enum class KnownPathID {
 [[nodiscard]] std::optional<std::string> ReadSomeBinaryBufferFromFile(std::ifstream& ifs, std::streampos pos, std::streamsize count = 0u) noexcept;
 [[nodiscard]] std::optional<std::string> ReadSomeStringBufferFromFile(std::filesystem::path filepath, std::size_t pos, std::size_t count = 0u) noexcept;
 [[nodiscard]] std::optional<std::string> ReadSomeStringBufferFromFile(std::ifstream& ifs, std::streampos pos, std::streamsize count = 0u) noexcept;
-bool CreateFolders(const std::filesystem::path& filepath) noexcept;
+[[nodiscard]] bool CreateFolders(const std::filesystem::path& filepath) noexcept;
 [[nodiscard]] bool IsSystemPathId(const KnownPathID& pathid) noexcept;
 [[nodiscard]] bool IsContentPathId(const KnownPathID& pathid) noexcept;
 [[nodiscard]] std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept;
