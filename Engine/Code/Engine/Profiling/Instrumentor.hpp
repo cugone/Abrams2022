@@ -148,63 +148,6 @@ public:
         name = StringUtils::TrimWhitespace(name);
     }
 
-    void WriteProfileMetaData(const ProfileMetadata& meta, const MetaDataCategory& cat) {
-        if(!m_OutputStream.is_open()) {
-            return;
-        }
-        if(m_ProfileCount++ > 0)
-            m_OutputStream << ",";
-
-        const auto get_category_name = [&]() {
-            switch(cat) {
-            case MetaDataCategory::ProcessName:
-                return std::string{"process_name"};
-            case MetaDataCategory::ProcessLabels:
-                return std::string{"process_labels"};
-            case MetaDataCategory::ProcessSortIndex:
-                return std::string{"process_sort_index"};
-            case MetaDataCategory::ThreadName:
-                return std::string{"thread_name"};
-            case MetaDataCategory::ThreadSortIndex:
-                return std::string{"thread_sort_index"};
-            default:
-                return std::string{"none"};
-            }
-        };
-
-        const auto get_category_args = [&]() {
-            switch(cat) {
-            case MetaDataCategory::ProcessName:
-                return std::format("\"name\": \"{}\"", meta.processName);
-            case MetaDataCategory::ProcessLabels:
-                return std::format("\"labels\": \"{}\"", meta.processLabels);
-            case MetaDataCategory::ProcessSortIndex:
-                return std::format("\"sort_index\": \"{}\"", meta.processSortIndex);
-            case MetaDataCategory::ThreadName:
-                return std::format("\"name\": \"{}\"", meta.threadName);
-            case MetaDataCategory::ThreadSortIndex:
-                return std::format("\"sort_index\": \"{}\"", meta.threadSortIndex);
-            default:
-                return std::string{};
-            }
-        };
-
-        m_OutputStream << "{";
-        m_OutputStream << std::format("\"name\": \"{}\",", get_category_name());
-        m_OutputStream << "\"cat\": \"__metadata\",";
-        m_OutputStream << "\"ph\": \"M\",";
-        #ifdef PLATFORM_WINDOWS
-        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId()) << ",";
-        #else
-        m_OutputStream << "\"pid\": " << 0ul << ",";
-        #endif
-        m_OutputStream << "\"tid\": " << meta.threadID << ',';
-        m_OutputStream << "\"args\": {";
-        m_OutputStream << get_category_args();
-        m_OutputStream << "}";
-        m_OutputStream << "}";
-    }
-
     void WriteHeader() {
         m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
     }
@@ -258,61 +201,17 @@ private:
 };
 
 #ifdef PROFILE_BUILD
-#define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value, thread_id)
-#define PROFILE_BENCHMARK_ADD_METADATA_THIS_THREAD(category, value) ProfileBenchmarkMetaData(static_cast<MetaDataCategory>(category), value)
+
 #define PROFILE_BENCHMARK_BEGIN(name, filename) Instrumentor::Get().BeginSession(name, filename)
 #define PROFILE_BENCHMARK_END() Instrumentor::Get().EndSession()
 #define PROFILE_BENCHMARK_SCOPE(name) InstrumentationTimer TOKEN_PASTE(timer,__LINE__)(name)
 #define PROFILE_BENCHMARK_FUNCTION() PROFILE_BENCHMARK_SCOPE(__FUNCSIG__)
 
-namespace detail {
-
-void ProfileBenchmarkMetaData_helper(const MetaDataCategory& category, const std::string& value);
-
-template<typename T, typename std::enable_if_t<std::is_integral_v<T>, bool>>
-void ProfileBenchmarkMetaData_helper([[maybe_unused]] const MetaDataCategory& category, [[maybe_unused]] const T& value) {
-    #ifdef PROFILE_BUILD
-    ProfileMetadata meta{};
-    meta.threadID = std::this_thread::get_id();
-    switch(category) {
-    case MetaDataCategory::ProcessSortIndex:
-        meta.processSortIndex = value;
-        break;
-    case MetaDataCategory::ThreadSortIndex:
-        meta.threadSortIndex = value;
-        break;
-    default:
-    /* DO NOTHING */;
-    }
-    Instrumentor::Get().WriteProfileMetaData(meta, category);
-#endif
-}
-
-} // namespace detail
-
-template<typename T>
-void ProfileBenchmarkMetaData([[maybe_unused]] const MetaDataCategory& category, [[maybe_unused]] T value, [[maybe_unused]] std::thread::id thread_id = std::thread::id{}) {
-#ifdef PROFILE_BUILD
-    ProfileMetadata meta{};
-    if(thread_id == std::thread::id{}) {
-        meta.threadID = std::this_thread::get_id();
-    } else {
-        meta.threadID = thread_id;
-    }
-    if constexpr(std::is_same_v<std::string, T>) {
-        detail::ProfileBenchmarkMetaData_helper(category, value);
-    } else if constexpr(std::is_same_v<const char*, T>) {
-        detail::ProfileBenchmarkMetaData_helper(category, std::string{value ? value : ""});
-    } else if constexpr(std::is_integral_v<T>) {
-        detail::ProfileBenchmarkMetaData_helper<T>(category, value);
-    }
-#endif
-}
 #else
-#define PROFILE_BENCHMARK_ADD_METADATA(category, value, thread_id)
-#define PROFILE_BENCHMARK_ADD_METADATA_THIS_THREAD(category, value)
+
 #define PROFILE_BENCHMARK_BEGIN(name, filename)
 #define PROFILE_BENCHMARK_END()
 #define PROFILE_BENCHMARK_SCOPE(name)
 #define PROFILE_BENCHMARK_FUNCTION()
+
 #endif
