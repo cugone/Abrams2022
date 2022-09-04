@@ -275,7 +275,7 @@ void Material::ClearTextureSlot(const TextureID& slotId) noexcept {
 }
 
 void Material::ClearAllTextureSlots() noexcept {
-    for(auto* t : m_textures) {
+    for(auto& t : m_textures) {
         t = nullptr;
     }
 }
