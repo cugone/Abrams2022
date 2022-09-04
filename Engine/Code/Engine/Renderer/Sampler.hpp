@@ -7,13 +7,13 @@ class RHIDevice;
 struct ID3D11SamplerState;
 
 struct SamplerDesc {
-    FilterMode min_filter = FilterMode::Point;
-    FilterMode mag_filter = FilterMode::Point;
-    FilterMode mip_filter = FilterMode::Point;
+    FilterMode min_filter = FilterMode::Linear;
+    FilterMode mag_filter = FilterMode::Linear;
+    FilterMode mip_filter = FilterMode::Linear;
     FilterComparisonMode compare_mode = FilterComparisonMode::None;
-    TextureAddressMode UaddressMode = TextureAddressMode::Wrap;
-    TextureAddressMode VaddressMode = TextureAddressMode::Wrap;
-    TextureAddressMode WaddressMode = TextureAddressMode::Wrap;
+    TextureAddressMode UaddressMode = TextureAddressMode::Clamp;
+    TextureAddressMode VaddressMode = TextureAddressMode::Clamp;
+    TextureAddressMode WaddressMode = TextureAddressMode::Clamp;
     Rgba borderColor = Rgba::White;
     ComparisonFunction compareFunc = ComparisonFunction::Never;
     unsigned int maxAnisotropicLevel = 8;
