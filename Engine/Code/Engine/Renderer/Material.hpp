@@ -117,15 +117,15 @@ private:
     void AddTextureSlot() noexcept;
 
 
-    constexpr static std::size_t CustomTextureIndexSlotOffset = 6u;
-    constexpr static std::size_t MaxCustomTextureSlotCount = (D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2) - CustomTextureIndexSlotOffset;
-    float m_specularIntensity = 1.0f;
-    float m_specularPower = 8.0f;
-    float m_emissiveFactor = 0.0f;
-    std::string m_name = "MATERIAL";
+    constexpr static std::size_t CustomTextureIndexSlotOffset{6u};
+    constexpr static std::size_t MaxCustomTextureSlotCount{(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT / 2) - CustomTextureIndexSlotOffset};
+    float m_specularIntensity{1.0f};
+    float m_specularPower{8.0f};
+    float m_emissiveFactor{0.0f};
+    std::string m_name{"MATERIAL"};
     std::filesystem::path m_filepath{};
-    std::vector<Texture*> m_textures = {};
-    Shader* m_shader = nullptr;
+    std::vector<Texture*> m_textures{};
+    Shader* m_shader{nullptr};
     static inline std::size_t m_defaultNameId{0};
     friend class FileUtils::MtlReader;
 };
