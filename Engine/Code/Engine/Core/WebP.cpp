@@ -5,6 +5,8 @@
 
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
+
+#include "Engine/Renderer/ConstantBuffer.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Vertex3D.hpp"
 
@@ -28,26 +30,37 @@ WebP::WebP(const XMLElement& elem) noexcept {
 
 void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
-    static TimeUtils::FPSeconds frameDuration{};
-    static TimeUtils::FPSeconds elapsedDuration{};
-    if(frameDuration >= m_frameDurations[m_currentFrame]) {
+    bool frame_changed = false;
+    if(m_frameDuration >= m_frameDurations[m_currentFrame]) {
         ++m_currentFrame;
-        frameDuration = TimeUtils::FPSeconds::zero();
+        m_frameDuration = TimeUtils::FPSeconds::zero();
         if(m_currentFrame < m_beginFrame) {
             m_currentFrame = m_beginFrame;
         }
         if(m_currentFrame >= m_endFrame) {
             m_currentFrame = m_beginFrame;
+            if(m_maxLoopCount > 0u) {
+                if(m_loopCount == m_maxLoopCount) {
+                    m_currentFrame = m_endFrame;
+                } else {
+                    ++m_loopCount;
+                }
+            }
         }
         if(m_currentFrame >= m_maxFrames) {
             m_currentFrame = m_maxFrames - 1;
         }
+        frame_changed = true;
     }
-    frameDuration += deltaSeconds;
-    elapsedDuration += deltaSeconds;
-    if(elapsedDuration >= m_totalDuration) {
-        elapsedDuration = TimeUtils::FPSeconds::zero();
+    m_frameDuration += deltaSeconds;
+    m_elapsedDuration += deltaSeconds;
+    if(m_elapsedDuration >= m_totalDuration) {
+        m_elapsedDuration = TimeUtils::FPSeconds::zero();
         m_currentFrame = m_beginFrame;
+        frame_changed = true;
+    }
+    if(frame_changed) {
+        m_webp_data.currentFrame_padding3.x = static_cast<int>(m_currentFrame);
     }
 
     //TODO: Implement Animation Modes
@@ -108,23 +121,22 @@ void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void WebP::Render() const noexcept {
-    //TODO: Set up using webp shader.
     PROFILE_BENCHMARK_FUNCTION();
+
     auto* r = ServiceLocator::get<IRendererService>();
-    r->SetMaterial(r->GetMaterial("__2D"));
-    const auto S = Matrix4::CreateScaleMatrix(Vector2{1.0f, -1.0f});
-    //const auto S = Matrix4::I;
+    auto* mat = r->GetMaterial("__webp");
+    if(const auto& cbs = mat->GetShader()->GetConstantBuffers(); !cbs.empty()) {
+        auto& cb = cbs[0].get();
+        cb.Update(*(r->GetDeviceContext()), &m_webp_data);
+    }
+    const auto S = Matrix4::CreateScaleMatrix(Vector2{static_cast<float>(m_width), static_cast<float>(m_height)});
     const auto R = Matrix4::I;
     const auto T = Matrix4::I;
     const auto M = Matrix4::MakeSRT(S, R, T);
+    r->SetMaterial(mat);
+    r->SetTexture(m_frames.get());
     r->SetModelMatrix(M);
-    r->SetTexture(m_frames[m_currentFrame].get());
     r->DrawQuad2D();
-    r->SetTexture(nullptr);
-}
-
-const Texture* WebP::GetTexture(std::size_t index) const noexcept {
-    return m_frames[index].get();
 }
 
 std::size_t WebP::GetFrameCount() const noexcept {
@@ -160,7 +172,13 @@ void WebP::LoadFromXml(const XMLElement& elem) noexcept {
 
     m_beginFrame = DataUtils::ParseXmlAttribute(*xml_animset, "beginframe", 0);
     m_endFrame = DataUtils::ParseXmlAttribute(*xml_animset, "endframe", m_frameCount);
-
+    m_currentFrame = m_beginFrame;
+    auto* r = ServiceLocator::get<IRendererService>();
+    m_webp_data.currentFrame_padding3 = IntVector4{static_cast<int>(m_currentFrame), 0, 0, 0};
+    if(auto cbs = r->GetMaterial("__webp")->GetShader()->GetConstantBuffers(); !cbs.empty()) {
+        auto& cb = cbs[0].get();
+        cb.Update(*(r->GetDeviceContext()), &m_webp_data);
+    }
     const auto is_looping = DataUtils::ParseXmlAttribute(*xml_animset, "loop", false);
     const auto is_reverse = DataUtils::ParseXmlAttribute(*xml_animset, "reverse", false);
     const auto is_pingpong = DataUtils::ParseXmlAttribute(*xml_animset, "pingpong", false);
@@ -183,29 +201,43 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
         if(WebPAnimDecoder* dec = WebPAnimDecoderNew(&webp_data, &dec_options); dec != nullptr) {
             WebPAnimInfo anim_info{};
             WebPAnimDecoderGetInfo(dec, &anim_info);
-            m_frames.resize(anim_info.frame_count);
             m_frameDurations.resize(anim_info.frame_count);
             m_frameCount = anim_info.frame_count;
             m_maxFrames = m_frameCount;
             m_beginFrame = m_maxFrames - m_maxFrames;
             m_endFrame = m_maxFrames;
             m_currentFrame = m_beginFrame;
+            m_width = anim_info.canvas_width;
+            m_height = anim_info.canvas_height;
+            m_maxLoopCount = anim_info.loop_count;
+            m_webp_data.currentFrame_padding3 = IntVector4{static_cast<int>(m_currentFrame), 0, 0, 0};
             {
                 auto* r = ServiceLocator::get<IRendererService>();
+                auto* mat = r->GetMaterial("__webp");
+                if(const auto& cbs = mat->GetShader()->GetConstantBuffers(); !cbs.empty()) {
+                    auto& webp_cb = cbs[0].get();
+                    webp_cb.Update(*r->GetDeviceContext(), &m_webp_data);
+                }
+                const auto row_offset = std::size_t{4u} * anim_info.canvas_width;
+                const auto slice_offset = static_cast<std::size_t>(row_offset * anim_info.canvas_height);
+                auto anim_frame_data = std::vector<uint8_t>(anim_info.frame_count * slice_offset);
                 for(int i = 0; WebPAnimDecoderHasMoreFrames(dec); ++i) {
                     uint8_t* buf{};
                     static int prev_timestamp = 0;
                     int cur_timestamp = 0;
                     if(WebPAnimDecoderGetNext(dec, &buf, &cur_timestamp)) {
+                        std::copy(buf, buf + slice_offset, anim_frame_data.begin() + (slice_offset * i));
                         m_frameDurations[i] = std::chrono::milliseconds{cur_timestamp - prev_timestamp < 0 ? 0 : cur_timestamp - prev_timestamp};
                         prev_timestamp = cur_timestamp;
-                        m_frames[i] = r->Create2DTextureFromMemory(buf, anim_info.canvas_width, anim_info.canvas_height);
                     }
                 }
                 WebPAnimDecoderDelete(dec);
                 dec = nullptr;
                 buffer->clear();
                 buffer->shrink_to_fit();
+                m_frames = r->Create2DTextureArrayFromMemory(anim_frame_data.data(), anim_info.canvas_width, anim_info.canvas_height, anim_info.frame_count);
+                m_frames->SetDebugName(src.string());
+                mat->SetTextureSlot(Material::TextureID::Diffuse, m_frames.get());
             }
             m_totalDuration = std::reduce(std::execution::par_unseq, std::cbegin(m_frameDurations), std::cend(m_frameDurations), TimeUtils::FPSeconds::zero());
         }

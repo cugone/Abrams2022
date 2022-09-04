@@ -6,6 +6,7 @@
 #include "Engine/Core/DataUtils.hpp"
 
 #include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Renderer/Texture.hpp"
 
 #include <Thirdparty/TinyXML2/tinyxml2.h>
@@ -46,7 +47,7 @@ public:
 
     void Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
     void Render() const noexcept;
-    const Texture* GetTexture(std::size_t index) const noexcept;
+    //const Texture* GetTexture(std::size_t index) const noexcept;
 
     std::size_t GetFrameCount() const noexcept;
     std::size_t GetFrameCount() noexcept;
@@ -61,7 +62,11 @@ private:
 
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept;
 
-    std::vector<std::unique_ptr<Texture>> m_frames{};
+    struct webp_buffer_t {
+        IntVector4 currentFrame_padding3{};
+    };
+
+    std::unique_ptr<Texture> m_frames{};
     std::size_t m_currentFrame{0u};
     std::size_t m_beginFrame{0u};
     std::size_t m_endFrame{0u};
@@ -72,8 +77,12 @@ private:
     uint32_t m_flags{0u};
     uint32_t m_frameCount{0u};
     uint32_t m_loopCount{0u};
+    uint32_t m_maxLoopCount{0u};
+    mutable webp_buffer_t m_webp_data{};
     std::vector<TimeUtils::FPMilliseconds> m_frameDurations{};
     TimeUtils::FPSeconds m_totalDuration{};
+    TimeUtils::FPSeconds m_frameDuration{};
+    TimeUtils::FPSeconds m_elapsedDuration{};
     Rgba m_bgColor{Rgba::Black};
     bool m_isAnimated{false};
 
