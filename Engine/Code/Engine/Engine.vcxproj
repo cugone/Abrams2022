@@ -391,6 +391,18 @@
     <ClInclude Include="UI\UISystem.hpp" />
     <ClInclude Include="UI\UIWidget.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Renderer\DirectX\Shaders\webp_PS.cso" />
+    <None Include="Renderer\DirectX\Shaders\webp_VS.cso" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{ACBDA225-83DE-4FBA-A746-0135429FB391}</ProjectGuid>

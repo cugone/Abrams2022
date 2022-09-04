@@ -1201,4 +1201,17 @@
       <Filter>Profiling</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Renderer\DirectX\Shaders\webp_PS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+    <None Include="Renderer\DirectX\Shaders\webp_VS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+  </ItemGroup>
 </Project>

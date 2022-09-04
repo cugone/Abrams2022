@@ -14,6 +14,7 @@ cbuffer time_cb : register(b1) {
 
 cbuffer webp_cb : register(b3) {
     int g_current_frame;
+    int3 padding;
 }
 
 struct vs_in_t {
@@ -42,12 +43,12 @@ ps_in_t VertexFunction(vs_in_t input_vertex) {
 
     output.position = clip;
     output.color = input_vertex.color;
-    output.uv = input_vertex.uv * float2(1.0f, -1.0f);
+    output.uv = input_vertex.uv;// * float2(1.0f, -1.0f);
 
     return output;
 }
 
 float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
-    float4 albedo = tDiffuse.Sample(sSampler, input_pixel.uv, g_current_frame);
+    float4 albedo = tDiffuse.Sample(sSampler, float3(input_pixel.uv, float(g_current_frame)));
     return albedo * input_pixel.color;
 }
