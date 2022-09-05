@@ -20,13 +20,13 @@ namespace FileUtils {
 Obj::Obj(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     {
-        const auto error_msg = std::string{"Obj: "} + filepath.string() + " failed to load.\nReason: It does not exist.\n";
+        const auto error_msg = std::format("Obj: {} failed to load.\nReason: It does not exist.\n", filepath.string());
         GUARANTEE_OR_DIE(FS::exists(filepath), error_msg.c_str());
     }
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
     {
-        const auto error_msg = std::string{"Obj: "} + filepath.string() + " failed to load.";
+        const auto error_msg = std::format("Obj: {} failed to load.", filepath.string());
         GUARANTEE_OR_DIE(Load(filepath), error_msg.c_str());
     }
 }

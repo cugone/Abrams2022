@@ -92,7 +92,7 @@ void RHIOutput::Present(bool vsync) noexcept {
         case DXGI_ERROR_DEVICE_RESET: {
             m_parent_device.HandleDeviceLost();
             const auto hr_removed_reset = m_parent_device.GetDxDevice()->GetDeviceRemovedReason();
-            const auto err_str = std::string{"Your GPU device has been lost. Please restart the application. The returned error message follows:\n"} + StringUtils::FormatWindowsMessage(hr_removed_reset);
+            const auto err_str = std::format("Your GPU device has been lost. Please restart the application. The returned error message follows:\n{}", StringUtils::FormatWindowsMessage(hr_removed_reset));
             ERROR_AND_DIE(err_str.c_str());
             break;
         }
@@ -144,14 +144,8 @@ std::unique_ptr<Texture> RHIOutput::CreateDepthStencil() noexcept {
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;
     auto hr_texture = m_parent_device.GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &depthstencil);
-    {
-        const auto error_msg = [&]() {
-            std::string msg{"Fatal Error: Failed to create depthstencil for window. Reason:\n"};
-            msg += StringUtils::FormatWindowsMessage(hr_texture);
-            return msg;
-        }(); //IIIL
-        GUARANTEE_OR_DIE(SUCCEEDED(hr_texture), error_msg.c_str());
-    }
+    const auto error_msg = std::format("Fatal Error: Failed to create depthstencil for window. Reason:\n{}", StringUtils::FormatWindowsMessage(hr_texture));
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_texture), error_msg.c_str());
     return std::make_unique<Texture2D>(m_parent_device, depthstencil);
 }
 
@@ -202,11 +196,7 @@ std::unique_ptr<Texture> RHIOutput::CreateFullscreenTexture() noexcept {
 
     auto hr = m_parent_device.GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     {
-        const auto error_msg = [&]() {
-            std::string msg{"Fatal Error: Failed to create fullscreen texture. Reason:\n"};
-            msg += StringUtils::FormatWindowsMessage(hr);
-            return msg;
-        }(); //IIIL
+        const auto error_msg = std::format("Fatal Error: Failed to create fullscreen texture. Reason:\n{}", StringUtils::FormatWindowsMessage(hr));
         GUARANTEE_OR_DIE(SUCCEEDED(hr), error_msg.c_str());
     }
     return std::make_unique<Texture2D>(m_parent_device, dx_tex);

@@ -111,10 +111,8 @@ void ParticleEffect::LoadFromXml(const XMLElement& element) {
 
     m_definitionName = name;
     const auto* definition = ParticleEffectDefinition::GetDefinition(name);
-    std::string err = "ParticleEffect: Referenced particle effect \"";
-    err += name;
-    err += "\" does not already exist.";
-    GUARANTEE_OR_DIE(definition, err.c_str());
+    const auto error_str = std::format("ParticleEffect: Referenced particle effect \"{}\" does not already exist.", name);
+    GUARANTEE_OR_DIE(definition, error_str.c_str());
 
     m_emitters.reserve(definition->m_emitter_names.size());
     for(auto& emitter_name : definition->m_emitter_names) {

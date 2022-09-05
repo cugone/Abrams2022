@@ -745,8 +745,6 @@ const std::vector<AudioSystem::Channel*>& AudioSystem::Sound::GetChannels() cons
 }
 
 void STDMETHODCALLTYPE AudioSystem::EngineCallback::OnCriticalError(HRESULT error) {
-    std::ostringstream ss;
-    ss << "The Audio System encountered a fatal error: ";
-    ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << error;
-    ERROR_AND_DIE(ss.str().c_str());
+    const auto error_msg = std::format("The Audio System encountered a fata error: {:0<#8x}", error);
+    ERROR_AND_DIE(error_msg.c_str());
 }

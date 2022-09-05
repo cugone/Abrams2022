@@ -133,15 +133,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         if(!StringUtils::StartsWith(shader_src.string(), "__")) {
             std::error_code ec{};
             shader_src = FS::canonical(shader_src, ec);
-            const auto error_msg = [&]() {
-                std::ostringstream ss;
-                ss << "Shader:\n";
-                ss << file << "\n";
-                ss << "Referenced in Material file \"" << m_name << "\" could not be found.\n";
-                ss << "The filesystem returned an error:\n"
-                   << ec.message() << '\n';
-                return ss.str();
-            }(); //IIIL
+            const auto error_msg = std::format("Shader:\n{}\nReferenced in Material file \"{}\n could not be found.\nThe filesystem returned an error:\n{}\n", file, m_name, ec.message());
             GUARANTEE_OR_DIE(!ec, error_msg.c_str());
         }
         shader_src.make_preferred();

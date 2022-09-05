@@ -30,13 +30,13 @@ Image::Image(std::filesystem::path filepath) noexcept
     namespace FS = std::filesystem;
 
     {
-        const auto error_msg = std::string{"Failed to load image. Could not find file: "} + filepath.string() + ".\n";
+        const auto error_msg = std::format("Failed to load image. Could not find file: {}.\n", filepath.string());
         GUARANTEE_OR_DIE(FS::exists(filepath), error_msg.c_str());
     }
 
     const auto extension = filepath.extension();
     {
-        const auto error_msg = std::string{"Failed to load image. Filetype \'" + extension.string() + "\' is not supported.\n"};
+        const auto error_msg = std::format("Failed to load image. Filetype '{}' is not supported.\n", extension.string());
         GUARANTEE_OR_DIE(IsSupportedExtension(extension), error_msg.c_str());
     }
 
@@ -44,7 +44,7 @@ Image::Image(std::filesystem::path filepath) noexcept
         std::error_code ec{};
         filepath = FS::canonical(filepath);
         if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-            const auto error_msg = std::string{ "File: " } + filepath.string() + std::string{ " is inaccessible." };
+            const auto error_msg = std::format("File: {} is inaccessible.", filepath.string());
             ERROR_AND_DIE(error_msg.c_str());
         }
     }
@@ -67,8 +67,8 @@ Image::Image(std::filesystem::path filepath) noexcept
                         m_texelBytes = std::vector<unsigned char>(bytes, bytes + (static_cast<std::size_t>(m_dimensions.x) * m_dimensions.y * m_bytesPerTexel));
                         WebPFree(bytes);
                     } else {
-                        const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a valid .webp file.";
-                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+                        const auto error_msg = std::format("Failed to load image. {} is not a valid .webp file.", filepath.string());
+                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), error_msg.c_str());
                     }
                 } else { //.webp file is animated.
                     auto* logger = ServiceLocator::get<IFileLoggerService>();
@@ -102,18 +102,18 @@ Image::Image(std::filesystem::path filepath) noexcept
                         WebPDemuxDelete(demux);
                         demux = nullptr;
                     } else {
-                        const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a valid animated .webp file.";
-                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+                        const auto error_msg = std::format("Failed to load image. {} is not a valid animated .webp file.", filepath.string());
+                        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), error_msg.c_str());
                     }
                 }
             }
         } else {
-            const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a supported image type.";
-            GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+            const auto error_msg = std::format("Failed to load image. {} is not a supported image type.", filepath.string());
+            GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), error_msg.c_str());
         }
     } else {
-        const auto ss = std::string{"Failed to load image. "} + filepath.string() + " is not a supported image type.";
-        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), ss.c_str());
+        const auto error_msg = std::format("Failed to load image. File '{}' not read successfully.", filepath.string());
+        GUARANTEE_RECOVERABLE(!m_texelBytes.empty(), error_msg.c_str());
     }
 }
 
@@ -291,8 +291,8 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
         std::scoped_lock<std::mutex> lock(m_cs);
         result = stbi_write_jpg(p_str.c_str(), w, h, bbp, m_texelBytes.data(), quality);
     } else if(extension == ".hdr") {
-        const auto ss = std::string{"Attempting to export "} + filepath.string() + " to an unsupported type: " + extension + "\nHigh Dynamic Range output is not supported.";
-        ERROR_RECOVERABLE(ss.c_str());
+        const auto error_msg = std::format("Attempting to export {} to an unsupported type: {}\nHigh Dynamic Range output is not supported.", filepath.string(), extension);
+        ERROR_RECOVERABLE(error_msg.c_str());
     } else if(extension == ".webp") {
         //TODO: Write Muxer for .webp
     }

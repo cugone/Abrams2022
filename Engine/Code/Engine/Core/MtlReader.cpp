@@ -118,8 +118,8 @@ namespace FileUtils {
         std::string valid_extension = ".mtl";
         bool not_mtl = StringUtils::ToLowerCase(filepath.extension().string()) != valid_extension;
         bool invalid = not_exist || not_mtl;
-        std::string error_msg = filepath.string() + "does not exist or is not a .mtl file.\n";
-        GUARANTEE_OR_DIE(!invalid, error_msg);
+        const auto error_msg = std::format("{} does not exist or is not a .mtl file.\n", filepath.string());
+        GUARANTEE_OR_DIE(!invalid, error_msg.c_str());
         filepath = FS::canonical(filepath);
         filepath.make_preferred();
         return Parse(filepath);

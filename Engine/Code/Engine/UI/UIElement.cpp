@@ -138,8 +138,8 @@ void UIElement::SetPivot(const UIPivotPosition& pivotPosition) {
         SetPivot(Vector2(0.0f, 0.5f));
         break;
     default:
-        const auto ss = std::string{__FUNCTION__} + ": Unhandled pivot mode.";
-        ERROR_AND_DIE(ss.c_str());
+        const auto error_msg = std::format("{}: Unhandled pivot mode.", std::string{__FUNCTION__});
+        ERROR_AND_DIE(error_msg.c_str());
         break;
     }
 }

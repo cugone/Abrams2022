@@ -3684,7 +3684,7 @@ void Renderer::CreateDefaultColorTextures() noexcept {
     for(std::size_t i = 0; i < n_s; ++i) {
         auto tex = CreateDefaultColorTexture(colors[i]);
         tex->SetDebugName(names[i]);
-        const std::string error_str{"Failed to register default color " + names[i]};
+        const auto error_str = std::format("Failed to register default color {}.", names[i]);
         GUARANTEE_OR_DIE(RegisterTexture(names[i], std::move(tex)), error_str);
     }
 }
@@ -4148,10 +4148,8 @@ std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromDesc(ShaderProgr
 
 void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path filepath, const PipelineStage& target) noexcept {
     auto sp = CreateShaderProgramFromCsoFile(filepath, target);
-    {
-        const auto error_msg = filepath.string() + " is not a valid compiled shader program.\n";
-        GUARANTEE_OR_DIE(sp, error_msg.c_str());
-    }
+    const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath.string());
+    GUARANTEE_OR_DIE(sp, error_msg.c_str());
     RegisterShaderProgram(filepath.string(), std::move(sp));
 }
 

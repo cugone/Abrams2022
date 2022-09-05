@@ -87,10 +87,8 @@ void SpriteSheet::LoadFromXml(const XMLElement& elem) noexcept {
     {
         std::error_code ec{};
         p = FS::canonical(p, ec);
-        {
-            const auto error_msg = std::string{"Error loading spritesheet at "} + texturePathAsString + ":\n" + ec.message();
-            GUARANTEE_OR_DIE(!ec, error_msg.c_str());
-        }
+        const auto error_msg = std::format("Error loading spritesheet at {}:\n{}", texturePathAsString, ec.message());
+        GUARANTEE_OR_DIE(!ec, error_msg.c_str());
     }
     p.make_preferred();
     m_spriteSheetTexture = ServiceLocator::get<IRendererService>()->CreateOrGetTexture(p.string(), IntVector3::XY_Axis);

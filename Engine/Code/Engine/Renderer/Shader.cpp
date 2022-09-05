@@ -124,10 +124,8 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
     if(nullptr == (m_shader_program = renderer->GetShaderProgram(p.string()))) {
         const bool is_cso = p.has_extension() && StringUtils::ToLowerCase(p.extension().string()) == ".cso";
         GUARANTEE_OR_DIE(is_cso, "ShaderProgram source path must be a compiled shader '.cso' file.");
-        {
-            const auto error_msg = std::string{"Intrinsic ShaderProgram referenced in Shader file \""} + m_name + "\" does not already exist.";
-            GUARANTEE_OR_DIE(!StringUtils::StartsWith(p.string(), "__"), error_msg.c_str());
-        }
+        const auto error_msg = std::format("Intrinsic ShaderProgram referenced in Shader file \"{}\" does not already exist.", m_name);
+        GUARANTEE_OR_DIE(!StringUtils::StartsWith(p.string(), "__"), error_msg.c_str());
         if(is_cso) {
             ShaderProgramDesc desc{};
             desc.name = m_name;
@@ -297,10 +295,8 @@ void Shader::ValidatePipelineStages(const PipelineStage& targets) noexcept {
         bool valid_gs = has_gs;
         result = valid_cs || valid_gs || valid_vsps || valid_hsds;
     }
-    {
-        const auto error_msg = std::string{"Error in shader file: \""} + m_name + "\": Pipeline stages must include at least compute stage, geometry stage, or both vertex and pixel stages, or both hull and domain stages.";
-        GUARANTEE_OR_DIE(result, error_msg.c_str());
-    }
+    const auto error_msg = std::format("Error in shader file: \"{}\": Pipeline stages must include at least compute stage, geometry stage, or both vertex and pixel stages, or both hull and domain stages.", m_name);
+    GUARANTEE_OR_DIE(result, error_msg.c_str());
 }
 
 void Shader::CreateAndRegisterNewSamplerFromXml(const XMLElement& element) noexcept {
