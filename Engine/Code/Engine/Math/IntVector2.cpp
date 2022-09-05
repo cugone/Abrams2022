@@ -5,6 +5,7 @@
 #include "Engine/Math/Vector2.hpp"
 
 #include <cmath>
+#include <format>
 #include <sstream>
 
 const IntVector2 IntVector2::Zero(0, 0);
@@ -199,7 +200,5 @@ bool IntVector2::operator<=(const IntVector2& rhs) const noexcept {
 }
 
 std::string StringUtils::to_string(const IntVector2& v) noexcept {
-    std::ostringstream ss;
-    ss << '[' << v.x << ',' << v.y << ']';
-    return ss.str();
+    return std::format("[{},{}]", v.x, v.y);
 }

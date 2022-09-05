@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include <cmath>
+#include <format>
 #include <sstream>
 
 const IntVector4 IntVector4::Zero(0, 0, 0, 0);
@@ -148,7 +149,5 @@ bool IntVector4::operator==(const IntVector4& rhs) noexcept {
 }
 
 std::string StringUtils::to_string(const IntVector4& v) noexcept {
-    std::ostringstream ss;
-    ss << '[' << v.x << ',' << v.y << ',' << v.z << ',' << v.w << ']';
-    return ss.str();
+    return std::format("[{},{},{},{}]", v.x, v.y, v.z, v.w);
 }

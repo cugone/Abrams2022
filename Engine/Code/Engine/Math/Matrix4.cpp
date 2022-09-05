@@ -3,6 +3,7 @@
 #include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
+#include <format>
 #include <sstream>
 
 const Matrix4 Matrix4::I{};
@@ -1309,16 +1310,9 @@ std::istream& operator>>(std::istream& in_stream, Matrix4& m) noexcept {
 }
 
 std::string StringUtils::to_string(const Matrix4& m) noexcept {
-    std::ostringstream ss;
     const auto& x = m.GetXComponents();
     const auto& y = m.GetYComponents();
     const auto& z = m.GetZComponents();
     const auto& w = m.GetWComponents();
-    ss << '[';
-    ss << x.x << ',' << x.y << ',' << x.z << ',' << x.w;
-    ss << y.x << ',' << y.y << ',' << y.z << ',' << y.w;
-    ss << z.x << ',' << z.y << ',' << z.z << ',' << z.w;
-    ss << w.x << ',' << w.y << ',' << w.z << ',' << w.w;
-    ss << ']';
-    return ss.str();
+    return std::format("[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]", x.x, x.y, x.z, x.w, y.x, y.y, y.z, y.w, z.x, z.y, z.z, z.w, w.x, w.y, w.z, w.w);
 }

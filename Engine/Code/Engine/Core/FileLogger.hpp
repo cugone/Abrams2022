@@ -47,10 +47,6 @@ protected:
 private:
     void Initialize(const std::string& log_name) noexcept;
 
-    void InsertTimeStamp(std::stringstream& msg) noexcept;
-    void InsertTag(std::stringstream& msg, const std::string& tag) noexcept;
-    void InsertMessage(std::stringstream& msg, const std::string& messageLiteral) noexcept;
-
     void Log_worker() noexcept;
     void RequestFlush() noexcept;
     [[nodiscard]] bool IsRunning() const noexcept;

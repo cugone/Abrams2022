@@ -228,12 +228,10 @@ void FileLogger::LogError(const std::string& msg) noexcept {
 }
 
 void FileLogger::LogTag(const std::string& tag, const std::string& msg) noexcept {
-    std::stringstream ss;
-    InsertTimeStamp(ss);
-    InsertTag(ss, tag);
-    InsertMessage(ss, msg);
-
-    Log(ss.str());
+    TimeUtils::DateTimeStampOptions opts;
+    opts.use_separator = true;
+    const auto str = std::format("[{}][{}] {}", TimeUtils::GetDateTimeStampFromNow(opts), tag, msg);
+    Log(str);
 }
 
 void FileLogger::LogPrintLine(const std::string& msg) noexcept {
@@ -250,20 +248,6 @@ void FileLogger::LogErrorLine(const std::string& msg) noexcept {
 
 void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) noexcept {
     LogTag(tag, msg + '\n');
-}
-
-void FileLogger::InsertTimeStamp(std::stringstream& msg) noexcept {
-    TimeUtils::DateTimeStampOptions opts{};
-    opts.use_separator = true;
-    msg << "[" << TimeUtils::GetDateTimeStampFromNow(opts) << "]";
-}
-
-void FileLogger::InsertTag(std::stringstream& msg, const std::string& tag) noexcept {
-    msg << "[" << tag << "]";
-}
-
-void FileLogger::InsertMessage(std::stringstream& msg, const std::string& messageLiteral) noexcept {
-    msg << ' ' << messageLiteral;
 }
 
 void FileLogger::Flush() noexcept {

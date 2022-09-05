@@ -6,6 +6,7 @@
 #include "Engine/Math/Vector3.hpp"
 
 #include <cmath>
+#include <format>
 #include <sstream>
 
 const IntVector3 IntVector3::Zero(0, 0, 0);
@@ -234,7 +235,5 @@ std::tuple<int, int, int> IntVector3::GetXYZ() const noexcept {
 }
 
 std::string StringUtils::to_string(const IntVector3& v) noexcept {
-    std::ostringstream ss;
-    ss << '[' << v.x << ',' << v.y << ',' << v.z << ']';
-    return ss.str();
+    return std::format("[{},{},{}]", v.x, v.y, v.z);
 }

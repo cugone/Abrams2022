@@ -461,11 +461,7 @@ template<typename T>
 void App<T>::LogSystemDescription() const {
     PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
-    std::ostringstream ss;
-    ss << std::format("{:->80}", '\n');
-    ss << StringUtils::to_string(system);
-    ss << std::format("{:->80}", '\n');
-    g_theFileLogger->LogAndFlush(ss.str());
+    g_theFileLogger->LogAndFlush(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
 template<typename T>

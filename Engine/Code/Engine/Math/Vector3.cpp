@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include <cmath>
+#include <format>
 #include <sstream>
 
 const Vector3 Vector3::Zero(0.0f, 0.0f, 0.0f);
@@ -247,7 +248,5 @@ void swap(Vector3& a, Vector3& b) noexcept {
 }
 
 std::string StringUtils::to_string(const Vector3& v) noexcept {
-    std::ostringstream ss;
-    ss << '[' << v.x << ',' << v.y << ',' << v.z << ']';
-    return ss.str();
+    return std::format("[{},{},{}]", v.x, v.y, v.z);
 }
