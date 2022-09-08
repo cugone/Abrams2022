@@ -47,11 +47,9 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
     case WM_SETICON: {
         switch(wParam) {
         case ICON_BIG: {
-            std::cout << "\nCalling SetIcon with ICON_BIG" << std::endl;
             break;
         }
         case ICON_SMALL: {
-            std::cout << "\nCalling SetIcon with ICON_SMALL" << std::endl;
             break;
         }
         }
@@ -60,15 +58,12 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
     case WM_GETICON: {
         switch(wParam) {
         case ICON_BIG: {
-            std::cout << "\nCalling GetIcon with ICON_BIG" << std::endl;
             break;
         }
         case ICON_SMALL: {
-            std::cout << "\nCalling GetIcon with ICON_SMALL" << std::endl;
             break;
         }
         case ICON_SMALL2: {
-            std::cout << "\nCalling GetIcon with ICON_SMALL2" << std::endl;
             break;
         }
         }
