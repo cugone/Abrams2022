@@ -7,11 +7,12 @@
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/FileLogger.hpp"
+#include "Engine/Core/Gif.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/Obj.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Renderer/Vertex3D.hpp"
+
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/Frustum.hpp"

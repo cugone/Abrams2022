@@ -2,6 +2,7 @@
 
 #include "Engine/Services/IService.hpp"
 
+#include "Engine/Core/Gif.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"

@@ -68,6 +68,10 @@ class Texture2D;
 class Texture3D;
 class VertexBuffer;
 
+namespace FileUtils {
+struct GifDesc;
+}
+
 class Renderer : public EngineSubsystem, public IRendererService {
 public:
     Renderer() noexcept;
