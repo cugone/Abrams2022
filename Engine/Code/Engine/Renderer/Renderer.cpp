@@ -48,6 +48,7 @@
 #include "Engine/Renderer/Texture2D.hpp"
 #include "Engine/Renderer/Texture3D.hpp"
 #include "Engine/Renderer/TextureArray2D.hpp"
+#include "Engine/Renderer/Vertex3D.hpp"
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Services/ServiceLocator.hpp"
@@ -67,6 +68,8 @@
 #include <numeric>
 #include <ostream>
 #include <sstream>
+#include <string>
+#include <string_view>
 #include <tuple>
 
 ComputeJob::ComputeJob(std::size_t uavCount,
