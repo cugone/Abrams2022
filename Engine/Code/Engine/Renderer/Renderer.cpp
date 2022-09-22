@@ -4851,12 +4851,6 @@ Texture* Renderer::CreateTexture(std::filesystem::path filepath,
 }
 
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) noexcept {
-    if(texture == nullptr) {
-        texture = GetTexture("__invalid");
-    }
-    if(m_current_target == texture) {
-        return;
-    }
     m_current_target = texture;
     m_rhi_context->SetTexture(registerIndex, m_current_target);
 }
