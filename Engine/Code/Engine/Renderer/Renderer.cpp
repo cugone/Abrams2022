@@ -1086,6 +1086,9 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexc
 }
 
 void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) noexcept {
+    if(index >= 16) {
+        return;
+    }
     m_lighting_data.lights[index] = light;
     m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
     SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
