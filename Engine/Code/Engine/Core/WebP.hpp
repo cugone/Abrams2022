@@ -46,8 +46,7 @@ public:
     ~WebP() noexcept = default;
 
     void Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
-    void Render() const noexcept;
-    //const Texture* GetTexture(std::size_t index) const noexcept;
+    void Render(const Matrix4& transform = Matrix4::I) const noexcept;
 
     std::size_t GetFrameCount() const noexcept;
     std::size_t GetFrameCount() noexcept;

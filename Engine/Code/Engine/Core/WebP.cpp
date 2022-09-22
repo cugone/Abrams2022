@@ -114,7 +114,7 @@ void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     //frameDuration += deltaSeconds;
 }
 
-void WebP::Render() const noexcept {
+void WebP::Render(const Matrix4& transform/* = Matrix4::I*/) const noexcept {
     PROFILE_BENCHMARK_FUNCTION();
 
     auto* r = ServiceLocator::get<IRendererService>();
@@ -124,14 +124,9 @@ void WebP::Render() const noexcept {
         IntVector4 data{static_cast<int>(m_currentFrame), 0, 0, 0};
         cb.Update(*(r->GetDeviceContext()), &data);
     }
-    const auto S = Matrix4::CreateScaleMatrix(Vector2{static_cast<float>(m_width), static_cast<float>(m_height)});
-    const auto R = Matrix4::I;
-    const auto T = Matrix4::I;
-    const auto M = Matrix4::MakeSRT(S, R, T);
     r->SetMaterial(mat);
     r->SetTexture(m_frames.get());
-    r->SetModelMatrix(M);
-    r->DrawQuad2D();
+    r->DrawQuad2D(transform);
 }
 
 std::size_t WebP::GetFrameCount() const noexcept {
