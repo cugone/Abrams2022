@@ -30,7 +30,6 @@ WebP::WebP(const XMLElement& elem) noexcept {
 
 void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
-    bool frame_changed = false;
     if(m_frameDuration >= m_frameDurations[m_currentFrame]) {
         ++m_currentFrame;
         m_frameDuration = TimeUtils::FPSeconds::zero();
@@ -50,17 +49,12 @@ void WebP::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
         if(m_currentFrame >= m_maxFrames) {
             m_currentFrame = m_maxFrames - 1;
         }
-        frame_changed = true;
     }
     m_frameDuration += deltaSeconds;
     m_elapsedDuration += deltaSeconds;
     if(m_elapsedDuration >= m_totalDuration) {
         m_elapsedDuration = TimeUtils::FPSeconds::zero();
         m_currentFrame = m_beginFrame;
-        frame_changed = true;
-    }
-    if(frame_changed) {
-        m_webp_data.currentFrame_padding3.x = static_cast<int>(m_currentFrame);
     }
 
     //TODO: Implement Animation Modes
@@ -124,10 +118,11 @@ void WebP::Render() const noexcept {
     PROFILE_BENCHMARK_FUNCTION();
 
     auto* r = ServiceLocator::get<IRendererService>();
-    auto* mat = r->GetMaterial("__webp");
+    auto* mat = r->GetMaterial("__unlit2DSprite");
     if(const auto& cbs = mat->GetShader()->GetConstantBuffers(); !cbs.empty()) {
         auto& cb = cbs[0].get();
-        cb.Update(*(r->GetDeviceContext()), &m_webp_data);
+        IntVector4 data{static_cast<int>(m_currentFrame), 0, 0, 0};
+        cb.Update(*(r->GetDeviceContext()), &data);
     }
     const auto S = Matrix4::CreateScaleMatrix(Vector2{static_cast<float>(m_width), static_cast<float>(m_height)});
     const auto R = Matrix4::I;
@@ -173,12 +168,6 @@ void WebP::LoadFromXml(const XMLElement& elem) noexcept {
     m_beginFrame = DataUtils::ParseXmlAttribute(*xml_animset, "beginframe", 0);
     m_endFrame = DataUtils::ParseXmlAttribute(*xml_animset, "endframe", m_frameCount);
     m_currentFrame = m_beginFrame;
-    auto* r = ServiceLocator::get<IRendererService>();
-    m_webp_data.currentFrame_padding3 = IntVector4{static_cast<int>(m_currentFrame), 0, 0, 0};
-    if(auto cbs = r->GetMaterial("__webp")->GetShader()->GetConstantBuffers(); !cbs.empty()) {
-        auto& cb = cbs[0].get();
-        cb.Update(*(r->GetDeviceContext()), &m_webp_data);
-    }
     const auto is_looping = DataUtils::ParseXmlAttribute(*xml_animset, "loop", false);
     const auto is_reverse = DataUtils::ParseXmlAttribute(*xml_animset, "reverse", false);
     const auto is_pingpong = DataUtils::ParseXmlAttribute(*xml_animset, "pingpong", false);
@@ -210,14 +199,9 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
             m_width = anim_info.canvas_width;
             m_height = anim_info.canvas_height;
             m_maxLoopCount = anim_info.loop_count;
-            m_webp_data.currentFrame_padding3 = IntVector4{static_cast<int>(m_currentFrame), 0, 0, 0};
             {
                 auto* r = ServiceLocator::get<IRendererService>();
-                auto* mat = r->GetMaterial("__webp");
-                if(const auto& cbs = mat->GetShader()->GetConstantBuffers(); !cbs.empty()) {
-                    auto& webp_cb = cbs[0].get();
-                    webp_cb.Update(*r->GetDeviceContext(), &m_webp_data);
-                }
+                auto* mat = r->GetMaterial("__unlit2DSprite");
                 const auto row_offset = std::size_t{4u} * anim_info.canvas_width;
                 const auto slice_offset = static_cast<std::size_t>(row_offset * anim_info.canvas_height);
                 auto anim_frame_data = std::vector<uint8_t>(anim_info.frame_count * slice_offset);

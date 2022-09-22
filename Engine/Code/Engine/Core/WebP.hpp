@@ -62,10 +62,6 @@ private:
 
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept;
 
-    struct webp_buffer_t {
-        IntVector4 currentFrame_padding3{};
-    };
-
     std::unique_ptr<Texture> m_frames{};
     std::size_t m_currentFrame{0u};
     std::size_t m_beginFrame{0u};
@@ -78,7 +74,6 @@ private:
     uint32_t m_frameCount{0u};
     uint32_t m_loopCount{0u};
     uint32_t m_maxLoopCount{0u};
-    mutable webp_buffer_t m_webp_data{};
     std::vector<TimeUtils::FPMilliseconds> m_frameDurations{};
     TimeUtils::FPSeconds m_totalDuration{};
     TimeUtils::FPSeconds m_frameDuration{};
