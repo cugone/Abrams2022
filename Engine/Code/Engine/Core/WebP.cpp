@@ -154,6 +154,10 @@ void WebP::SetEndFrame(std::size_t newEndFrame) noexcept {
     }
 }
 
+Vector2 WebP::GetDimensions() const noexcept {
+    return Vector2{static_cast<float>(m_width), static_cast<float>(m_height)};
+}
+
 void WebP::LoadFromXml(const XMLElement& elem) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "", "name");

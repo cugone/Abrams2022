@@ -55,6 +55,8 @@ public:
     void SetBeginFrame(std::size_t newBeginFrame) noexcept;
     void SetEndFrame(std::size_t newEndFrame) noexcept;
 
+    Vector2 GetDimensions() const noexcept;
+
 protected:
 private:
     void LoadFromXml(const XMLElement& elem) noexcept;
