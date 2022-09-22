@@ -4529,8 +4529,8 @@ void Renderer::DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vec
 }
 
 void Renderer::ClearRenderTargets(const RenderTargetType& rtt) noexcept {
-    ID3D11DepthStencilView* dsv = m_current_depthstencil->GetDepthStencilView();
-    ID3D11RenderTargetView* rtv = m_current_target->GetRenderTargetView();
+    ID3D11DepthStencilView* dsv = m_current_depthstencil ? m_current_depthstencil->GetDepthStencilView() : nullptr;
+    ID3D11RenderTargetView* rtv = m_current_target ? m_current_target->GetRenderTargetView() : nullptr;
     switch(rtt) {
     case RenderTargetType::None:
         return;
