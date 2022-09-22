@@ -470,14 +470,14 @@ private:
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultNormalMapShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultFontShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultCircle2DShaderProgram() noexcept;
-    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultWebPShaderProgram() noexcept;
+    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultUnlit2DSpriteShaderProgram() noexcept;
 
     [[nodiscard]] void CreateAndRegisterDefaultShaders() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultUnlitShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefault2DShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultCircle2DShader() noexcept;
-    [[nodiscard]] std::unique_ptr<Shader> CreateDefaultWebPShader() noexcept;
+    [[nodiscard]] std::unique_ptr<Shader> CreateDefaultUnlit2DSpriteShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalMapShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultInvalidShader() noexcept;
@@ -492,7 +492,7 @@ private:
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultNormalMapMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultInvalidMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultCircle2DMaterial() noexcept;
-    [[nodiscard]] std::unique_ptr<Material> CreateDefaultWebPMaterial() noexcept;
+    [[nodiscard]] std::unique_ptr<Material> CreateDefaultUnlit2DSpriteMaterial() noexcept;
 
     void CreateAndRegisterDefaultEngineFonts() noexcept;
 
