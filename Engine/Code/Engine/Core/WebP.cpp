@@ -187,6 +187,7 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
         WebPAnimDecoderOptions dec_options{};
         WebPAnimDecoderOptionsInit(&dec_options);
         dec_options.color_mode = MODE_RGBA;
+        dec_options.use_threads = true;
         if(WebPAnimDecoder* dec = WebPAnimDecoderNew(&webp_data, &dec_options); dec != nullptr) {
             WebPAnimInfo anim_info{};
             WebPAnimDecoderGetInfo(dec, &anim_info);
