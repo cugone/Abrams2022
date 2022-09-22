@@ -137,6 +137,7 @@
     <ClCompile Include="Renderer\DepthStencilState.cpp" />
     <ClCompile Include="Renderer\DirectX\DX11.cpp" />
     <ClCompile Include="Renderer\DrawInstruction.cpp" />
+    <ClCompile Include="Renderer\Flipbook.cpp" />
     <ClCompile Include="Renderer\FrameBuffer.cpp" />
     <ClCompile Include="Renderer\IndexBuffer.cpp" />
     <ClCompile Include="Renderer\InputLayout.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="Renderer\DepthStencilState.hpp" />
     <ClInclude Include="Renderer\DirectX\DX11.hpp" />
     <ClInclude Include="Renderer\DrawInstruction.hpp" />
+    <ClInclude Include="Renderer\Flipbook.hpp" />
     <ClInclude Include="Renderer\FrameBuffer.hpp" />
     <ClInclude Include="Renderer\IndexBuffer.hpp" />
     <ClInclude Include="Renderer\InputLayout.hpp" />

@@ -1128,6 +1128,10 @@ std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const AnimatedSpr
     return std::make_unique<AnimatedSprite>(desc);
 }
 
+std::unique_ptr<Flipbook> Renderer::CreateFlipbookFromFolder(std::filesystem::path folderpath, unsigned int framesPerSecond) noexcept {
+    return std::make_unique<Flipbook>(folderpath, framesPerSecond);
+}
+
 std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const XMLElement& elem) noexcept {
     return std::make_shared<SpriteSheet>(elem);
 }
@@ -5412,6 +5416,92 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
         subresource_data[i].SysMemPitch = rowPitch;
         subresource_data[i].SysMemSlicePitch = slicePitch;
         srcPtr += slicePitch;
+    }
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_tex{};
+
+    //If IMMUTABLE or not multi-sampled, must use initial data.
+    bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
+    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool mustUseInitialData = isImmutable || !isMultiSampled;
+
+    HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
+    delete[] subresource_data;
+    subresource_data = nullptr;
+    bool succeeded = SUCCEEDED(hr);
+    if(succeeded) {
+        return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
+    } else {
+        return nullptr;
+    }
+}
+
+std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::filesystem::path folderpath) noexcept {
+
+    const auto files = FileUtils::GetAllPathsInFolders(folderpath, Image::GetSupportedExtensionsList());
+    if(files.empty()) {
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath.string(), Image::GetSupportedExtensionsList()));
+        logger->Flush();
+        return {};
+    }
+
+    const auto images = [=]() {
+        std::vector<Image> images;
+        images.reserve(files.size());
+        for(const auto& file : files) {
+            images.emplace_back(file);
+        }
+        return images;
+    }();
+
+    if(!std::all_of(std::cbegin(images), std::cend(images), [&](const Image& a) { return images[0].GetDimensions() == a.GetDimensions(); })) {
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogWarnLine("Create2DTextureArrayFromFolder: All images must be the same dimensions.");
+        logger->Flush();
+        return {};
+    }
+
+    const unsigned int width = images[0].GetDimensions().x;
+    const unsigned int height = images[0].GetDimensions().y;
+    const unsigned int depth = static_cast<unsigned int>(images.size());
+
+    D3D11_TEXTURE2D_DESC tex_desc{};
+    tex_desc.Width = width;
+    tex_desc.Height = height;
+    tex_desc.MipLevels = 1;
+    tex_desc.ArraySize = depth;
+
+    constexpr auto bufferUsage = BufferUsage::Static;
+    constexpr auto bindUsage = BufferBindUsage::Shader_Resource;
+    constexpr auto imageFormat = ImageFormat::R8G8B8A8_UNorm;
+
+    tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
+    tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
+    tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
+    //Make every texture a target and shader resource
+    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
+    tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
+    //Force specific usages for unordered access
+    if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
+        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
+        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
+    }
+    //Staging textures can't be bound to the graphics pipeline.
+    if(!!(bufferUsage & BufferUsage::Staging)) {
+        tex_desc.BindFlags = 0;
+    }
+    tex_desc.MiscFlags = 0;
+    tex_desc.SampleDesc.Count = 1;
+    tex_desc.SampleDesc.Quality = 0;
+
+    // Setup Initial Data
+    D3D11_SUBRESOURCE_DATA* subresource_data = new D3D11_SUBRESOURCE_DATA[depth];
+    const unsigned int rowPitch = width * sizeof(unsigned int);
+    const unsigned int slicePitch = height * rowPitch;
+    for(unsigned int i = 0; i < depth; ++i) {
+        subresource_data[i].pSysMem = images[i].GetData();
+        subresource_data[i].SysMemPitch = rowPitch;
+        subresource_data[i].SysMemSlicePitch = slicePitch;
     }
     Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_tex{};
 
