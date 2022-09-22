@@ -174,7 +174,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
             auto* logger = ServiceLocator::get<IFileLoggerService>();
-            logger->LogErrorLine("File: " + filepath.string() + " is inaccessible.");
+            logger->LogErrorLine(std::format("File: {} is inaccessible.", filepath.string()));
             return {};
         }
     }
