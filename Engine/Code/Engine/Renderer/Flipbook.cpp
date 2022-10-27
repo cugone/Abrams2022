@@ -11,7 +11,7 @@ Flipbook::Flipbook(std::filesystem::path folderpath, unsigned int framesPerSecon
 : m_texture{ServiceLocator::get<IRendererService>()->Create2DTextureArrayFromFolder(folderpath)}
 , m_frameRate(framesPerSecond)
 {
-    /* DO NOTHING */
+    m_frameDimensions = IntVector2{m_texture->GetDimensions()};
 }
 
 Flipbook::Flipbook(std::unique_ptr<Texture>&& texture, unsigned int framesPerSecond /*= 3*/) noexcept
