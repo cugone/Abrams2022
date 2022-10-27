@@ -89,6 +89,9 @@
     <Filter Include="Renderer\DirectX\Shaders">
       <UniqueIdentifier>{af4d5889-90f3-42e2-bf0e-38cb68966b9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Thirdparty\Webm">
+      <UniqueIdentifier>{f91794cc-398f-477d-b7f8-8d9b5a350aea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
