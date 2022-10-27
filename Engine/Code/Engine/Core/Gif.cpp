@@ -93,6 +93,7 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
             m_frameDelays = std::vector<TimeUtils::FPMilliseconds>(delays, delays + frame_count);
             m_totalFrames = frame_count;
             m_endFrame = (std::min)(m_endFrame, m_totalFrames - std::size_t{1u});
+            m_currentFrame = m_startFrame;
             if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
                 m_currentFrame = m_endFrame;
             }
