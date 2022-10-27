@@ -154,4 +154,9 @@ IntVector2 Gif::GetDimensions() const noexcept {
     return IntVector2{m_texture->GetDimensions().x, m_texture->GetDimensions().y};
 }
 
+void Gif::SetImage(std::filesystem::path newFilepath) noexcept {
+    SetFrameRange(0u, static_cast<std::size_t>(-1));
+    Load(newFilepath);
+}
+
 } // namespace FileUtils
