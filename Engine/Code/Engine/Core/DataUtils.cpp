@@ -89,19 +89,22 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(actualOptionalChildElementNames));
     std::sort(actualOptionalChildElementNames.begin(), actualOptionalChildElementNames.end());
 
+    const auto get_xml_list_as_string = [](const auto& list) -> const std::string {
+        std::string s{};
+        for(const auto& a : list) {
+            s += '\t' + a + '\n';
+        }
+        return s;
+    };
+
     //Find missing attributes
     std::vector<std::string> missingRequiredAttributes;
     std::set_difference(requiredAttributeNames.begin(), requiredAttributeNames.end(),
                         actualAttributeNames.begin(), actualAttributeNames.end(),
                         std::back_inserter(missingRequiredAttributes));
     {
-        const auto err_ss = [&missingRequiredAttributes]() -> const std::string {
-            auto msg = std::string{"Attribute validation failed. Missing required attribute(s):"};
-            for(const auto& c : missingRequiredAttributes) {
-                msg += '\t' + c + '\n';
-            }
-            return msg;
-        }(); //IIIL
+        const auto list_s = get_xml_list_as_string(missingRequiredAttributes);
+        const auto err_ss = std::format("Attribute validation failed for {}. Missing required attributes(s):\n{}\n", name, get_xml_list_as_string(missingRequiredAttributes));
         GUARANTEE_OR_DIE(missingRequiredAttributes.empty(), err_ss.c_str());
     }
 
@@ -111,13 +114,8 @@ void ValidateXmlElement(const XMLElement& element,
                         actualChildElementNames.begin(), actualChildElementNames.end(),
                         std::back_inserter(missingRequiredChildren));
     {
-        const auto err_ss = [&missingRequiredChildren]() -> const std::string {
-            auto msg = std::string{"Child Element validation failed. Missing required child element(s) "};
-            for(const auto& c : missingRequiredChildren) {
-                msg += '\t' + c + '\n';
-            }
-            return msg;
-        }(); //IIIL
+        const auto list_s = get_xml_list_as_string(missingRequiredChildren);
+        const auto err_ss = std::format("Child Element validation failed for {}. Missing required child element(s):\n{}\n", name, get_xml_list_as_string(missingRequiredChildren));
         GUARANTEE_OR_DIE(missingRequiredChildren.empty(), err_ss.c_str());
     }
 
@@ -129,11 +127,8 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(extraOptionalAttributes));
 
     if(!extraOptionalAttributes.empty()) {
-        std::string err_ss = "\nOptional Attribute validation failed. Verify attributes are correct. Found unknown attributes:\n";
-        for(auto&& c : extraOptionalAttributes) {
-            err_ss += '\t' + c + '\n';
-        }
-        DebuggerPrintf(err_ss);
+        const auto list_s = get_xml_list_as_string(extraOptionalAttributes);
+        DebuggerPrintf(std::format("\nOptional Attribute validation failed for {}. Verify attributes are correct. Found unknown attributes:\n{}", name, get_xml_list_as_string(extraOptionalAttributes)));
     }
 
     //Find extra children
@@ -143,11 +138,8 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(extraOptionalChildren));
 
     if(!extraOptionalChildren.empty()) {
-        std::string err_ss = "Optional Child validation failed. Verify attributes are correct. Found unknown children:\n";
-        for(auto&& c : extraOptionalChildren) {
-            err_ss += '\t' + c + '\n';
-        }
-        DebuggerPrintf(err_ss);
+        const auto list_s = get_xml_list_as_string(extraOptionalChildren);
+        DebuggerPrintf(std::format("\nOptional Child Element validation failed for {}. Verify child elements are correct. Found unknown children:\n{}\n", name, get_xml_list_as_string(extraOptionalChildren)));
     }
 #endif //#if DEBUG_BUILD
 }
