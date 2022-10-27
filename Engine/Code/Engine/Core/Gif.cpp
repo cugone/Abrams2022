@@ -121,7 +121,14 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
 
 void Gif::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     m_frameDuration += deltaSeconds;
-    if(m_frameDuration >= m_frameDelays[m_currentFrame]) {
+    const auto frame_delay = [this]() {
+        try {
+            return m_frameDelays.at(m_currentFrame);
+        } catch(...) {
+            return m_frameDelays[m_startFrame];
+        }
+    }();
+    if(m_frameDuration >= frame_delay) {
         if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
             --m_currentFrame;
         } else {
