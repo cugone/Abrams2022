@@ -31,10 +31,16 @@ void Gif::SetPlayMode(const Gif::PlayMode& newMode) noexcept {
 
 void Gif::SetStartFrame(const std::size_t& newStartFrame) noexcept {
     m_startFrame = newStartFrame;
+    if(m_currentFrame < m_startFrame) {
+        m_currentFrame = m_startFrame;
+    }
 }
 
 void Gif::SetEndFrame(const std::size_t& newEndFrame) noexcept {
     m_endFrame = newEndFrame;
+    if(m_currentFrame > m_endFrame) {
+        m_currentFrame = m_endFrame;
+    }
 }
 
 void Gif::SetFrameRange(const std::size_t& newStartFrame, const std::size_t& newEndFrame) noexcept {
