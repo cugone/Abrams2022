@@ -1646,9 +1646,7 @@ void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, co
 
         builder.AddIndicies(Mesh::Builder::Primitive::Quad);
 
-        std::string::const_iterator previous_char = text_iter;
-        ++text_iter;
-        if(text_iter != text.end()) {
+        if (std::string::const_iterator previous_char = text_iter++; text_iter != text.end()) {
             int kern_value = font->GetKerningValue(*previous_char, *text_iter);
             cursor_x += (current_def.xadvance + kern_value);
         }
@@ -1711,18 +1709,14 @@ void Renderer::DrawTextLine(const Matrix4& transform, const KerningFont* font, c
 
         builder.AddIndicies(Mesh::Builder::Primitive::Quad);
 
-        std::string::const_iterator previous_char = text_iter;
-        ++text_iter;
-        if(text_iter != text.end()) {
+        if(std::string::const_iterator previous_char = text_iter++; text_iter != text.end()) {
             int kern_value = font->GetKerningValue(*previous_char, *text_iter);
             cursor_x += (current_def.xadvance + kern_value);
         }
     }
 
     builder.End(font->GetMaterial());
-    const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers();
-    auto has_constant_buffers = !cbs.empty();
-    if(has_constant_buffers) {
+    if(const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers(); !cbs.empty()) {
         auto& font_cb = cbs[0].get();
         Vector4 channel{1.0f, 1.0f, 1.0f, 1.0f};
         font_cb.Update(*m_rhi_context, &channel);
@@ -1744,9 +1738,7 @@ void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, con
         draw_loc.y += y;
         AppendMultiLineTextBuffer(font, line, draw_loc, color, vbo, ibo);
     }
-    const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers();
-    auto has_constant_buffers = !cbs.empty();
-    if(has_constant_buffers) {
+    if(const auto& cbs = font->GetMaterial()->GetShader()->GetConstantBuffers(); !cbs.empty()) {
         auto& font_cb = cbs[0].get();
         Vector4 channel{1.0f, 1.0f, 1.0f, 1.0f};
         font_cb.Update(*m_rhi_context, &channel);
@@ -1797,9 +1789,7 @@ void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& t
         ibo.push_back(s - 2);
         ibo.push_back(s - 1);
 
-        std::string::const_iterator previous_char = text_iter;
-        ++text_iter;
-        if(text_iter != text.end()) {
+        if(std::string::const_iterator previous_char = text_iter++; text_iter != text.end()) {
             int kern_value = font->GetKerningValue(*previous_char, *text_iter);
             cursor_x += (current_def.xadvance + kern_value);
         }
