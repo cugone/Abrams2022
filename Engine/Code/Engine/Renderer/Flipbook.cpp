@@ -30,37 +30,28 @@ void Flipbook::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexce
         return;
     }
     if(m_frameRate.Check()) {
-        switch(m_playmode) {
-        case Playmode::Forward:
+        if(CheckPlaymode(Playmode::Forward)) {
             AdvanceFrame(1);
-            if(m_currentFrame >= m_texture->GetDimensions().z - 1) {
+            if(m_currentFrame == m_texture->GetDimensions().z) {
                 SetFrame(0);
             }
-            break;
-        case Playmode::Backward:
+        } else if(CheckPlaymode(Playmode::Backward)) {
             AdvanceFrame(-1);
             if(m_currentFrame < 0) {
                 SetFrame(m_texture->GetDimensions().z - 1);
             }
-            break;
-        case Playmode::StepForward:
+        } else if(CheckPlaymode(Playmode::StepForward)) {
             StepForward();
-            if(m_currentFrame > m_texture->GetDimensions().z - 1) {
+            if(m_currentFrame == m_texture->GetDimensions().z) {
                 SetFrame(m_texture->GetDimensions().z - 1);
             }
             m_playmode = Playmode::Paused;
-            break;
-        case Playmode::StepBackward:
+        } else if(CheckPlaymode(Playmode::StepBackward)) {
             StepBackward();
             if(m_currentFrame < 0) {
                 SetFrame(0);
             }
             m_playmode = Playmode::Paused;
-            break;
-        case Playmode::Paused:
-            break;
-        default:
-            break;
         }
     }
 }
@@ -91,7 +82,7 @@ void Flipbook::SetDuration(TimeUtils::FPSeconds duration) noexcept {
 }
 
 void Flipbook::SetFrame(int frameIndex) noexcept {
-    m_currentFrame = std::clamp(frameIndex, 0, m_texture->GetDimensions().z - 1);
+    m_currentFrame = std::clamp(frameIndex, -1, m_texture->GetDimensions().z);
     m_frameRate.Reset();
 }
 
@@ -120,23 +111,22 @@ void Flipbook::StepBackward() noexcept {
 void Flipbook::SetPlaymode(const Playmode& mode) noexcept {
     switch(mode) {
     case Playmode::Forward:
-        m_state |= 0b1000;
+        m_state = 0b1000;
         break;
     case Playmode::Backward:
-        m_state |= 0b0100;
+        m_state = 0b0100;
         break;
     case Playmode::StepForward:
-        m_state |= 0b0010;
+        m_state = 0b1010;
         break;
     case Playmode::StepBackward:
-        m_state |= 0b0010;
+        m_state = 0b0110;
         break;
     case Playmode::Paused:
         m_state |= 0b0001;
         break;
     default:
         break;
-
     }
 }
 
@@ -149,10 +139,10 @@ void Flipbook::ClearPlaymode(const Playmode& mode) noexcept {
         m_state &= ~(0b0100);
         break;
     case Playmode::StepForward:
-        m_state &= ~(0b0010);
+        m_state &= ~(0b1010);
         break;
     case Playmode::StepBackward:
-        m_state &= ~(0b0010);
+        m_state &= ~(0b0110);
         break;
     case Playmode::Paused:
         m_state &= ~(0b0001);
