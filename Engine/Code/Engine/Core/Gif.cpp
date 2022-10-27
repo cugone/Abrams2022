@@ -99,15 +99,21 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
             }
             m_duration = TimeUtils::FPSeconds{std::accumulate(std::cbegin(m_frameDelays), std::cend(m_frameDelays), TimeUtils::FPMilliseconds::zero(), [&](const auto& a, const auto& b) { return TimeUtils::FPMilliseconds(a.count() + b.count()); })};
             if(m_texture = r->GetTexture(filepath.string()); m_texture != nullptr) {
+                stbi_image_free(data);
+                data = nullptr;
                 return true;
             }
             if(auto texture = r->Create2DTextureArrayFromMemory(data, width, height, frame_count); texture != nullptr) {
                 m_texture = texture.get();
                 if(!r->RegisterTexture(filepath.string(), std::move(texture))) {
+                    stbi_image_free(data);
+                    data = nullptr;
                     logger->LogLineAndFlush(std::format("Failed to register texture from .gif file: {}", filepath.string()));
                     return false;
                 }
             }
+            stbi_image_free(data);
+            data = nullptr;
         }
         return true;
     }
