@@ -45,6 +45,8 @@ public:
 
 protected:
 private:
+    bool Load(const GifDesc& desc) noexcept;
+
     std::vector<TimeUtils::FPMilliseconds> m_frameDelays{};
     Texture* m_texture{};
     TimeUtils::FPSeconds m_duration{};

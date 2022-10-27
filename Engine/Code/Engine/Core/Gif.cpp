@@ -42,6 +42,12 @@ void Gif::SetFrameRange(const std::size_t& newStartFrame, const std::size_t& new
     SetEndFrame(newEndFrame);
 }
 
+bool Gif::Load(const GifDesc& desc) noexcept {
+    SetFrameRange(desc.startFrame, desc.endFrame);
+    SetPlayMode(desc.playMode);
+    return Load(desc.filepath);
+}
+
 bool Gif::Load(std::filesystem::path filepath) noexcept {
     auto* r = ServiceLocator::get<IRendererService>();
     auto* logger = ServiceLocator::get<IFileLoggerService>();
