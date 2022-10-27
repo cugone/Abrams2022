@@ -72,6 +72,20 @@ constexpr const std::ratio<1024, 1> BYTES_KIB_RATIO;             // Bytes/Kiloby
 constexpr const std::ratio<1048576, 1> BYTES_MIB_RATIO;          // Bytes/Megabytes
 constexpr const std::ratio<1073741824, 1> BYTES_GIB_RATIO;       // Bytes/Gigabytes
 
+template<std::integral auto num>
+constexpr int DigitCount = num >= -9 && num <= 9 ? 1 : 1 + DigitCount<num / 10>;
+
+template<typename T>
+const std::size_t DigitLength(T num) noexcept {
+    static_assert(std::is_integral_v<T>, "Template argument must be an integral type.");
+    std::size_t digits = num < 0 ? 1 : 0;
+    do {
+        num /= 10;
+        ++digits;
+    } while(num);
+    return digits;
+}
+
 const unsigned int GetRandomSeed() noexcept;
 void SetRandomEngineSeed(unsigned int seed) noexcept;
 [[nodiscard]] std::random_device& GetRandomDevice() noexcept;
