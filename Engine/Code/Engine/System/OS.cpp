@@ -15,7 +15,7 @@
 #endif
 
 std::ostream& System::OS::operator<<(std::ostream& out, const System::OS::OsDesc& os) noexcept {
-    out << std::format("{:<40}{:>35}\n", "Operator System:", os.VersionFriendly);
+    out << std::format("{:<40}{:>35}\n", "Operating System:", os.VersionFriendly);
     return out;
 }
 
