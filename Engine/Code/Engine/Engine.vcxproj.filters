@@ -637,6 +637,9 @@
     <ClCompile Include="Core\Gif.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\WebM.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1538,6 +1541,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\webm_parser.h">
       <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\WebM.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

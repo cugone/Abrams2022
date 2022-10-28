@@ -67,6 +67,7 @@
     <ClCompile Include="Core\TimeUtils.cpp" />
     <ClCompile Include="Core\Utilities.cpp" />
     <ClCompile Include="Core\UUID.cpp" />
+    <ClCompile Include="Core\WebM.cpp" />
     <ClCompile Include="Core\WebP.cpp" />
     <ClCompile Include="Game\GameBase.cpp" />
     <ClCompile Include="Game\GameSettings.cpp" />
@@ -352,6 +353,7 @@
     <ClInclude Include="Core\TypeUtils.hpp" />
     <ClInclude Include="Core\Utilities.hpp" />
     <ClInclude Include="Core\UUID.hpp" />
+    <ClInclude Include="Core\WebM.hpp" />
     <ClInclude Include="Core\WebP.hpp" />
     <ClInclude Include="Game\GameBase.hpp" />
     <ClInclude Include="Game\GameSettings.hpp" />
