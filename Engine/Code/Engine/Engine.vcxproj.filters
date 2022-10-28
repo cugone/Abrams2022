@@ -92,6 +92,33 @@
     <Filter Include="Thirdparty\Webm">
       <UniqueIdentifier>{f91794cc-398f-477d-b7f8-8d9b5a350aea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Thirdparty\Webm\common">
+      <UniqueIdentifier>{edc8a998-723f-4361-8886-c7c1704ebe0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\m2ts">
+      <UniqueIdentifier>{c776b3e5-91c9-48ae-b239-012c253d69c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\mkvmuxer">
+      <UniqueIdentifier>{ceb6d2d1-9fc9-4fca-9eb0-4d15b1253e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\mkvparser">
+      <UniqueIdentifier>{a03bb596-7541-4b9c-821a-c96f33ec8127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\webm_parser">
+      <UniqueIdentifier>{929ababe-10f7-4df3-a751-599327ae535c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\webvtt">
+      <UniqueIdentifier>{2ec134fe-8ae0-4007-b8c8-7ea8b8068c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\webm_parser\include">
+      <UniqueIdentifier>{a3c5c759-cf21-4a46-84a7-e4ed74b14b63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\webm_parser\src">
+      <UniqueIdentifier>{b40d7da6-f2ff-4cbb-a2fb-426be082f14e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Webm\webm_parser\include\webm">
+      <UniqueIdentifier>{a94fa2a2-c7bd-4ac1-9099-73591c09c91a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -1214,6 +1241,303 @@
     </ClInclude>
     <ClInclude Include="Core\Gif.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\hdr_util.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxertypes.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxerutil.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvparser.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvreader.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvwriter.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\sample_muxer_metadata.h">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\vttreader.h">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webmids.hpp">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webvttparser.h">
+      <Filter>Thirdparty\Webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\file_util.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\hdr_util.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\indent.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\libwebm_util.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\video_frame.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\vp9_header_parser.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\vp9_level_stats.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\webm_constants.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\webm_endian.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\common\webmids.h">
+      <Filter>Thirdparty\Webm\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\m2ts\vpxpes_parser.h">
+      <Filter>Thirdparty\Webm\m2ts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\m2ts\vpxpes2ts.h">
+      <Filter>Thirdparty\Webm\m2ts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\m2ts\webm2pes.h">
+      <Filter>Thirdparty\Webm\m2ts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxer.h">
+      <Filter>Thirdparty\Webm\mkvmuxer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxertypes.h">
+      <Filter>Thirdparty\Webm\mkvmuxer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxerutil.h">
+      <Filter>Thirdparty\Webm\mkvmuxer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvwriter.h">
+      <Filter>Thirdparty\Webm\mkvmuxer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvparser\mkvparser.h">
+      <Filter>Thirdparty\Webm\mkvparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\mkvparser\mkvreader.h">
+      <Filter>Thirdparty\Webm\mkvparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webvtt\vttreader.h">
+      <Filter>Thirdparty\Webm\webvtt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webvtt\webvttparser.h">
+      <Filter>Thirdparty\Webm\webvtt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\ancestory.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\audio_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\bit_utils.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_additions_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_group_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_header_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_more_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\bool_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\byte_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapter_atom_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapter_display_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapters_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cluster_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\colour_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_enc_aes_settings_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encoding_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encodings_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encryption_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cue_point_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cue_track_positions_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cues_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\date_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\ebml_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\edition_entry_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\element_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\float_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\id_element_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\id_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\info_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\int_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\master_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\master_value_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\mastering_metadata_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\parser_utils.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\projection_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\recursive_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\seek_head_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\seek_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\segment_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\simple_tag_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\size_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\skip_callback.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\skip_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\slices_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tag_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tags_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\targets_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\time_slice_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\track_entry_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tracks_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\unknown_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\var_int_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\video_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\virtual_block_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\void_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\buffer_reader.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\callback.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\dom_types.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\element.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\file_reader.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\id.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\istream_reader.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\reader.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\status.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\webm_parser.h">
+      <Filter>Thirdparty\Webm\webm_parser\include\webm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

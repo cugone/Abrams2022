@@ -207,6 +207,105 @@
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\file_util.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\hdr_util.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\indent.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\libwebm_util.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\video_frame.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\vp9_header_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\vp9_level_stats.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\webmids.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\webm_constants.h" />
+    <ClInclude Include="..\Thirdparty\webm\common\webm_endian.h" />
+    <ClInclude Include="..\Thirdparty\webm\hdr_util.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\m2ts\vpxpes2ts.h" />
+    <ClInclude Include="..\Thirdparty\webm\m2ts\vpxpes_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\m2ts\webm2pes.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxertypes.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxerutil.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxer.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxertypes.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvmuxerutil.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvmuxer\mkvwriter.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvparser.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\mkvparser\mkvparser.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvparser\mkvreader.h" />
+    <ClInclude Include="..\Thirdparty\webm\mkvreader.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\mkvwriter.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\sample_muxer_metadata.h" />
+    <ClInclude Include="..\Thirdparty\webm\vttreader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webmids.hpp" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\buffer_reader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\callback.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\dom_types.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\element.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\file_reader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\id.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\istream_reader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\reader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\status.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\include\webm\webm_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\ancestory.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\audio_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\bit_utils.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_additions_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_group_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_header_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_more_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\block_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\bool_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\byte_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapters_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapter_atom_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\chapter_display_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cluster_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\colour_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encodings_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encoding_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_encryption_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\content_enc_aes_settings_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cues_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cue_point_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\cue_track_positions_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\date_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\ebml_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\edition_entry_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\element_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\float_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\id_element_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\id_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\info_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\int_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\mastering_metadata_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\master_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\master_value_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\parser_utils.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\projection_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\recursive_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\seek_head_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\seek_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\segment_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\simple_tag_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\size_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\skip_callback.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\skip_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\slices_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tags_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tag_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\targets_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\time_slice_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\tracks_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\track_entry_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\unknown_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\var_int_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\video_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\virtual_block_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webm_parser\src\void_parser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webvttparser.h" />
+    <ClInclude Include="..\Thirdparty\webm\webvtt\vttreader.h" />
+    <ClInclude Include="..\Thirdparty\webm\webvtt\webvttparser.h" />
     <ClInclude Include="..\Thirdparty\webp\decode.h" />
     <ClInclude Include="..\Thirdparty\webp\demux.h" />
     <ClInclude Include="..\Thirdparty\webp\encode.h" />
@@ -495,8 +594,8 @@
     </ClCompile>
     <Lib />
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libwebp_debug.lib;libwebpdemux_debug.lib;libwebpmux_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libwebp_debug.lib;libwebpdemux_debug.lib;libwebpmux_debug.lib;libwebm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -513,8 +612,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">
@@ -532,8 +631,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/final;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">
@@ -551,8 +650,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
