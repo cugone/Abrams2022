@@ -119,6 +119,9 @@
     <Filter Include="Thirdparty\Webm\webm_parser\include\webm">
       <UniqueIdentifier>{a94fa2a2-c7bd-4ac1-9099-73591c09c91a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{4d62a80a-02cf-4def-a9a9-e0da024d7ca8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
