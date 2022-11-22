@@ -144,6 +144,28 @@ void ValidateXmlElement(const XMLElement& element,
 #endif //#if DEBUG_BUILD
 }
 
+void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std::string validValuesList) noexcept {
+    {
+        const auto has_attribute = HasAttribute(elem, attributeName);
+        const auto elem_name = GetElementName(elem);
+        const auto msg = std::format("Attribute validation failed. Element \"{}\" is missing attribute with name: {}", elem_name, attributeName);
+        GUARANTEE_OR_DIE(has_attribute, msg.c_str());
+    }
+    const auto attribute_is_valid = [&elem, &validValuesList, &attributeName]() {
+        const auto attribute_value = DataUtils::GetAttributeAsString(elem, attributeName);
+        for(const auto& attribute : StringUtils::Split(validValuesList)) {
+            if(attribute == attribute_value) {
+                return true;
+            }
+        }
+        return false;
+    }(); //IIIL
+    {
+        const auto msg = std::format("Attribute validation failed. Attribute \"{}\" value is invalid. Must be one of: {}", attributeName, validValuesList);
+        GUARANTEE_OR_DIE(attribute_is_valid, msg.c_str());
+    }
+}
+
 std::size_t GetAttributeCount(const XMLElement& element) noexcept {
     std::size_t attributeCount = 0u;
     ForEachAttribute(element,

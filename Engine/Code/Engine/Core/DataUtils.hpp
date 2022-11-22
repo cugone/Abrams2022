@@ -94,6 +94,8 @@ void ValidateXmlElement(const XMLElement& element,
                         std::string optionalChildElements = std::string{},
                         std::string optionalAttributes = std::string{}) noexcept;
 
+void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std::string validValuesList) noexcept;
+
 std::string GetElementTextAsString(const XMLElement& element);
 std::string GetAttributeAsString(const XMLElement& element, const std::string& attributeName);
 
