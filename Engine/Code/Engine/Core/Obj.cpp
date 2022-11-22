@@ -294,7 +294,7 @@ bool Obj::Parse(const std::filesystem::path& filepath) noexcept {
                     continue;
                 } else if(key == "f") {
                     if(value.find('-') != std::string::npos) {
-                        DebuggerPrintf("OBJ implementation does not support relative reference numbers!\n");
+                        DebuggerPrintf("ERROR: OBJ implementation does not support relative reference numbers!\n");
                         PrintErrorToDebugger(filepath, "face index", line_index);
                         return false;
                     }
