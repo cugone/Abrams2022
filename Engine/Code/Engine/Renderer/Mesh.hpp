@@ -61,6 +61,8 @@ public:
         DrawInstruction m_current_draw_instruction{};
     };
 
+    Mesh(const Mesh::Builder& builder) noexcept;
+    Mesh(Mesh::Builder&& builder) noexcept;
     static void Render(const Mesh::Builder& builder) noexcept;
     void Render() const noexcept;
 
