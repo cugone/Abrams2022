@@ -548,6 +548,7 @@ bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
 bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(p)) {
+        DebuggerPrintf(std::format("Filesystem Error: {:s} does not exist.\n", p.string()));
         return false;
     }
     //Check for any read permissions on the file and parent directory
