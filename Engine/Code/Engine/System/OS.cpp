@@ -129,16 +129,14 @@ System::OS::OperatingSystem System::OS::GetOperatingSystemType() noexcept {
 }
 
 std::string System::OS::GetFriendlyStringFromOperatingSystemType(System::OS::OperatingSystem type) noexcept {
+    using namespace std::literals::string_literals;
     if((type & OperatingSystem::Windows) != OperatingSystem::Unknown) {
-        std::string s{};
         if((type & OperatingSystem::Windows_x86) != OperatingSystem::Unknown) {
-            s = std::string{"Windows 32-bit"};
+            return "Windows 32-bit"s;
         }
         if((type & OperatingSystem::Windows_x64) != OperatingSystem::Unknown) {
-            s = std::string{"Windows 64-bit"};
+            return "Windows 64-bit"s;
         }
-        return s;
-    } else {
-        return {};
     }
+    return {};
 }
