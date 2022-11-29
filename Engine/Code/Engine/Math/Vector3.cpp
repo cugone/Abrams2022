@@ -55,20 +55,51 @@ Vector3::Vector3(const Quaternion& q) noexcept
     Normalize();
 }
 
-Vector3::Vector3(const std::string& value) noexcept
-: x(0.0f)
-, y(0.0f)
-, z(0.0f) {
-    if(!value.empty()) {
-        if(value.front() == '[') {
-            if(value.back() == ']') {
-                const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
-                const auto&& values = StringUtils::Split(contents_str);
-                x = std::stof(values[0]);
-                y = std::stof(values[1]);
-                z = std::stof(values[2]);
-            }
+Vector3::Vector3(const std::string& value) noexcept {
+    if(value.empty()) {
+        return;
+    }
+    if(value.front() != '[') {
+        return;
+    }
+    if(value.back() != ']') {
+        return;
+    }
+    const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
+    if(contents_str.empty()) {
+        return;
+    }
+    const auto&& values = StringUtils::Split(contents_str);
+    if(values.empty()) {
+        return;
+    }
+    const auto size = values.size();
+    switch(size) {
+    case 1:
+        try {
+            x = y = z = std::stof(values[0]);
+        } catch(...) {
+            return;
         }
+        break;
+    case 2:
+        try {
+            x = std::stof(values[0]);
+            y = std::stof(values[1]);
+        } catch(...) {
+            return;
+        }
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    try {
+        x = std::stof(values[0]);
+        y = std::stof(values[1]);
+        z = std::stof(values[2]);
+    } catch(...) {
+        /* DO NOTHING */
     }
 }
 

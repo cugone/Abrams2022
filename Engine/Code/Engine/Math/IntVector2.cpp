@@ -33,17 +33,36 @@ IntVector2::IntVector2(const IntVector3& iv3) noexcept
     /* DO NOTHING */
 }
 
-IntVector2::IntVector2(const std::string& value) noexcept
-: x(0)
-, y(0) {
-    if(!value.empty()) {
-        if(value.front() == '[') {
-            if(value.back() == ']') {
-                const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
-                const auto&& values = StringUtils::Split(contents_str);
-                x = std::stoi(values[0]);
-                y = std::stoi(values[1]);
-            }
+IntVector2::IntVector2(const std::string& value) noexcept {
+    if(value.empty()) {
+        return;
+    }
+    if(value.front() != '[') {
+        return;
+    }
+    if(value.back() != ']') {
+        return;
+    }
+    const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
+    if(contents_str.empty()) {
+        return;
+    }
+    const auto&& values = StringUtils::Split(contents_str);
+    if(values.empty()) {
+        return;
+    }
+    if(const auto size = values.size(); size == std::size_t{1u}) {
+        try {
+            x = y = std::stoi(values[0]);
+        } catch(...) {
+            return;
+        }
+    } else {
+        try {
+            x = std::stoi(values[0]);
+            y = std::stoi(values[1]);
+        } catch(...) {
+            /* DO NOTHING */
         }
     }
 }

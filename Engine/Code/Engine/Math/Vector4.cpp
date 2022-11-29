@@ -1,9 +1,13 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include "Engine/Core/StringUtils.hpp"
+
 #include "Engine/Math/IntVector4.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+
+#include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IFileLoggerService.hpp"
 
 #include <cmath>
 #include <format>
@@ -75,14 +79,11 @@ Vector4::Vector4(std::initializer_list<float> initList) noexcept {
     case 2:
         x = (*std::next(std::begin(initList), 0));
         y = (*std::next(std::begin(initList), 1));
-        z = 0.0f;
-        w = 0.0f;
         break;
     case 3:
         x = (*std::next(std::begin(initList), 0));
         y = (*std::next(std::begin(initList), 1));
         z = (*std::next(std::begin(initList), 2));
-        w = 0.0f;
         break;
     default:
         /* DO NOTHING */
@@ -96,22 +97,61 @@ Vector4::Vector4(std::initializer_list<float> initList) noexcept {
     }
 }
 
-Vector4::Vector4(const std::string& value) noexcept
-: x(0.0f)
-, y(0.0f)
-, z(0.0f)
-, w(0.0f) {
-    if(!value.empty()) {
-        if(value.front() == '[') {
-            if(value.back() == ']') {
-                const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
-                const auto&& values = StringUtils::Split(contents_str);
-                x = std::stof(values[0]);
-                y = std::stof(values[1]);
-                z = std::stof(values[2]);
-                w = std::stof(values[3]);
-            }
+Vector4::Vector4(const std::string& value) noexcept {
+    if(value.empty()) {
+        return;
+    }
+    if(value.front() != '[') {
+        return;
+    }
+    if(value.back() != ']') {
+        return;
+    }
+    const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
+    if(contents_str.empty()) {
+        return;
+    }
+    const auto&& values = StringUtils::Split(contents_str);
+    if(values.empty()) {
+        return;
+    }
+    const auto size = values.size();
+    switch(size) {
+    case 1:
+        try {
+            x = y = z = w = std::stof(values[0]);
+        } catch(...) {
+            return;
         }
+        break;
+    case 2:
+        try {
+            x = std::stof(values[0]);
+            y = std::stof(values[1]);
+        } catch(...) {
+            return;
+        }
+        break;
+    case 3:
+        try {
+            x = std::stof(values[0]);
+            y = std::stof(values[1]);
+            z = std::stof(values[2]);
+        } catch(...) {
+            return;
+        }
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    try {
+        x = std::stof(values[0]);
+        y = std::stof(values[1]);
+        z = std::stof(values[2]);
+        w = std::stof(values[3]);
+    } catch(...) {
+        /* DO NOTHING */
     }
 }
 
