@@ -1,5 +1,7 @@
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Core/StringUtils.hpp"
+
 #include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
@@ -9,13 +11,36 @@
 const Matrix4 Matrix4::I{};
 
 Matrix4::Matrix4(const std::string& value) noexcept {
-    if(value[0] == '[') {
-        if(value.back() == ']') {
-            std::stringstream ss(value.substr(1, value.size() - 1));
-            std::string curLine;
-            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
-                m_indicies[i] = std::stof(curLine);
+    if(value.empty()) {
+        return;
+    }
+    if(value.front() != '[') {
+        return;
+    }
+    if(value.back() != ']') {
+        return;
+    }
+    const auto contents_str = std::string{std::begin(value) + 1, std::end(value) - 1};
+    if(contents_str.empty()) {
+        return;
+    }
+    const auto&& values = StringUtils::Split(contents_str);
+    if(values.empty()) {
+        return;
+    }
+    if(const auto size = values.size(); size == std::size_t{1u}) {
+        try {
+            std::fill(std::begin(m_indicies), std::end(m_indicies), std::stof(values[0]));
+        } catch(...) {
+            return;
+        }
+    } else {
+        try {
+            for(std::size_t i = 0u; i < values.size(); ++i) {
+                m_indicies[i] = std::stof(values[i]);
             }
+        } catch(...) {
+            return;
         }
     }
 }
