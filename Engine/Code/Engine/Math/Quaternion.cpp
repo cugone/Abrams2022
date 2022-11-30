@@ -119,23 +119,10 @@ Quaternion::Quaternion(const Vector3& rotations) noexcept
     }
 }
 
-Quaternion::Quaternion(const std::string& value) noexcept
-: w(0.0f)
-, axis() {
-    if(value[0] == '[') {
-        if(value.back() == ']') {
-            std::stringstream ss(value.substr(1, value.size() - 1));
-            std::string curLine;
-            for(int i = 0; std::getline(ss, curLine, ','); ++i) {
-                switch(i) {
-                case 0: w = std::stof(curLine); break;
-                case 1: axis.x = std::stof(curLine); break;
-                case 2: axis.y = std::stof(curLine); break;
-                case 3: axis.z = std::stof(curLine); break;
-                }
-            }
-        }
-    }
+Quaternion::Quaternion(const std::string& value) noexcept {
+    const auto result = Vector4{value};
+    w = result.x;
+    axis.SetXYZ(result.x, result.y, result.z);
     if(!MathUtils::IsEquivalent(CalcLengthSquared(), 1.0f)) {
         Normalize();
     }
