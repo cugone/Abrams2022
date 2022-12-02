@@ -306,10 +306,12 @@ std::vector<std::size_t> FindAll(std::string string, const char c) noexcept {
         return std::vector<std::size_t>{};
     }
     std::vector<std::size_t> results{};
-    results.reserve(std::count(std::begin(string), std::end(string), c));
-    std::size_t offset = 0;
-    while((offset = string.find(c, offset)) != std::string::npos) {
-        results.push_back(offset++);
+    if(const std::size_t count = std::count(std::cbegin(string), std::cend(string), c); count) {
+        results.reserve(count);
+        std::size_t offset = 0;
+        while((offset = string.find(c, offset)) != std::string::npos) {
+            results.push_back(offset++);
+        }
     }
     return results;
 }
@@ -331,9 +333,12 @@ std::vector<std::size_t> FindAll(std::wstring string, const wchar_t c) noexcept 
         return {};
     }
     std::vector<std::size_t> results{};
-    std::size_t offset = 0;
-    while((offset = string.find(c, offset)) != std::wstring::npos) {
-        results.push_back(offset++);
+    if(const std::size_t count = std::count(std::cbegin(string), std::cend(string), c); count) {
+        results.reserve(count);
+        std::size_t offset = 0;
+        while((offset = string.find(c, offset)) != std::wstring::npos) {
+            results.push_back(offset++);
+        }
     }
     return results;
 }
