@@ -15,6 +15,7 @@
 #include <Thirdparty/TinyXML2/tinyxml2.h>
 
 #include <bit>
+#include <concepts>
 #include <cstdlib>
 #include <functional>
 #include <string>
@@ -275,8 +276,8 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] const T CalculateFloatRangeResult(const std::string& txt) noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
+requires std::floating_point<T>
+[[nodiscard]] const auto CalculateFloatRangeResult(const std::string& txt) noexcept {
     const auto values = StringUtils::SplitOnFirst(txt, '~');
     if(values.first.empty() && values.second.empty()) {
         return detail::CalculateUnboundedFloatRangeResult<T>();
@@ -290,16 +291,16 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] const T CalculateRangeResult(const std::string& txt) noexcept {
+[[nodiscard]] const auto CalculateRangeResult(const std::string& txt) noexcept {
     //std::uniform_int_distribution doesn't allow 8-bit types or bool.
-    constexpr auto is_invalid_type_v = TypeUtils::is_any_of_v<std::remove_cv_t<T>, unsigned char, signed char, char, int8_t, uint8_t>;
+    constexpr auto is_invalid_type_v = TypeUtils::is_any_of<std::remove_cvref_t<T>, unsigned char, signed char, char, int8_t, uint8_t>;
     if constexpr(!is_invalid_type_v && std::is_integral_v<T>) {
         return CalculateIntegerRangeResult<T>(txt);
     } else if constexpr(std::is_floating_point_v<T>) {
         return CalculateFloatRangeResult<T>(txt);
     } else {
         if constexpr (is_invalid_type_v) {
-            return static_cast<std::add_const_t<std::remove_cv_t<T>>>(CalculateIntegerRangeResult<int>(txt));
+            return static_cast<std::add_const_t<std::remove_cvref_t<T>>>(CalculateIntegerRangeResult<int>(txt));
         } else {
             return T{txt};
         }
