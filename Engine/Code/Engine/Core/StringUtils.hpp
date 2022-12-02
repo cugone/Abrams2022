@@ -34,11 +34,6 @@ namespace StringUtils {
 [[nodiscard]] bool StartsWith(const std::string& string, char start) noexcept;
 [[nodiscard]] bool StartsWith(const std::wstring& string, wchar_t start) noexcept;
 
-[[nodiscard]] bool EndsWith(const std::string& string, const std::string& end) noexcept;
-[[nodiscard]] bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept;
-[[nodiscard]] bool EndsWith(const std::string& string, char end) noexcept;
-[[nodiscard]] bool EndsWith(const std::wstring& string, wchar_t end) noexcept;
-
 [[nodiscard]] std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept;
 [[nodiscard]] std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to) noexcept;
 

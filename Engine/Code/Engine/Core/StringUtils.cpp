@@ -276,22 +276,6 @@ bool StartsWith(const std::wstring& string, wchar_t start) noexcept {
     return string.starts_with(start);
 }
 
-bool EndsWith(const std::string& string, const std::string& end) noexcept {
-    return string.ends_with(end);
-}
-
-bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept {
-    return string.ends_with(end);
-}
-
-bool EndsWith(const std::string& string, char end) noexcept {
-    return string.ends_with(end);
-}
-
-bool EndsWith(const std::wstring& string, wchar_t end) noexcept {
-    return string.ends_with(end);
-}
-
 //From https://stackoverflow.com/a/3418285/421178
 std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept {
     if(from.empty()) {
