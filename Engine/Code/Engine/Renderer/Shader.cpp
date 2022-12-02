@@ -140,12 +140,12 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
                 GUARANTEE_OR_DIE(has_filename, "Compiled shader source path is not a file.");
                 const auto filename = p.stem();
                 const auto fn_str = filename.string();
-                const auto is_vs = has_filename && StringUtils::EndsWith(fn_str, "_VS");
-                const auto is_hs = has_filename && StringUtils::EndsWith(fn_str, "_HS");
-                const auto is_ds = has_filename && StringUtils::EndsWith(fn_str, "_DS");
-                const auto is_gs = has_filename && StringUtils::EndsWith(fn_str, "_GS");
-                const auto is_ps = has_filename && StringUtils::EndsWith(fn_str, "_PS");
-                const auto is_cs = has_filename && StringUtils::EndsWith(fn_str, "_CS");
+                const auto is_vs = has_filename && fn_str.ends_with("_VS");
+                const auto is_hs = has_filename && fn_str.ends_with("_HS");
+                const auto is_ds = has_filename && fn_str.ends_with("_DS");
+                const auto is_gs = has_filename && fn_str.ends_with("_GS");
+                const auto is_ps = has_filename && fn_str.ends_with("_PS");
+                const auto is_cs = has_filename && fn_str.ends_with("_CS");
                 const auto has_valid_staged_filename = is_vs || is_hs || is_ds || is_gs || is_ps || is_cs;
                 GUARANTEE_OR_DIE(has_valid_staged_filename, "Compiled shader source filename must end in '_VS' '_HS' '_DS' '_GS' '_PS' or '_CS'");
                 auto buffer = FileUtils::ReadBinaryBufferFromFile(p);
