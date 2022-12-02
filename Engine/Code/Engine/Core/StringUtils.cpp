@@ -261,39 +261,35 @@ std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) noe
 }
 
 bool StartsWith(const std::string& string, const std::string& start) noexcept {
-    auto found_loc = string.find(start);
-    return found_loc != std::string::npos && found_loc == 0;
+    return string.starts_with(start);
 }
 
 bool StartsWith(const std::wstring& string, const std::wstring& start) noexcept {
-    auto found_loc = string.find(start);
-    return found_loc != std::wstring::npos && found_loc == 0;
+    return string.starts_with(start);
 }
 
 bool StartsWith(const std::string& string, char start) noexcept {
-    return string.front() == start;
+    return string.starts_with(start);
 }
 
 bool StartsWith(const std::wstring& string, wchar_t start) noexcept {
-    return string.front() == start;
+    return string.starts_with(start);
 }
 
 bool EndsWith(const std::string& string, const std::string& end) noexcept {
-    auto found_loc = string.rfind(end);
-    return found_loc != std::string::npos && found_loc == string.size() - end.size();
+    return string.ends_with(end);
 }
 
 bool EndsWith(const std::wstring& string, const std::wstring& end) noexcept {
-    auto found_loc = string.rfind(end);
-    return found_loc != std::wstring::npos && found_loc == string.size() - end.size();
+    return string.ends_with(end);
 }
 
 bool EndsWith(const std::string& string, char end) noexcept {
-    return string.back() == end;
+    return string.ends_with(end);
 }
 
 bool EndsWith(const std::wstring& string, wchar_t end) noexcept {
-    return string.back() == end;
+    return string.ends_with(end);
 }
 
 //From https://stackoverflow.com/a/3418285/421178
