@@ -27,12 +27,17 @@ public:
     void SetDuration(TimeUtils::FPSeconds newDuration) noexcept;
 
     void Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
-    void Render(const Matrix4& transform = Matrix4::I) const noexcept;
+    void Render([[maybe_unused]] const Matrix4& transform = Matrix4::I) const noexcept;
+
+    auto GetDimensions() const noexcept -> const std::pair<uint64_t, uint64_t>;
+    void AddFrame(const std::vector<uint8_t>& frameData) noexcept;
 
 protected:
 private:
     std::filesystem::path m_path{};
     TimeUtils::FPSeconds m_length{};
+    std::vector<uint8_t> m_frameData{};
+    uint64_t m_frameCount{};
     uint64_t m_width{};
     uint64_t m_height{};
 };

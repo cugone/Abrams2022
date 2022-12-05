@@ -77,8 +77,10 @@ public:
         const auto frame_size = metadata.size;
         std::vector<std::uint8_t> buffer{};
         buffer.resize(frame_size);
-        std::size_t actually_read{0u};
-        if(const auto status = reader->Read(buffer.size(), buffer.data(), &actually_read); status.completed_ok()) {
+        std::uint64_t actually_read{0u};
+        if(const auto status = reader->Read(buffer.size(), buffer.data(), &actually_read); status.completed_ok() && actually_read > std::uint64_t{0u}) {
+            *bytes_remaining -= actually_read;
+            m_parent_webm->AddFrame(buffer);
             return webm::Status(webm::Status::kOkCompleted);
         } else {
             return webm::Callback::OnFrame(metadata, reader, bytes_remaining);
@@ -100,9 +102,9 @@ public:
             m_parent_webm->SetPixelDimensions(pixel_width, pixel_height);
             return webm::Status(webm::Status::kOkCompleted);
         }
-        if(const auto& audio = track_entry.audio; audio.is_present()) {
-            //Load audio for track.
-        }
+        //if(const auto& audio = track_entry.audio; audio.is_present()) {
+        //    //Load audio for track.
+        //}
         return webm::Callback::OnTrackEntry(metadata, track_entry);
     }
     webm::Status OnCuePoint(const webm::ElementMetadata& metadata, const webm::CuePoint& cue_point) override {
@@ -155,6 +157,24 @@ void WebM::SetPixelDimensions(uint64_t width, uint64_t height) noexcept {
 
 void WebM::SetDuration(TimeUtils::FPSeconds newDuration) noexcept {
     m_length = newDuration;
+}
+
+void WebM::AddFrame(const std::vector<uint8_t>& frameData) noexcept {
+    ++m_frameCount;
+    m_frameData.reserve(m_frameData.size() + frameData.size());
+    m_frameData.insert(std::cend(m_frameData), std::cbegin(frameData), std::cend(frameData));
+}
+
+void WebM::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+
+}
+
+void WebM::Render([[maybe_unused]] const Matrix4& transform /*= Matrix4::I*/) const noexcept {
+
+}
+
+auto WebM::GetDimensions() const noexcept -> const std::pair<uint64_t, uint64_t> {
+    return {m_width, m_height};
 }
 
 } // namespace FileUtils
