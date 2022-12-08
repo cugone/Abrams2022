@@ -75,12 +75,12 @@ public:
     }
     webm::Status OnFrame(const webm::FrameMetadata& metadata, webm::Reader* reader, std::uint64_t* bytes_remaining) override {
         const auto frame_size = metadata.size;
-        std::vector<std::uint8_t> buffer{};
-        buffer.resize(frame_size);
+        std::vector<std::uint8_t> compressed_buffer{};
+        compressed_buffer.resize(frame_size);
         std::uint64_t actually_read{0u};
-        if(const auto status = reader->Read(buffer.size(), buffer.data(), &actually_read); status.completed_ok() && actually_read > std::uint64_t{0u}) {
+        if(const auto status = reader->Read(compressed_buffer.size(), compressed_buffer.data(), &actually_read); status.completed_ok() && actually_read > std::uint64_t{0u}) {
             *bytes_remaining -= actually_read;
-            m_parent_webm->AddFrame(buffer);
+            
             return webm::Status(webm::Status::kOkCompleted);
         } else {
             return webm::Callback::OnFrame(metadata, reader, bytes_remaining);
