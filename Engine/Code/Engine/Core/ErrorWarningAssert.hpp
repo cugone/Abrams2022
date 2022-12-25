@@ -13,6 +13,7 @@
 
 //-----------------------------------------------------------------------------------------------
 #include <string>
+#include <source_location>
 
 //-----------------------------------------------------------------------------------------------
 enum class SeverityLevel {
@@ -25,8 +26,8 @@ enum class SeverityLevel {
 //-----------------------------------------------------------------------------------------------
 void DebuggerPrintf(const std::string& messageFormat) noexcept;
 [[nodiscard]] bool IsDebuggerAvailable() noexcept;
-[[noreturn]] void FatalError(const char* filePath, const char* functionName, int lineNum, const std::string& reasonForError, const char* conditionText = nullptr);
-void RecoverableWarning(const char* filePath, const char* functionName, int lineNum, const std::string& reasonForWarning, const char* conditionText = nullptr) noexcept;
+[[noreturn]] void FatalError(const std::string& reasonForError, const char* conditionText = nullptr, std::source_location location = std::source_location::current());
+void RecoverableWarning(const std::string& reasonForWarning, const char* conditionText = nullptr, std::source_location location = std::source_location::current()) noexcept;
 void SystemDialogue_Okay(const std::string& messageTitle, const std::string& messageText, SeverityLevel severity) noexcept;
 [[nodiscard]] bool SystemDialogue_OkayCancel(const std::string& messageTitle, const std::string& messageText, SeverityLevel severity) noexcept;
 [[nodiscard]] bool SystemDialogue_YesNo(const std::string& messageTitle, const std::string& messageText, SeverityLevel severity) noexcept;
@@ -48,7 +49,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
 //
 #define ERROR_AND_DIE(errorMessageText)                                 \
     {                                                                   \
-        FatalError(__FILE__, __FUNCTION__, __LINE__, errorMessageText); \
+        FatalError(errorMessageText); \
     }
 
 //-----------------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
 //
 #define ERROR_RECOVERABLE(errorMessageText)                                     \
     {                                                                           \
-        RecoverableWarning(__FILE__, __FUNCTION__, __LINE__, errorMessageText); \
+        RecoverableWarning(errorMessageText); \
     }
 
 //-----------------------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
     {                                                                                      \
         if(!(condition)) {                                                                 \
             const char* conditionText = #condition;                                        \
-            FatalError(__FILE__, __FUNCTION__, __LINE__, errorMessageText, conditionText); \
+            FatalError(errorMessageText, conditionText); \
         }                                                                                  \
     }
 
@@ -101,7 +102,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
     {                                                                                              \
         if(!(condition)) {                                                                         \
             const char* conditionText = #condition;                                                \
-            RecoverableWarning(__FILE__, __FUNCTION__, __LINE__, errorMessageText, conditionText); \
+            RecoverableWarning(errorMessageText, conditionText); \
         }                                                                                          \
     }
 
@@ -124,7 +125,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
         {                                                                                      \
             if(!(condition)) {                                                                 \
                 const char* conditionText = #condition;                                        \
-                FatalError(__FILE__, __FUNCTION__, __LINE__, errorMessageText, conditionText); \
+                FatalError(errorMessageText, conditionText); \
             }                                                                                  \
         }
 #endif
@@ -148,7 +149,7 @@ void SystemDialogue_Okay(const std::string& messageTitle, const std::string& mes
         {                                                                                              \
             if(!(condition)) {                                                                         \
                 const char* conditionText = #condition;                                                \
-                RecoverableWarning(__FILE__, __FUNCTION__, __LINE__, errorMessageText, conditionText); \
+                RecoverableWarning(errorMessageText, conditionText); \
             }                                                                                          \
         }
 #endif
