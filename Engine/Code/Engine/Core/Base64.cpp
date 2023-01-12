@@ -1,5 +1,7 @@
 #include "Engine/Core/Base64.hpp"
 
+#include "Engine/Platform/Win.hpp"
+
 #include <array>
 #include <bitset>
 #include <sstream>
@@ -87,8 +89,19 @@ std::string detail::Encode(std::istream& input, std::size_t size) noexcept {
 }
 
 std::string Decode(const std::string& input) noexcept {
+#if 0//def PLATFORM_WINDOWS
+    DWORD required_size{};
+    ::CryptBinaryToStringA(reinterpret_cast<const unsigned char*>(input.data()), static_cast<DWORD>(input.size()), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &required_size);
+    std::string output(static_cast<std::size_t>(required_size), '\0');
+    if(::CryptBinaryToStringA(reinterpret_cast<const unsigned char*>(input.data()), static_cast<DWORD>(input.size()), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, output.data(), &required_size)) {
+        return output;
+    } else {
+        return {};
+    }
+#else
     std::istringstream ss(input);
     return detail::Decode(ss, input.size());
+#endif
 }
 
 std::string Decode(std::istream& input) noexcept {
