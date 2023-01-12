@@ -281,7 +281,6 @@ void App<T>::Initialize() noexcept {
 
 template<typename T>
 void App<T>::InitializeService() {
-    PROFILE_BENCHMARK_FUNCTION();
     Initialize();
 }
 
@@ -505,7 +504,6 @@ void App<T>::Maximize() const {
 
 template<typename T>
 void App<T>::RunMessagePump() const {
-    PROFILE_BENCHMARK_FUNCTION();
     MSG msg{};
     for(;;) {
         const BOOL hasMsg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
