@@ -168,6 +168,13 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
     m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
     m_worker = std::jthread(&FileLogger::Log_worker, this);
     ThreadUtils::SetThreadDescription(m_worker, L"FileLogger");
+    ProfileMetadata metadata{};
+    metadata.threadName = "FileLogger";
+    metadata.threadID = m_worker.get_id();
+    metadata.ProcessID = ThreadUtils::GetProcessIDFromThread(m_worker);
+    metadata.threadSortIndex = 1;
+    Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadName, metadata);
+    Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadSortIndex, metadata);
     const auto ss = std::string{"Initializing Logger: "} + m_current_log_path.string() + "...";
     LogLine(ss.c_str());
 }
