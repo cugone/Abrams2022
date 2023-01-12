@@ -15,7 +15,7 @@
 template<typename GameType>
 class Engine {
 public:
-    static_assert(std::is_base_of_v<std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameBase>>>, std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameType>>>>, "GameType template parameter is not derived from GameBase.");
+    static_assert(std::is_base_of_v<std::remove_cvref_t<std::remove_pointer_t<GameBase>>, std::remove_cvref_t<std::remove_pointer_t<GameType>>>, "GameType template parameter is not derived from GameBase.");
     static void Initialize(const std::string& title, const std::string& cmdString) noexcept;
     static void Run() noexcept;
     static void Shutdown() noexcept;
