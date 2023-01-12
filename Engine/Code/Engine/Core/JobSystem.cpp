@@ -11,6 +11,7 @@
 #include <sstream>
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     JobConsumer jc;
     jc.AddCategory(JobType::Generic);
     SetCategorySignal(JobType::Generic, signal);
@@ -60,9 +61,16 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
 
     for(std::size_t i = 0; i < static_cast<std::size_t>(core_count); ++i) {
         auto t = std::jthread(&JobSystem::GenericJobWorker, this, m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
-        std::wstring desc{L"Generic Job Thread "};
-        desc += std::to_wstring(i);
+        std::string desc{"Generic Job Thread "};
+        desc += std::to_string(i);
         ThreadUtils::SetThreadDescription(t, desc);
+        ProfileMetadata metadata{};
+        metadata.threadName = desc;
+        metadata.threadID = t.get_id();
+        metadata.threadSortIndex = i + 2;
+        metadata.ProcessID = ThreadUtils::GetProcessIDFromThread(t);
+        Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadName, metadata);
+        Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadSortIndex, metadata);
         m_threads[i] = std::move(t);
     }
 }
@@ -119,10 +127,12 @@ void JobSystem::MainStep() noexcept {
 }
 
 void JobSystem::SetCategorySignal(const JobType& category_id, std::condition_variable* signal) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     m_signals[static_cast<std::underlying_type_t<JobType>>(category_id)] = signal;
 }
 
 Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>& cb, void* user_data) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     auto* j = new Job();
     j->type = category;
     j->state = JobState::Created;
@@ -133,12 +143,14 @@ Job* JobSystem::Create(const JobType& category, const std::function<void(void*)>
 }
 
 void JobSystem::Run(const JobType& category, const std::function<void(void*)>& cb, void* user_data) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Job* job = Create(category, cb, user_data);
     job->state = JobState::Running;
     DispatchAndRelease(job);
 }
 
 void JobSystem::Dispatch(Job* job) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     job->state = JobState::Dispatched;
     ++job->num_dependencies;
     const auto jobtype = TypeUtils::GetUnderlyingValue<JobType>(job->type);
@@ -150,6 +162,7 @@ void JobSystem::Dispatch(Job* job) noexcept {
 }
 
 bool JobSystem::Release(Job* job) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     const auto dcount = --job->num_dependencies;
     if(dcount != 0) {
         return false;
@@ -159,30 +172,36 @@ bool JobSystem::Release(Job* job) noexcept {
 }
 
 void JobSystem::Wait(Job* job) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     while(job->state != JobState::Finished) {
         std::this_thread::yield();
     }
 }
 
 void JobSystem::DispatchAndRelease(Job* job) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Dispatch(job);
     Release(job);
 }
 
 void JobSystem::WaitAndRelease(Job* job) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     Wait(job);
     Release(job);
 }
 
 bool JobSystem::IsRunning() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     bool running = m_is_running;
     return running;
 }
 
 void JobSystem::SetIsRunning(bool value /*= true*/) noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     m_is_running = value;
 }
 
 std::condition_variable* JobSystem::GetMainJobSignal() const noexcept {
+    PROFILE_BENCHMARK_FUNCTION();
     return m_main_job_signal;
 }
