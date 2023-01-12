@@ -41,6 +41,7 @@ public:
     void Render(const Matrix4& transform = Matrix4::I) const noexcept;
 
     IntVector2 GetDimensions() const noexcept;
+    std::size_t GetFrameCount() const noexcept;
     void SetImage(std::filesystem::path newFilepath) noexcept;
 
 protected:
