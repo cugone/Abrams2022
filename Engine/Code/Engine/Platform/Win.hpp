@@ -13,6 +13,9 @@
     #include <KnownFolders.h>
     #include <ShObjIdl.h>
     #include <processthreadsapi.h>
+    #include <wincrypt.h>
+    #pragma comment(lib, "Crypt32.lib")
+
 
     #ifdef NETWORKING
         #include <WS2tcpip.h>
