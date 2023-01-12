@@ -15,12 +15,6 @@ const Vector2 Vector2::One(1.0f, 1.0);
 const Vector2 Vector2::XY_Axis(1.0f, 1.0);
 const Vector2 Vector2::YX_Axis(1.0f, 1.0);
 
-Vector2::Vector2(float initialX, float initialY) noexcept
-: x(initialX)
-, y(initialY) {
-    /* DO NOTHING */
-}
-
 Vector2::Vector2(const Vector3& rhs) noexcept
 : x(rhs.x)
 , y(rhs.y) {

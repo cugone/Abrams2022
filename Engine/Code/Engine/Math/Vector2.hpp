@@ -28,7 +28,13 @@ public:
     ~Vector2() noexcept = default;
 
     explicit Vector2(const std::string& value) noexcept;
-    explicit Vector2(float initialX, float initialY) noexcept;
+
+    constexpr explicit Vector2(float initialX, float initialY) noexcept
+    : x(initialX)
+    , y(initialY) {
+        /* DO NOTHING */
+    }
+
     explicit Vector2(const Vector3& rhs) noexcept;
     explicit Vector2(const IntVector2& intvec2) noexcept;
 
@@ -85,8 +91,8 @@ public:
     void RotateDegrees(float degrees) noexcept;
     void SetXY(float newX, float newY) noexcept;
 
-    float x = 0.0f;
-    float y = 0.0f;
+    float x{0.0f};
+    float y{0.0f};
 
     friend void swap(Vector2& a, Vector2& b) noexcept;
 
