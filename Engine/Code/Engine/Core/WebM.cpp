@@ -75,16 +75,18 @@ public:
     }
     webm::Status OnFrame(const webm::FrameMetadata& metadata, webm::Reader* reader, std::uint64_t* bytes_remaining) override {
         const auto frame_size = metadata.size;
-        std::vector<std::uint8_t> compressed_buffer{};
-        compressed_buffer.resize(frame_size);
+        std::vector<std::uint8_t> encoded_buffer{};
+        encoded_buffer.resize(frame_size);
         std::uint64_t actually_read{0u};
-        if(const auto status = reader->Read(compressed_buffer.size(), compressed_buffer.data(), &actually_read); status.completed_ok() && actually_read > std::uint64_t{0u}) {
+        webm::Status status{};
+        std::size_t offset{actually_read};
+        do {
+            status = reader->Read(encoded_buffer.size(), encoded_buffer.data() + offset, &actually_read);
+            offset += actually_read;
             *bytes_remaining -= actually_read;
-            
-            return webm::Status(webm::Status::kOkCompleted);
-        } else {
-            return webm::Callback::OnFrame(metadata, reader, bytes_remaining);
-        }
+        } while(status.code == webm::Status::kOkPartial);
+        m_parent_webm->BindEncodedBufferToGpu(encoded_buffer);
+        return webm::Status{webm::Status::Code::kOkCompleted};
     }
     webm::Status OnClusterEnd(const webm::ElementMetadata& metadata, const webm::Cluster& cluster) override {
         return webm::Callback::OnClusterEnd(metadata, cluster);
@@ -130,7 +132,6 @@ WebM::WebM(std::filesystem::path filesystem) noexcept {
 }
 
 bool WebM::Load(std::filesystem::path filepath) noexcept {
-
     if(auto buffer = FileUtils::ReadBinaryBufferFromFile(filepath); buffer.has_value()) {
         m_path = filepath;
         webm::BufferReader reader{buffer.value()};
