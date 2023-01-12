@@ -168,10 +168,9 @@ void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std
 
 std::size_t GetAttributeCount(const XMLElement& element) noexcept {
     std::size_t attributeCount = 0u;
-    ForEachAttribute(element,
-                     [&](const XMLAttribute& /*attribute*/) {
-                         ++attributeCount;
-                     });
+    for(auto* attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
+        ++attributeCount;
+    }
     return attributeCount;
 }
 
@@ -202,10 +201,10 @@ bool HasAttribute(const XMLElement& element, const std::string& name) {
 
 std::size_t GetChildElementCount(const XMLElement& element, const std::string& elementName /*= std::string("")*/) noexcept {
     std::size_t childCount = 0u;
-    ForEachChildElement(element, elementName,
-                        [&](const XMLElement& /*elem*/) {
-                            ++childCount;
-                        });
+    const auto childNameAsCStr = elementName.empty() ? nullptr : elementName.c_str();
+    for(auto* xml_iter = element.FirstChildElement(childNameAsCStr); xml_iter != nullptr; xml_iter = xml_iter->NextSiblingElement(childNameAsCStr)) {
+        ++childCount;
+    }
     return childCount;
 }
 
