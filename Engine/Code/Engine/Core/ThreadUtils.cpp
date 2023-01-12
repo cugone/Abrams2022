@@ -33,6 +33,30 @@ void GetThreadDescription(std::thread& thread, std::wstring& description) noexce
 #endif
 }
 
+unsigned long GetProcessId() noexcept {
+#ifdef PLATFORM_WINDOWS
+    return static_cast<unsigned long>(::GetCurrentProcessId());
+#else
+    return 0ul;
+#endif
+}
+
+unsigned long GetProcessIDFromThread(std::jthread& thread) noexcept {
+#ifdef PLATFORM_WINDOWS
+    return static_cast<unsigned long>(::GetProcessIdOfThread(thread.native_handle()));
+#else
+    return 0ul;
+#endif
+}
+
+unsigned long GetProcessIDFromThisThread() noexcept {
+#ifdef PLATFORM_WINDOWS
+    return static_cast<unsigned long>(::GetProcessIdOfThread(::GetCurrentThread()));
+#else
+    return 0ul;
+#endif
+}
+
 void SetThreadDescription(std::jthread& thread, const std::string& description) noexcept {
     auto wide_description = StringUtils::ConvertMultiByteToUnicode(description);
     SetThreadDescription(thread, wide_description);
