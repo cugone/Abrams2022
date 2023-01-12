@@ -219,18 +219,10 @@ std::vector<std::string> GetChildElementNames(const XMLElement& element) noexcep
 }
 
 bool HasChild(const XMLElement& elem) noexcept {
-    bool result = false;
-    ForEachChildElement(elem, std::string{}, [&result](const XMLElement&) {
-        result = true;
-    });
-    return result;
+    return elem.FirstChildElement() != nullptr;
 }
 bool HasChild(const XMLElement& elem, const std::string& name) noexcept {
-    bool result = false;
-    ForEachChildElement(elem, name, [&result](const XMLElement&) {
-        result = true;
-    });
-    return result;
+    return elem.FirstChildElement(name.empty() ? nullptr : name.c_str()) != nullptr;
 }
 
 std::string GetElementName(const XMLElement& elem) noexcept {
