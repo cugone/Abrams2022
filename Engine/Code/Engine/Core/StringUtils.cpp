@@ -301,6 +301,40 @@ std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std
     return string;
 }
 
+std::string RemoveAll(std::string string, const std::string& what) noexcept {
+    return ReplaceAll(string, what, "");
+}
+
+std::wstring RemoveAll(std::wstring string, const std::wstring& what) noexcept {
+    return ReplaceAll(string, what, L"");
+}
+
+std::string RemoveAllWhitespace(std::string string) noexcept {
+    if(string.empty()) {
+        return string;
+    }
+    string = RemoveAll(string, " ");
+    string = RemoveAll(string, "\r");
+    string = RemoveAll(string, "\n");
+    string = RemoveAll(string, "\t");
+    string = RemoveAll(string, "\v");
+    string = RemoveAll(string, "\f");
+    return string;
+}
+
+std::wstring RemoveAllWhitespace(std::wstring string) noexcept {
+    if(string.empty()) {
+        return string;
+    }
+    string = RemoveAll(string, L" ");
+    string = RemoveAll(string, L"\r");
+    string = RemoveAll(string, L"\n");
+    string = RemoveAll(string, L"\t");
+    string = RemoveAll(string, L"\v");
+    string = RemoveAll(string, L"\f");
+    return string;
+}
+
 std::vector<std::size_t> FindAll(std::string string, const char c) noexcept {
     if(string.empty()) {
         return std::vector<std::size_t>{};

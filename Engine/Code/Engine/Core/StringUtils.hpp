@@ -36,6 +36,10 @@ namespace StringUtils {
 
 [[nodiscard]] std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept;
 [[nodiscard]] std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to) noexcept;
+[[nodiscard]] std::string RemoveAll(std::string string, const std::string& what) noexcept;
+[[nodiscard]] std::wstring RemoveAll(std::wstring string, const std::wstring& what) noexcept;
+[[nodiscard]] std::string RemoveAllWhitespace(std::string string) noexcept;
+[[nodiscard]] std::wstring RemoveAllWhitespace(std::wstring string) noexcept;
 
 [[nodiscard]] std::vector<std::size_t> FindAll(std::string string, const char c) noexcept;
 [[nodiscard]] std::vector<std::size_t> FindAll(std::wstring string, const wchar_t c) noexcept;
