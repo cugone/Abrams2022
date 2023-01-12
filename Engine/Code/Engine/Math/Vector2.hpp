@@ -18,7 +18,7 @@ public:
     [[nodiscard]] static Vector2 CreateFromPolarCoordinatesDegrees(float length, float directionDegrees);
     [[nodiscard]] static Vector2 CreateFromPolarCoordinatesRadians(float length, float directionRadians);
 
-    Vector2() noexcept = default;
+    constexpr Vector2() noexcept = default;
     Vector2(const Vector2& other) noexcept = default;
     Vector2(Vector2&& other) noexcept = default;
 
