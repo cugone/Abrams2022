@@ -314,6 +314,23 @@ template<typename T>
     auto retVal = defaultValue;
     const auto attr = GetAttributeAsString(element, attributeName);
     const auto is_range = attr.find('~') != std::string::npos;
+    if(is_range && attr == "~") {
+        if constexpr(std::is_same_v<std::remove_cvref_t<T>, char>) {
+            return attr[0];
+        } else if constexpr(std::is_unsigned_v<T>) {
+            return static_cast<T>(std::stoull(attr));
+        } else if constexpr(std::is_signed_v<T> && !std::is_floating_point_v<T>) {
+            return static_cast<T>(std::stoll(attr));
+        } else if constexpr(std::is_signed_v<T> && std::is_floating_point_v<T>) {
+            return static_cast<T>(std::stold(attr));
+        } else {
+            if(attr.empty()) {
+                return defaultValue;
+            } else {
+                return T{attr};
+            }
+        }
+    }
     if(!is_range) {
         try {
             if constexpr(std::is_same_v<T, bool>) {
