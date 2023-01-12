@@ -471,9 +471,8 @@ template<typename T, std::size_t... Is>
 } // namespace detail
 
 template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] T SmoothStart(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStart requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStart requires value of N to be non-negative and non-zero.");
     return detail::SmoothStart_helper(t, std::make_index_sequence<N>{});
 }
 
