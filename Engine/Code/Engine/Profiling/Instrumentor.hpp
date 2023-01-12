@@ -16,9 +16,11 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/ThreadUtils.hpp"
 
 #include "Engine/Platform/Win.hpp"
 
+#include <iostream>
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -27,19 +29,20 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <source_location>
 
 struct ProfileResult {
     std::string Name;
     long long Start;
     long long End;
-    std::thread::id ThreadID;
+    std::jthread::id ThreadID;
 };
 
 struct ProfileMetadata {
     long long ProcessID{};
     long long processSortIndex{};
     long long threadSortIndex{};
-    std::thread::id threadID{};
+    std::jthread::id threadID{};
     std::string processName{};
     std::string processLabels{};
     std::string threadName{};
@@ -81,78 +84,76 @@ public:
         }
     }
 
+    void WriteSessionData(MetaDataCategory cat, const ProfileMetadata& data) {
+        if(!m_OutputStream.is_open()) {
+            return;
+        }
+        std::scoped_lock lock(m_cs);
+        if(m_ProfileCount++ > 0) {
+            m_OutputStream << ",";
+        }
+        switch(cat) {
+        case MetaDataCategory::ProcessName:
+        {
+            constexpr auto fmt = R"({{"name": "process_name", "ph": "M", "pid": {}, "tid": {}, "args": {{ "name": "{}" }} }})";
+            const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.processName.c_str()));
+            break;
+        }
+        case MetaDataCategory::ProcessLabels:
+            break;
+        case MetaDataCategory::ProcessSortIndex:
+        {
+            constexpr auto fmt = R"({{"name": "process_sort_index", "ph": "M", "pid": {}, "tid": {}, "args": {{ "sort_index": "{}" }} }})";
+            const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.processSortIndex));
+            break;
+        }
+        case MetaDataCategory::ThreadName:
+        {
+            constexpr auto fmt = R"({{"name": "thread_name", "ph": "M", "pid": {}, "tid": {}, "args": {{ "name": "{}" }} }})";
+            const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.threadName.c_str()));
+            break;
+        }
+        case MetaDataCategory::ThreadSortIndex: {
+            constexpr auto fmt = R"({{"name": "thread_sort_index", "ph": "M", "pid": {}, "tid": {}, "args": {{ "sort_index": "{}" }} }})";
+            const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.threadSortIndex));
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
     void WriteProfile(const ProfileResult& result) {
         if(!m_OutputStream.is_open()) {
             return;
         }
+        std::scoped_lock lock(m_cs);
         if(m_ProfileCount++ > 0)
             m_OutputStream << ",";
 
         std::string name = result.Name;
+        const auto tid = [result]() -> unsigned int { std::ostringstream ss; ss << result.ThreadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
         std::replace(std::begin(name), std::end(name), '"', '\'');
-        TrimName(name);
-        m_OutputStream << "{";
-        m_OutputStream << "\"cat\":\"function\",";
-        m_OutputStream << "\"dur\":" << (result.End - result.Start) << ',';
-        m_OutputStream << "\"name\":\"" << name << "\",";
-        m_OutputStream << "\"ph\":\"X\",";
-#ifdef PLATFORM_WINDOWS
-        m_OutputStream << "\"pid\": " << static_cast<unsigned long>(::GetCurrentProcessId()) << ',';
-#else
-        m_OutputStream << "\"pid\": " << 0ul << ',';
-#endif
-        m_OutputStream << "\"tid\":" << result.ThreadID << ",";
-        m_OutputStream << "\"ts\":" << result.Start;
-        m_OutputStream << "}";
-    }
-
-    void TrimName(std::string& name) {
-        const std::string str_cdecl_conv{"__cdecl"};
-        const std::string str_syscall_conv{"__syscall"};
-        const std::string str_pascal_conv{"__pascal"};
-        const std::string str_stdcall_conv{"__stdcall"};
-        const std::string str_fastcall_conv{"__fastcall"};
-        const std::string str_vectorcall_conv{"__vectorcall"};
-        const std::string str_safecall_conv{"__safecall"};
-        const std::string str_clrcall_conv{"__clrcall"};
-        const std::string str_void{"void"};
-        if(name.starts_with(str_void)) {
-            if(const auto iter = name.find(str_void); iter != std::string::npos) {
-                name.replace(iter, str_void.size(), " ");
-            }
-        }
-        if(const auto iter = name.find(str_cdecl_conv); iter != std::string::npos) {
-            name.replace(iter, str_cdecl_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_syscall_conv); iter != std::string::npos) {
-            name.replace(iter, str_syscall_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_pascal_conv); iter != std::string::npos) {
-            name.replace(iter, str_pascal_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_stdcall_conv); iter != std::string::npos) {
-            name.replace(iter, str_stdcall_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_fastcall_conv); iter != std::string::npos) {
-            name.replace(iter, str_fastcall_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_vectorcall_conv); iter != std::string::npos) {
-            name.replace(iter, str_vectorcall_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_safecall_conv); iter != std::string::npos) {
-            name.replace(iter, str_safecall_conv.size(), " ");
-        }
-        if(const auto iter = name.find(str_clrcall_conv); iter != std::string::npos) {
-            name.replace(iter, str_clrcall_conv.size(), " ");
-        }
-        name = StringUtils::TrimWhitespace(name);
+        constexpr auto fmt = R"({{"cat":"function","dur":{},"name":"{:s}","ph":"X","pid": {},"tid":{},"ts":{}}})";
+        m_OutputStream << std::vformat(fmt, std::make_format_args(
+                                            (result.End - result.Start),
+                                            name.c_str(),
+                                            ThreadUtils::GetProcessId(),
+                                            tid,
+                                            result.Start));
     }
 
     void WriteHeader() {
+        std::scoped_lock lock(m_cs);
         m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
     }
 
     void WriteFooter() {
+        std::scoped_lock lock(m_cs);
         m_OutputStream << "]}";
     }
 
@@ -164,23 +165,21 @@ public:
 private:
     std::unique_ptr<InstrumentationSession> m_CurrentSession{nullptr};
     std::ofstream m_OutputStream{};
+    mutable std::mutex m_cs{};
     int m_ProfileCount{0};
 };
 
 class InstrumentationTimer {
 public:
-    InstrumentationTimer(const char* name)
-    : m_Name(name)
+    InstrumentationTimer(const char* name, std::source_location location = std::source_location::current())
+    : m_Name(name == nullptr ? location.function_name() : name)
     , m_StartTimepoint(std::chrono::steady_clock::now())
-    , m_Stopped(false)
     {
         /* DO NOTHING */
     }
 
     ~InstrumentationTimer() {
-        if(!m_Stopped) {
-            Stop();
-        }
+        Stop();
     }
 
     void Stop() {
@@ -190,26 +189,23 @@ public:
         long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
 
         Instrumentor::Get().WriteProfile({m_Name, start, end, std::this_thread::get_id()});
-
-        m_Stopped = true;
     }
 
 private:
     const char* m_Name;
     std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
-    bool m_Stopped;
 };
 
 #ifdef PROFILE_BUILD
 
-#define PROFILE_BENCHMARK_BEGIN(name, filename) Instrumentor::Get().BeginSession(name, filename)
+#define PROFILE_BENCHMARK_BEGIN(name, filepath) Instrumentor::Get().BeginSession(name, filepath)
 #define PROFILE_BENCHMARK_END() Instrumentor::Get().EndSession()
 #define PROFILE_BENCHMARK_SCOPE(name) InstrumentationTimer TOKEN_PASTE(timer,__LINE__)(name)
-#define PROFILE_BENCHMARK_FUNCTION() PROFILE_BENCHMARK_SCOPE(__FUNCSIG__)
+#define PROFILE_BENCHMARK_FUNCTION() PROFILE_BENCHMARK_SCOPE(nullptr)
 
 #else
 
-#define PROFILE_BENCHMARK_BEGIN(name, filename)
+#define PROFILE_BENCHMARK_BEGIN(name)
 #define PROFILE_BENCHMARK_END()
 #define PROFILE_BENCHMARK_SCOPE(name)
 #define PROFILE_BENCHMARK_FUNCTION()
