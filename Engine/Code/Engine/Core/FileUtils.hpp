@@ -5,11 +5,22 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <format>
 #include <functional>
 #include <optional>
 #include <string>
 #include <type_traits>
 #include <vector>
+
+template<>
+class std::formatter<std::filesystem::path> : public std::formatter<std::string> {
+public:
+    auto format(const std::filesystem::path& p, auto& ctx) {
+        return std::formatter<std::string>::format(p.string(), ctx);
+    }
+
+private:
+};
 
 namespace FileUtils {
 
