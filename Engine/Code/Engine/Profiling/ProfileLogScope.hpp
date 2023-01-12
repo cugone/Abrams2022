@@ -3,10 +3,11 @@
 #include "Engine/Core/BuildConfig.hpp"
 
 #include <chrono>
+#include <source_location>
 
 class ProfileLogScope {
 public:
-    explicit ProfileLogScope(const char* scopeName) noexcept;
+    explicit ProfileLogScope(const char* scopeName = nullptr, std::source_location location = std::source_location::current()) noexcept;
     ~ProfileLogScope() noexcept;
 
     ProfileLogScope() = delete;
@@ -21,17 +22,16 @@ private:
 
     const char* m_scope_name = nullptr;
     time_point_t m_time_at_creation{};
+    std::source_location m_location{};
 };
 
-//TODO: Replace __LINE__ with std::source_location::line
-//TODO: Replace __FUNCSIG__ with std::source_location::function_name
 #if defined PROFILE_LOG_SCOPE || defined PROFILE_LOG_SCOPE_FUNCTION
     #undef PROFILE_LOG_SCOPE
     #undef PROFILE_LOG_SCOPE_FUNCTION
 #endif
 #ifdef PROFILE_BUILD
-    #define PROFILE_LOG_SCOPE(tag_str) ProfileLogScope TOKEN_PASTE(plscope_, __LINE__)(tag_str)
-    #define PROFILE_LOG_SCOPE_FUNCTION() PROFILE_LOG_SCOPE(__FUNCSIG__)
+    #define PROFILE_LOG_SCOPE(tag_str) auto TOKEN_PASTE(plscope_, __LINE__) = ProfileLogScope{tag_str}
+    #define PROFILE_LOG_SCOPE_FUNCTION() auto TOKEN_PASTE(plscope_, __LINE__) = ProfileLogScope{nullptr}
 #else
     #define PROFILE_LOG_SCOPE(tag_str)
     #define PROFILE_LOG_SCOPE_FUNCTION()
