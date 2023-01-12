@@ -59,7 +59,7 @@ public:
     App& operator=(App&& other) = default;
 
     using GameType = T;
-    static_assert(std::is_base_of_v<std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameBase>>>, std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameType>>>>);
+    static_assert(std::is_base_of_v<std::remove_cvref_t<std::remove_pointer_t<GameBase>>, std::remove_cvref_t<std::remove_pointer_t<GameType>>>);
 
     virtual ~App() noexcept;
 
