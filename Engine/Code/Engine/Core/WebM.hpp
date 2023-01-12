@@ -32,6 +32,8 @@ public:
     auto GetDimensions() const noexcept -> const std::pair<uint64_t, uint64_t>;
     void AddFrame(const std::vector<uint8_t>& frameData) noexcept;
 
+    void BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) const noexcept;
+
 protected:
 private:
     std::filesystem::path m_path{};

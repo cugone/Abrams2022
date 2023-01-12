@@ -165,6 +165,10 @@ void WebM::AddFrame(const std::vector<uint8_t>& frameData) noexcept {
     m_frameData.insert(std::cend(m_frameData), std::cbegin(frameData), std::cend(frameData));
 }
 
+void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& /*encodedFrame*/) const noexcept {
+
+}
+
 void WebM::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 }
