@@ -77,7 +77,6 @@ LRESULT CALLBACK EngineMessageHandlingProcedure(HWND windowHandle, UINT wmMessag
 
 
 std::unique_ptr<Window> Window::Create(const WindowDesc& desc) {
-    PROFILE_BENCHMARK_FUNCTION();
     return std::make_unique<WindowsWindow>(desc);
 }
 
@@ -86,7 +85,6 @@ WindowsWindow::WindowsWindow() noexcept
 , m_styleFlags{m_defaultWindowedStyleFlags}
 , m_styleFlagsEx{m_defaultStyleFlagsEx}
 {
-    PROFILE_BENCHMARK_FUNCTION();
     if(m_refCount == 0) {
         if(Register()) {
             ++m_refCount;
@@ -104,7 +102,6 @@ WindowsWindow::WindowsWindow(const IntVector2& position, const IntVector2& dimen
 , m_styleFlags{m_defaultWindowedStyleFlags}
 , m_styleFlagsEx{m_defaultStyleFlagsEx}
 {
-    PROFILE_BENCHMARK_FUNCTION();
     if(m_refCount == 0) {
         if(Register()) {
             ++m_refCount;
@@ -165,7 +162,6 @@ WindowsWindow::WindowsWindow(const WindowDesc& desc) noexcept
 }
 
 WindowsWindow::~WindowsWindow() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     Close();
     if(m_refCount != 0) {
         --m_refCount;
@@ -176,7 +172,6 @@ WindowsWindow::~WindowsWindow() noexcept {
 }
 
 void WindowsWindow::Open() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsOpen()) {
         return;
     }
@@ -235,7 +230,6 @@ IntVector2 WindowsWindow::GetPosition() const noexcept {
 }
 
 void WindowsWindow::SetDimensionsAndPosition(const IntVector2& new_position, const IntVector2& new_size) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     RECT r{};
     r.top = static_cast<long>(new_position.y);
     r.left = static_cast<long>(new_position.x);
@@ -253,7 +247,6 @@ void WindowsWindow::SetDimensionsAndPosition(const IntVector2& new_position, con
 }
 
 void WindowsWindow::SetPosition(const IntVector2& new_position) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     RECT r{};
     r.top = static_cast<long>(new_position.y);
     r.left = static_cast<long>(new_position.x);
@@ -273,7 +266,6 @@ void WindowsWindow::SetPosition(const IntVector2& new_position) noexcept {
 }
 
 void WindowsWindow::SetDimensions(const IntVector2& new_dimensions) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     RECT r{};
     const auto pos = GetPosition();
     r.top = static_cast<long>(pos.y);
@@ -316,7 +308,6 @@ const RHIOutputMode& WindowsWindow::GetDisplayMode() const noexcept {
 }
 
 void WindowsWindow::SetDisplayMode(const RHIOutputMode& display_mode) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(display_mode == m_currentDisplayMode) {
         return;
     }
@@ -376,7 +367,6 @@ const std::string& WindowsWindow::GetTitle() const noexcept {
 }
 
 bool WindowsWindow::Register() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_hInstance = GetModuleHandle(nullptr);
     memset(&m_wc, 0, sizeof(m_wc));
     auto window_class_name = "Simple Window Class";
@@ -399,12 +389,10 @@ bool WindowsWindow::Register() noexcept {
 }
 
 bool WindowsWindow::Unregister() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     return 0 != ::UnregisterClass(m_wc.lpszClassName, nullptr);
 }
 
 bool WindowsWindow::Create() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_hWnd = ::CreateWindowEx(
     m_styleFlagsEx,          // Optional window styles.
     m_wc.lpszClassName,      // Window class

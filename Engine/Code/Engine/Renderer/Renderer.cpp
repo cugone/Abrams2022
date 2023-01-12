@@ -364,14 +364,12 @@ void Renderer::Initialize() noexcept {
 }
 
 void Renderer::CreateDefaultConstantBuffers() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_matrix_cb = CreateConstantBuffer(&m_matrix_data, sizeof(m_matrix_data));
     m_time_cb = CreateConstantBuffer(&m_time_data, sizeof(m_time_data));
     m_lighting_cb = CreateConstantBuffer(&m_lighting_data, sizeof(m_lighting_data));
 }
 
 void Renderer::CreateWorkingVboAndIbo() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     VertexBuffer::buffer_t default_vbo(1024);
     IndexBuffer::buffer_t default_ibo(1024);
     VertexCircleBuffer::buffer_t default_circle_vbo(1024);
@@ -386,7 +384,6 @@ void Renderer::CreateWorkingVboAndIbo() noexcept {
 }
 
 void Renderer::LogAvailableDisplays() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     std::ostringstream ss;
     ss << std::format("{:->80}", '\n');
     ss << "Available Display Dimensions:\n";
@@ -578,7 +575,6 @@ void Renderer::EndFrame() noexcept {
 }
 
 void Renderer::BeginRender(Texture* color_target /*= nullptr*/, const Rgba& clear_color /*= Rgba::Black*/, Texture* depthstencil_target /*= nullptr*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     ResetModelViewProjection();
     SetRenderTarget(color_target, depthstencil_target);
     ClearColor(clear_color);
@@ -592,7 +588,6 @@ void Renderer::BeginRenderToBackbuffer(const Rgba& clear_color /*= Rgba::Black*/
 }
 
 void Renderer::BeginHUDRender(Camera2D& ui_camera, const Vector2& camera_position, float window_height) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     const float ui_view_height = window_height;
     const float ui_view_width = ui_view_height * ui_camera.GetAspectRatio();
     const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
@@ -622,7 +617,6 @@ TimeUtils::FPSeconds Renderer::GetSystemTime() const noexcept {
 }
 
 std::unique_ptr<ConstantBuffer> Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     return m_rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 }
 
@@ -3555,7 +3549,6 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
 }
 
 void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath).string()));
@@ -4012,7 +4005,6 @@ bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
 }
 
 void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath).string()));
