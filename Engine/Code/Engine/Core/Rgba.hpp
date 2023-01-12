@@ -70,8 +70,11 @@ public:
     void InvertRGB() noexcept;
     void InvertAlpha() noexcept;
 
+    void SetRGBAFromARGB(std::string name) noexcept;
+
     [[nodiscard]] uint32_t GetAsRawValue() const noexcept;
     void SetFromRawValue(uint32_t value) noexcept;
+    void SetARGBFromRawValue(uint32_t value) noexcept;
     void SetRGBAFromRawValue(uint32_t value) noexcept;
     void SetRGBFromRawValue(uint32_t value) noexcept;
     void SetFromFloats(std::initializer_list<float> ilist) noexcept;

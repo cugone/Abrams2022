@@ -164,6 +164,49 @@ Rgba::Rgba(std::string name) noexcept {
     }
 }
 
+void Rgba::SetRGBAFromARGB(std::string name) noexcept {
+    if(name.empty()) {
+        return;
+    }
+    name = StringUtils::ToUpperCase(name);
+
+    if(std::size_t hash_loc = name.find_first_of('#'); hash_loc != std::string::npos) {
+        name.replace(hash_loc, 1, "0X");
+        std::size_t char_count = 0;
+        uint32_t value_int = std::stoul(name, &char_count, 16);
+        if(char_count == 10) { //0xAARRGGBB -> 0xRRGGBBAA
+            const auto temp = Rgba(value_int);
+            r = temp.g;
+            g = temp.b;
+            b = temp.a;
+            a = temp.r;
+        } else if(char_count == 8) { //0xRRGGBB
+            SetRGBFromRawValue(value_int);
+            a = 255;
+        } else {
+            /* DO NOTHING */
+        }
+    } else {
+        const auto v = StringUtils::Split(name);
+        const auto v_s = v.size();
+        if(v_s > 1) {
+            if(!(v_s < 3)) {
+                r = static_cast<unsigned char>(std::stoi(v[0].data()));
+                g = static_cast<unsigned char>(std::stoi(v[1].data()));
+                b = static_cast<unsigned char>(std::stoi(v[2].data()));
+                if(v_s > 3) {
+                    a = static_cast<unsigned char>(std::stoi(v[0].data()));
+                    r = static_cast<unsigned char>(std::stoi(v[1].data()));
+                    g = static_cast<unsigned char>(std::stoi(v[2].data()));
+                    b = static_cast<unsigned char>(std::stoi(v[3].data()));
+                }
+            }
+        } else {
+            SetValueFromName(v_s ? v[0] : "");
+        }
+    }
+}
+
 Rgba::Rgba(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha /*= 0xFF*/) noexcept
 : r(red)
 , g(green)
@@ -232,6 +275,13 @@ uint32_t Rgba::GetAsRawValue() const noexcept {
 
 void Rgba::SetFromRawValue(uint32_t value) noexcept {
     SetRGBAFromRawValue(value);
+}
+
+void Rgba::SetARGBFromRawValue(uint32_t value) noexcept {
+    a = static_cast<uint8_t>((value & 0xFF000000u) >> 24);
+    r = static_cast<uint8_t>((value & 0x00FF0000u) >> 16);
+    g = static_cast<uint8_t>((value & 0x0000FF00u) >> 8);
+    b = static_cast<uint8_t>((value & 0x000000FFu) >> 0);
 }
 
 void Rgba::SetRGBAFromRawValue(uint32_t value) noexcept {
