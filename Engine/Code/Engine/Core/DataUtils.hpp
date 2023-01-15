@@ -97,6 +97,9 @@ void ValidateXmlElement(const XMLElement& element,
 
 void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std::string validValuesList) noexcept;
 
+
+std::string EscapeGlyphToXmlCharacterEntity(char glyph) noexcept;
+
 std::string GetElementTextAsString(const XMLElement& element);
 std::string GetAttributeAsString(const XMLElement& element, const std::string& attributeName);
 

@@ -166,6 +166,17 @@ void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std
     }
 }
 
+std::string EscapeGlyphToXmlCharacterEntity(char glyph) noexcept {
+    switch(glyph) {
+    case '\"': return "&quot;";
+    case '&': return "&amp;";
+    case '\'': return "&apos;";
+    case '<': return "&lt;";
+    case '>': return "&gt;";
+    default: return {glyph};
+    }
+}
+
 std::size_t GetAttributeCount(const XMLElement& element) noexcept {
     std::size_t attributeCount = 0u;
     for(auto* attribute = element.FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
