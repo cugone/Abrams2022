@@ -52,7 +52,13 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
 
 void DirectX11FrameBuffer::Bind() noexcept {
     if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
-        renderer->SetRenderTarget(m_Texture.get(), m_DepthStencil.get());
+        renderer->BeginRender(m_Texture.get(), Rgba::Black, m_DepthStencil.get());
+    }
+}
+
+void DirectX11FrameBuffer::Bind(const Rgba& clearColor) noexcept {
+    if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
+        renderer->BeginRender(m_Texture.get(), clearColor, m_DepthStencil.get());
     }
 }
 

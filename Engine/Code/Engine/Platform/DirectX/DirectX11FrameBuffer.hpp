@@ -21,6 +21,7 @@ public:
     void Invalidate() noexcept override;
 
     void Bind() noexcept override;
+    void Bind(const Rgba& clearColor) noexcept override;
     void Unbind() noexcept override;
 
     const Texture* GetTexture() const noexcept override;

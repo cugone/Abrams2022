@@ -5,6 +5,7 @@
 #include <memory>
 
 class Texture;
+class Rgba;
 
 struct FrameBufferDesc {
     uint32_t width{1600u};
@@ -23,6 +24,7 @@ public:
     static std::shared_ptr<FrameBuffer> Create(const FrameBufferDesc& desc) noexcept;
 
     virtual void Bind() noexcept = 0;
+    virtual void Bind(const Rgba& clearColor) noexcept = 0;
     virtual void Unbind() noexcept = 0;
 
     virtual void Resize(uint32_t newWidth, uint32_t newHeight) noexcept = 0;
