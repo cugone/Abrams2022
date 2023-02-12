@@ -6,6 +6,7 @@
 #include "Engine/Math/Vector4.hpp"
 
 #include <array>
+#include <format>
 #include <string>
 
 class AABB3;
@@ -254,3 +255,49 @@ private:
 namespace StringUtils {
 [[nodiscard]] std::string to_string(const Matrix4& m) noexcept;
 }
+
+template<>
+class std::formatter<Matrix4> {
+public:
+    enum class MatrixFormatView {
+        Row
+        ,VectorRow
+        ,Square
+    };
+    constexpr auto parse(auto& ctx) {
+        auto iter = ctx.begin();
+        if(iter == ctx.end() || *iter == '}') {
+            return iter;
+        }
+        view = [&iter]() {
+            switch(*iter++) {
+            case 'r':
+                return MatrixFormatView::Row;
+                break;
+            case 'v':
+                return MatrixFormatView::VectorRow;
+                break;
+            case 's':
+                return MatrixFormatView::Square;
+                break;
+            default:
+                throw std::format_error("Matrix4: invalid format specification");
+            }
+        }();
+        return iter;
+    }
+    auto format(const Matrix4& m, auto& ctx) {
+        const auto& x = m.GetXComponents();
+        const auto& y = m.GetYComponents();
+        const auto& z = m.GetZComponents();
+        const auto& w = m.GetWComponents();
+        if(view == MatrixFormatView::Square) {
+            return std::format_to(ctx.out(), "{}\n{}\n{}\n{}", x, y, z, w);
+        } else if(view == MatrixFormatView::VectorRow) {
+            return std::format_to(ctx.out(), "{},{},{},{}", x, y, z, w);
+        } else {
+            return std::format_to(ctx.out(), "[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]", x.x, x.y, x.z, x.w, y.x, y.y, y.z, y.w, z.x, z.y, z.z, z.w, w.x, w.y, w.z, w.w);
+        }
+    };
+    MatrixFormatView view{MatrixFormatView::Row};
+};

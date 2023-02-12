@@ -1,5 +1,6 @@
 #pragma once
 
+#include <format>
 #include <string>
 #include <utility>
 
@@ -74,3 +75,14 @@ private:
 namespace StringUtils {
 [[nodiscard]] std::string to_string(const IntVector2& v) noexcept;
 }
+
+template<>
+class std::formatter<IntVector2> {
+public:
+    constexpr auto parse(auto& ctx) {
+        return ctx.begin();
+    }
+    auto format(const IntVector2& p, auto& ctx) {
+        return std::format_to(ctx.out(), "[{},{}]", p.x, p.y);
+    };
+};
