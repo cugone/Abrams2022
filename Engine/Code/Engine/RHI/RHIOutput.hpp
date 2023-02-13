@@ -2,6 +2,7 @@
 
 #include "Engine/RHI/RHITypes.hpp"
 #include "Engine/Renderer/Texture.hpp"
+#include "Engine/Renderer/FrameBuffer.hpp"
 
 #include <memory>
 
@@ -13,7 +14,7 @@ class Rgba;
 class RHIOutput {
 public:
     RHIOutput(const RHIDevice& parent, std::unique_ptr<Window> wnd) noexcept;
-    ~RHIOutput() = default;
+    ~RHIOutput() noexcept = default;
 
     [[nodiscard]] const RHIDevice& GetParentDevice() const noexcept;
 
@@ -38,14 +39,9 @@ public:
 protected:
     void CreateBuffers() noexcept;
 
-    [[nodiscard]] std::unique_ptr<Texture> CreateBackbuffer() noexcept;
-    [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil() noexcept;
-    [[nodiscard]] std::unique_ptr<Texture> CreateFullscreenTexture() noexcept;
-
     const RHIDevice& m_parent_device;
     std::unique_ptr<Window> m_window = nullptr;
-    std::unique_ptr<Texture> m_back_buffer = nullptr;
-    std::unique_ptr<Texture> m_depthstencil = nullptr;
+    std::shared_ptr<FrameBuffer> m_backbuffer{};
 
 private:
 };

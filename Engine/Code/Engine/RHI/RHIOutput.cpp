@@ -35,11 +35,11 @@ Window* RHIOutput::GetWindow() noexcept {
 }
 
 Texture* RHIOutput::GetBackBuffer() const noexcept {
-    return m_back_buffer.get();
+    return m_backbuffer->GetTexture();
 }
 
 Texture* RHIOutput::GetDepthStencil() const noexcept {
-    return m_depthstencil.get();
+    return m_backbuffer->GetDepthStencil();
 }
 
 IntVector2 RHIOutput::GetDimensions() const noexcept {
@@ -73,6 +73,7 @@ void RHIOutput::SetDisplayMode(const RHIOutputMode& newMode) noexcept {
 
 void RHIOutput::SetDimensions(const IntVector2& clientSize) noexcept {
     m_window->SetDimensions(clientSize);
+    m_backbuffer->Resize(clientSize.x, clientSize.y);
 }
 
 void RHIOutput::Present(bool vsync) noexcept {
@@ -111,95 +112,19 @@ void RHIOutput::Present(bool vsync) noexcept {
 }
 
 void RHIOutput::CreateBuffers() noexcept {
-    m_back_buffer = CreateBackbuffer();
-    m_back_buffer->SetDebugName("__back_buffer");
-
-    m_depthstencil = CreateDepthStencil();
-    m_depthstencil->SetDebugName("__default_depthstencil");
-
-}
-
-std::unique_ptr<Texture> RHIOutput::CreateBackbuffer() noexcept {
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer{};
-    m_parent_device.GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&back_buffer));
-    return std::make_unique<Texture2D>(m_parent_device, back_buffer);
-}
-
-std::unique_ptr<Texture> RHIOutput::CreateDepthStencil() noexcept {
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthstencil{};
-
-    D3D11_TEXTURE2D_DESC descDepth{};
-    const IntVector3& dims = GetBackBuffer()->GetDimensions();
-    const auto width = dims.x;
-    const auto height = dims.y;
-    descDepth.Width = width;
-    descDepth.Height = height;
-    descDepth.MipLevels = 1;
-    descDepth.ArraySize = 1;
-    descDepth.Format = ImageFormatToDxgiFormat(ImageFormat::D24_UNorm_S8_UInt);
-    descDepth.SampleDesc.Count = 1;
-    descDepth.SampleDesc.Quality = 0;
-    descDepth.Usage = BufferUsageToD3DUsage(BufferUsage::Default);
-    descDepth.BindFlags = BufferBindUsageToD3DBindFlags(BufferBindUsage::Depth_Stencil);
-    descDepth.CPUAccessFlags = 0;
-    descDepth.MiscFlags = 0;
-    auto hr_texture = m_parent_device.GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &depthstencil);
-    const auto error_msg = std::format("Fatal Error: Failed to create depthstencil for window. Reason:\n{}", StringUtils::FormatWindowsMessage(hr_texture));
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_texture), error_msg.c_str());
-    return std::make_unique<Texture2D>(m_parent_device, depthstencil);
-}
-
-std::unique_ptr<Texture> RHIOutput::CreateFullscreenTexture() noexcept {
-    D3D11_TEXTURE2D_DESC tex_desc{};
-
-    const IntVector3& dims = GetBackBuffer()->GetDimensions();
-    const auto width = dims.x;
-    const auto height = dims.y;
-    tex_desc.Width = width;
-    tex_desc.Height = height;
-    tex_desc.MipLevels = 1;
-    tex_desc.ArraySize = 1;
-    const auto bufferUsage = BufferUsage::Gpu;
-    const auto imageFormat = ImageFormat::R8G8B8A8_UNorm;
-    tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
-    tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
-    const auto bindUsage = BufferBindUsage::Render_Target | BufferBindUsage::Shader_Resource;
-    tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
-    tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
-    //Force specific usages for unordered access
-    if((bindUsage & BufferBindUsage::Unordered_Access) == BufferBindUsage::Unordered_Access) {
-        tex_desc.Usage = BufferUsageToD3DUsage(BufferUsage::Gpu);
-        tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(BufferUsage::Staging);
+    DXGI_SWAP_CHAIN_DESC1 dxdesc{};
+    if(auto result = m_parent_device.GetDxSwapChain()->GetDesc1(&dxdesc); FAILED(result)) {
+        return;
     }
-    if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
-        tex_desc.BindFlags = 0;
-    }
-    tex_desc.MiscFlags = 0;
-    tex_desc.SampleDesc.Count = 1;
-    tex_desc.SampleDesc.Quality = 0;
-
-    // Setup Initial Data
-    D3D11_SUBRESOURCE_DATA subresource_data{};
-    auto data = std::vector<Rgba>(static_cast<std::size_t>(dims.x) * static_cast<std::size_t>(dims.y), Rgba::Magenta);
-    subresource_data.pSysMem = data.data();
-    subresource_data.SysMemPitch = width * sizeof(Rgba);
-    subresource_data.SysMemSlicePitch = width * height * sizeof(Rgba);
-
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_tex{};
-
-    //If IMMUTABLE or not multi-sampled, must use initial data.
-    const auto isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    const auto isImmutable = bufferUsage == BufferUsage::Static;
-    const auto mustUseInitialData = isImmutable || isMultiSampled;
-
-    auto hr = m_parent_device.GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    {
-        const auto error_msg = std::format("Fatal Error: Failed to create fullscreen texture. Reason:\n{}", StringUtils::FormatWindowsMessage(hr));
-        GUARANTEE_OR_DIE(SUCCEEDED(hr), error_msg.c_str());
-    }
-    return std::make_unique<Texture2D>(m_parent_device, dx_tex);
+    FrameBufferDesc fbdesc{};
+    fbdesc.SwapChainTarget = true;
+    fbdesc.width = dxdesc.Width;
+    fbdesc.height = dxdesc.Height;
+    fbdesc.format = DxgiFormatToImageFormat(dxdesc.Format);
+    fbdesc.samples = dxdesc.SampleDesc.Count;
+    m_backbuffer = FrameBuffer::Create(fbdesc);
+    m_backbuffer->GetTexture()->SetDebugName("__back_buffer");
+    m_backbuffer->GetDepthStencil()->SetDebugName("__default_depthstencil");
 }
 
 void RHIOutput::SetTitle(const std::string& newTitle) const noexcept {
@@ -207,8 +132,6 @@ void RHIOutput::SetTitle(const std::string& newTitle) const noexcept {
 }
 
 void RHIOutput::ResetBackbuffer() noexcept {
-    m_back_buffer.reset();
-    m_depthstencil.reset();
+    m_backbuffer->Invalidate();
     m_parent_device.ResetSwapChainForHWnd();
-    CreateBuffers();
 }

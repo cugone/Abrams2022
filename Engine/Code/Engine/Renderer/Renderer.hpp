@@ -568,7 +568,6 @@ private:
     Material* m_current_material = nullptr;
     IntVector2 m_window_dimensions = IntVector2::Zero;
     RHIOutputMode m_current_outputMode = RHIOutputMode::Windowed;
-    std::unique_ptr<FrameBuffer> m_backbuffer{};
     std::unique_ptr<VertexBuffer> m_temp_vbo = nullptr;
     std::unique_ptr<VertexCircleBuffer> m_circle_vbo = nullptr;
     std::unique_ptr<VertexBufferInstanced> m_temp_vbio = nullptr;

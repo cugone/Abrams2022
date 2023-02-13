@@ -1905,9 +1905,7 @@ constexpr unsigned int Renderer::GetMaxLightCount() const noexcept {
 }
 
 Image Renderer::GetBackbufferAsImage() const noexcept {
-    std::vector<Rgba> data{};
-    const auto* bb = GetOutput()->GetBackBuffer();
-    return Image{bb, this};
+    return Image{GetOutput()->GetBackBuffer(), this};
 }
 
 void Renderer::FulfillScreenshotRequest() noexcept {
