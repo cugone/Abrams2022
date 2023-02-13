@@ -37,13 +37,13 @@
             };
             return std::make_optional(convert_xyz_sRGB(std::stof(color_statements[1]), std::stof(color_statements[2]), std::stof(color_statements[3])));
         } else {
-            DebuggerPrintf("MtlReader: Invalid number of arguments.\n");
+            DebuggerPrintf("MtlReader Error: Invalid number of arguments.\n");
             return {};
         }
     }
     case 3: {
         if(auto is_spectral_file = color_statements[0] == "spectral") {
-            DebuggerPrintf("MtlReader does not support spectral files. Yet.\n");
+            DebuggerPrintf("MtlReader  Error: MtlReader does not support spectral files. Yet.\n");
             return {};
         }
         K_ss << cur_line.substr(3);
@@ -76,7 +76,7 @@
         return std::make_optional(Rgba{r, r, r, 1.0f});
     }
     default: {
-        DebuggerPrintf("Ill-formed Mtl file.\n");
+        DebuggerPrintf("MtlReader Error: Ill-formed Mtl file.\n");
         return {};
     }
     }
@@ -89,7 +89,7 @@ std::optional<std::filesystem::path> GetTexturePath(const std::filesystem::path&
     }
     path.make_preferred();
     //if(!std::filesystem::exists(path)) {
-    //    DebuggerPrintf("MtlReader: Diffuse texture not found.\n");
+    //    DebuggerPrintf("MtlReader Error: Diffuse texture not found.\n");
     //    PrintErrorToDebugger(filepath, "map_Kd", line_index);
     //    return {};
     //}
