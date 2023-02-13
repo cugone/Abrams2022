@@ -42,12 +42,19 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
         m_Texture.reset();
         m_DepthStencil.reset();
     }
-    auto* renderer = ServiceLocator::get<IRendererService>();
-    const auto data = std::vector<Rgba>(m_Desc.width * m_Desc.height, Rgba::Periwinkle);
-    const auto usage = BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target;
-    m_Texture = renderer->Create2DTextureFromMemory(data, m_Desc.width, m_Desc.height, BufferUsage::Default, usage, m_Desc.format);
-    m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{(int)m_Desc.width, (int)m_Desc.height});
-
+    if(m_Desc.SwapChainTarget) {
+        auto* renderer = ServiceLocator::get<IRendererService>();
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> bb{};
+        renderer->GetDevice()->GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&bb));
+        m_Texture = std::make_unique<Texture2D>(*renderer->GetDevice(), bb);
+        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{(int)m_Desc.width, (int)m_Desc.height});
+    } else {
+        auto* renderer = ServiceLocator::get<IRendererService>();
+        const auto data = std::vector<Rgba>(m_Desc.width * m_Desc.height, Rgba::Periwinkle);
+        const auto usage = BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target;
+        m_Texture = renderer->Create2DTextureFromMemory(data, m_Desc.width, m_Desc.height, BufferUsage::Default, usage, m_Desc.format);
+        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{(int)m_Desc.width, (int)m_Desc.height});
+    }
 }
 
 void DirectX11FrameBuffer::Bind() noexcept {
@@ -64,7 +71,11 @@ void DirectX11FrameBuffer::Bind(const Rgba& clearColor) noexcept {
 
 void DirectX11FrameBuffer::Unbind() noexcept {
     if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
-        renderer->SetRenderTarget(nullptr, nullptr);
+        if(m_Desc.SwapChainTarget) {
+            renderer->GetDeviceContext()->UnbindShaderResources();
+        } else {
+            renderer->SetRenderTarget(nullptr, nullptr);
+        }
     }
 }
 
