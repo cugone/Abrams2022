@@ -84,9 +84,8 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
         int width{0};
         int height{0};
         int frame_count{0};
-        int comp{4};
         int* delays{nullptr};
-        if(uint8_t* data = stbi_load_gif_from_memory((*buffer).data(), static_cast<int>((*buffer).size()), &delays, &width, &height, &frame_count, &comp, 4); data == nullptr) {
+        if(uint8_t* data = stbi_load_gif_from_memory((*buffer).data(), static_cast<int>((*buffer).size()), &delays, &width, &height, &frame_count, nullptr, 4); data == nullptr) {
             logger->LogLineAndFlush(std::format("stbi failed to load .gif from file: {}", filepath.string()));
             return false;
         } else {
