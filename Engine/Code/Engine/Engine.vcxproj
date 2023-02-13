@@ -652,7 +652,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
