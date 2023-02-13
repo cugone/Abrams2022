@@ -122,7 +122,8 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
             window.reset();
             ERROR_AND_DIE("RHIDevice: Graphics card not found.")
         }
-        DebuggerPrintf(std::format("Adapter count: {}\n", adapters.size()));
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogAndFlush(std::format("Adapter count: {}\n", adapters.size()));
         OutputAdapterInfo(adapters);
         GetDisplayModes(adapters);
         DeviceInfo device_info = CreateDeviceFromFirstAdapter(adapters);
@@ -164,7 +165,9 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
     };
 
     auto first_adapter_info = std::begin(adapters);
-    DebuggerPrintf(std::format("Selected Adapter: {}\n", AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description));
+
+    auto* logger = ServiceLocator::get<IFileLoggerService>();
+    logger->LogAndFlush(std::format("Selected Adapter: {}\n", AdapterInfoToGraphicsCardDesc(*first_adapter_info).Description));
 
     const auto& first_adapter = first_adapter_info->adapter;
     const auto has_adapter = first_adapter != nullptr;
@@ -194,7 +197,8 @@ void RHIDevice::OutputAdapterInfo(const std::vector<AdapterInfo>& adapters) cons
     }
     ss << std::format("{:->80}{:<40}{:>35}\n{:->80}\n", '\n', "Total Monitor count:", monitor_count, '\n');
     ss << std::flush;
-    DebuggerPrintf(ss.str());
+    auto* logger = ServiceLocator::get<IFileLoggerService>();
+    logger->LogAndFlush(ss.str());
 }
 
 void RHIDevice::GetDisplayModes(const std::vector<AdapterInfo>& adapters) const noexcept {
