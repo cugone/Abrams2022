@@ -77,7 +77,6 @@ public:
         ,graphicsCardDesc.Description
         ,graphicsCardDesc.VendorId
         ,VendorIdToFriendlyName(graphicsCardDesc.VendorId)
-        //TODO (casey): Add DeviceID friendly names
         ,graphicsCardDesc.DeviceId
         ,graphicsCardDesc.SubSysId
         ,graphicsCardDesc.Revision
