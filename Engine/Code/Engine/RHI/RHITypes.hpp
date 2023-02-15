@@ -53,16 +53,7 @@ template<>
 class std::formatter<GraphicsCardDesc> {
 public:
     constexpr auto parse(auto& context) {
-        auto iter{context.begin()};
-        const auto end{context.end()};
-        if(iter == end || *iter == '}') {
-            return iter;
-        }
-        ++iter;
-        if(iter != end && *iter != '}') {
-            throw std::format_error{"GraphicsCardDesc non-default format specifiers not supported."};
-        }
-        return iter;
+        return context.begin();
     }
     auto format(const GraphicsCardDesc& graphicsCardDesc, auto& ctx) {
         const auto videoMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
