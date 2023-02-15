@@ -60,3 +60,16 @@ RHIOutputMode operator++(RHIOutputMode& mode, int) noexcept {
     ++mode;
     return result;
 }
+
+std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept {
+    const auto idAsHex = std::format("{:X}", vendorId);
+    if(idAsHex == "0955") {
+        return "NVIDIA Corp.";
+    } else if(idAsHex == "10DE") {
+        return "NVIDIA Corporation";
+    } else if(idAsHex == "12D2") {
+        return "NVidia / SGS Thomson(Joint Venture)";
+    } else {
+        return "Unknown";
+    }
+}
