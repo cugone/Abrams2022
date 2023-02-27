@@ -104,7 +104,7 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(missingRequiredAttributes));
     {
         const auto list_s = get_xml_list_as_string(missingRequiredAttributes);
-        const auto err_ss = std::format("Attribute validation failed for {}. Missing required attributes(s):\n{}\n", name, get_xml_list_as_string(missingRequiredAttributes));
+        const auto err_ss = std::format("Attribute validation failed for {}. Missing required attributes(s):\n{}\n", name, list_s);
         GUARANTEE_OR_DIE(missingRequiredAttributes.empty(), err_ss.c_str());
     }
 
@@ -115,7 +115,7 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(missingRequiredChildren));
     {
         const auto list_s = get_xml_list_as_string(missingRequiredChildren);
-        const auto err_ss = std::format("Child Element validation failed for {}. Missing required child element(s):\n{}\n", name, get_xml_list_as_string(missingRequiredChildren));
+        const auto err_ss = std::format("Child Element validation failed for {}. Missing required child element(s):\n{}\n", name, list_s);
         GUARANTEE_OR_DIE(missingRequiredChildren.empty(), err_ss.c_str());
     }
 
@@ -128,7 +128,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalAttributes.empty()) {
         const auto list_s = get_xml_list_as_string(extraOptionalAttributes);
-        DebuggerPrintf(std::format("\nOptional Attribute validation failed for {}. Verify attributes are correct. Found unknown attributes:\n{}", name, get_xml_list_as_string(extraOptionalAttributes)));
+        DebuggerPrintf(std::format("\nOptional Attribute validation failed for {}. Verify attributes are correct. Found unknown attributes:\n{}", name, list_s));
     }
 
     //Find extra children
@@ -139,7 +139,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalChildren.empty()) {
         const auto list_s = get_xml_list_as_string(extraOptionalChildren);
-        DebuggerPrintf(std::format("\nOptional Child Element validation failed for {}. Verify child elements are correct. Found unknown children:\n{}\n", name, get_xml_list_as_string(extraOptionalChildren)));
+        DebuggerPrintf(std::format("\nOptional Child Element validation failed for {}. Verify child elements are correct. Found unknown children:\n{}\n", name, list_s));
     }
 #endif //#if DEBUG_BUILD
 }
