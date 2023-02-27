@@ -17,7 +17,7 @@ public:
     WebM& operator=(WebM&& other) = default;
     ~WebM() = default;
 
-    explicit WebM(std::filesystem::path filesystem) noexcept;
+    explicit WebM(std::filesystem::path filepath) noexcept;
 
     bool Load(std::filesystem::path filepath) noexcept;
 

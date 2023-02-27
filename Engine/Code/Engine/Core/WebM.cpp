@@ -126,9 +126,9 @@ public:
 
 namespace FileUtils {
 
-WebM::WebM(std::filesystem::path filesystem) noexcept {
-    const auto err_str = std::format("Failed to load WebM file: {}", filesystem.string());
-    GUARANTEE_OR_DIE(Load(filesystem), err_str.c_str());
+WebM::WebM(std::filesystem::path filepath) noexcept {
+    const auto err_str = std::format("Failed to load WebM file: {}", filepath);
+    GUARANTEE_OR_DIE(Load(filepath), err_str.c_str());
 }
 
 bool WebM::Load(std::filesystem::path filepath) noexcept {
@@ -167,7 +167,7 @@ void WebM::AddFrame(const std::vector<uint8_t>& frameData) noexcept {
 }
 
 void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& /*encodedFrame*/) const noexcept {
-
+    //TODO: Decode webM data on GPU
 }
 
 void WebM::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
