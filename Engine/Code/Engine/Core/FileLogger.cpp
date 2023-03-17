@@ -119,8 +119,10 @@ void FileLogger::FinalizeLog() noexcept {
     std::filesystem::path to_p = from_p;
     auto logname = to_p.filename().stem().string();
     TimeUtils::DateTimeStampOptions opts;
-    opts.use_separator = true;
+    opts.use_separator = false;
     opts.is_filename = true;
+    opts.use_24_hour_clock = true;
+    opts.include_milliseconds = true;
     to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts));
     to_p.replace_extension(".log");
     //Canonicalizing output file that doesn't already exist is an error.

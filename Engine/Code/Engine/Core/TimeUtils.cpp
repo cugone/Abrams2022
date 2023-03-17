@@ -15,15 +15,13 @@ enum class FormatType {
     Both
 };
 
-std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType type);
-void AppendMilliseconds(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now);
-void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now);
+std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType format_type);
+void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now, FormatType format_type);
 
 std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now);
-    AppendMilliseconds(msg, options, now);
+    AppendStamp(msg, options, now, TimeUtils::FormatType::Both);
     return msg.str();
 }
 
@@ -36,47 +34,62 @@ std::chrono::nanoseconds GetCurrentTimeElapsed() noexcept {
 std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now);
-    AppendMilliseconds(msg, options, now);
+    AppendStamp(msg, options, now, TimeUtils::FormatType::Time);
     return msg.str();
 }
 
 std::string GetDateStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
     auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now);
+    AppendStamp(msg, options, now, TimeUtils::FormatType::Date);
     return msg.str();
 }
 
-void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now) {
-    auto t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm;
-    ::localtime_s(&tm, &t);
-    const auto fmt = GetFormatStringFromOptions(options, FormatType::Both);
-    msg << std::put_time(&tm, fmt.data());
-}
-
-std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType type) {
-    switch(type) {
-    case FormatType::Date:
-        return options.use_separator ? "%Y-%m-%d" : "%Y%m%d";
-    case FormatType::Time:
-        return options.use_24_hour_clock ? (options.use_separator ? (options.is_filename ? "%H-%M-%S" : "%H:%M:%S") : "%H%M%S") : (options.use_separator ? (options.is_filename ? "%I-%M-%S" : "%I:%M:%S") : "%I%M%S");
+void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now, FormatType format_type) {
+    std::chrono::year_month_day ymd{std::chrono::floor<std::chrono::days>(now)};
+    std::chrono::zoned_time zt{std::chrono::current_zone(), (now)};
+    const auto lt = zt.get_local_time();
+    const auto tod = lt - std::chrono::floor<std::chrono::days>(lt);
+    const std::chrono::hh_mm_ss hms{std::chrono::floor<std::chrono::seconds>(tod)};
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % std::chrono::seconds{1};
+    const auto fmt = GetFormatStringFromOptions(options, format_type);
+    switch(format_type) {
     case FormatType::Both:
-        return options.use_24_hour_clock ? (options.use_separator ? (options.is_filename ? "%Y-%m-%d_%H%M%S" : "%Y-%m-%d %H:%M:%S") : "%Y%m%d%H%M%S") : (options.use_separator ? (options.is_filename ? "%Y-%m-%d_%I%M%S" : "%Y-%m-%d %I:%M:%S") : "%Y%m%d%I%M%S");
+        msg << std::vformat(fmt, std::make_format_args(ymd, hms));
+        if(options.include_milliseconds) {
+            if(options.use_separator) {
+                msg << (options.is_filename ? '_' : ':');
+            }
+            msg << std::format("{:0>3}", ms.count());
+        }
+        break;
+    case FormatType::Date:
+        msg << std::vformat(fmt, std::make_format_args(ymd));
+        break;
+    case FormatType::Time:
+        msg << std::vformat(fmt, std::make_format_args(hms));
+        if(options.include_milliseconds) {
+            if(options.use_separator) {
+                msg << (options.is_filename ? '_' : ':');
+            }
+            msg << std::format("{:0>3}", ms.count());
+        }
+        break;
     default:
-        return {};
+    /* DO NOTHING */;
     }
 }
 
-void AppendMilliseconds(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now) {
-    using namespace std::literals::chrono_literals;
-    if(options.include_milliseconds) {
-        auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1s;
-        if(options.use_separator) {
-            msg << (options.is_filename ? "_" : ".");
-        }
-        msg << std::fixed << std::right << std::setw(3) << std::setfill('0') << ms.count();
+std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType format_type) {
+    switch(format_type) {
+    case FormatType::Date:
+        return options.use_separator ? "{0:%Y-%m-%d}" : "{0:%Y%m%d}";
+    case FormatType::Time:
+        return options.use_24_hour_clock ? (options.use_separator ? (options.is_filename ? "{0:%H-%M-%S}" : "{0:%H:%M:%S}") : "{0:%H%M%S}") : (options.use_separator ? (options.is_filename ? "{0:%I-%M-%S}" : "{0:%I:%M:%S}") : "{0:%I%M%S}");
+    case FormatType::Both:
+        return options.use_24_hour_clock ? (options.use_separator ? (options.is_filename ? "{0:%Y-%m-%d}_{1:%H%M%S}" : "{0:%Y-%m-%d} {1:%H:%M:%S}") : "{0:%Y%m%d}{1:%H%M%S}") : (options.use_separator ? (options.is_filename ? "{0:%Y-%m-%d}_{1:%I%M%S}" : "{0:%Y-%m-%d} {1:%I:%M:%S}") : "{0:%Y%m%d}{1:%I%M%S}");
+    default:
+        return {};
     }
 }
 
