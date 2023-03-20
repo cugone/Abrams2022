@@ -477,21 +477,20 @@ requires(N > 0 && std::floating_point<T>)
 }
 
 template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] T SmoothStop(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStop requires value of N to be non-negative and non-zero.");
     return detail::SmoothStop_helper(t, std::make_index_sequence<N>{});
 }
 
 template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] T SmoothStep(const T& t) {
-    static_assert(std::is_floating_point_v<T>, "SmoothStop requires T to be non-integral.");
-    static_assert(N > 0, "SmoothStop requires value of N to be non-negative and non-zero.");
-    return Interpolate(SmoothStart<N>(t), SmoothStop<N>(t), 0.5f);
+    return Interpolate(SmoothStart<N>(t), SmoothStop<N>(t), T{0.5});
 }
 
 template<std::size_t N, typename T>
-[[nodiscard]] T Arc(const T& t) {
+requires(N > 0 && std::floating_point<T>)
+[[nodiscard]] auto Arc(auto t) {
     return SmoothStart<N>(t) + SmoothStop<N>(t);
 }
 
