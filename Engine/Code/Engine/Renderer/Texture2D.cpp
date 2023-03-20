@@ -72,7 +72,11 @@ void Texture2D::SetTexture() noexcept {
                 error_str += StringUtils::FormatWindowsMessage(hr) + '\n';
             }
         } else {
-            auto hr = m_device.GetDxDevice()->CreateShaderResourceView(m_dx_tex.Get(), nullptr, &m_srv);
+            D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
+            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            desc.Texture2D.MipLevels = 1;
+            auto hr = m_device.GetDxDevice()->CreateShaderResourceView(m_dx_tex.Get(), &desc, &m_srv);
             if(FAILED(hr)) {
                 success &= false;
                 error_str += StringUtils::FormatWindowsMessage(hr) + '\n';
