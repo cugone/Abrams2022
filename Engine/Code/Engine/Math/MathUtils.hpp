@@ -445,6 +445,12 @@ template<typename T>
     return result;
 }
 
+[[nodiscard]] auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
+    const auto a = Wrap(rhs - lhs, minValue, maxValue);
+    const auto b = Wrap(lhs - rhs, minValue, maxValue);
+    return (std::min)(a, b);
+}
+
 [[nodiscard]] Vector4 Wrap(const Vector4& valuesToWrap, const Vector4& minValues, const Vector4& maxValues);
 [[nodiscard]] Vector3 Wrap(const Vector3& valuesToWrap, const Vector3& minValues, const Vector3& maxValues);
 [[nodiscard]] Vector2 Wrap(const Vector2& valuesToWrap, const Vector2& minValues, const Vector2& maxValues);
