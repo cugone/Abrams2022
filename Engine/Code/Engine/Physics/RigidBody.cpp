@@ -98,16 +98,15 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_acceleration);
         const bool is_valid = MathUtils::IsValid(new_acceleration);
-        if(const bool should_clamp = is_near_zero || is_valid; should_clamp) {
+        if(const bool should_clamp = is_near_zero || !is_valid; should_clamp) {
             new_acceleration = Vector2::Zero;
         }
     }
     auto new_velocity = new_acceleration * dt;
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_velocity);
-        const bool is_inf = (std::isinf(new_velocity.x) || std::isinf(new_velocity.y));
-        const bool is_nan = (std::isnan(new_velocity.x) || std::isnan(new_velocity.y));
-        if(const bool should_clamp = is_near_zero || is_nan || is_inf; should_clamp) {
+        const bool is_valid = MathUtils::IsValid(new_velocity);
+        if(const bool should_clamp = is_near_zero || !is_valid; should_clamp) {
             new_velocity = Vector2::Zero;
         }
     }
@@ -115,9 +114,8 @@ void RigidBody::Integrate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     auto new_position = GetPosition() + new_velocity * dt;
     {
         const bool is_near_zero = MathUtils::IsEquivalentToZero(new_position);
-        const bool is_inf = (std::isinf(new_position.x) || std::isinf(new_position.y));
-        const bool is_nan = (std::isnan(new_position.x) || std::isnan(new_position.y));
-        if(const bool should_clamp = is_near_zero || is_nan || is_inf; should_clamp) {
+        const bool is_valid = MathUtils::IsValid(new_position);
+        if(const bool should_clamp = is_near_zero || !is_valid; should_clamp) {
             new_position = Vector2::Zero;
         }
     }
