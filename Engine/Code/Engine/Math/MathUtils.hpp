@@ -433,14 +433,14 @@ template<typename T>
 [[nodiscard]] IntVector3 RangeMap(const IntVector3& valueToMap, const IntVector2& minmaxInputRange, const IntVector2& minmaxOutputRange);
 [[nodiscard]] IntVector4 RangeMap(const IntVector4& valueToMap, const IntVector2& minmaxInputRange, const IntVector2& minmaxOutputRange);
 
-template<typename T>
-[[nodiscard]] T Wrap(const T& valueToWrap, const T& minValue, const T& maxValue) {
-    auto result = T{valueToWrap};
+[[nodiscard]] auto Wrap(const auto& valueToWrap, const auto& minValue, const auto& maxValue) {
+    auto result = decltype(maxValue + minValue){valueToWrap};
+    const auto range = decltype(maxValue - minValue){maxValue - minValue};
     while(result < minValue) {
-        result += maxValue;
+        result += range;
     }
     while(maxValue < result) {
-        result -= maxValue;
+        result -= range;
     }
     return result;
 }
