@@ -624,22 +624,13 @@ Matrix4 Matrix4::CreateOrthographicProjectionMatrix(float top, float bottom, flo
 
 Matrix4 Matrix4::CreateLookAtMatrix(const Vector3& eye, const Vector3& lookAt, const Vector3& up) noexcept {
     Vector3 cam_forward = (lookAt - eye).GetNormalize();
-    Vector3 relative_up = up.GetNormalize();
-    Vector3 cam_right = MathUtils::CrossProduct(relative_up, cam_forward).GetNormalize();
+    Vector3 cam_right = MathUtils::CrossProduct(up, cam_forward).GetNormalize();
     Vector3 cam_up = MathUtils::CrossProduct(cam_forward, cam_right);
-
-    Matrix4 R(cam_forward.x, cam_right.x, cam_up.x, 0.0f,
-              cam_forward.y, cam_right.y, cam_up.y, 0.0f,
-              cam_forward.z, cam_right.z, cam_up.z, 0.0f,
-              0.0f, 0.0f, 0.0f, 1.0f);
-
-    Matrix4 T(1.0f, 0.0f, 0.0f, -eye.x,
-              0.0f, 1.0f, 0.0f, -eye.y,
-              0.0f, 0.0f, 1.0f, -eye.z,
-              0.0f, 0.0f, 0.0f, 1.0f);
-
-    Matrix4 L = Matrix4::MakeRT(R, T);
-
+    Matrix4 L;
+    L.SetIBasis(Vector4{cam_right, 0.0f});
+    L.SetJBasis(Vector4{cam_up, 0.0f});
+    L.SetKBasis(Vector4{cam_forward, 0.0f});
+    L.SetTBasis(Vector4{-eye, 1.0f});
     return L;
 }
 
