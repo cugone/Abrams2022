@@ -1001,6 +1001,23 @@ Vector2 CalcPointFromNormalizedHalfExtents(const Vector2& uv, const AABB2& bound
     return Vector2(x, y);
 }
 
+AABB2 ScaleToFit(const AABB2& a, const AABB2& b) noexcept {
+    const auto [aw, ah] = a.CalcDimensions();
+    const auto [bw, bh] = b.CalcDimensions();
+    auto scaled_dims = Vector2{aw, ah};
+    if(aw > bw || ah > bh) {
+        if(aw > bw) {
+            scaled_dims.x = bw;
+            scaled_dims.y = (scaled_dims.x * ah) / aw;
+        }
+        if(scaled_dims.y > bh) {
+            scaled_dims.y = bh;
+            scaled_dims.x = (scaled_dims.y * aw) / ah;
+        }
+    }
+    return AABB2{Vector2::Zero, scaled_dims};
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) noexcept {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }

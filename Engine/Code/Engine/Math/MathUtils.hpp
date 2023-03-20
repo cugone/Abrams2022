@@ -347,6 +347,7 @@ template<size_t N, size_t K>
 [[nodiscard]] Vector2 CalcPointFromNormalizedPoint(const Vector2& uv, const AABB2& bounds) noexcept;
 [[nodiscard]] Vector2 CalcNormalizedHalfExtentsFromPoint(const Vector2& pos, const AABB2& bounds) noexcept;
 [[nodiscard]] Vector2 CalcPointFromNormalizedHalfExtents(const Vector2& uv, const AABB2& bounds) noexcept;
+[[nodiscard]] AABB2 ScaleToFit(const AABB2& a, const AABB2& b) noexcept;
 
 [[nodiscard]] bool DoDiscsOverlap(const Disc2& a, const Disc2& b) noexcept;
 [[nodiscard]] bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB) noexcept;
