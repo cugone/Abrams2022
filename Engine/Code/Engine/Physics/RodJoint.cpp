@@ -44,6 +44,8 @@ void RodJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexce
     const auto distance = MathUtils::CalcDistance(fb_pos, sb_pos);
     const auto displacement_towards_first = fb_pos - sb_pos;
     const auto displacement_towards_second = sb_pos - fb_pos;
+    const auto length = m_def.length;
+    const auto delta_displacement = length - distance;
     const auto direction_to_first = displacement_towards_first.GetNormalize();
     const auto direction_to_second = displacement_towards_second.GetNormalize();
     const auto m1 = (first_body ? first_body->GetMass() : 0.0f);
@@ -51,20 +53,22 @@ void RodJoint::Notify([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexce
     const auto mass_sum = m1 + m2;
     const auto mass1_ratio = m1 / mass_sum;
     const auto mass2_ratio = m2 / mass_sum;
-    const auto length = m_def.length;
+    const auto displacement_ratio = delta_displacement / distance;
+    const auto mass1_delta_ratio = displacement_ratio * mass1_ratio;
+    const auto mass2_delta_ratio = displacement_ratio * mass2_ratio;
     if(distance < length) { //Compression
         if(first_body) {
-            first_body->ApplyImpulse(direction_to_first * mass1_ratio);
+            first_body->ApplyImpulse(direction_to_first * mass1_delta_ratio);
         }
         if(second_body) {
-            second_body->ApplyImpulse(direction_to_second * mass2_ratio);
+            second_body->ApplyImpulse(direction_to_second * mass2_delta_ratio);
         }
     } else if(length < distance) { //Extension
         if(first_body) {
-            first_body->ApplyImpulse(direction_to_second * mass1_ratio);
+            first_body->ApplyImpulse(direction_to_second * mass1_delta_ratio);
         }
         if(second_body) {
-            second_body->ApplyImpulse(direction_to_first * mass2_ratio);
+            second_body->ApplyImpulse(direction_to_first * mass2_delta_ratio);
         }
     }
 }
