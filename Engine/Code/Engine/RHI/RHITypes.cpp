@@ -62,90 +62,47 @@ RHIOutputMode operator++(RHIOutputMode& mode, int) noexcept {
 }
 
 std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept {
-    const auto idAsHex = std::format("{:X}", vendorId);
-    if(idAsHex == "0014") {
-        return "Loongson Technology LLC";
-    } else if(idAsHex == "0731") {
-        return "Jingjia Microelectronics Co Ltd";
-    } else if(idAsHex == "0955") {
-        return "NVIDIA Corp.";
-    } else if(idAsHex == "1002") {
-        return "Advanced Micro Devices, Inc. [AMD/ATI]";
-    } else if(idAsHex == "1022") {
-        return "Advanced Micro Devices, Inc. [AMD]";
-    } else if(idAsHex == "1043") {
-        return "ASUSTek Computer Inc.";
-    } else if(idAsHex == "10DE") {
-        return "NVIDIA Corporation";
-    } else if(idAsHex == "12D2") {
-        return "NVidia / SGS Thomson(Joint Venture)";
-    } else if(idAsHex == "1414") {
-        return "Microsoft Corporation";
-    } else if(idAsHex == "1AF4") {
-        return "Red Hat, Inc.";
-    } else if(idAsHex == "1D17") {
-        return "Zhaoxin";
-    } else if(idAsHex == "1DB7") {
-        return "Phytium Technology Co., Ltd.";
-    } else if(idAsHex == "8086") {
-        return "Intel Corporation";
-    } else if(idAsHex == "BDBD") {
-        return "Blackmagic Design";
-    } else if(idAsHex == "1000") {
-        return "LSI Logic / Symbios Logic";
-    } else if(idAsHex == "100B") {
-        return "National Semiconductor Corporation";
-    } else if(idAsHex == "1011") {
-        return "Digital Equipment Corporation";
-    } else if(idAsHex == "1014") {
-        return "IBM";
-    } else if(idAsHex == "1025") {
-        return "Acer Incorporated [ALI]";
-    } else if(idAsHex == "102B") {
-        return "Matrox Electronics Systems Ltd.";
-    } else if(idAsHex == "104C") {
-        return "Texas Instruments";
-    } else if(idAsHex == "1067") {
-        return "Mitsubishi Electric";
-    } else if(idAsHex == "106C") {
-        return "Hynix Semiconductor";
-    } else if(idAsHex == "1073") {
-        return "Yamaha Corporation";
-    } else if(idAsHex == "1091") {
-        return "Intergraph Corporation";
-    } else if(idAsHex == "10A9") {
-        return "Silicon Graphics Intl. Corp.";
-    } else if(idAsHex == "10BA") {
-        return "Mitsubishi Electric Corp.";
-    } else if(idAsHex == "10CF") {
-        return "Fujitsu Limited.";
-    } else if(idAsHex == "10EA") {
-        return "Intergraphics";
-    } else if(idAsHex == "10EB") {
-        return "Artists Graphics";
-    } else if(idAsHex == "1106") {
-        return "VIA Technologies, Inc.";
-    } else if(idAsHex == "1139") {
-        return "Dynamic Pictures, Inc.";
-    } else if(idAsHex == "17F3") {
-        return "RDC Semiconductor, Inc.";
-    } else if(idAsHex == "18CA") {
-        return "XGI Technology Inc. (eXtreme Graphics Innovation)";
-    } else if(idAsHex == "18EA") {
-        return "Matrox Graphics, Inc.";
-    } else if(idAsHex == "1A03") {
-        return "ASPEED Technology, Inc.";
-    } else if(idAsHex == "3D3D") {
-        return "3DLabs";
-    } else if(idAsHex == "5333") {
-        return "S3 Graphics Ltd.";
-    } else if(idAsHex == "5853") {
-        return "XenSource, Inc.";
-    } else if(idAsHex == "80EE") {
-        return "InnoTek Systemberatung GmbH";
-    } else if(idAsHex == "HUT") {
-        return "0c Consumer";
-    } else {
-        return "Unknown";
+    switch(vendorId) {
+    case 0x0014: return "Loongson Technology LLC";
+    case 0x0731: return "Jingjia Microelectronics Co Ltd";
+    case 0x0955: return "NVIDIA Corp.";
+    case 0x1002: return "Advanced Micro Devices, Inc. [AMD/ATI]";
+    case 0x1022: return "Advanced Micro Devices, Inc. [AMD]";
+    case 0x1043: return "ASUSTek Computer Inc.";
+    case 0x10DE: return "NVIDIA Corporation";
+    case 0x12D2: return "NVidia / SGS Thomson(Joint Venture)";
+    case 0x1414: return "Microsoft Corporation";
+    case 0x1AF4: return "Red Hat, Inc.";
+    case 0x1D17: return "Zhaoxin";
+    case 0x1DB7: return "Phytium Technology Co., Ltd.";
+    case 0x8086: return "Intel Corporation";
+    case 0xBDBD: return "Blackmagic Design";
+    case 0x1000: return "LSI Logic / Symbios Logic";
+    case 0x100B: return "National Semiconductor Corporation";
+    case 0x1011: return "Digital Equipment Corporation";
+    case 0x1014: return "IBM";
+    case 0x1025: return "Acer Incorporated [ALI]";
+    case 0x102B: return "Matrox Electronics Systems Ltd.";
+    case 0x104C: return "Texas Instruments";
+    case 0x1067: return "Mitsubishi Electric";
+    case 0x106C: return "Hynix Semiconductor";
+    case 0x1073: return "Yamaha Corporation";
+    case 0x1091: return "Intergraph Corporation";
+    case 0x10A9: return "Silicon Graphics Intl. Corp.";
+    case 0x10BA: return "Mitsubishi Electric Corp.";
+    case 0x10CF: return "Fujitsu Limited.";
+    case 0x10EA: return "Intergraphics";
+    case 0x10EB: return "Artists Graphics";
+    case 0x1106: return "VIA Technologies, Inc.";
+    case 0x1139: return "Dynamic Pictures, Inc.";
+    case 0x17F3: return "RDC Semiconductor, Inc.";
+    case 0x18CA: return "XGI Technology Inc. (eXtreme Graphics Innovation)";
+    case 0x18EA: return "Matrox Graphics, Inc.";
+    case 0x1A03: return "ASPEED Technology, Inc.";
+    case 0x3D3D: return "3DLabs";
+    case 0x5333: return "S3 Graphics Ltd.";
+    case 0x5853: return "XenSource, Inc.";
+    case 0x80EE: return "InnoTek Systemberatung GmbH";
+    default:     return "Unknown";
     }
 }
