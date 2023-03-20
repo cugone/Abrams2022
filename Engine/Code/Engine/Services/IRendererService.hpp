@@ -66,7 +66,7 @@ public:
     virtual void SetFullscreen(bool isFullscreen) noexcept = 0;
     virtual void SetFullscreenMode() noexcept = 0;
     virtual void SetWindowedMode() noexcept = 0;
-    virtual void SetWindowTitle(const std::string& newTitle) noexcept = 0;
+    virtual void SetWindowTitle(const std::string& newTitle) const noexcept = 0;
     [[nodiscard]] virtual std::string GetWindowTitle() const noexcept = 0;
     virtual void SetWindowIcon(void* iconResource) noexcept = 0;
 
@@ -365,7 +365,7 @@ public:
     void SetFullscreen([[maybe_unused]] bool isFullscreen) noexcept override {}
     void SetFullscreenMode() noexcept override {}
     void SetWindowedMode() noexcept override {}
-    void SetWindowTitle([[maybe_unused]] const std::string& newTitle) noexcept override {}
+    void SetWindowTitle([[maybe_unused]] const std::string& newTitle) const noexcept override {}
     [[nodiscard]] std::string GetWindowTitle() const noexcept override { return {}; }
 
     void SetWindowIcon([[maybe_unused]] void* iconResource) noexcept override {}

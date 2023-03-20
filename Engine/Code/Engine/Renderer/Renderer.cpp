@@ -3356,7 +3356,7 @@ void Renderer::SetWindowIcon(void* /*iconResource*/) noexcept {
     //}
 }
 
-void Renderer::SetWindowTitle(const std::string& newTitle) noexcept {
+void Renderer::SetWindowTitle(const std::string& newTitle) const noexcept {
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             window->SetTitle(newTitle);

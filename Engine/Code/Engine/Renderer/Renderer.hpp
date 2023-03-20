@@ -112,7 +112,7 @@ public:
     void SetFullscreen(bool isFullscreen) noexcept override;
     void SetFullscreenMode() noexcept override;
     void SetWindowedMode() noexcept override;
-    void SetWindowTitle(const std::string& newTitle) noexcept override;
+    void SetWindowTitle(const std::string& newTitle) const noexcept override;
     [[nodiscard]] std::string GetWindowTitle() const noexcept override;
 
     void SetWindowIcon(void* iconResource) noexcept;
