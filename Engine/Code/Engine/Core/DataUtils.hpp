@@ -73,17 +73,17 @@ namespace DataUtils {
     return ShiftLeft(1, n);
 }
 
-//Unconditional byte order swap.
+//Unconditional byte order swap. Deprecated. Replace with std::byteswap when available.
 [[nodiscard]] inline auto EndianSwap(uint16_t value) noexcept -> uint16_t {
     return _byteswap_ushort(value);
 }
 
-//Unconditional byte order swap.
+//Unconditional byte order swap. Deprecated. Replace with std::byteswap when available.
 [[nodiscard]] inline auto EndianSwap(uint32_t value) noexcept -> uint32_t {
     return _byteswap_ulong(value);
 }
 
-//Unconditional byte order swap.
+//Unconditional byte order swap. Deprecated. Replace with std::byteswap when available.
 [[nodiscard]] inline auto EndianSwap(uint64_t value) noexcept -> uint64_t {
     return _byteswap_uint64(value);
 }
