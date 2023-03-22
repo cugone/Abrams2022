@@ -76,8 +76,8 @@ template<std::integral auto num>
 constexpr int DigitCount = num >= -9 && num <= 9 ? 1 : 1 + DigitCount<num / 10>;
 
 template<typename T>
+requires(std::integral<T>)
 const std::size_t DigitLength(T num) noexcept {
-    static_assert(std::is_integral_v<T>, "Template argument must be an integral type.");
     std::size_t digits = num < 0 ? 1 : 0;
     do {
         num /= 10;
@@ -92,8 +92,8 @@ void SetRandomEngineSeed(unsigned int seed) noexcept;
 [[nodiscard]] std::mt19937_64& GetMT64RandomEngine(unsigned int seed = 0) noexcept;
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] std::pair<T, T> SplitFloatingPointValue(T value) noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
     auto int_part = T{};
     const auto frac = std::modf(value, &int_part);
     return std::make_pair(int_part, frac);
@@ -114,8 +114,8 @@ template<typename T>
 [[nodiscard]] bool GetRandomBool() noexcept;
 
 template<typename T>
+requires(!std::same_as<T, bool>)
 [[nodiscard]] T GetRandomInRange(const T& minInclusive, const T& maxInclusive) noexcept {
-    static_assert(!std::is_same_v<T, bool>, "GetRandom functions cannot take bool types as an argument. Use GetRandomBool instead.");
     auto d = [&]() {
         if constexpr(std::is_floating_point_v<T>) {
             return std::uniform_real_distribution<T>{minInclusive, std::nextafter(maxInclusive, maxInclusive + T{1.0})};
@@ -127,8 +127,8 @@ template<typename T>
 }
 
 template<typename T>
+requires(!std::same_as<T, bool>)
 [[nodiscard]] T GetRandomLessThan(const T& maxValueNotInclusive) noexcept {
-    static_assert(!std::is_same_v<T, bool>, "GetRandom functions cannot take bool types as an argument. Use GetRandomBool instead.");
     auto d = [&]() {
         if constexpr(std::is_floating_point_v<T>) {
             return std::uniform_real_distribution<T>{T{0}, maxValueNotInclusive};
@@ -146,20 +146,20 @@ template<typename T>
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] T GetRandomZeroToOne() noexcept {
-    static_assert(std::is_floating_point_v<T>, "T must be a floating-point type.");
     return GetRandomInRange(T{0}, std::nextafter(T{1}, T{2}));
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] T GetRandomZeroUpToOne() noexcept {
-    static_assert(std::is_floating_point_v<T>, "T must be a floating-point type.");
     return GetRandomLessThan(T{1});
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] T GetRandomNegOneToOne() noexcept {
-    static_assert(std::is_floating_point_v<T>, "T must be a floating-point type.");
     return GetRandomInRange(T{-1}, T{1});
 }
 
@@ -168,17 +168,15 @@ template<typename T>
 [[nodiscard]] double Combination_multiset(const int n, const int k) noexcept;
 
 template<size_t N>
+requires(N <= 20)
 [[nodiscard]] constexpr unsigned long long Permutation() noexcept {
-    static_assert(N <= 20, "Permutation value out of range.");
     static constexpr unsigned long long factorials[] = {1ull, 1ull, 2ull, 6ull, 24ull, 120ull, 720ull, 5'040ull, 40'320ull, 362'880ull, 3'628'800ull, 39'916'800ull, 479'001'600ull, 6'227'020'800ull, 87'178'291'200ull, 1'307'674'368'000ull, 20'922'789'888'000ull, 355'687'428'096'000ull, 6'402'373'705'728'000ull, 121'645'100'408'832'000ull, 2'432'902'008'176'640'000ull};
     return factorials[N];
 }
 
 template<size_t N, size_t K>
+requires(N <= 20 && K <= 20 && (N - K) <= 20)
 [[nodiscard]] constexpr unsigned long long nPr() noexcept {
-    static_assert(N <= 20, "nPr N value out of range.");
-    static_assert(K <= 20, "nPr K value out of range.");
-    static_assert(N - K <= 20, "nPr N - K value out of range.");
     return Permutation<N>() / Permutation<(N - K)>();
 }
 

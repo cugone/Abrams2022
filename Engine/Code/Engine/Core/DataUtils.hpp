@@ -233,32 +233,32 @@ template<typename T>
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] const T CalculateUnboundedFloatRangeResult() noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
     constexpr auto lower = (std::numeric_limits<T>::min)();
     constexpr auto upper = (std::numeric_limits<T>::max)();
     return static_cast<T>(MathUtils::GetRandomInRange(lower, upper));
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] const T CalculateUpperBoundedFloatRangeResult(std::string maxvalue) noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
     constexpr auto lower = (std::numeric_limits<T>::min)();
     const auto upper = static_cast<T>(std::stold(maxvalue));
     return static_cast<T>(MathUtils::GetRandomInRange(lower, upper));
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] const T CalculateLowerBoundedFloatRangeResult(std::string minvalue) noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
     const auto lower = static_cast<T>(std::stold(minvalue));
     constexpr auto upper = (std::numeric_limits<T>::max)();
     return static_cast<T>(MathUtils::GetRandomInRange(lower, upper));
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] const T CalculateClosedFloatRangeResult(std::string minvalue, std::string maxvalue) noexcept {
-    static_assert(std::is_floating_point_v<T>, "Template argument must be a floating-point type.");
     const auto lower = static_cast<T>(std::stold(minvalue));
     const auto upper = static_cast<T>(std::stold(maxvalue));
     return static_cast<T>(MathUtils::GetRandomInRange(lower, upper));

@@ -36,8 +36,8 @@ public:
 
 
     template<typename JointDefType>
+    requires(std::derived_from<JointDefType, JointDef>)
     Joint* CreateJoint(const JointDefType& defType) noexcept {
-        static_assert(std::is_base_of_v<JointDef, JointDefType>, "CreateJoint received type not derived from Joint.");
         std::unique_ptr<Joint> newJoint{};
         if constexpr(std::is_same_v<JointDefType, SpringJointDef>) {
             newJoint.reset(new SpringJoint(defType));

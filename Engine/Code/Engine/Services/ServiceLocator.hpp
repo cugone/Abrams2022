@@ -20,8 +20,8 @@
 class ServiceLocator {
 public:
     template<typename ServiceInterface>
+    requires(std::derived_from<ServiceInterface, IService>)
     static ServiceInterface* get() noexcept {
-        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
             std::scoped_lock lock(m_cs);
@@ -30,8 +30,8 @@ public:
         return GetNullService<ServiceInterface>();
     };
     template<typename ServiceInterface>
+    requires(std::derived_from<ServiceInterface, IService>)
     static const ServiceInterface* const const_get() noexcept {
-        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Requested type is not a Service.");
         auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(const auto found = m_services.find(requested_typeindex); found != std::end(m_services)) {
             std::scoped_lock lock(m_cs);
@@ -41,9 +41,8 @@ public:
     };
 
     template<typename ServiceInterface, typename NullService>
+    requires(std::derived_from<ServiceInterface, IService> && std::derived_from<NullService, ServiceInterface>)
     static void provide(ServiceInterface& service, NullService& null_service) {
-        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
-        static_assert(std::is_base_of_v<ServiceInterface, NullService>, "Provided Null type is not a derived from provided Service.");
         {
             std::scoped_lock lock(m_cs);
             auto provided_typeindex = std::type_index(typeid(ServiceInterface));
@@ -63,8 +62,8 @@ public:
     }
 
     template<typename ServiceInterface>
+    requires(std::derived_from<ServiceInterface, IService>)
     static void revoke() {
-        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
         {
             std::scoped_lock lock(m_cs);
             auto provided_typeindex = std::type_index(typeid(ServiceInterface));
@@ -75,8 +74,8 @@ public:
     }
 
     template<typename ServiceInterface>
+    requires(std::derived_from<ServiceInterface, IService>)
     static void remove() {
-        static_assert(std::is_base_of_v<IService, ServiceInterface>, "Provided type is not a Service.");
         {
             std::scoped_lock lock(m_cs);
             auto provided_typeindex = std::type_index(typeid(ServiceInterface));
