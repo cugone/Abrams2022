@@ -129,9 +129,9 @@ struct EngineMessage32 {
 };
 
 #ifdef _WIN64
-    #define EngineMessage EngineMessage64
+    using EngineMessage = EngineMessage64;
 #else
-    #define EngineMessage EngineMessage32
+    using EngineMessage = EngineMessage32;
 #endif
 
 // clang-format off
