@@ -1553,6 +1553,9 @@
     <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">
       <Filter>Renderer\DirectX\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Renderer\DirectX\Shaders\webm.hlsl">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Renderer\DirectX\Shaders\webp_PS.cso">
