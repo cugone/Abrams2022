@@ -81,4 +81,30 @@ std::string FileDialogs::SaveFile(const char* filter = "All Files (*.*)\0*.*\0\0
     return IntVector2{desktop_rect.right - desktop_rect.left, desktop_rect.bottom - desktop_rect.top};
 }
 
+std::wstring GetCommandLineArgs() noexcept {
+    int argc = 0;
+    std::vector<std::wstring> cmdLineArray;
+    const auto pCmdLine = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
+    if(argc < 2) {
+        return {};
+    }
+    cmdLineArray.resize(argc);
+    for(std::size_t i = 0u; i < argc; ++i) {
+        cmdLineArray[i] = std::wstring(pCmdLine[i] ? pCmdLine[i] : L"");
+    }
+    std::wstring result;
+    const auto s = [&]() {
+        std::size_t new_size{0};
+        for(const auto& e : cmdLineArray) {
+            new_size += e.size();
+        }
+        return new_size;
+    }();
+    result.reserve(s + std::size_t(argc - 1));
+    for(const auto& e : cmdLineArray) {
+        result += e + L' ';
+    }
+    return result;
+}
+
 #endif

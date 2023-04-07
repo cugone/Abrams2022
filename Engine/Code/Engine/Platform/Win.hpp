@@ -13,6 +13,7 @@
     #include <KnownFolders.h>
     #include <ShObjIdl.h>
     #include <processthreadsapi.h>
+    #include <shellapi.h>
     #include <wincrypt.h>
     #pragma comment(lib, "Crypt32.lib")
 
@@ -26,6 +27,7 @@
 
 AABB2 RectToAABB2(const RECT& rect) noexcept;
 RECT AABB2ToRect(const AABB2& aabb2) noexcept;
+std::wstring GetCommandLineArgs() noexcept;
 
 #include "Engine/Platform/Windows/WindowsWindow.hpp"
 
