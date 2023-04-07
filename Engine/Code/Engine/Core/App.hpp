@@ -53,12 +53,12 @@
 template<GameType T>
 class App : public EngineSubsystem, public IAppService {
 public:
-    App() noexcept = default;
+    App() noexcept = delete;
     explicit App(const std::string& title, const std::string& cmdString);
-    App(const App& other) = default;
-    App(App&& other) = default;
-    App& operator=(const App& other) = default;
-    App& operator=(App&& other) = default;
+    App(const App& other) = delete;
+    App(App&& other) = delete;
+    App& operator=(const App& other) = delete;
+    App& operator=(App&& other) = delete;
     virtual ~App() noexcept;
 
     static void CreateApp(const std::string& title, const std::string& cmdString) noexcept;
