@@ -8,6 +8,8 @@
 
 #include "Editor/Editor.hpp"
 
+#include <string>
+
 #if defined(_MSC_VER)
     #pragma warning(push)
     #pragma warning(disable : 28251)
@@ -15,12 +17,8 @@
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow);
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    UNUSED(hInstance);
-    UNUSED(hPrevInstance);
-    UNUSED(nCmdShow);
-    const auto cmdString = StringUtils::ConvertUnicodeToMultiByte(std::wstring(pCmdLine ? pCmdLine : L""));
-    Engine<Editor>::Initialize("Abrams Game Engine 2022", cmdString);
+int WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PWSTR /*pCmdLine*/, int /*nCmdShow*/) {
+    Engine<Editor>::Initialize(std::string{"Abrams Game Engine 2022"});
     Engine<Editor>::Run();
     Engine<Editor>::Shutdown();
 }

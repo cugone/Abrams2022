@@ -61,7 +61,7 @@ public:
     App& operator=(App&& other) = delete;
     virtual ~App() noexcept;
 
-    static void CreateApp(const std::string& title, const std::string& cmdString) noexcept;
+    static void CreateApp(const std::string& title) noexcept;
     static void DestroyApp() noexcept;
 
     void InitializeService() override;
@@ -139,6 +139,8 @@ template<GameType T>
     if(m_theApp) {
         return;
     }
+    const auto cmdStringW = GetCommandLineArgs();
+    const auto cmdString = StringUtils::ConvertUnicodeToMultiByte(cmdStringW);
     m_theApp = std::make_unique<App<T>>(title, cmdString);
     ServiceLocator::provide(*static_cast<IAppService*>(m_theApp.get()), m_nullApp);
 }
