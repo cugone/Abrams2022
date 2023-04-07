@@ -107,4 +107,29 @@ std::wstring GetCommandLineArgs() noexcept {
     return result;
 }
 
+std::filesystem::path FileUtils::GetExePath() noexcept {
+    namespace FS = std::filesystem;
+    FS::path result{};
+    {
+        std::basic_string<TCHAR> filename(MAX_PATH, '\0');
+        while(DWORD buffer_length = ::GetModuleFileName(nullptr, filename.data(), static_cast<DWORD>(filename.size()))) {
+            if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+                filename.resize(filename.size() * 2);
+                continue;
+            }
+            filename = filename.substr(0, buffer_length);
+            result = FS::path(filename);
+            {
+                std::error_code ec{};
+                if(result = FS::canonical(result, ec); !ec) {
+                    result.make_preferred();
+                }
+            }
+            return result;
+        }
+    }
+    return result;
+}
+
+
 #endif

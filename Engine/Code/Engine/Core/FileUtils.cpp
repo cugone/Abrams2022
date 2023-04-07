@@ -414,30 +414,6 @@ GUID GetKnownPathIdForOS(const KnownPathID& pathid) noexcept {
     }
 }
 
-std::filesystem::path GetExePath() noexcept {
-    namespace FS = std::filesystem;
-    FS::path result{};
-    {
-        std::basic_string<TCHAR> filename(MAX_PATH, '\0');
-        while(DWORD buffer_length = ::GetModuleFileName(nullptr, filename.data(), static_cast<DWORD>(filename.size()))) {
-            if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-                filename.resize(filename.size() * 2);
-                continue;
-            }
-            filename = filename.substr(0, buffer_length);
-            result = FS::path(filename);
-            {
-                std::error_code ec{};
-                if(result = FS::canonical(result, ec); !ec) {
-                    result.make_preferred();
-                }
-            }
-            return result;
-        }
-    }
-    return result;
-}
-
 std::filesystem::path GetWorkingDirectory() noexcept {
     namespace FS = std::filesystem;
     return FS::current_path();
