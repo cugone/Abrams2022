@@ -4,6 +4,7 @@
 
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/Console.hpp"
+#include "Engine/Core/EngineBase.hpp"
 #include "Engine/Core/EngineConfig.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
@@ -43,12 +44,13 @@
 #include "Engine/Game/GameBase.hpp"
 
 #include <algorithm>
+#include <concepts>
 #include <condition_variable>
 #include <format>
 #include <iomanip>
 #include <memory>
 
-template<typename T>
+template<GameType T>
 class App : public EngineSubsystem, public IAppService {
 public:
     App() noexcept = default;
@@ -57,10 +59,6 @@ public:
     App(App&& other) = default;
     App& operator=(const App& other) = default;
     App& operator=(App&& other) = default;
-
-    using GameType = T;
-    static_assert(std::is_base_of_v<std::remove_cvref_t<std::remove_pointer_t<GameBase>>, std::remove_cvref_t<std::remove_pointer_t<GameType>>>);
-
     virtual ~App() noexcept;
 
     static void CreateApp(const std::string& title, const std::string& cmdString) noexcept;
@@ -115,9 +113,9 @@ private:
     std::unique_ptr<InputSystem> m_theInputSystem{};
     std::unique_ptr<UISystem> m_theUI{};
     std::unique_ptr<AudioSystem> m_theAudioSystem{};
-    std::unique_ptr<GameType> m_theGame{};
+    std::unique_ptr<T> m_theGame{};
 
-    static inline std::unique_ptr<App<GameType>> m_theApp{};
+    static inline std::unique_ptr<App<T>> m_theApp{};
 
     static inline NullAppService m_nullApp{};
     static inline NullJobSystemService m_nullJobSystem{};
@@ -135,8 +133,8 @@ namespace detail {
     EngineMessage GetEngineMessageFromWindowsParams(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 }
 
-template<typename T>
-/*static*/ void App<T>::CreateApp(const std::string& title, const std::string& cmdString) noexcept {
+template<GameType T>
+/*static*/ void App<T>::CreateApp(const std::string& title) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     if(m_theApp) {
         return;
@@ -145,7 +143,7 @@ template<typename T>
     ServiceLocator::provide(*static_cast<IAppService*>(m_theApp.get()), m_nullApp);
 }
 
-template<typename T>
+template<GameType T>
 /*static*/ void App<T>::DestroyApp() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     if(!m_theApp) {
@@ -154,7 +152,7 @@ template<typename T>
     m_theApp.reset(nullptr);
 }
 
-template<typename T>
+template<GameType T>
 App<T>::App(const std::string& title, const std::string& cmdString)
 : EngineSubsystem()
 , m_title{title}
@@ -165,7 +163,7 @@ App<T>::App(const std::string& title, const std::string& cmdString)
     LogSystemDescription();
 }
 
-template<typename T>
+template<GameType T>
 App<T>::~App() noexcept {
     if(g_theApp<T>) {
         g_theSubsystemHead = g_theApp<T>;
@@ -183,7 +181,7 @@ App<T>::~App() noexcept {
     ServiceLocator::remove_all();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::SetupEngineSystemPointers() {
     PROFILE_BENCHMARK_FUNCTION();
     ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
@@ -211,7 +209,7 @@ void App<T>::SetupEngineSystemPointers() {
     m_theConsole = std::make_unique<Console>();
     ServiceLocator::provide(*static_cast<IConsoleService*>(m_theConsole.get()), m_nullConsole);
 
-    m_theGame = std::make_unique<GameType>();
+    m_theGame = std::make_unique<T>();
 
     g_theJobSystem = m_theJobSystem.get();
     g_theFileLogger = m_theFileLogger.get();
@@ -226,7 +224,7 @@ void App<T>::SetupEngineSystemPointers() {
     g_theApp<T> = this;
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::SetupEngineSystemChainOfResponsibility() {
     PROFILE_BENCHMARK_FUNCTION();
     g_theConsole->SetNextHandler(g_theUISystem);
@@ -238,7 +236,7 @@ void App<T>::SetupEngineSystemChainOfResponsibility() {
     g_theSubsystemHead = g_theConsole;
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Initialize() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     auto& settings = g_theGame->GetSettings();
@@ -279,12 +277,12 @@ void App<T>::Initialize() noexcept {
     g_theGame->Initialize();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::InitializeService() {
     Initialize();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::BeginFrame() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     g_theJobSystem->BeginFrame();
@@ -297,7 +295,7 @@ void App<T>::BeginFrame() noexcept {
     g_theRenderer->BeginFrame();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->Update(deltaSeconds);
@@ -309,7 +307,7 @@ void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     g_theRenderer->Update(deltaSeconds);
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Render() const noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     g_theGame->Render();
@@ -321,7 +319,7 @@ void App<T>::Render() const noexcept {
     g_theRenderer->Render();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::EndFrame() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->EndFrame();
@@ -333,7 +331,7 @@ void App<T>::EndFrame() noexcept {
     g_theRenderer->EndFrame();
 }
 
-template<typename T>
+template<GameType T>
 bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     switch(msg.wmMessageCode) {
     case WindowsSystemMessage::Window_Close: {
@@ -425,17 +423,17 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     }
 }
 
-template<typename T>
+template<GameType T>
 bool App<T>::IsQuitting() const {
     return m_isQuitting;
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::SetIsQuitting(bool value) {
     m_isQuitting = value;
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::RunFrame() {
     RunMessagePump();
 
@@ -456,29 +454,29 @@ void App<T>::RunFrame() {
     AllocationTracker::tick();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::LogSystemDescription() const {
     PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
     g_theFileLogger->LogAndFlush(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
-template<typename T>
+template<GameType T>
 bool App<T>::HasFocus() const {
     return m_current_focus;
 }
 
-template<typename T>
+template<GameType T>
 bool App<T>::LostFocus() const {
     return m_previous_focus && !m_current_focus;
 }
 
-template<typename T>
+template<GameType T>
 bool App<T>::GainedFocus() const {
     return !m_previous_focus && m_current_focus;
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Minimize() const {
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
@@ -486,13 +484,13 @@ void App<T>::Minimize() const {
     ::SendMessageA(*hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Restore() const {
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::Maximize() const {
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
@@ -502,7 +500,7 @@ void App<T>::Maximize() const {
     ::SendMessageA(*hwnd, WM_SIZE, SIZE_MAXIMIZED, MAKELPARAM(desktop_resolution.x, desktop_resolution.y));
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::RunMessagePump() const {
     MSG msg{};
     for(;;) {
@@ -521,7 +519,7 @@ void App<T>::RunMessagePump() const {
     }
 }
 
-template<typename T>
+template<GameType T>
 void App<T>::HandleResize(unsigned int newWidth, unsigned int newHeight) noexcept {
     g_theRenderer->ResizeBuffers();
     GetGameAs<T>()->HandleWindowResize(newWidth, newHeight);

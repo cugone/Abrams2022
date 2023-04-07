@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 
 class JobSystem;
@@ -14,7 +15,11 @@ class AudioSystem;
 class EngineSubsystem;
 class GameBase;
 
-template<typename GameType>
+
+template<typename T>
+concept GameType = std::derived_from<T, GameBase>;
+
+template<GameType T>
 class App;
 
 inline JobSystem* g_theJobSystem = nullptr;
@@ -29,11 +34,10 @@ inline PhysicsSystem* g_thePhysicsSystem = nullptr;
 inline GameBase* g_theGame = nullptr;
 inline EngineSubsystem* g_theSubsystemHead = nullptr;
 
-template<typename GameType>
-inline App<GameType>* g_theApp = nullptr;
+template<GameType T>
+inline App<T>* g_theApp = nullptr;
 
-template<typename GameDerived>
-GameDerived* GetGameAs() noexcept {
-    static_assert(std::is_base_of_v<std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameBase>>>, std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<GameDerived>>>>);
-    return dynamic_cast<GameDerived*>(g_theGame);
+template<GameType T>
+T* GetGameAs() noexcept {
+    return dynamic_cast<T*>(g_theGame);
 }

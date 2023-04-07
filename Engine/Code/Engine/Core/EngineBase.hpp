@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Core/App.hpp"
+#include "Engine/Core/EngineCommon.hpp"
+
 #include "Engine/Platform/Win.hpp"
 
 #include "Engine/Game/GameBase.hpp"
@@ -12,11 +14,14 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IAppService.hpp"
 
-template<typename GameType>
+#include <concepts>
+#include <string>
+#include <type_traits>
+
+template<GameType T>
 class Engine {
 public:
-    static_assert(std::is_base_of_v<std::remove_cvref_t<std::remove_pointer_t<GameBase>>, std::remove_cvref_t<std::remove_pointer_t<GameType>>>, "GameType template parameter is not derived from GameBase.");
-    static void Initialize(const std::string& title, const std::string& cmdString) noexcept;
+    static void Initialize(const std::string& title) noexcept;
     static void Run() noexcept;
     static void Shutdown() noexcept;
     static const bool Available() noexcept;
@@ -26,29 +31,29 @@ private:
     static inline bool m_shutdownCalled{false};
 };
 
-template<typename GameType>
+template<GameType T>
 /*static*/
-const bool Engine<GameType>::Available() noexcept {
+const bool Engine<T>::Available() noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     return m_initCalled && !m_shutdownCalled;
 }
 
-template<typename GameType>
+template<GameType T>
 /*static*/
-void Engine<GameType>::Initialize(const std::string& title, const std::string& cmdString) noexcept {
+void Engine<T>::Initialize(const std::string& title) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     if(!m_initCalled) {
         m_shutdownCalled = false;
         m_initCalled = true;
-        App<GameType>::CreateApp(title, cmdString);
+        App<T>::CreateApp(title);
         auto* app = ServiceLocator::get<IAppService>();
         app->InitializeService();
     }
 }
 
-template<typename GameType>
+template<GameType T>
 /*static*/
-void Engine<GameType>::Run() noexcept {
+void Engine<T>::Run() noexcept {
     GUARANTEE_OR_DIE(!m_shutdownCalled, "Engine::Shutdown called before Run!");
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
     PROFILE_BENCHMARK_FUNCTION();
@@ -58,14 +63,14 @@ void Engine<GameType>::Run() noexcept {
     }
 }
 
-template<typename GameType>
+template<GameType T>
 /*static*/
-void Engine<GameType>::Shutdown() noexcept {
+void Engine<T>::Shutdown() noexcept {
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Shutdown");
     PROFILE_BENCHMARK_FUNCTION();
     if(!m_shutdownCalled) {
         m_shutdownCalled = true;
         m_initCalled = false;
-        App<GameType>::DestroyApp();
+        App<T>::DestroyApp();
     }
 }
