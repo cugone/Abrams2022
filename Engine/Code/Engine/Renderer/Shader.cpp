@@ -21,7 +21,8 @@
 #include <string_view>
 #include <system_error>
 
-ID3DBlob* CreateD3DBlobFromBuffer(std::optional<std::vector<uint8_t>> buffer, std::string_view error_msg) noexcept;
+//Creates 3D3Blob from a data buffer. Takes ownership of the buffer.
+ID3DBlob* CreateD3DBlobFromBuffer(std::vector<uint8_t>& buffer, std::string_view error_msg) noexcept;
 
 Shader::Shader(ShaderProgram* shaderProgram /*= nullptr*/, DepthStencilState* depthStencil /*= nullptr*/, RasterState* rasterState /*= nullptr*/, BlendState* blendState /*= nullptr*/, Sampler* sampler /*= nullptr*/) noexcept
 : m_shader_program(shaderProgram)
@@ -83,16 +84,16 @@ std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetComputeConstantBu
     return cbufferRefs;
 }
 
-ID3DBlob* CreateD3DBlobFromBuffer(std::optional<std::vector<uint8_t>> buffer, std::string_view error_msg) noexcept {
+ID3DBlob* CreateD3DBlobFromBuffer(std::vector<uint8_t>& buffer, std::string_view error_msg) noexcept {
     ID3DBlob* blob = nullptr;
-    auto hr = ::D3DCreateBlob(buffer->size(), &blob);
+    auto hr = ::D3DCreateBlob(buffer.size(), &blob);
     if(FAILED(hr)) {
-        DebuggerPrintf(StringUtils::FormatWindowsMessage(hr).c_str());
+        DebuggerPrintf(StringUtils::FormatWindowsMessage(hr));
         ERROR_AND_DIE(error_msg.data());
     }
-    std::memcpy(blob->GetBufferPointer(), buffer->data(), blob->GetBufferSize());
-    buffer->clear();
-    buffer->shrink_to_fit();
+    std::memcpy(blob->GetBufferPointer(), buffer.data(), blob->GetBufferSize());
+    buffer.clear();
+    buffer.shrink_to_fit();
     return blob;
 }
 
