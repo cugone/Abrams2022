@@ -154,11 +154,11 @@ void KerningFont::SetMaterial(Material* mat) noexcept {
 }
 
 int KerningFont::GetKerningValue(int first, int second) const noexcept {
-    const auto iter = m_kernmap.find(std::make_pair(first, second));
-    if(iter != m_kernmap.end()) {
+    if(const auto iter = m_kernmap.find(std::make_pair(first, second)); iter != m_kernmap.end()) {
         return (*iter).second;
+    } else {
+        return 0;
     }
-    return 0;
 }
 
 float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
