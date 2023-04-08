@@ -148,28 +148,29 @@ bool Shader::LoadFromXml(const XMLElement& element) noexcept {
                 const auto is_cs = has_filename && fn_str.ends_with("_CS");
                 const auto has_valid_staged_filename = is_vs || is_hs || is_ds || is_gs || is_ps || is_cs;
                 GUARANTEE_OR_DIE(has_valid_staged_filename, "Compiled shader source filename must end in '_VS' '_HS' '_DS' '_GS' '_PS' or '_CS'");
-                auto buffer = FileUtils::ReadBinaryBufferFromFile(p);
-                if(is_vs && buffer.has_value()) {
-                    desc.vs_bytecode = CreateD3DBlobFromBuffer(buffer, "VS Blob creation failed.");
-                    device.CreateVertexShader(desc);
-                    desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(device, desc.vs_bytecode);
-                } else if(is_hs && buffer.has_value()) {
-                    desc.hs_bytecode = CreateD3DBlobFromBuffer(buffer, "HS Blob creation failed.");
-                    device.CreateHullShader(desc);
-                } else if(is_ds && buffer.has_value()) {
-                    desc.ds_bytecode = CreateD3DBlobFromBuffer(buffer, "DS Blob creation failed.");
-                    device.CreateDomainShader(desc);
-                } else if(is_gs && buffer.has_value()) {
-                    desc.gs_bytecode = CreateD3DBlobFromBuffer(buffer, "GS Blob creation failed.");
-                    device.CreateGeometryShader(desc);
-                } else if(is_ps && buffer.has_value()) {
-                    desc.ps_bytecode = CreateD3DBlobFromBuffer(buffer, "PS Blob creation failed.");
-                    device.CreatePixelShader(desc);
-                } else if(is_cs && buffer.has_value()) {
-                    desc.cs_bytecode = CreateD3DBlobFromBuffer(buffer, "CS Blob creation failed.");
-                    device.CreateComputeShader(desc);
-                } else {
-                    ERROR_AND_DIE("Could not determine shader type. Filename must end in _VS, _PS, _HS, _DS, _GS, or _CS.");
+                if(auto buffer = FileUtils::ReadBinaryBufferFromFile(p); buffer.has_value()) {
+                    if(is_vs) {
+                        desc.vs_bytecode = CreateD3DBlobFromBuffer(*buffer, "VS Blob creation failed.");
+                        device.CreateVertexShader(desc);
+                        desc.input_layout = RHIDevice::CreateInputLayoutFromByteCode(device, desc.vs_bytecode);
+                    } else if(is_hs) {
+                        desc.hs_bytecode = CreateD3DBlobFromBuffer(*buffer, "HS Blob creation failed.");
+                        device.CreateHullShader(desc);
+                    } else if(is_ds) {
+                        desc.ds_bytecode = CreateD3DBlobFromBuffer(*buffer, "DS Blob creation failed.");
+                        device.CreateDomainShader(desc);
+                    } else if(is_gs) {
+                        desc.gs_bytecode = CreateD3DBlobFromBuffer(*buffer, "GS Blob creation failed.");
+                        device.CreateGeometryShader(desc);
+                    } else if(is_ps) {
+                        desc.ps_bytecode = CreateD3DBlobFromBuffer(*buffer, "PS Blob creation failed.");
+                        device.CreatePixelShader(desc);
+                    } else if(is_cs) {
+                        desc.cs_bytecode = CreateD3DBlobFromBuffer(*buffer, "CS Blob creation failed.");
+                        device.CreateComputeShader(desc);
+                    } else {
+                        ERROR_AND_DIE("Could not determine shader type. Filename must end in _VS, _PS, _HS, _DS, _GS, or _CS.");
+                    }
                 }
             });
             auto sp = renderer->CreateShaderProgramFromDesc(std::move(desc));
