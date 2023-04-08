@@ -16,7 +16,7 @@ struct SamplerDesc {
     TextureAddressMode WaddressMode = TextureAddressMode::Clamp;
     Rgba borderColor = Rgba::White;
     ComparisonFunction compareFunc = ComparisonFunction::Never;
-    unsigned int maxAnisotropicLevel = 8;
+    unsigned int maxAnisotropicLevel = 1u;
     float mipmapLODBias = 0.0f;
     float minLOD = (std::numeric_limits<float>::lowest)();
     float maxLOD = (std::numeric_limits<float>::max)();

@@ -80,15 +80,15 @@ SamplerDesc::SamplerDesc(const XMLElement& element) noexcept {
         if(auto* xml_filter = xml_sampler->FirstChildElement("filter")) {
             DataUtils::ValidateXmlElement(*xml_filter, "filter", "", "min,mag,mip,mode");
 
-            std::string filter_str = "point";
+            std::string filter_str = "linear";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "min", filter_str);
             min_filter = FilterModeFromString(filter_str);
 
-            filter_str = "point";
+            filter_str = "linear";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mag", filter_str);
             mag_filter = FilterModeFromString(filter_str);
 
-            filter_str = "point";
+            filter_str = "linear";
             filter_str = DataUtils::ParseXmlAttribute(*xml_filter, "mip", filter_str);
             mip_filter = FilterModeFromString(filter_str);
 
@@ -99,15 +99,15 @@ SamplerDesc::SamplerDesc(const XMLElement& element) noexcept {
         if(auto* xml_textureAddress = xml_sampler->FirstChildElement("textureAddress")) {
             DataUtils::ValidateXmlElement(*xml_textureAddress, "textureAddress", "", "", "", "u,v,w");
 
-            std::string str = "wrap";
+            std::string str = "clamp";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "u", str);
             UaddressMode = TextureAddressModeFromString(str);
 
-            str = "wrap";
+            str = "clamp";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "v", str);
             VaddressMode = TextureAddressModeFromString(str);
 
-            str = "wrap";
+            str = "clamp";
             str = DataUtils::ParseXmlAttribute(*xml_textureAddress, "w", str);
             WaddressMode = TextureAddressModeFromString(str);
         }
