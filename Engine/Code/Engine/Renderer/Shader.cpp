@@ -86,8 +86,7 @@ std::vector<std::reference_wrapper<ConstantBuffer>> Shader::GetComputeConstantBu
 
 ID3DBlob* CreateD3DBlobFromBuffer(std::vector<uint8_t>& buffer, std::string_view error_msg) noexcept {
     ID3DBlob* blob = nullptr;
-    auto hr = ::D3DCreateBlob(buffer.size(), &blob);
-    if(FAILED(hr)) {
+    if(auto hr = ::D3DCreateBlob(buffer.size(), &blob); (FAILED(hr))) {
         DebuggerPrintf(StringUtils::FormatWindowsMessage(hr));
         ERROR_AND_DIE(error_msg.data());
     }
