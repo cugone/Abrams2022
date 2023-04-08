@@ -51,7 +51,7 @@ bool Sampler::CreateSamplerState(const RHIDevice* device, const SamplerDesc& des
 
     dx_desc.MipLODBias = desc.mipmapLODBias;
 
-    dx_desc.MaxAnisotropy = desc.maxAnisotropicLevel;
+    dx_desc.MaxAnisotropy = std::clamp(desc.maxAnisotropicLevel, 1u, 16u);
 
     dx_desc.ComparisonFunc = ComparisonFunctionToD3DComparisonFunction(desc.compareFunc);
 
@@ -75,7 +75,7 @@ SamplerDesc::SamplerDesc(const XMLElement& element) noexcept {
         compare_str = DataUtils::ParseXmlAttribute(*xml_sampler, "test", compare_str);
         compareFunc = ComparisonFunctionFromString(compare_str);
 
-        maxAnisotropicLevel = DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", maxAnisotropicLevel);
+        maxAnisotropicLevel = std::clamp(DataUtils::ParseXmlAttribute(*xml_sampler, "maxAF", maxAnisotropicLevel), 1u, 16u);
 
         if(auto* xml_filter = xml_sampler->FirstChildElement("filter")) {
             DataUtils::ValidateXmlElement(*xml_filter, "filter", "", "min,mag,mip,mode");
