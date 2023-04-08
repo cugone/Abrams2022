@@ -3780,6 +3780,9 @@ std::unique_ptr<Shader> Renderer::CreateDefault2DShader() noexcept {
         <cull>none</cull>
         <antialiasing>false</antialiasing>
     </raster>
+    <sampler>
+        <filter min="point" mag="point" mip="point" mode="none" />
+    </sampler>
     <blends>
         <blend enable = "true">
             <color src = "src_alpha" dest = "inv_src_alpha" op = "add" />
