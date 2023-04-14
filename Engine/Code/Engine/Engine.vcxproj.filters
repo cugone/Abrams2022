@@ -646,6 +646,9 @@
     <ClCompile Include="Core\WebM.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Video\VideoSystem.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1550,6 +1553,9 @@
     </ClInclude>
     <ClInclude Include="Core\WebM.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Video\VideoSystem.hpp">
+      <Filter>Video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

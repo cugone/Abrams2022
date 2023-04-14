@@ -192,6 +192,7 @@
     <ClCompile Include="UI\UITypes.cpp" />
     <ClCompile Include="UI\UISystem.cpp" />
     <ClCompile Include="UI\UIWidget.cpp" />
+    <ClCompile Include="Video\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Thirdparty\EnTT\EnTT.hpp" />
@@ -495,6 +496,7 @@
     <ClInclude Include="UI\UITypes.hpp" />
     <ClInclude Include="UI\UISystem.hpp" />
     <ClInclude Include="UI\UIWidget.hpp" />
+    <ClInclude Include="Video\VideoSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderer\DirectX\Shaders\webm.hlsl">
