@@ -122,6 +122,9 @@
     <Filter Include="Assets">
       <UniqueIdentifier>{4d62a80a-02cf-4def-a9a9-e0da024d7ca8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Video">
+      <UniqueIdentifier>{54f8c518-ecec-4798-925e-ea86385b1ff4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
