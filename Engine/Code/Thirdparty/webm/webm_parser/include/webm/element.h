@@ -183,21 +183,21 @@ struct ElementMetadata {
  is not known.
  */
 constexpr std::uint64_t kUnknownHeaderSize =
-    std::numeric_limits<std::uint32_t>::max();
+    (std::numeric_limits<std::uint32_t>::max)();
 
 /**
  A special value for `ElementMetadata::size` indicating the element's size is
  not known.
  */
 constexpr std::uint64_t kUnknownElementSize =
-    std::numeric_limits<std::uint64_t>::max();
+    (std::numeric_limits<std::uint64_t>::max)();
 
 /**
  A special value for `ElementMetadata::position` indicating the element's
  position is not known.
  */
 constexpr std::uint64_t kUnknownElementPosition =
-    std::numeric_limits<std::uint64_t>::max();
+    (std::numeric_limits<std::uint64_t>::max)();
 
 /**
  @}
