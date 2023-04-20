@@ -5661,3 +5661,20 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
         return nullptr;
     }
 }
+
+
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    return {};
+}
+
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    return {};
+}
+
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    return {};
+}
+
+std::unique_ptr<Texture> Renderer::CreateVideoTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] unsigned int depth /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) noexcept {
+    return {};
+}
