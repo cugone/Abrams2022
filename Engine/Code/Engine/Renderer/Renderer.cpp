@@ -5060,8 +5060,6 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5105,8 +5103,6 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5160,8 +5156,6 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);           // data is set at creation time and won't change
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);        // R8G8B8A8 texture
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage); // we're going to be using this texture as a shader resource
-                                                                    //Make every texture a shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage); // Determines how I can access this resource CPU side (IMMUTABLE, So none)
     tex_desc.MiscFlags = 0;                                        // Extra Flags, of note is;
                                                                     // D3D11_RESOURCE_MISC_GENERATE_MIPS - if we want to use this to be able to generate mips (not compatible with IMMUTABLE)
@@ -5228,8 +5222,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5277,8 +5269,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, s
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5324,8 +5314,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5373,8 +5361,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5461,8 +5447,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5521,8 +5505,6 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Staging textures can't be bound to the graphics pipeline.
     if((bufferUsage & BufferUsage::Staging) == BufferUsage::Staging) {
@@ -5578,8 +5560,6 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
@@ -5625,8 +5605,6 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
     tex_desc.Format = ImageFormatToDxgiFormat(imageFormat);
     tex_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
-    //Make every texture a target and shader resource
-    tex_desc.BindFlags |= BufferBindUsageToD3DBindFlags(BufferBindUsage::Shader_Resource);
     tex_desc.CPUAccessFlags = CPUAccessFlagFromUsage(bufferUsage);
     //Force specific usages for unordered access
     if(!!(bindUsage & BufferBindUsage::Unordered_Access)) {
