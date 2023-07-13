@@ -21,6 +21,7 @@ public:
         ,PlayToBeginning
         ,Loop
         ,Reverse
+        ,PingPong
     };
     Gif() = default;
     Gif(const Gif& other) = default;
@@ -57,6 +58,7 @@ private:
     std::size_t m_endFrame{static_cast<std::size_t>(-1)};
     std::size_t m_totalFrames{};
     Gif::PlayMode m_playMode{Gif::PlayMode::Loop};
+    int m_direction{1};
 };
 
 struct GifDesc {

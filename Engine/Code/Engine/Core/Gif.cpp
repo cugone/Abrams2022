@@ -93,8 +93,10 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
             m_totalFrames = frame_count;
             m_endFrame = (std::min)(m_endFrame, m_totalFrames - std::size_t{1u});
             m_currentFrame = m_startFrame;
+            m_direction = 1;
             if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
                 m_currentFrame = m_endFrame;
+                m_direction = -1;
             }
             m_duration = TimeUtils::FPSeconds{std::accumulate(std::cbegin(m_frameDelays), std::cend(m_frameDelays), TimeUtils::FPMilliseconds::zero(), [&](const auto& a, const auto& b) { return TimeUtils::FPMilliseconds(a.count() + b.count()); })};
             if(m_texture = r->GetTexture(filepath.string()); m_texture != nullptr) {
@@ -128,11 +130,7 @@ void Gif::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
         }
     }();
     if(m_frameDuration >= frame_delay) {
-        if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
-            --m_currentFrame;
-        } else {
-            ++m_currentFrame;
-        }
+        m_currentFrame += m_direction;
         m_frameDuration = TimeUtils::FPSeconds::zero();
     }
     switch(m_playMode) {
@@ -154,6 +152,16 @@ void Gif::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     case PlayMode::Reverse:
         if(m_currentFrame > m_endFrame) {
             m_currentFrame = m_endFrame;
+        }
+        break;
+    case PlayMode::PingPong:
+        if(m_currentFrame < m_startFrame || m_currentFrame == std::size_t(-1)) {
+            m_currentFrame = m_startFrame;
+            m_direction = -m_direction;
+        }
+        if(m_currentFrame > m_endFrame) {
+            m_currentFrame = m_endFrame;
+            m_direction = -m_direction;
         }
         break;
     default:
