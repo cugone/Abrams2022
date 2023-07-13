@@ -345,8 +345,8 @@ enum class BufferBindUsage : uint32_t {
     , Render_Target = 0x020
     , Depth_Stencil = 0x040
     , Unordered_Access = 0x080
-    , Decoder = 0x100
-    , Video_Encoder = 0x200
+    , Decoder = 0x200
+    , Video_Encoder = 0x400
 };
 
 template<>
