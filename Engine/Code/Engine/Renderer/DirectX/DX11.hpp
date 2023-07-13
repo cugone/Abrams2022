@@ -450,6 +450,11 @@ using bitfield64_t = std::uint64_t;
     case ImageFormat::P8: return DXGI_FORMAT_P8;
     case ImageFormat::A8P8: return DXGI_FORMAT_A8P8;
     case ImageFormat::B4G4R4A4_UNorm: return DXGI_FORMAT_B4G4R4A4_UNORM;
+    case ImageFormat::P208: return DXGI_FORMAT_P208;
+    case ImageFormat::V208: return DXGI_FORMAT_V208;
+    case ImageFormat::V408: return DXGI_FORMAT_V408;
+    case ImageFormat::MinMipOpaque_Feedback: return DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE;
+    case ImageFormat::MipRegionUsedOpaque_Feedback: return DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE;
     default: return DXGI_FORMAT_UNKNOWN;
     }
 }
@@ -572,6 +577,11 @@ using bitfield64_t = std::uint64_t;
     case DXGI_FORMAT_P8: return ImageFormat::P8;
     case DXGI_FORMAT_A8P8: return ImageFormat::A8P8;
     case DXGI_FORMAT_B4G4R4A4_UNORM: return ImageFormat::B4G4R4A4_UNorm;
+    case DXGI_FORMAT_P208: return ImageFormat::P208;
+    case DXGI_FORMAT_V208: return ImageFormat::V208;
+    case DXGI_FORMAT_V408: return ImageFormat::V408;
+    case DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE: return ImageFormat::MinMipOpaque_Feedback;
+    case DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE: return ImageFormat::MipRegionUsedOpaque_Feedback;
     default: return ImageFormat::Unknown;
     }
 }
