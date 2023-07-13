@@ -34,6 +34,16 @@ namespace StringUtils {
 [[nodiscard]] bool StartsWith(const std::string& string, char start) noexcept;
 [[nodiscard]] bool StartsWith(const std::wstring& string, wchar_t start) noexcept;
 
+//TODO: Replace with std::string::contains when C++23 is moved from C++-Latest
+[[nodiscard]] const bool Contains(const std::string& string, std::string_view sv) noexcept;
+[[nodiscard]] const bool Contains(const std::string& string, char ch) noexcept;
+[[nodiscard]] const bool Contains(const std::string& string, const char* s) noexcept;
+
+//TODO: Replace with std::wstring::contains when C++23 is moved from C++-Latest
+[[nodiscard]] const bool Contains(const std::wstring& string, std::wstring_view sv) noexcept;
+[[nodiscard]] const bool Contains(const std::wstring& string, wchar_t ch) noexcept;
+[[nodiscard]] const bool Contains(const std::wstring& string, const wchar_t* ch) noexcept;
+
 [[nodiscard]] std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept;
 [[nodiscard]] std::wstring ReplaceAll(std::wstring string, const std::wstring& from, const std::wstring& to) noexcept;
 [[nodiscard]] std::string RemoveAll(std::string string, const std::string& what) noexcept;

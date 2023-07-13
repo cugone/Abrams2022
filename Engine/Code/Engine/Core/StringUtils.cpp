@@ -276,6 +276,30 @@ bool StartsWith(const std::wstring& string, wchar_t start) noexcept {
     return string.starts_with(start);
 }
 
+const bool Contains(const std::string& string, std::string_view sv) noexcept {
+    return string.find(sv) != std::string::npos;
+}
+
+const bool Contains(const std::string& string, char ch) noexcept {
+    return string.find(ch) != std::string::npos;
+}
+
+const bool Contains(const std::string& string, const char* s) noexcept {
+    return string.find(s) != std::string::npos;
+}
+
+const bool Contains(const std::wstring& string, std::wstring_view sv) noexcept {
+    return string.find(sv) != std::wstring::npos;
+}
+
+const bool Contains(const std::wstring& string, wchar_t ch) noexcept {
+    return string.find(ch) != std::wstring::npos;
+}
+
+const bool Contains(const std::wstring& string, const wchar_t* s) noexcept {
+    return string.find(s) != std::wstring::npos;
+}
+
 //From https://stackoverflow.com/a/3418285/421178
 std::string ReplaceAll(std::string string, const std::string& from, const std::string& to) noexcept {
     if(from.empty()) {
