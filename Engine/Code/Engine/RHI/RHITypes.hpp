@@ -272,6 +272,11 @@ enum class ImageFormat : unsigned int {
     , P8
     , A8P8
     , B4G4R4A4_UNorm
+    , P208
+    , V208
+    , V408
+    , MinMipOpaque_Feedback
+    , MipRegionUsedOpaque_Feedback
 };
 
 enum class PrimitiveType : uint32_t {
