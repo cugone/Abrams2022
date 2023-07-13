@@ -1,8 +1,12 @@
 #include "Engine/Platform/Win.hpp"
 
+#include "Engine/Core/StringUtils.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
+
 #include "Engine/Platform/PlatformUtils.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Window.hpp"
 
@@ -91,6 +95,9 @@ std::wstring GetCommandLineArgs() noexcept {
     cmdLineArray.resize(argc);
     for(std::size_t i = 0u; i < argc; ++i) {
         cmdLineArray[i] = std::wstring(pCmdLine[i] ? pCmdLine[i] : L"");
+        if(StringUtils::Contains(cmdLineArray[i], L" \n\t\v\f")) {
+            cmdLineArray[i] = std::wstring{'\"'} + cmdLineArray[i] + std::wstring{'\"'};
+        }
     }
     std::wstring result;
     const auto s = [&]() {
