@@ -7,12 +7,12 @@
 #include <type_traits>
 
 bool operator==(const ViewportDesc& a, const ViewportDesc& b) noexcept {
-    bool x = MathUtils::IsEquivalent(a.x, b.x);
-    bool y = MathUtils::IsEquivalent(a.y, b.y);
-    bool w = MathUtils::IsEquivalent(a.width, b.width);
-    bool h = MathUtils::IsEquivalent(a.height, b.height);
-    bool i = MathUtils::IsEquivalent(a.minDepth, b.minDepth);
-    bool m = MathUtils::IsEquivalent(a.maxDepth, b.maxDepth);
+    const bool x = MathUtils::IsEquivalent(a.x, b.x);
+    const bool y = MathUtils::IsEquivalent(a.y, b.y);
+    const bool w = MathUtils::IsEquivalent(a.width, b.width);
+    const bool h = MathUtils::IsEquivalent(a.height, b.height);
+    const bool i = MathUtils::IsEquivalent(a.minDepth, b.minDepth);
+    const bool m = MathUtils::IsEquivalent(a.maxDepth, b.maxDepth);
     return x && y && w && h && i && m;
 }
 
