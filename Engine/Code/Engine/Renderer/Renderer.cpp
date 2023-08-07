@@ -5032,8 +5032,9 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     }
     Microsoft::WRL::ComPtr<ID3D11Texture1D> dx_tex{};
 
-    bool isImmutable = bufferUsage == BufferUsage::Static;
-    bool mustUseInitialData = isImmutable;
+    bool isMultiSampled = false;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
+    bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
@@ -5082,7 +5083,7 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5126,8 +5127,8 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
-    bool mustUseInitialData = isImmutable || isMultiSampled;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
+    bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
     bool succeeded = SUCCEEDED(hr);
@@ -5187,7 +5188,7 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5247,7 +5248,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5295,7 +5296,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, s
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || isMultiSampled;
 
     if(HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, mustUseInitialData ? &subresource_data : nullptr, dx_tex.GetAddressOf()); SUCCEEDED(hr)) {
@@ -5339,7 +5340,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5390,7 +5391,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
@@ -5530,7 +5531,7 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5583,7 +5584,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
@@ -5628,7 +5629,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
 
     //If IMMUTABLE or not multi-sampled, must use initial data.
     bool isMultiSampled = false;
-    bool isImmutable = bufferUsage == BufferUsage::Static;
+    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
