@@ -3,6 +3,8 @@
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+#include "Engine/Renderer/Texture.hpp"
+
 #include <chrono>
 #include <filesystem>
 
@@ -30,18 +32,27 @@ public:
     void Render([[maybe_unused]] const Matrix4& transform = Matrix4::I) const noexcept;
 
     auto GetDimensions() const noexcept -> const std::pair<uint64_t, uint64_t>;
-    void AddFrame(const std::vector<uint8_t>& frameData) noexcept;
+    void AddFrame() noexcept;
 
-    void BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) const noexcept;
+    void BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noexcept;
 
 protected:
 private:
     std::filesystem::path m_path{};
     TimeUtils::FPSeconds m_length{};
-    std::vector<uint8_t> m_frameData{};
+    std::vector<uint8_t> m_audioData{};
     uint64_t m_frameCount{};
     uint64_t m_width{};
     uint64_t m_height{};
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_decodedFrame{};
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srvY{};
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srvUV{};
+
+    std::unique_ptr<Texture> m_currentFrame{};
+    std::unique_ptr<Texture> m_previousFrame{};
+    std::unique_ptr<Texture> m_lastGoldenFrame{};
+    std::unique_ptr<Texture> m_lastAltRefFrame{};
 };
 
 } // namespace FileUtils
