@@ -54,6 +54,7 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IConfigService.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
+#include "Engine/Services/IJobSystemService.hpp"
 
 #include <Thirdparty/TinyXML2/tinyxml2.h>
 #include <Thirdparty/stb/stb_image.h>
@@ -338,7 +339,7 @@ void Renderer::Initialize() noexcept {
         config->GetValue("height", height);
     }
     std::tie(m_rhi_output, m_rhi_context) = m_rhi_device->CreateOutputAndContext(windowDesc);
-    
+
     GetOutput()->GetWindow()->SetDisplayMode(windowDesc.mode);
 
     LogAvailableDisplays();
