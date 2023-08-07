@@ -5640,19 +5640,114 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     }
 }
 
-
-std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
+    GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+    switch(imageFormat) {
+    case ImageFormat::Ayuv: break;
+    case ImageFormat::Y410: break;
+    case ImageFormat::Y416: break;
+        //TODO: Implement NV12 Texture creation
+    case ImageFormat::Nv12: break;
+    case ImageFormat::P010: break;
+    case ImageFormat::P016: break;
+    case ImageFormat::Opaque_420: break;
+    case ImageFormat::Yuy2: break;
+    case ImageFormat::Y210: break;
+    case ImageFormat::Y216: break;
+    case ImageFormat::Nv11: break;
+    case ImageFormat::Ai44: break;
+    case ImageFormat::Ia44: break;
+    case ImageFormat::P8: break;
+    case ImageFormat::A8P8: break;
+    case ImageFormat::P208: break;
+    case ImageFormat::V208: break;
+    case ImageFormat::V408: break;
+    default: break;
+    }
     return {};
 }
 
-std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
+    GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+    switch(imageFormat) {
+    case ImageFormat::Ayuv: break;
+    case ImageFormat::Y410: break;
+    case ImageFormat::Y416: break;
+        //TODO: Implement NV12 Texture creation
+    case ImageFormat::Nv12: break;
+    case ImageFormat::P010: break;
+    case ImageFormat::P016: break;
+    case ImageFormat::Opaque_420: break;
+    case ImageFormat::Yuy2: break;
+    case ImageFormat::Y210: break;
+    case ImageFormat::Y216: break;
+    case ImageFormat::Nv11: break;
+    case ImageFormat::Ai44: break;
+    case ImageFormat::Ia44: break;
+    case ImageFormat::P8: break;
+    case ImageFormat::A8P8: break;
+    case ImageFormat::P208: break;
+    case ImageFormat::V208: break;
+    case ImageFormat::V408: break;
+    default: break;
+    }
     return {};
 }
 
-std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
+    GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
+    GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+    switch(imageFormat) {
+    case ImageFormat::Ayuv: break;
+    case ImageFormat::Y410: break;
+    case ImageFormat::Y416: break;
+        //TODO: Implement NV12 Texture creation
+    case ImageFormat::Nv12: break;
+    case ImageFormat::P010: break;
+    case ImageFormat::P016: break;
+    case ImageFormat::Opaque_420: break;
+    case ImageFormat::Yuy2: break;
+    case ImageFormat::Y210: break;
+    case ImageFormat::Y216: break;
+    case ImageFormat::Nv11: break;
+    case ImageFormat::Ai44: break;
+    case ImageFormat::Ia44: break;
+    case ImageFormat::P8: break;
+    case ImageFormat::A8P8: break;
+    case ImageFormat::P208: break;
+    case ImageFormat::V208: break;
+    case ImageFormat::V408: break;
+    default: break;
+    }
     return {};
 }
 
-std::unique_ptr<Texture> Renderer::CreateVideoTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] unsigned int depth /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /* = ImageFormat::R8G8B8A8_UNorm*/) noexcept {
+std::unique_ptr<Texture> Renderer::CreateVideoTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] unsigned int depth /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) noexcept {
+    GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
+    GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+    switch(imageFormat) {
+    case ImageFormat::Ayuv: break;
+    case ImageFormat::Y410: break;
+    case ImageFormat::Y416: break;
+        //TODO: Implement NV12 Texture creation
+    case ImageFormat::Nv12: break;
+    case ImageFormat::P010: break;
+    case ImageFormat::P016: break;
+    case ImageFormat::Opaque_420: break;
+    case ImageFormat::Yuy2: break;
+    case ImageFormat::Y210: break;
+    case ImageFormat::Y216: break;
+    case ImageFormat::Nv11: break;
+    case ImageFormat::Ai44: break;
+    case ImageFormat::Ia44: break;
+    case ImageFormat::P8: break;
+    case ImageFormat::A8P8: break;
+    case ImageFormat::P208: break;
+    case ImageFormat::V208: break;
+    case ImageFormat::V408: break;
+    default: break;
+    }
     return {};
 }

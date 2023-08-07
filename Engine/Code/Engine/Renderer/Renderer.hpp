@@ -167,10 +167,10 @@ public:
     [[nodiscard]] std::unique_ptr<Texture> Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override;
     [[nodiscard]] Texture* CreateTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override;
 
-    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
-    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
-    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const void* data, std::size_t elementSize, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
-    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override;
+    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::Nv12, const ImageFormat& viewFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
+    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const std::vector<Rgba>& data, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::Nv12, const ImageFormat& viewFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
+    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureFromMemory(const void* data, std::size_t elementSize, unsigned int width = 1, unsigned int height = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::Nv12, const ImageFormat& viewFormat = ImageFormat::R8G8B8A8_UNorm) const noexcept override;
+    [[nodiscard]] std::unique_ptr<Texture> CreateVideoTextureArrayFromMemory(const unsigned char* data, unsigned int width = 1, unsigned int height = 1, unsigned int depth = 1, const BufferUsage& bufferUsage = BufferUsage::Static, const BufferBindUsage& bindUsage = BufferBindUsage::Shader_Resource, const ImageFormat& imageFormat = ImageFormat::Nv12, const ImageFormat& viewFormat = ImageFormat::R8G8B8A8_UNorm) noexcept override;
 
     [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width = 1, unsigned int height = 1) noexcept override;
     [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem) noexcept override;
@@ -564,6 +564,7 @@ private:
     std::unique_ptr<RHIDevice> m_rhi_device = nullptr;
     std::unique_ptr<RHIDeviceContext> m_rhi_context = nullptr;
     std::unique_ptr<RHIOutput> m_rhi_output = nullptr;
+    std::unique_ptr<RHIVideoContext> m_rhi_video_context = nullptr;
     Texture* m_current_target = nullptr;
     Texture* m_current_depthstencil = nullptr;
     Texture* m_default_depthstencil = nullptr;

@@ -6,6 +6,7 @@
 class JobSystem;
 class FileLogger;
 class Renderer;
+class VideoSystem;
 class Console;
 class Config;
 class UISystem;
@@ -25,6 +26,7 @@ class App;
 inline JobSystem* g_theJobSystem = nullptr;
 inline FileLogger* g_theFileLogger = nullptr;
 inline Renderer* g_theRenderer = nullptr;
+inline VideoSystem* g_theVideoSystem = nullptr;
 inline Console* g_theConsole = nullptr;
 inline Config* g_theConfig = nullptr;
 inline UISystem* g_theUISystem = nullptr;

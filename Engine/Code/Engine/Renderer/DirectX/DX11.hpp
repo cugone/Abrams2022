@@ -80,6 +80,11 @@ struct DeviceInfo {
     Microsoft::WRL::ComPtr<ID3D11Device5> dx_device{};
 };
 
+struct VideoCreationDescription {
+    D3D11_VIDEO_DECODER_DESC desc{};
+    D3D11_VIDEO_DECODER_CONFIG config{};
+};
+
 using bitfield8_t = std::uint8_t;
 using bitfield16_t = std::uint16_t;
 using bitfield32_t = std::uint32_t;
@@ -87,7 +92,6 @@ using bitfield64_t = std::uint64_t;
 [[nodiscard]] bitfield8_t GetFilterMaskFromModes(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) noexcept;
 
 [[nodiscard]] D3D11_FILTER FilterModeToD3DFilter(const FilterMode& minFilterMode, const FilterMode& magFilterMode, const FilterMode& mipFilterMode, const FilterComparisonMode& minMaxComparison) noexcept;
-
 
 [[nodiscard]] constexpr FilterMode FilterModeFromString(std::string_view sv) noexcept {
     using namespace std::literals::string_view_literals;
@@ -801,3 +805,6 @@ using bitfield64_t = std::uint64_t;
 }
 
 [[nodiscard]] PipelineStage PipelineStageFromString(std::string stage) noexcept;
+
+[[nodiscard]] bool ValidateImageFormatForVideo(const ImageFormat& image_format) noexcept;
+[[nodiscard]] bool ValidateViewFormatForVideo(const ImageFormat& image_format, const ImageFormat& view_format, const BufferBindUsage& bind_usage) noexcept;

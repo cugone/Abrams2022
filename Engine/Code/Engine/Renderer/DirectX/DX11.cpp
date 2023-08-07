@@ -431,3 +431,220 @@ PipelineStage PipelineStageFromString(std::string stage) noexcept {
     else
         return PipelineStage::None;
 }
+
+bool ValidateImageFormatForVideo(const ImageFormat& image_format) noexcept {
+    switch(image_format) {
+    case ImageFormat::Unknown: return false;
+    case ImageFormat::R32G32B32A32_Typeless: return false;
+    case ImageFormat::R32G32B32A32_Float: return false;
+    case ImageFormat::R32G32B32A32_UInt: return false;
+    case ImageFormat::R32G32B32A32_SInt: return false;
+    case ImageFormat::R32G32B32_Typeless: return false;
+    case ImageFormat::R32G32B32_Float: return false;
+    case ImageFormat::R32G32B32_UInt: return false;
+    case ImageFormat::R32G32B32_SInt: return false;
+    case ImageFormat::R16G16B16A16_Typeless: return false;
+    case ImageFormat::R16G16B16A16_Float: return false;
+    case ImageFormat::R16G16B16A16_UNorm: return false;
+    case ImageFormat::R16G16B16A16_UInt: return false;
+    case ImageFormat::R16G16B16A16_SNorm: return false;
+    case ImageFormat::R16G16B16A16_SInt: return false;
+    case ImageFormat::R32G32_Typeless: return false;
+    case ImageFormat::R32G32_Float: return false;
+    case ImageFormat::R32G32_UInt: return false;
+    case ImageFormat::R32G32_SInt: return false;
+    case ImageFormat::R32G8X24_Typeless: return false;
+    case ImageFormat::D32_Float_S8X24_UInt: return false;
+    case ImageFormat::R32_Float_X8X24_Typeless: return false;
+    case ImageFormat::X32_Typeless_G8X24_UInt: return false;
+    case ImageFormat::R10G10B10A2_Typeless: return false;
+    case ImageFormat::R10G10B10A2_UNorm: return false;
+    case ImageFormat::R10G10B10A2_UInt: return false;
+    case ImageFormat::R11G11B10_Float: return false;
+    case ImageFormat::R8G8B8A8_Typeless: return false;
+    case ImageFormat::R8G8B8A8_UNorm: return false;
+    case ImageFormat::R8G8B8A8_UNorm_Srgb: return false;
+    case ImageFormat::R8G8B8A8_UInt: return false;
+    case ImageFormat::R8G8B8A8_SNorm: return false;
+    case ImageFormat::R8G8B8A8_SInt: return false;
+    case ImageFormat::R16G16_Typeless: return false;
+    case ImageFormat::R16G16_Float: return false;
+    case ImageFormat::R16G16_UNorm: return false;
+    case ImageFormat::R16G16_UInt: return false;
+    case ImageFormat::R16G16_SNorm: return false;
+    case ImageFormat::R16G16_SInt: return false;
+    case ImageFormat::R32_Typeless: return false;
+    case ImageFormat::D32_Float: return false;
+    case ImageFormat::R32_Float: return false;
+    case ImageFormat::R32_UInt: return false;
+    case ImageFormat::R32_SInt: return false;
+    case ImageFormat::R24G8_Typeless: return false;
+    case ImageFormat::D24_UNorm_S8_UInt: return false;
+    case ImageFormat::R24_UNorm_X8_Typeless: return false;
+    case ImageFormat::X24_Typeless_G8_UInt: return false;
+    case ImageFormat::R8G8_Typeless: return false;
+    case ImageFormat::R8G8_UNorm: return false;
+    case ImageFormat::R8G8_UInt: return false;
+    case ImageFormat::R8G8_SNorm: return false;
+    case ImageFormat::R8G8_SInt: return false;
+    case ImageFormat::R16_Typeless: return false;
+    case ImageFormat::R16_Float: return false;
+    case ImageFormat::D16_UNorm: return false;
+    case ImageFormat::R16_UNorm: return false;
+    case ImageFormat::R16_UInt: return false;
+    case ImageFormat::R16_SNorm: return false;
+    case ImageFormat::R16_SInt: return false;
+    case ImageFormat::R8_Typeless: return false;
+    case ImageFormat::R8_UNorm: return false;
+    case ImageFormat::R8_UInt: return false;
+    case ImageFormat::R8_SNorm: return false;
+    case ImageFormat::R8_SInt: return false;
+    case ImageFormat::A8_UNorm: return false;
+    case ImageFormat::R1_UNorm: return false;
+    case ImageFormat::R9G9B9E5_SharedExp: return false;
+    case ImageFormat::R8G8_B8G8_UNorm: return false;
+    case ImageFormat::G8R8_G8B8_UNorm: return false;
+    case ImageFormat::BC1_Typeless: return false;
+    case ImageFormat::BC1_UNorm: return false;
+    case ImageFormat::BC1_UNorm_Srgb: return false;
+    case ImageFormat::BC2_Typeless: return false;
+    case ImageFormat::BC2_UNorm: return false;
+    case ImageFormat::BC2_UNorm_Srgb: return false;
+    case ImageFormat::BC3_Typeless: return false;
+    case ImageFormat::BC3_UNorm: return false;
+    case ImageFormat::BC3_UNorm_Srgb: return false;
+    case ImageFormat::BC4_Typeless: return false;
+    case ImageFormat::BC4_UNorm: return false;
+    case ImageFormat::BC4_SNorm: return false;
+    case ImageFormat::BC5_Typeless: return false;
+    case ImageFormat::BC5_UNorm: return false;
+    case ImageFormat::BC5_SNorm: return false;
+    case ImageFormat::B5G6R5_UNorm: return false;
+    case ImageFormat::B5G5R5A1_UNorm: return false;
+    case ImageFormat::B8G8R8A8_UNorm: return false;
+    case ImageFormat::B8G8R8X8_UNorm: return false;
+    case ImageFormat::R10G10B10_XR_Bias_A2_UNorm: return false;
+    case ImageFormat::B8G8R8A8_Typeless: return false;
+    case ImageFormat::B8G8R8A8_UNorm_Srgb: return false;
+    case ImageFormat::B8G8R8X8_Typeless: return false;
+    case ImageFormat::B8G8R8X8_UNorm_Srgb: return false;
+    case ImageFormat::BC6H_Typeless: return false;
+    case ImageFormat::BC6H_UF16: return false;
+    case ImageFormat::BC6H_SF16: return false;
+    case ImageFormat::BC7_Typeless: return false;
+    case ImageFormat::BC7_UNorm: return false;
+    case ImageFormat::BC7_UNorm_Srgb: return false;
+    case ImageFormat::Ayuv: return true;
+    case ImageFormat::Y410: return true;
+    case ImageFormat::Y416: return true;
+    case ImageFormat::Nv12: return true;
+    case ImageFormat::P010: return true;
+    case ImageFormat::P016: return true;
+    case ImageFormat::Opaque_420: return true;
+    case ImageFormat::Yuy2: return true;
+    case ImageFormat::Y210: return true;
+    case ImageFormat::Y216: return true;
+    case ImageFormat::Nv11: return true;
+    case ImageFormat::Ai44: return true;
+    case ImageFormat::Ia44: return true;
+    case ImageFormat::P8: return true;
+    case ImageFormat::A8P8: return true;
+    case ImageFormat::B4G4R4A4_UNorm: return false;
+    case ImageFormat::P208: return true;
+    case ImageFormat::V208: return true;
+    case ImageFormat::V408: return true;
+    case ImageFormat::MinMipOpaque_Feedback: return false;
+    case ImageFormat::MipRegionUsedOpaque_Feedback: return false;
+    default: return false;
+    }
+}
+
+bool ValidateViewFormatForVideo(const ImageFormat& image_format, const ImageFormat& view_format, const BufferBindUsage& bind_usage) noexcept {
+    switch(image_format) {
+    case ImageFormat::Ayuv: {
+        if(!!(bind_usage & BufferBindUsage::Unordered_Access)) {
+            switch(view_format) {
+            case ImageFormat::R8G8B8A8_UNorm: return true;
+            case ImageFormat::R8G8B8A8_UInt: return true;
+            case ImageFormat::R32_UInt: return true;
+            default: return false;
+            }
+        } else {
+            switch(view_format) {
+            case ImageFormat::R8G8B8A8_UNorm: return true;
+            case ImageFormat::R8G8B8A8_UInt: return true;
+            default: return false;
+            }
+        }
+    }
+    case ImageFormat::Y410: {
+        if(!!(bind_usage & BufferBindUsage::Unordered_Access)) {
+            switch(view_format) {
+            case ImageFormat::R10G10B10A2_UNorm: return true;
+            case ImageFormat::R10G10B10A2_UInt: return true;
+            case ImageFormat::R32_UInt: return true;
+            default: return false;
+            }
+        } else {
+            switch(view_format) {
+            case ImageFormat::R10G10B10A2_UNorm: return true;
+            case ImageFormat::R10G10B10A2_UInt: return true;
+            default: return false;
+            }
+        }
+    }
+    case ImageFormat::Y416: {
+        switch(view_format) {
+        case ImageFormat::R16G16B16A16_UNorm: return true;
+        case ImageFormat::R16G16B16A16_UInt: return true;
+        default: return false;
+        }
+    }
+    case ImageFormat::Nv12: {
+        return false;
+    }
+    case ImageFormat::P010: {
+        return false;
+    }
+    case ImageFormat::P016: {
+        return false;
+    }
+    case ImageFormat::Opaque_420: {
+        return false;
+    }
+    case ImageFormat::Yuy2: {
+        return false;
+    }
+    case ImageFormat::Y210: {
+        return false;
+    }
+    case ImageFormat::Y216: {
+        return false;
+    }
+    case ImageFormat::Nv11: {
+        return false;
+    }
+    case ImageFormat::Ai44: {
+        return false;
+    }
+    case ImageFormat::Ia44: {
+        return false;
+    }
+    case ImageFormat::P8: {
+        return false;
+    }
+    case ImageFormat::A8P8: {
+        return false;
+    }
+    case ImageFormat::P208: {
+        return false;
+    }
+    case ImageFormat::V208: {
+        return false;
+    }
+    case ImageFormat::V408: {
+        return false;
+    }
+    default: return false;
+    }
+}

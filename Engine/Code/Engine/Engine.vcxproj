@@ -172,6 +172,9 @@
     <ClCompile Include="RHI\RHIInstance.cpp" />
     <ClCompile Include="RHI\RHIOutput.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
+    <ClCompile Include="RHI\RHIVideoContext.cpp" />
+    <ClCompile Include="RHI\RHIVideoDecoder.cpp" />
+    <ClCompile Include="RHI\RHIVideoDevice.cpp" />
     <ClCompile Include="Scene\Components.cpp" />
     <ClCompile Include="Scene\ECS.cpp" />
     <ClCompile Include="Scene\Entity.cpp" />
@@ -467,6 +470,9 @@
     <ClInclude Include="RHI\RHIInstance.hpp" />
     <ClInclude Include="RHI\RHIOutput.hpp" />
     <ClInclude Include="RHI\RHITypes.hpp" />
+    <ClInclude Include="RHI\RHIVideoContext.hpp" />
+    <ClInclude Include="RHI\RHIVideoDecoder.hpp" />
+    <ClInclude Include="RHI\RHIVideoDevice.hpp" />
     <ClInclude Include="Scene\Components.hpp" />
     <ClInclude Include="Scene\ECS.hpp" />
     <ClInclude Include="Scene\Entity.hpp" />
@@ -482,6 +488,7 @@
     <ClInclude Include="Services\IPhysicsService.hpp" />
     <ClInclude Include="Services\IRendererService.hpp" />
     <ClInclude Include="Services\IService.hpp" />
+    <ClInclude Include="Services\IVideoService.hpp" />
     <ClInclude Include="Services\ServiceLocator.hpp" />
     <ClInclude Include="System\Cpu.hpp" />
     <ClInclude Include="System\OS.hpp" />

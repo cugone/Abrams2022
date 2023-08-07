@@ -649,6 +649,15 @@
     <ClCompile Include="Video\VideoSystem.cpp">
       <Filter>Video</Filter>
     </ClCompile>
+    <ClCompile Include="RHI\RHIVideoContext.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHIVideoDevice.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHIVideoDecoder.cpp">
+      <Filter>RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1556,6 +1565,18 @@
     </ClInclude>
     <ClInclude Include="Video\VideoSystem.hpp">
       <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIVideoContext.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIVideoDevice.hpp">
+      <Filter>RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Services\IVideoService.hpp">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHIVideoDecoder.hpp">
+      <Filter>RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

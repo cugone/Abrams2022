@@ -35,11 +35,14 @@
 #include "Engine/Services/IJobSystemService.hpp"
 #include "Engine/Services/IRendererService.hpp"
 #include "Engine/Services/IPhysicsService.hpp"
+#include "Engine/Services/IVideoService.hpp"
 #include "Engine/Services/ServiceLocator.hpp"
 
 #include "Engine/System/System.hpp"
 
 #include "Engine/UI/UISystem.hpp"
+
+#include "Engine/Video/VideoSystem.hpp"
 
 #include "Engine/Game/GameBase.hpp"
 
@@ -108,6 +111,7 @@ private:
     std::unique_ptr<FileLogger> m_theFileLogger{};
     std::unique_ptr<Config> m_theConfig{};
     std::unique_ptr<Renderer> m_theRenderer{};
+    std::unique_ptr<VideoSystem> m_theVideoSystem{};
     std::unique_ptr<Console> m_theConsole{};
     std::unique_ptr<PhysicsSystem> m_thePhysicsSystem{};
     std::unique_ptr<InputSystem> m_theInputSystem{};
@@ -122,6 +126,7 @@ private:
     static inline NullFileLoggerService m_nullFileLogger{};
     static inline NullConfigService m_nullConfig{};
     static inline NullRendererService m_nullRenderer{};
+    static inline NullVideoService m_nullVideoSystem{};
     static inline NullConsoleService m_nullConsole{};
     static inline NullPhysicsService m_nullPhysicsSystem{};
     static inline NullInputService m_nullInputSystem{};
@@ -175,6 +180,7 @@ App<T>::~App() noexcept {
         m_theInputSystem.reset();
         m_thePhysicsSystem.reset();
         m_theConsole.reset();
+        m_theVideoSystem.reset();
         m_theRenderer.reset();
         m_theConfig.reset();
         m_theFileLogger.reset();
@@ -200,6 +206,9 @@ void App<T>::SetupEngineSystemPointers() {
     m_theRenderer = std::make_unique<Renderer>();
     ServiceLocator::provide(*static_cast<IRendererService*>(m_theRenderer.get()), m_nullRenderer);
 
+    m_theVideoSystem = std::make_unique<VideoSystem>();
+    ServiceLocator::provide(*static_cast<IVideoService*>(m_theVideoSystem.get()), m_nullVideoSystem);
+
     m_theInputSystem = std::make_unique<InputSystem>();
     ServiceLocator::provide(*static_cast<IInputService*>(m_theInputSystem.get()), m_nullInputSystem);
 
@@ -217,6 +226,7 @@ void App<T>::SetupEngineSystemPointers() {
     g_theFileLogger = m_theFileLogger.get();
     g_theConfig = m_theConfig.get();
     g_theRenderer = m_theRenderer.get();
+    g_theVideoSystem = m_theVideoSystem.get();
     g_theUISystem = m_theUI.get();
     g_theConsole = m_theConsole.get();
     g_thePhysicsSystem = m_thePhysicsSystem.get();
@@ -266,6 +276,7 @@ void App<T>::Initialize() noexcept {
     settings.SetWindowResolution(IntVector2{width, height});
 
     g_theRenderer->Initialize();
+    g_theVideoSystem->Initialize();
     g_theRenderer->SetVSync(vsync);
     g_theRenderer->SetWinProc(detail::WindowProc);
     auto* output = g_theRenderer->GetOutput();
@@ -275,6 +286,7 @@ void App<T>::Initialize() noexcept {
     g_theInputSystem->Initialize();
     g_theConsole->Initialize();
     g_theAudioSystem->Initialize();
+    g_theVideoSystem->Initialize();
     g_thePhysicsSystem->Initialize();
     g_theGame->Initialize();
 }
@@ -292,6 +304,7 @@ void App<T>::BeginFrame() noexcept {
     g_theInputSystem->BeginFrame();
     g_theConsole->BeginFrame();
     g_theAudioSystem->BeginFrame();
+    g_theVideoSystem->BeginFrame();
     g_thePhysicsSystem->BeginFrame();
     g_theGame->BeginFrame();
     g_theRenderer->BeginFrame();
@@ -304,6 +317,7 @@ void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     g_theInputSystem->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
     g_theAudioSystem->Update(deltaSeconds);
+    g_theVideoSystem->Update(deltaSeconds);
     g_thePhysicsSystem->Update(deltaSeconds);
     g_theGame->Update(deltaSeconds);
     g_theRenderer->Update(deltaSeconds);
@@ -317,6 +331,7 @@ void App<T>::Render() const noexcept {
     g_theConsole->Render();
     g_theAudioSystem->Render();
     g_theInputSystem->Render();
+    g_theVideoSystem->Render();
     g_thePhysicsSystem->Render();
     g_theRenderer->Render();
 }
@@ -330,6 +345,7 @@ void App<T>::EndFrame() noexcept {
     g_theAudioSystem->EndFrame();
     g_theInputSystem->EndFrame();
     g_thePhysicsSystem->EndFrame();
+    g_theVideoSystem->EndFrame();
     g_theRenderer->EndFrame();
 }
 

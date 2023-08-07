@@ -13,6 +13,8 @@
 #include "Engine/RHI/RHIDeviceContext.hpp"
 #include "Engine/RHI/RHIFactory.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
+#include "Engine/RHI/RHIVideoDevice.hpp"
+
 #include "Engine/Renderer/DepthStencilState.hpp"
 #include "Engine/Renderer/InputLayout.hpp"
 #include "Engine/Renderer/InputLayoutInstanced.hpp"
@@ -38,6 +40,10 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContext(const WindowDesc& desc) noexcept {
     auto window = Window::Create(desc);
     return CreateOutputAndContextFromWindow(std::move(window));
+}
+
+std::unique_ptr<RHIVideoDevice> RHIDevice::CreateVideoDevice() noexcept {
+    return std::make_unique<RHIVideoDevice>();
 }
 
 D3D_FEATURE_LEVEL RHIDevice::GetFeatureLevel() const noexcept {
