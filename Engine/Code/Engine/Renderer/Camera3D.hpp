@@ -113,6 +113,7 @@ private:
     float m_far_distance = 1.0f;
     Vector3 m_position = Vector3::Zero;
     Vector3 m_world_up = Vector3::Y_Axis;
+    Vector3 m_lookAtTarget = Vector3::Zero;
 
     Matrix4 m_view_matrix = Matrix4::I;
     Matrix4 m_rotation_matrix = Matrix4::I;

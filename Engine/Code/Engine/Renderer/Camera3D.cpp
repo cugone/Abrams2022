@@ -86,13 +86,7 @@ void Camera3D::CalcViewMatrix() noexcept {
 }
 
 void Camera3D::CalcRotationMatrix() noexcept {
-    auto rot = Matrix4::CreateRotationYawRollPitchMatrixDegrees(m_rotationPitch, m_rotationYaw, m_rotationRoll);
-    rot.OrthoNormalizeKIJ();
-    const auto lookVector = rot.TransformDirection(Vector3::Z_Axis);
-
-    const auto camPos = m_position;
-    const auto camTarget = camPos + lookVector;
-    m_rotation_matrix = Matrix4::CreateLookAtMatrix(camPos, camTarget, Vector3::Y_Axis);
+    m_rotation_matrix = Matrix4::CreateLookAtMatrix(m_position, m_lookAtTarget, Vector3::Y_Axis);
 
     //float c_x_theta = MathUtils::CosDegrees(rotationPitch);
     //float s_x_theta = MathUtils::SinDegrees(rotationPitch);
@@ -240,19 +234,27 @@ void Camera3D::SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees) noexcept
 }
 
 void Camera3D::SetForwardFromTarget(const Vector3& lookAtPosition) noexcept {
-    Vector3 forward = (lookAtPosition - m_position).GetNormalize();
-    Vector3 right = MathUtils::CrossProduct(m_world_up.GetNormalize(), forward).GetNormalize();
-    Vector3 up = MathUtils::CrossProduct(forward, right).GetNormalize();
-    Matrix4 m;
-    m.SetIBasis(Vector4(right, 0.0f));
-    m.SetJBasis(Vector4(up, 0.0f));
-    m.SetKBasis(Vector4(forward, 0.0f));
-    m.OrthoNormalizeIJK();
-    m_rotation = Quaternion(m);
-    const auto eulerangles = m_rotation.CalcEulerAnglesDegrees();
-    m_rotationPitch = std::clamp(eulerangles.x, -89.0f, 89.0f);
-    m_rotationYaw = MathUtils::Wrap(eulerangles.y, 0.0f, 360.0f);
-    m_rotationRoll = MathUtils::Wrap(eulerangles.z, 0.0f, 360.0f);
+    m_lookAtTarget = lookAtPosition;
+    //const auto L = Matrix4::CreateLookAtMatrix(m_position, lookAtPosition, Vector3::Y_Axis);
+    //Vector3 forward = L.GetForward(); //(lookAtPosition - m_position).GetNormalize();
+    //if(MathUtils::IsEquivalentToZero(forward.CalcLengthSquared())) {
+    //    forward = Vector3::Z_Axis;
+    //}
+    //Vector3 right = MathUtils::CrossProduct(m_world_up.GetNormalize(), forward.GetNormalize()).GetNormalize();
+    //if(MathUtils::IsEquivalentToZero(right.CalcLengthSquared())) {
+    //    right = MathUtils::CrossProduct(forward, -Vector3::Z_Axis);
+    //}
+    //Vector3 up = MathUtils::CrossProduct(forward, right).GetNormalize();
+    //Matrix4 m{};
+    //m.SetIBasis(Vector4(right, 0.0f));
+    //m.SetJBasis(Vector4(up, 0.0f));
+    //m.SetKBasis(Vector4(forward, 0.0f));
+    //m.OrthoNormalizeIJK();
+    //m_rotation = Quaternion(m);
+    //const auto eulerangles = m_rotation.CalcEulerAnglesDegrees();
+    //m_rotationYaw = MathUtils::Wrap(eulerangles.y, 0.0f, 360.0f);
+    //m_rotationPitch = std::clamp(eulerangles.x, -89.0f, 89.0f);
+    //m_rotationRoll = MathUtils::Wrap(eulerangles.z, 0.0f, 360.0f);
 }
 
 void Camera3D::RotateBy(const Vector3& eulerAngles) noexcept {
