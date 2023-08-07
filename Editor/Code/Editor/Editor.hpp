@@ -64,6 +64,8 @@ private:
     void RenderRayTrace() const noexcept;
     void raytrace_worker() noexcept;
 
+    void PSRayTrace() noexcept;
+
     void ShowUI([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ShowMainMenu([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ShowMinMaxCloseButtons() noexcept;

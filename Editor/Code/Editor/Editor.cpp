@@ -14,6 +14,8 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
+#include "Engine/RHI/RHIDeviceContext.hpp"
+
 
 #include "Engine/Scene/Scene.hpp"
 
@@ -133,6 +135,7 @@ Editor::~Editor() noexcept {
 }
 
 void Editor::Initialize() noexcept {
+    MathUtils::SetRandomEngineSeed(0u);
     auto* renderer = ServiceLocator::get<IRendererService>();
     m_ContentBrowser.currentDirectory = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData);
     renderer->RegisterTexturesFromFolder(FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / std::filesystem::path{"Images"}, true);
@@ -172,9 +175,10 @@ void Editor::FillRayTrace() noexcept {
     {
         const auto start = TimeUtils::Now();
         std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::NoAlpha);
-        for(auto& p : data) {
-            p = Rgba::Random();
-        }
+        std::fill(std::begin(data), std::end(data), Rgba::Random());
+        //for(auto& p : data) {
+        //    p = Rgba::Random();
+        //}
         m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data, m_ViewportWidth, m_ViewportHeight));
         const auto end = TimeUtils::Now();
         const auto duration = end - start;
@@ -185,19 +189,24 @@ void Editor::FillRayTrace() noexcept {
 void Editor::FastFillRayTrace() noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
     {
+        const auto clr = Rgba::Random();
         const auto start = TimeUtils::Now();
-        std::vector<unsigned char> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight * 4, 0);
-        for(std::size_t i = 0; i < data.size(); i += 4) {
-            data[i + 0] = 255;
-            data[i + 1] = 0;
-            data[i + 2] = 0;
-            data[i + 3] = 255;
-        }
+        std::vector<Rgba> data(static_cast<std::size_t>(m_ViewportWidth) * m_ViewportHeight, Rgba::NoAlpha);
+        std::fill(std::begin(data), std::end(data), clr);
         m_raytraceTexture = std::move(renderer->Create2DTextureFromMemory(data.data(), m_ViewportWidth, m_ViewportHeight));
         const auto end = TimeUtils::Now();
         const auto duration = end - start;
         m_lastRenderTime = duration;
     }
+}
+
+void Editor::PSRayTrace() noexcept {
+    //auto* renderer = ServiceLocator::get<IRendererService>();
+    //{
+    //    auto* dc = renderer->GetDeviceContext();
+    //    auto* dx_dc = dc->GetDxContext();
+    //    
+    //}
 }
 
 float hit_sphere(const Vector3& center, float radius, const Ray3& r) {
@@ -232,7 +241,7 @@ void Editor::raytrace_worker() noexcept {
     //static Vector3 prev_origin{};
     hitable* list[2];
     list[0] = new sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f);
-    list[1] = new sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f);
+    list[1] = new sphere(Vector3(0.0f, 100.5f, -1.0f), 100.0f);
     hitable* world = new hitable_list(list, 2);
     while(true) {
         if(m_requestquit) {
