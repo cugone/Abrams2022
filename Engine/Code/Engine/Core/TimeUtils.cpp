@@ -4,8 +4,8 @@
 
 #include <ctime>
 #include <iomanip>
-#include <string_view>
 #include <sstream>
+#include <string_view>
 
 namespace TimeUtils {
 
@@ -16,12 +16,11 @@ enum class FormatType {
 };
 
 std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType format_type);
-void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now, FormatType format_type);
+void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, FormatType format_type);
 
 std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now, TimeUtils::FormatType::Both);
+    AppendStamp(msg, options, TimeUtils::FormatType::Both);
     return msg.str();
 }
 
@@ -32,20 +31,19 @@ std::chrono::nanoseconds GetCurrentTimeElapsed() noexcept {
 }
 
 std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now, TimeUtils::FormatType::Time);
+    AppendStamp(msg, options, TimeUtils::FormatType::Time);
     return msg.str();
 }
 
 std::string GetDateStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {
-    auto now = Now<std::chrono::system_clock>();
     std::ostringstream msg;
-    AppendStamp(msg, options, now, TimeUtils::FormatType::Date);
+    AppendStamp(msg, options, TimeUtils::FormatType::Date);
     return msg.str();
 }
 
-void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, const std::chrono::time_point<std::chrono::system_clock> now, FormatType format_type) {
+void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, FormatType format_type) {
+    const auto now = TimeUtils::Now<std::chrono::system_clock>();
     std::chrono::year_month_day ymd{std::chrono::floor<std::chrono::days>(now)};
     std::chrono::zoned_time zt{std::chrono::current_zone(), (now)};
     const auto lt = zt.get_local_time();
