@@ -166,7 +166,7 @@ void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std
     }
 }
 
-std::string EscapeGlyphToXmlCharacterEntity(char glyph) noexcept {
+std::string EscapeGlyphToXmlCharacterEntity(const char glyph) noexcept {
     switch(glyph) {
     case '\"': return "&quot;";
     case '&': return "&amp;";
