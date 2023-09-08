@@ -283,6 +283,8 @@ requires(N <= 20 && K <= 20 && (N - K) <= 20)
 [[nodiscard]] unsigned int CalculateChessboardDistance(const IntVector3& start, const IntVector3& end) noexcept;
 [[nodiscard]] unsigned int CalculateChessboardDistance(const IntVector4& start, const IntVector4& end) noexcept;
 
+[[nodiscard]] std::pair<bool, Vector2> CalculateVelocityFromMovingTarget(const float t, const Vector2& projectilePosition, const Vector2& projectileVelocity, const Vector2& acceleration, const Vector2& initTargetPosition, const Vector2& initTargetVelocity) noexcept;
+
 [[nodiscard]] Vector2 GetRandomPointOn(const AABB2& aabb) noexcept;
 [[nodiscard]] Vector2 GetRandomPointOn(const Disc2& disc) noexcept;
 [[nodiscard]] Vector2 GetRandomPointOn(const LineSegment2& line) noexcept;
