@@ -503,35 +503,6 @@ unsigned int CalculateChessboardDistance(const IntVector4& start, const IntVecto
     return CalculateChebyshevDistance(start, end);
 }
 
-std::pair<bool, Vector2> CalculateVelocityFromMovingTarget(const float t, const Vector2& projectilePosition, const Vector2& projectileVelocity, const Vector2& acceleration, const Vector2& initTargetPosition, const Vector2& initTargetVelocity) noexcept {
-    // Generally solved using the logic below. In code we also adjust for TargetLocationOffset and a GravityZOverride.
-    //
-    // pp = projectile position
-    // pp0 = projectile initial position
-    // vp0 = projectile initial velocity (OutLaunchVelocity)
-    // g = gravity vector
-    // pt = target position
-    // pt0 = target initial position
-    // vt0 = target initial velocity
-    //
-    // Projectile position as a function of time
-    // pp = pp0 + vp0*t + (g/2)*(t^2)
-    //
-    // Target position as a function of time
-    // pt = pt0 + vt0*t
-    //
-    // Since we want the projectile position and target position to be the same, we can set the equations equal to each other to get:
-    // vp0 = (pt0 + vt0*t - pp0 - (g/2)*(t^2)) / t
-
-    const auto projectileSpeed = projectileVelocity.CalcLength();
-    Vector2 result = projectileVelocity;
-    if(MathUtils::IsEquivalentToZero(projectileSpeed)) {
-        return {false, result};
-    }
-    result = (initTargetPosition + initTargetVelocity * t - projectilePosition - (acceleration) * (t * t)) / t;
-    return {true, result};
-}
-
 Vector2 GetRandomPointOn(const AABB2& aabb) noexcept {
     float result[2]{0.0f, 0.0f};
     const auto s = MathUtils::GetRandomLessThan(4);

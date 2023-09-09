@@ -14,4 +14,10 @@ namespace PhysicsUtils {
 
 namespace MathUtils {
 [[nodiscard]] Vector2 CalcClosestPoint(const Vector2& p, const Collider& collider);
+
+
+[[nodiscard]] std::pair<bool, Vector2> CalculateVelocityFromMovingTarget(const float t, const Position& projectilePosition, const Velocity& projectileVelocity, const Acceleration& acceleration, const Position& initTargetPosition, const Velocity& initTargetVelocity) noexcept;
+
+
+
 }
