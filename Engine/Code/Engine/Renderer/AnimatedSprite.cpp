@@ -123,40 +123,41 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const noexcept {
 }
 
 IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
-    int length = m_end_index - m_start_index;
-    const auto framesPerSecond = TimeUtils::FPSeconds{1.0f} / m_max_seconds_per_frame;
-    auto frameIndex = static_cast<int>(m_elapsed_seconds.count() * framesPerSecond);
-    switch(m_playback_mode) {
-    case SpriteAnimMode::Play_To_End:
-        if(frameIndex >= length) {
-            frameIndex = m_end_index - 1;
+    const auto frameIndex = [this]() {
+        const auto framesPerSecond = TimeUtils::FPSeconds{1.0f} / m_max_seconds_per_frame;
+        const int length = m_end_index - m_start_index;
+        const auto result = static_cast<int>(m_elapsed_seconds.count() * framesPerSecond);
+        switch(m_playback_mode) {
+        case SpriteAnimMode::Play_To_End:
+            if(result >= length) {
+                return m_end_index - 1;
+            }
+            break;
+        case SpriteAnimMode::Play_To_Beginning:
+            if(result < 0) {
+                return 0;
+            }
+            break;
+        case SpriteAnimMode::Looping: /* FALLTHROUGH */
+        case SpriteAnimMode::Looping_Reverse:
+            if(result >= length) {
+                return 0;
+            }
+            if(result < 0) {
+                return m_end_index - 1;
+            }
+            break;
+        case SpriteAnimMode::Ping_Pong:
+            if(result >= length) {
+                return m_end_index - 1;
+            }
+            if(result < 0) {
+                return 0;
+            }
+            break;
         }
-        break;
-    case SpriteAnimMode::Play_To_Beginning:
-        if(frameIndex < 0) {
-            frameIndex = 0;
-        }
-        break;
-    case SpriteAnimMode::Looping: /* FALLTHROUGH */
-    case SpriteAnimMode::Looping_Reverse:
-        if(frameIndex >= length) {
-            frameIndex = 0;
-        }
-        if(frameIndex < 0) {
-            frameIndex = m_end_index - 1;
-        }
-        break;
-    case SpriteAnimMode::Ping_Pong:
-        if(frameIndex >= length) {
-            frameIndex = m_end_index - 1;
-        }
-        if(frameIndex < 0) {
-            frameIndex = 0;
-        }
-        break;
-    default:
-        break;
-    }
+        return result;
+    }(); //IIIL
     const auto spriteIndex = m_start_index + frameIndex;
     const auto tileWidth = [this]() {
         if(!m_sheet.expired()) {
