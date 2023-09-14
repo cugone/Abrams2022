@@ -14,12 +14,9 @@ struct VertexCircle2D {
         , const Rgba& color = Rgba::White
         , const Vector2& thickness_fade = Vector2{1.0f, 0.00025f}) noexcept
         : localPosition(localPos)
+        , color(color.GetAsFloats())
         , thickness_fade(thickness_fade) {
-        const auto&& [r, g, b, a] = color.GetAsFloats();
-        this->color.x = r;
-        this->color.y = g;
-        this->color.z = b;
-        this->color.w = a;
+        /* DO NOTHING */
     }
     // clang-format on
     VertexCircle2D(const VertexCircle2D& other) = default;

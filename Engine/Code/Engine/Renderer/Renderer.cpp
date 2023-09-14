@@ -256,7 +256,8 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         WPARAM wp = msg.wparam;
         auto active_type = LOWORD(wp);
         switch(active_type) {
-        case WA_ACTIVE:      /* FALLTHROUGH */
+        case WA_ACTIVE:
+            [[fallthrough]];
         case WA_CLICKACTIVE: //Gained Focus
             return false;    //App needs to respond
         case WA_INACTIVE:    //Lost focus

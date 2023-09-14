@@ -8,6 +8,35 @@ Vector2 MathUtils::CalcClosestPoint(const Vector2& p, const Collider& collider) 
     return collider.Support((p - collider.CalcCenter()).GetNormalize());
 }
 
+std::pair<bool, Vector2> MathUtils::CalculateVelocityFromMovingTarget(const float t, const Position& projectilePosition, const Velocity& projectileVelocity, const Acceleration& acceleration, const Position& initTargetPosition, const Velocity& initTargetVelocity) noexcept {
+    // Generally solved using the logic below. In code we also adjust for TargetLocationOffset and a GravityZOverride.
+    //
+    // pp = projectile position
+    // pp0 = projectile initial position
+    // vp0 = projectile initial velocity (OutLaunchVelocity)
+    // g = gravity vector
+    // pt = target position
+    // pt0 = target initial position
+    // vt0 = target initial velocity
+    //
+    // Projectile position as a function of time
+    // pp = pp0 + vp0*t + (g/2)*(t^2)
+    //
+    // Target position as a function of time
+    // pt = pt0 + vt0*t
+    //
+    // Since we want the projectile position and target position to be the same, we can set the equations equal to each other to get:
+    // vp0 = (pt0 + vt0*t - pp0 - (g/2)*(t^2)) / t
+
+    const auto projectileSpeed = projectileVelocity.Get().CalcLength();
+    Vector2 result = projectileVelocity.Get();
+    if(MathUtils::IsEquivalentToZero(projectileSpeed)) {
+        return {false, result};
+    }
+    result = (initTargetPosition.Get() + initTargetVelocity.Get() * t - projectilePosition.Get() - (acceleration.Get()) * (t * t)) / t;
+    return {true, result};
+}
+
 static constexpr int maxGJKIterations = 25;
 
 bool PhysicsUtils::GJKIntersect(const Collider& a, const Collider& b) {

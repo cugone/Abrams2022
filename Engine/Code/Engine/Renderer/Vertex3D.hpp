@@ -16,15 +16,12 @@ struct Vertex3D {
             ,const Vector3& tangent = Vector3::Zero
             ,const Vector3& bitangent = Vector3::Zero) noexcept
     : position(pos)
+    , color(color.GetAsFloats())
     , texcoords(tex_coords)
     , normal(normal)
     , tangent(tangent)
     , bitangent(bitangent) {
-        const auto&& [r, g, b, a] = color.GetAsFloats();
-        this->color.x = r;
-        this->color.y = g;
-        this->color.z = b;
-        this->color.w = a;
+        /* DO NOTHING */
     }
     // clang-format on
     Vertex3D(const Vertex3D& other) = default;
