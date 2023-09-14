@@ -89,7 +89,8 @@ void RHIOutput::Present(bool vsync) noexcept {
     const auto present_flags = use_no_sync_interval ? DXGI_PRESENT_ALLOW_TEARING : 0ul;
     if(const auto hr_present = m_parent_device.GetDxSwapChain()->Present1(sync_interval, present_flags, &present_params); FAILED(hr_present)) {
         switch(hr_present) {
-        case DXGI_ERROR_DEVICE_REMOVED: /** FALLTHROUGH **/
+        case DXGI_ERROR_DEVICE_REMOVED:
+            [[fallthrough]];
         case DXGI_ERROR_DEVICE_RESET: {
             m_parent_device.HandleDeviceLost();
             const auto hr_removed_reset = m_parent_device.GetDxDevice()->GetDeviceRemovedReason();
