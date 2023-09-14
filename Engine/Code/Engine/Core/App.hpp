@@ -382,7 +382,8 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         WPARAM wp = msg.wparam;
         auto active_type = LOWORD(wp);
         switch(active_type) {
-        case WA_ACTIVE: /* FALLTHROUGH */
+        case WA_ACTIVE:
+            [[fallthrough]];
         case WA_CLICKACTIVE:
             m_current_focus = true;
             m_previous_focus = false;

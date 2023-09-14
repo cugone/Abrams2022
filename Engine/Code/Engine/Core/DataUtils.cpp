@@ -39,11 +39,11 @@ void ValidateXmlElement(const XMLElement& element,
                         std::string requiredAttributes,
                         std::string optionalChildElements /*= std::string("")*/,
                         std::string optionalAttributes /*= std::string("")*/) noexcept {
-    GUARANTEE_OR_DIE(!name.empty(), "Element validation failed. Element name is required.");
+    GUARANTEE_OR_DIE(!name.empty(), "FAILED: Element name is required.");
     {
         const auto* xmlNameAsCStr = element.Name();
         const auto xml_name = std::string{xmlNameAsCStr ? xmlNameAsCStr : ""};
-        GUARANTEE_OR_DIE(xml_name == name, "Element validation failed. Element name does not match valid name.\n");
+        GUARANTEE_OR_DIE(xml_name == name, "FAILED: Element name does not match valid name.\n");
     }
 
     //Get list of required/optional attributes/children
@@ -104,7 +104,7 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(missingRequiredAttributes));
     {
         const auto list_s = get_xml_list_as_string(missingRequiredAttributes);
-        const auto err_ss = std::format("Attribute validation failed for {}. Missing required attributes(s):\n{}\n", name, list_s);
+        const auto err_ss = std::format("\nFAILED: Missing required attributes(s):\n{}\n", name, list_s);
         GUARANTEE_OR_DIE(missingRequiredAttributes.empty(), err_ss.c_str());
     }
 
@@ -115,7 +115,7 @@ void ValidateXmlElement(const XMLElement& element,
                         std::back_inserter(missingRequiredChildren));
     {
         const auto list_s = get_xml_list_as_string(missingRequiredChildren);
-        const auto err_ss = std::format("Child Element validation failed for {}. Missing required child element(s):\n{}\n", name, list_s);
+        const auto err_ss = std::format("\nFAILED: Missing required child element(s):\n{}\n", name, list_s);
         GUARANTEE_OR_DIE(missingRequiredChildren.empty(), err_ss.c_str());
     }
 
@@ -128,7 +128,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalAttributes.empty()) {
         const auto list_s = get_xml_list_as_string(extraOptionalAttributes);
-        DebuggerPrintf(std::format("\nOptional Attribute validation failed for {}. Verify attributes are correct. Found unknown attributes:\n{}", name, list_s));
+        DebuggerPrintf(std::format("\nWARNING: Found unknown attributes. Verify attributes are correct:\n{}\n", name, list_s));
     }
 
     //Find extra children
@@ -139,7 +139,7 @@ void ValidateXmlElement(const XMLElement& element,
 
     if(!extraOptionalChildren.empty()) {
         const auto list_s = get_xml_list_as_string(extraOptionalChildren);
-        DebuggerPrintf(std::format("\nOptional Child Element validation failed for {}. Verify child elements are correct. Found unknown children:\n{}\n", name, list_s));
+        DebuggerPrintf(std::format("\nWARNING: Found unknown children. Verify child elements are correct:\n{}\n", name, list_s));
     }
 #endif //#if DEBUG_BUILD
 }
@@ -148,7 +148,7 @@ void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std
     {
         const auto has_attribute = HasAttribute(elem, attributeName);
         const auto elem_name = GetElementName(elem);
-        const auto msg = std::format("Attribute validation failed. Element \"{}\" is missing attribute with name: {}", elem_name, attributeName);
+        const auto msg = std::format("\nFAILED: Element \"{}\" is missing attribute with name: {}", elem_name, attributeName);
         GUARANTEE_OR_DIE(has_attribute, msg.c_str());
     }
     const auto attribute_is_valid = [&elem, &validValuesList, &attributeName]() {
@@ -161,12 +161,12 @@ void ValidateXmlAttribute(const XMLElement& elem, std::string attributeName, std
         return false;
     }(); //IIIL
     {
-        const auto msg = std::format("Attribute validation failed. Attribute \"{}\" value is invalid. Must be one of: {}", attributeName, validValuesList);
+        const auto msg = std::format("\nFAILED: Attribute \"{}\" value is invalid. Must be one of: {}", attributeName, validValuesList);
         GUARANTEE_OR_DIE(attribute_is_valid, msg.c_str());
     }
 }
 
-std::string EscapeGlyphToXmlCharacterEntity(char glyph) noexcept {
+std::string EscapeGlyphToXmlCharacterEntity(const char glyph) noexcept {
     switch(glyph) {
     case '\"': return "&quot;";
     case '&': return "&amp;";
