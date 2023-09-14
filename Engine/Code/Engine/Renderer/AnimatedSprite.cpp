@@ -125,34 +125,36 @@ AABB2 AnimatedSprite::GetCurrentTexCoords() const noexcept {
 IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
     const auto frameIndex = [this]() {
         const auto framesPerSecond = TimeUtils::FPSeconds{1.0f} / m_max_seconds_per_frame;
-        const int length = m_end_index - m_start_index;
+        const auto length = m_end_index - m_start_index;
+        const auto first = 0;
+        const auto last = m_end_index - 1;
         const auto result = static_cast<int>(m_elapsed_seconds.count() * framesPerSecond);
         switch(m_playback_mode) {
         case SpriteAnimMode::Play_To_End:
             if(result >= length) {
-                return m_end_index - 1;
+                return last;
             }
             break;
         case SpriteAnimMode::Play_To_Beginning:
-            if(result < 0) {
-                return 0;
+            if(result < first) {
+                return first;
             }
             break;
         case SpriteAnimMode::Looping: /* FALLTHROUGH */
         case SpriteAnimMode::Looping_Reverse:
             if(result >= length) {
-                return 0;
+                return first;
             }
-            if(result < 0) {
-                return m_end_index - 1;
+            if(result < first) {
+                return last;
             }
             break;
         case SpriteAnimMode::Ping_Pong:
             if(result >= length) {
-                return m_end_index - 1;
+                return last;
             }
-            if(result < 0) {
-                return 0;
+            if(result < first) {
+                return first;
             }
             break;
         }
