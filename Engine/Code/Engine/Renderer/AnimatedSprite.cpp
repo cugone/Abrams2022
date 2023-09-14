@@ -140,7 +140,8 @@ IntVector2 AnimatedSprite::GetCurrentSpriteCoords() const noexcept {
                 return first;
             }
             break;
-        case SpriteAnimMode::Looping: /* FALLTHROUGH */
+        case SpriteAnimMode::Looping:
+            [[fallthrough]];
         case SpriteAnimMode::Looping_Reverse:
             if(result >= length) {
                 return first;
