@@ -18,10 +18,7 @@ Gif::Gif(const GifDesc& desc) noexcept
 , m_endFrame{desc.endFrame}
 , m_playMode{desc.playMode}
 {
-    if(m_startFrame > m_endFrame) {
-        std::swap(m_startFrame, m_endFrame);
-    }
-    const bool succeeded = Load(desc.filepath);
+    const bool succeeded = Load(desc);
     GUARANTEE_OR_DIE(succeeded, "Gif: Failed to load");
 }
 
@@ -44,8 +41,13 @@ void Gif::SetEndFrame(const std::size_t& newEndFrame) noexcept {
 }
 
 void Gif::SetFrameRange(const std::size_t& newStartFrame, const std::size_t& newEndFrame) noexcept {
-    SetStartFrame(newStartFrame);
-    SetEndFrame(newEndFrame);
+    if(newStartFrame > newEndFrame) {
+        SetStartFrame(newEndFrame);
+        SetEndFrame(newStartFrame);
+    } else {
+        SetStartFrame(newStartFrame);
+        SetEndFrame(newEndFrame);
+    }
 }
 
 bool Gif::Load(const GifDesc& desc) noexcept {

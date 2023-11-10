@@ -27,8 +27,8 @@ void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {
     }
 }
 
-JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) noexcept
-: m_main_job_signal(mainJobSignal) {
+JobSystem::JobSystem(int genericCount, std::size_t categoryCount, std::unique_ptr<std::condition_variable> mainJobSignal) noexcept
+: m_main_job_signal(mainJobSignal.release()) {
     PROFILE_BENCHMARK_FUNCTION();
     Initialize(genericCount, categoryCount);
 }
@@ -51,9 +51,8 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
     m_is_running = true;
 
     for(std::size_t i = 0; i < categoryCount; ++i) {
-        m_queues[i] = new ThreadSafeQueue<Job*>{};
+        m_queues[i] = std::make_unique<ThreadSafeQueue<Job*>>();
     }
-
     for(std::size_t i = 0; i < categoryCount; ++i) {
         m_signals[i] = nullptr;
     }
@@ -61,11 +60,10 @@ void JobSystem::Initialize(int genericCount, std::size_t categoryCount) noexcept
 
     for(std::size_t i = 0; i < static_cast<std::size_t>(core_count); ++i) {
         auto t = std::jthread(&JobSystem::GenericJobWorker, this, m_signals[TypeUtils::GetUnderlyingValue<JobType>(JobType::Generic)]);
-        std::string desc{"Generic Job Thread "};
-        desc += std::to_string(i);
-        ThreadUtils::SetThreadDescription(t, desc);
+        std::string thread_desc = std::format("Generic Job Thread {}", i);
+        ThreadUtils::SetThreadDescription(t, thread_desc);
         ProfileMetadata metadata{};
-        metadata.threadName = desc;
+        metadata.threadName = thread_desc;
         metadata.threadID = t.get_id();
         metadata.threadSortIndex = i + 2;
         metadata.ProcessID = ThreadUtils::GetProcessIDFromThread(t);
@@ -99,8 +97,7 @@ void JobSystem::Shutdown() noexcept {
     }
 
     for(auto& queue : m_queues) {
-        delete queue;
-        queue = nullptr;
+        queue.reset();
     }
     for(auto& signal : m_signals) {
         delete signal;
@@ -155,8 +152,7 @@ void JobSystem::Dispatch(Job* job) noexcept {
     ++job->num_dependencies;
     const auto jobtype = TypeUtils::GetUnderlyingValue<JobType>(job->type);
     m_queues[jobtype]->push(job);
-    auto* signal = m_signals[jobtype];
-    if(signal) {
+    if(auto* signal = m_signals[jobtype]; signal) {
         signal->notify_all();
     }
 }

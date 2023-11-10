@@ -68,7 +68,7 @@ void Flipbook::Render(const Matrix4& transform /*= Matrix4::I*/) const noexcept 
     r->SetTexture(m_texture.get());
     r->DrawQuad2D(transform);
 }
-
+ 
 Vector2 Flipbook::GetDimensions() const noexcept {
     return Vector2{m_frameDimensions};
 }

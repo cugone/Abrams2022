@@ -184,48 +184,59 @@ void WebP::LoadWebPData(const std::filesystem::path& src) noexcept {
         webp_data.size = buffer->size();
 
         WebPAnimDecoderOptions dec_options{};
-        WebPAnimDecoderOptionsInit(&dec_options);
+        if(!WebPAnimDecoderOptionsInit(&dec_options)) {
+            return;
+        }
         dec_options.color_mode = MODE_RGBA;
         dec_options.use_threads = true;
         if(WebPAnimDecoder* dec = WebPAnimDecoderNew(&webp_data, &dec_options); dec != nullptr) {
             WebPAnimInfo anim_info{};
-            WebPAnimDecoderGetInfo(dec, &anim_info);
-            m_frameDurations.resize(anim_info.frame_count);
-            m_frameCount = anim_info.frame_count;
-            m_maxFrames = m_frameCount;
-            m_beginFrame = m_maxFrames - m_maxFrames;
-            m_endFrame = m_maxFrames;
-            m_currentFrame = m_beginFrame;
-            m_width = anim_info.canvas_width;
-            m_height = anim_info.canvas_height;
-            m_maxLoopCount = anim_info.loop_count;
-            {
-                auto* r = ServiceLocator::get<IRendererService>();
-                auto* mat = r->GetMaterial("__unlit2DSprite");
-                const auto row_offset = std::size_t{4u} * anim_info.canvas_width;
-                const auto slice_offset = static_cast<std::size_t>(row_offset * anim_info.canvas_height);
-                auto anim_frame_data = std::vector<uint8_t>(anim_info.frame_count * slice_offset);
-                for(int i = 0; WebPAnimDecoderHasMoreFrames(dec); ++i) {
-                    uint8_t* buf{};
-                    static int prev_timestamp = 0;
-                    int cur_timestamp = 0;
-                    if(WebPAnimDecoderGetNext(dec, &buf, &cur_timestamp)) {
-                        std::copy(buf, buf + slice_offset, anim_frame_data.begin() + (slice_offset * i));
-                        m_frameDurations[i] = std::chrono::milliseconds{cur_timestamp - prev_timestamp < 0 ? 0 : cur_timestamp - prev_timestamp};
-                        prev_timestamp = cur_timestamp;
-                    }
-                }
-                WebPAnimDecoderDelete(dec);
-                dec = nullptr;
-                buffer->clear();
-                buffer->shrink_to_fit();
-                m_frames = r->Create2DTextureArrayFromMemory(anim_frame_data.data(), anim_info.canvas_width, anim_info.canvas_height, anim_info.frame_count);
-                m_frames->SetDebugName(src.string());
-                mat->SetTextureSlot(Material::TextureID::Diffuse, m_frames.get());
+            if(!WebPAnimDecoderGetInfo(dec, &anim_info)) {
+                return;
             }
+            InitializeFromAnimInfo(anim_info);
+            auto anim_frame_data = DecodeFrames(dec, anim_info);
+            WebPAnimDecoderDelete(dec);
+            dec = nullptr;
+            buffer->clear();
+            buffer->shrink_to_fit();
+            auto* r = ServiceLocator::get<IRendererService>();
+            m_frames = r->Create2DTextureArrayFromMemory(anim_frame_data.data(), anim_info.canvas_width, anim_info.canvas_height, anim_info.frame_count);
+            anim_frame_data.clear();
+            anim_frame_data.shrink_to_fit();
+            m_frames->SetDebugName(src.string());
             m_totalDuration = std::reduce(std::execution::par_unseq, std::cbegin(m_frameDurations), std::cend(m_frameDurations), TimeUtils::FPSeconds::zero());
         }
     }
+}
+
+void WebP::InitializeFromAnimInfo(const WebPAnimInfo& anim_info) noexcept {
+    m_frameDurations.resize(anim_info.frame_count);
+    m_frameCount = anim_info.frame_count;
+    m_maxFrames = m_frameCount;
+    m_beginFrame = m_maxFrames - m_maxFrames;
+    m_endFrame = m_maxFrames;
+    m_currentFrame = m_beginFrame;
+    m_width = anim_info.canvas_width;
+    m_height = anim_info.canvas_height;
+    m_maxLoopCount = anim_info.loop_count;
+}
+
+std::vector<uint8_t> WebP::DecodeFrames(WebPAnimDecoder* dec, const WebPAnimInfo& anim_info) {
+    const auto row_offset = std::size_t{4u} * anim_info.canvas_width;
+    const auto slice_offset = static_cast<std::size_t>(row_offset * anim_info.canvas_height);
+    auto anim_frame_data = std::vector<uint8_t>(anim_info.frame_count * slice_offset);
+    auto prev_timestamp = 0;
+    for(int i = 0; WebPAnimDecoderHasMoreFrames(dec); ++i) {
+        uint8_t* buf{};
+        auto cur_timestamp = 0;
+        if(WebPAnimDecoderGetNext(dec, &buf, &cur_timestamp)) {
+            std::copy(buf, buf + slice_offset, anim_frame_data.begin() + (slice_offset * i));
+            m_frameDurations[i] = std::chrono::milliseconds{cur_timestamp - prev_timestamp};
+            prev_timestamp = cur_timestamp;
+        }
+    }
+    return anim_frame_data;
 }
 
 WebP::SpriteAnimMode WebP::GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept {
