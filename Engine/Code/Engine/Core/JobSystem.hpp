@@ -10,13 +10,14 @@
 #include <atomic>
 #include <condition_variable>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
 
 class JobSystem : public IJobSystemService {
 public:
-    JobSystem(int genericCount, std::size_t categoryCount, std::condition_variable* mainJobSignal) noexcept;
+    JobSystem(int genericCount, std::size_t categoryCount, std::unique_ptr<std::condition_variable> mainJobSignal) noexcept;
     virtual ~JobSystem() noexcept;
 
     void BeginFrame() noexcept;
@@ -40,10 +41,10 @@ private:
     void MainStep() noexcept;
     void GenericJobWorker(std::condition_variable* signal) noexcept;
 
-    static inline std::vector<ThreadSafeQueue<Job*>*> m_queues = std::vector<ThreadSafeQueue<Job*>*>{};
+    static inline std::vector<std::unique_ptr<ThreadSafeQueue<Job*>>> m_queues = std::vector<std::unique_ptr<ThreadSafeQueue<Job*>>>{};
     static inline std::vector<std::condition_variable*> m_signals = std::vector<std::condition_variable*>{};
     static inline std::vector<std::jthread> m_threads = std::vector<std::jthread>{};
-    std::condition_variable* m_main_job_signal = nullptr;
+    std::condition_variable* m_main_job_signal{};
     std::mutex m_cs{};
     std::atomic_bool m_is_running = false;
     friend class JobConsumer;

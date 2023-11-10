@@ -4821,9 +4821,9 @@ bool Renderer::RegisterTexture(const std::filesystem::path& filepath) noexcept {
 }
 
 Texture* Renderer::CreateTexture(std::filesystem::path filepath,
-                                 const IntVector3& dimensions /*= IntVector3::XY_AXIS*/,
-                                 const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/,
-                                 const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/,
+                                 const IntVector3& dimensions /*= IntVector3::XY_Axis*/,
+                                 const BufferUsage& bufferUsage /*= BufferUsage::Static*/,
+                                 const BufferBindUsage& bindUsage /*= BufferBindUsage::Shader_Resource*/,
                                  const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
     if(dimensions.y == 0 && dimensions.z == 0) {
         return Create1DTexture(filepath, bufferUsage, bindUsage, imageFormat);
@@ -5148,7 +5148,7 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     }
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
-    Image img = Image(filepath.string());
+    Image img = Image(filepath);
 
     const auto is_gif = filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".gif";
     D3D11_TEXTURE2D_DESC tex_desc{};

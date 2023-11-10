@@ -194,7 +194,7 @@ void App<T>::SetupEngineSystemPointers() {
     PROFILE_BENCHMARK_FUNCTION();
     ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
 
-    m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable);
+    m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), std::move(std::make_unique<std::condition_variable>()));
     ServiceLocator::provide(*static_cast<IJobSystemService*>(m_theJobSystem.get()), m_nullJobSystem);
 
     m_theFileLogger = std::make_unique<FileLogger>("game");

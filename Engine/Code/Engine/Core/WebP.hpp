@@ -14,6 +14,7 @@
 #include <Thirdparty/webp/decode.h>
 #include <Thirdparty/webp/types.h>
 
+#include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -62,6 +63,9 @@ private:
     void LoadWebPData(const std::filesystem::path& src) noexcept;
 
     SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept;
+
+    void InitializeFromAnimInfo(const WebPAnimInfo& anim_info) noexcept;
+    std::vector<uint8_t> DecodeFrames(WebPAnimDecoder* dec, const WebPAnimInfo& anim_info);
 
     std::unique_ptr<Texture> m_frames{};
     std::size_t m_currentFrame{0u};

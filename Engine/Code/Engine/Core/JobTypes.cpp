@@ -12,7 +12,7 @@ void JobConsumer::AddCategory(const JobType& category) noexcept {
     if(categoryAsSizeT >= JobSystem::m_queues.size()) {
         return;
     }
-    if(auto* q = JobSystem::m_queues[categoryAsSizeT]; q) {
+    if(auto* q = JobSystem::m_queues[categoryAsSizeT].get(); q) {
         m_consumables.push_back(q);
     }
 }
