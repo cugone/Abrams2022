@@ -50,7 +50,7 @@ void VideoSystem::Play([[maybe_unused]] const std::filesystem::path& filepath) {
     const auto dimensions = o->GetDimensions();
 
     if(const bool is_webm_extension = filepath.has_extension() && filepath.extension() == std::filesystem::path{".webm"}; !is_webm_extension) {
-        const auto err_msg = std::format("{} is not a supported video format.", filepath);
+        const auto err_msg = std::format("{} is not a supported video format.", filepath.string());
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogLineAndFlush(err_msg);
         return;

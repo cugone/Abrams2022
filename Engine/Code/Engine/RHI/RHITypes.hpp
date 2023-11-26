@@ -51,6 +51,10 @@ struct GraphicsCardDesc {
 
 std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept;
 
+namespace StringUtils {
+[[nodiscard]] std::string to_string(const GraphicsCardDesc& v) noexcept;
+}
+
 template<>
 class std::formatter<GraphicsCardDesc> {
 public:

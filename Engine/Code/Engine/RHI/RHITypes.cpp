@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include <format>
+#include <sstream>
 #include <type_traits>
 
 bool operator==(const ViewportDesc& a, const ViewportDesc& b) noexcept {
@@ -105,4 +106,95 @@ std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept {
     case 0x80EE: return "InnoTek Systemberatung GmbH";
     default:     return "Unknown";
     }
+}
+
+std::string StringUtils::to_string(const GraphicsCardDesc& graphicsCardDesc) noexcept {
+    std::ostringstream ss;
+    const auto videoMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+    const auto systemMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+    const auto sharedMemAsGB = static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Name:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << graphicsCardDesc.Description;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Vendor ID:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::hex;
+    ss << graphicsCardDesc.VendorId;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Vendor ID:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << graphicsCardDesc.VendorId;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Vendor Name:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << VendorIdToFriendlyName(graphicsCardDesc.VendorId);
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Device ID:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::hex;
+    ss << graphicsCardDesc.DeviceId;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Subsystem ID:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::hex;
+    ss << graphicsCardDesc.SubSysId;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Revision:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::hex;
+    ss << graphicsCardDesc.Revision;
+    ss << '\n';
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Video Memory:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::hex;
+    ss << videoMemAsGB;
+    ss << " GB\n";
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "System Memory:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::setprecision(1);
+    ss << systemMemAsGB;
+    ss << " GB\n";
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Shared System Memory:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::setprecision(1);
+    ss << sharedMemAsGB;
+    ss << " GB\n";
+    ss << std::left;
+    ss << std::setw(40);
+    ss << "Adapter Type:";
+    ss << std::right;
+    ss << std::setw(35);
+    ss << std::string{(graphicsCardDesc.is_unspecified ? "Unknown" : (graphicsCardDesc.is_software ? "Software" : "Hardware"))};
+    return ss.str();
 }

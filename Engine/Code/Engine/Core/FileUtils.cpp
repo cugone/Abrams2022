@@ -67,7 +67,7 @@ std::optional<std::vector<uint8_t>> ReadBinaryBufferFromFile(std::filesystem::pa
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
             auto* logger = ServiceLocator::get<IFileLoggerService>();
-            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath));
+            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath.string()));
             return {};
         }
     }
@@ -97,7 +97,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
             auto* logger = ServiceLocator::get<IFileLoggerService>();
-            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath));
+            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath.string()));
             return {};
         }
     }
@@ -127,7 +127,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
             auto* logger = ServiceLocator::get<IFileLoggerService>();
-            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath));
+            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath.string()));
             return {};
         }
     }
@@ -174,7 +174,7 @@ std::optional<std::string> ReadStringBufferFromFile(std::filesystem::path filepa
         std::error_code ec{};
         if(filepath = FS::canonical(filepath, ec); ec) {
             auto* logger = ServiceLocator::get<IFileLoggerService>();
-            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath));
+            logger->LogErrorLine(std::format("File: {:s} is inaccessible.", filepath.string()));
             return {};
         }
     }
@@ -513,10 +513,10 @@ bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
         const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_temp_dir || is_next_to_exe || is_known_OS_dir;
         return safe;
     } catch(const std::filesystem::filesystem_error& e) {
-        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), e.path1(), e.path2()));
+        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), e.path1().string(), e.path2().string()));
         return false;
     } catch(...) {
-        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe write path.", p));
+        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe write path.", p.string()));
         return false;
     }
 }
@@ -524,12 +524,12 @@ bool IsSafeWritePath(const std::filesystem::path& p) noexcept {
 bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(p)) {
-        DebuggerPrintf(std::format("Filesystem Error: {:s} does not exist.\n", p));
+        DebuggerPrintf(std::format("Filesystem Error: {:s} does not exist.\n", p.string()));
         return false;
     }
     //Check for any read permissions on the file and parent directory
     if(!(HasReadPermissions(p) || HasExecuteOrSearchPermissions(p))) {
-        DebuggerPrintf(std::format("Filesystem Error: {:s} is inaccessible.\n", p));
+        DebuggerPrintf(std::format("Filesystem Error: {:s} is inaccessible.\n", p.string()));
         return false;
     }
 
@@ -542,7 +542,7 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         const auto is_known_OS_dir = false;
 
         if(const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_next_to_exe || is_known_OS_dir; !safe) {
-            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p, GetWorkingDirectory(), GetKnownFolderPath(KnownPathID::GameData), GetKnownFolderPath(KnownPathID::EngineData), GetKnownFolderPath(KnownPathID::EditorContent))));
+            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p.string(), GetWorkingDirectory().string(), GetKnownFolderPath(KnownPathID::GameData).string(), GetKnownFolderPath(KnownPathID::EngineData).string(), GetKnownFolderPath(KnownPathID::EditorContent).string())));
             return false;
         }
         return true;
@@ -552,7 +552,7 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), path1_str, path2_str));
         return false;
     } catch(...) {
-        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe read path.", p));
+        DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe read path.", p.string()));
         return false;
     }
 }
