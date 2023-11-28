@@ -199,7 +199,7 @@ void RHIDevice::OutputAdapterInfo(const std::vector<AdapterInfo>& adapters) cons
     for(const auto& adapter : adapters) {
         const auto outputs = GetOutputsFromAdapter(adapter);
         monitor_count += outputs.size();
-        ss << std::format("{:->80}{}\n{:<40}{:>35}\n", '\n', StringUtils::to_string(AdapterInfoToGraphicsCardDesc(adapter)), "Monitors connected to this adapter:", outputs.size());
+        ss << std::format("{:->80}{}\n{:<40}{:>35}\n", '\n', AdapterInfoToGraphicsCardDesc(adapter), "Monitors connected to this adapter:", outputs.size());
     }
     ss << std::format("{:->80}{:<40}{:>35}\n{:->80}\n", '\n', "Total Monitor count:", monitor_count, '\n');
     ss << std::flush;

@@ -15,7 +15,7 @@
 template<>
 class std::formatter<std::filesystem::path> : public std::formatter<std::string> {
 public:
-    auto format(const std::filesystem::path& p, auto& ctx) {
+    auto format(const std::filesystem::path& p, auto& ctx) const {
         return std::formatter<std::string>::format(p.string(), ctx);
     }
 

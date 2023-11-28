@@ -51,17 +51,13 @@ struct GraphicsCardDesc {
 
 std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept;
 
-namespace StringUtils {
-[[nodiscard]] std::string to_string(const GraphicsCardDesc& v) noexcept;
-}
-
 template<>
 class std::formatter<GraphicsCardDesc> {
 public:
     constexpr auto parse(auto& context) {
         return context.begin();
     }
-    auto format(const GraphicsCardDesc& graphicsCardDesc, auto& ctx) {
+    auto format(const GraphicsCardDesc& graphicsCardDesc, auto& ctx) const {
         const auto videoMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
         const auto systemMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
         const auto sharedMemAsGB = static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;

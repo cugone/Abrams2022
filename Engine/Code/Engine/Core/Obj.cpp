@@ -20,13 +20,13 @@ namespace FileUtils {
 Obj::Obj(std::filesystem::path filepath) noexcept {
     namespace FS = std::filesystem;
     {
-        const auto error_msg = std::format("Obj: {} failed to load.\nReason: It does not exist.\n", filepath.string());
+        const auto error_msg = std::format("Obj: {} failed to load.\nReason: It does not exist.\n", filepath);
         GUARANTEE_OR_DIE(FS::exists(filepath), error_msg.c_str());
     }
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
     {
-        const auto error_msg = std::format("Obj: {} failed to load.", filepath.string());
+        const auto error_msg = std::format("Obj: {} failed to load.", filepath);
         GUARANTEE_OR_DIE(Load(filepath), error_msg.c_str());
     }
 }
@@ -40,7 +40,7 @@ bool Obj::Load(std::filesystem::path filepath) noexcept {
     bool not_obj = StringUtils::ToLowerCase(filepath.extension().string()) != valid_extension;
     bool invalid = not_exist || not_obj;
     if(invalid) {
-        DebuggerPrintf(std::format("{} is not a .obj file.\n", filepath.string()));
+        DebuggerPrintf(std::format("{} is not a .obj file.\n", filepath));
         return false;
     }
     filepath = FS::canonical(filepath);
@@ -321,7 +321,7 @@ void Obj::PrintErrorToDebugger(std::filesystem::path filepath, const std::string
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
-    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath.string(), line_index, elementType));
+    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath, line_index, elementType));
 }
 
 Vertex3D Obj::FaceTriToVertex(const std::string& t) const noexcept {

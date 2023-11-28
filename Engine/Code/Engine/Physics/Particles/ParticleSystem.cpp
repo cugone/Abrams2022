@@ -24,23 +24,22 @@ ParticleEffectDefinition* ParticleSystem::GetEffectDefinition(const std::string&
 void ParticleSystem::RegisterEffectsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Particle Effect from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Particle Effect from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     {
         std::error_code ec{};
         folderpath = FS::canonical(folderpath, ec);
         if(ec || !FileUtils::IsSafeReadPath(folderpath)) {
-            DebuggerPrintf(std::format("File: {} is inaccessible.\n", folderpath.string()));
+            DebuggerPrintf(std::format("File: {} is inaccessible.\n", folderpath));
             return;
         }
     }
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {
-        const auto pathAsString = p.string();
         if(!RegisterEffectFromFile(p)) {
-            DebuggerPrintf(std::format("Failed to load particle effect at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load particle effect at {}\n", p.string()));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".effect", cb, recursive);

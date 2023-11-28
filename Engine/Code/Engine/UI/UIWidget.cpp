@@ -20,7 +20,7 @@
 
 UIWidget::UIWidget(const std::filesystem::path& path)
 {
-    const auto err_msg = std::format("Failed loading Widget:\n{}\n is ill-formed.", path.string());
+    const auto err_msg = std::format("Failed loading Widget:\n{}\n is ill-formed.", path);
     GUARANTEE_OR_DIE(LoadFromXML(path), err_msg.c_str());
 }
 

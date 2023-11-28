@@ -44,7 +44,7 @@ public:
         if(metadata.id == webm::Id::kDocType) {
             if(ebml.doc_type.value() != "webm") {
                 if(auto* filelogger = ServiceLocator::get<IFileLoggerService>(); filelogger != nullptr) {
-                    filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath().string()));
+                    filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath()));
                     filelogger->Flush();
                 }
                 return webm::Status(webm::Status::kInvalidElementValue);
@@ -82,17 +82,17 @@ public:
                         switch(type) {
                         case webm::ContentEncodingType::kCompression:
                         {
-                            l->LogAndFlush(std::format("WebM file {} is compressed. Compression is not yet supported\n", m_parent_webm->GetFilepath().string(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
+                            l->LogAndFlush(std::format("WebM file {} is compressed. Compression is not yet supported\n", m_parent_webm->GetFilepath(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
                             return webm::Status{webm::Status::Code::kInvalidElementValue};
                         }
                         case webm::ContentEncodingType::kEncryption:
                         {
-                            l->LogAndFlush(std::format("WebM file {} is encrypted. Encryption is not supported.\n", m_parent_webm->GetFilepath().string(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
+                            l->LogAndFlush(std::format("WebM file {} is encrypted. Encryption is not supported.\n", m_parent_webm->GetFilepath(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
                             return webm::Status{webm::Status::Code::kInvalidElementValue};
                         }
                         default:
                         {
-                            l->LogAndFlush(std::format("WebM file {} neither compressed nor encrypted.\n", m_parent_webm->GetFilepath().string(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
+                            l->LogAndFlush(std::format("WebM file {} neither compressed nor encrypted.\n", m_parent_webm->GetFilepath(), m_parent_webm->GetDimensions().first, m_parent_webm->GetDimensions().second));
                             break;
                         }
                         }
@@ -144,7 +144,7 @@ private:
 namespace FileUtils {
 
 WebM::WebM(std::filesystem::path filepath) noexcept {
-    const auto err_str = std::format("Failed to load WebM file: {}", filepath.string());
+    const auto err_str = std::format("Failed to load WebM file: {}", filepath);
     GUARANTEE_OR_DIE(Load(filepath), err_str.c_str());
 }
 
@@ -306,10 +306,10 @@ void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noex
     //r->SetModelMatrix();
     //m->SetTextureSlot(Material::TextureID::Diffuse, t);
     //const auto parent = m_path.parent_path();
-    //const auto p = parent / std::filesystem::path{std::format("{}_Frame{}.bin", m_path.filename().string(), m_frameCount)};
+    //const auto p = parent / std::filesystem::path{std::format("{}_Frame{}.bin", m_path.filename(), m_frameCount)};
     //if(FileUtils::WriteBufferToFile(const_cast<uint8_t*>(encodedFrame.data()), encodedFrame.size(), p)) {
     //    auto* l = ServiceLocator::get<IFileLoggerService>();
-    //    l->LogAndFlush(std::format("Wrote {} bytes to: {}\n", encodedFrame.size(), p.string()));
+    //    l->LogAndFlush(std::format("Wrote {} bytes to: {}\n", encodedFrame.size(), p));
     //}
 }
 

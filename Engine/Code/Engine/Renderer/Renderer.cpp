@@ -103,7 +103,7 @@ Renderer::Renderer() noexcept {
     auto* config = ServiceLocator::get<IConfigService>();
     if(FS::path path{"Engine/Config/options.config"}; FS::exists(path)) {
         if(!config->AppendFromFile(path)) {
-            DebuggerPrintf(std::format("Could not load existing configuration from \"{}\"\n", path.string()));
+            DebuggerPrintf(std::format("Could not load existing configuration from \"{}\"\n", path));
         }
     }
     m_current_outputMode = [this, &config]() -> RHIOutputMode {
@@ -145,7 +145,7 @@ Renderer::Renderer() noexcept {
     }(); //IIIL
     if(FS::path path{"Engine/Config/options.config"}; !FS::exists(path)) {
         if(!config->SaveToFile(path)) {
-            DebuggerPrintf(std::format("Could not save configuration to \"{}\"\n", path.string()));
+            DebuggerPrintf(std::format("Could not save configuration to \"{}\"\n", path));
         }
     }
 }
@@ -3550,7 +3550,7 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
 void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
@@ -3558,8 +3558,7 @@ void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool re
     auto cb =
     [this](const FS::path& p) {
         if(!RegisterFont(p)) {
-            const auto pathAsString = p.string();
-            DebuggerPrintf(std::format("Failed to load font at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load font at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".fnt", cb, recursive);
@@ -4009,16 +4008,15 @@ bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
 void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {
-        const auto pathAsString = p.string();
         if(!RegisterMaterial(p)) {
-            DebuggerPrintf(std::format("Failed to load material at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load material at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".material", cb, recursive);
@@ -4143,7 +4141,7 @@ std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromDesc(ShaderProgr
 
 void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path filepath, const PipelineStage& target) noexcept {
     auto sp = CreateShaderProgramFromCsoFile(filepath, target);
-    const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath.string());
+    const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath);
     GUARANTEE_OR_DIE(sp, error_msg.c_str());
     RegisterShaderProgram(filepath.string(), std::move(sp));
 }
@@ -4797,16 +4795,15 @@ Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, con
 void Renderer::RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Textures from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Textures from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {
-        const auto pathAsString = p.string();
         if(!RegisterTexture(p)) {
-            DebuggerPrintf(std::format("Failed to load texture at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load texture at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, std::string{}, cb, recursive);
@@ -5412,7 +5409,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     const auto files = FileUtils::GetAllPathsInFolders(folderpath, Image::GetSupportedExtensionsList());
     if(files.empty()) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath.string(), Image::GetSupportedExtensionsList()));
+        logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath, Image::GetSupportedExtensionsList()));
         logger->Flush();
         return {};
     }
