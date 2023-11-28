@@ -251,6 +251,7 @@ bool IsSystemPathId(const KnownPathID& pathid) noexcept {
     case KnownPathID::EngineLogs: return false;
     case KnownPathID::EditorContent: return false;
     case KnownPathID::Max: return false;
+    case KnownPathID::TempDirectory: return true;
 #if defined(PLATFORM_WINDOWS)
     case KnownPathID::Windows_AppDataRoaming: return true;
     case KnownPathID::Windows_AppDataLocal: return true;
@@ -337,8 +338,13 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         if(FS::exists(p)) {
             p = FS::canonical(p);
         } else {
-            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{ "Content" });
+            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Content"});
             p = GetKnownFolderPath(pathid);
+        }
+    } else if(pathid == KnownPathID::TempDirectory) {
+        p = GetTempDirectory();
+        if(FS::exists(p)) {
+            p = FS::canonical(p);
         }
     } else {
 #ifdef PLATFORM_WINDOWS
