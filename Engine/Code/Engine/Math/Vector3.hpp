@@ -95,7 +95,7 @@ public:
     constexpr auto parse(auto& ctx) {
         return ctx.begin();
     }
-    auto format(const Vector3& p, auto& ctx) {
+    auto format(const Vector3& p, auto& ctx) const {
         return std::format_to(ctx.out(), "[{},{},{}]", p.x, p.y, p.z);
     };
 };
