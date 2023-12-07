@@ -969,6 +969,14 @@ Matrix4 Matrix4::GetRotation() noexcept {
     return static_cast<const Matrix4&>(*this).GetRotation();
 }
 
+float Matrix4::GetRotation2D() const noexcept {
+    return std::atan2(GetIBasis().y, GetIBasis().x);
+}
+
+float Matrix4::GetRotation2D() noexcept {
+    return static_cast<const Matrix4&>(*this).GetRotation2D();
+}
+
 Vector3 Matrix4::CalcEulerAngles() const noexcept {
     //Reference: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.371.6578&rep=rep1&type=pdf
 

@@ -149,6 +149,8 @@ public:
 
     [[nodiscard]] Matrix4 GetRotation() const noexcept;
     [[nodiscard]] Matrix4 GetRotation() noexcept;
+    [[nodiscard]] float GetRotation2D() const noexcept;
+    [[nodiscard]] float GetRotation2D() noexcept;
 
     [[nodiscard]] Vector3 CalcEulerAngles() const noexcept;
 
