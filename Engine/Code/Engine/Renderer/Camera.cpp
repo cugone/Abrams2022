@@ -6,6 +6,7 @@ void Camera::SetProjectionMode(ProjectionMode newProjectionMode) noexcept {
     m_projection_mode = newProjectionMode;
     RecalculateProjectionMatrix();
     RecalculateViewMatrix();
+    RecalculateViewProjectionMatrix();
 }
 
 void Camera::RecalculateProjectionMatrix() noexcept {
@@ -39,6 +40,9 @@ void Camera::RecalculateViewMatrix() noexcept {
     }(); //IIIL
     m_view_matrix = Matrix4::MakeRT(vR, vT);
     m_inv_view_matrix = Matrix4::CalculateInverse(m_view_matrix);
+}
+
+void Camera::RecalculateViewProjectionMatrix() noexcept {
     m_view_projection_matrix = Matrix4::MakeViewProjection(m_view_matrix, m_projection_matrix);
     m_inv_view_projection_matrix = Matrix4::CalculateInverse(m_view_projection_matrix);
 }
@@ -61,6 +65,7 @@ const Vector3& Camera::GetPosition() const noexcept {
 void Camera::SetPosition(const Vector3& newPosition) noexcept {
     m_position = newPosition;
     RecalculateViewMatrix();
+    RecalculateViewProjectionMatrix();
 }
 
 void Camera::SetPosition(const Vector2& newPosition) noexcept {
@@ -144,6 +149,8 @@ void Camera::SetEulerAnglesDegrees(const Vector3& eulerAnglesDegrees) noexcept {
     m_rotation.pitch = eulerAnglesDegrees.y;
     m_rotation.roll = eulerAnglesDegrees.x;
     m_rotation.yaw = eulerAnglesDegrees.z;
+    RecalculateViewMatrix();
+    RecalculateViewProjectionMatrix();
 }
 
 void Camera::SetForwardFromTarget(const Vector3& lookAtPosition) noexcept {
@@ -155,6 +162,8 @@ void Camera::SetForwardFromTarget(const Vector3& lookAtPosition) noexcept {
     m.SetJBasis(Vector4(right, 0.0f));
     m.SetKBasis(Vector4(up, 0.0f));
     m_rotation = Rotator{Quaternion(m)};
+    RecalculateViewMatrix();
+    RecalculateViewProjectionMatrix();
 }
 
 Vector3 Camera::GetRight() const noexcept {
