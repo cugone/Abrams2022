@@ -288,7 +288,7 @@ public:
         }();
         return iter;
     }
-    auto format(const Matrix4& m, auto& ctx) {
+    auto format(const Matrix4& m, auto& ctx) const {
         const auto& x = m.GetXComponents();
         const auto& y = m.GetYComponents();
         const auto& z = m.GetZComponents();
