@@ -198,3 +198,24 @@ AABB2 OrthographicCameraController::CalcViewBounds() const noexcept {
     view_bounds.Translate(GetCamera().GetPosition());
     return view_bounds;
 }
+
+void OrthographicCameraController::SetModelViewProjection() noexcept {
+    const auto view_bounds = CalcViewBounds();
+
+    if(auto* r = ServiceLocator::get<IRendererService>(); r != nullptr) {
+        r->SetModelMatrix(Matrix4::I);
+        r->SetViewMatrix(Matrix4::I);
+        const auto leftBottom = Vector2{view_bounds.mins.x, view_bounds.maxs.y};
+        const auto rightTop = Vector2{view_bounds.maxs.x, view_bounds.mins.y};
+        GetCamera().SetupView(leftBottom, rightTop, Vector2(0.0f, 1000.0f));
+        r->SetCamera(GetCamera());
+
+        const float cam_rotation_z = GetCamera().GetOrientation();
+        const auto VRz = Matrix4::Create2DRotationDegreesMatrix(-cam_rotation_z);
+
+        const auto& cam_pos = GetCamera().GetPosition();
+        const auto Vt = Matrix4::CreateTranslationMatrix(-cam_pos);
+        const auto v = Matrix4::MakeRT(Vt, VRz);
+        r->SetViewMatrix(v);
+    }
+}

@@ -62,6 +62,8 @@ public:
     Vector2 ConvertScreenToWorldCoords(Vector2 screenCoords) const noexcept;
     Vector2 ConvertWorldToScreenCoords(Vector2 worldCoords) const noexcept;
 
+    void SetModelViewProjection() noexcept;
+
 protected:
 private:
     AABB2 CalcOrthoBounds() const noexcept;
