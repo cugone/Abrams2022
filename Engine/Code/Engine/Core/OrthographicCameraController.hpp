@@ -63,11 +63,11 @@ public:
     Vector2 ConvertWorldToScreenCoords(Vector2 worldCoords) const noexcept;
 
     void SetModelViewProjection() noexcept;
+    AABB2 CalcOrthoBounds() const noexcept;
+    AABB2 CalcViewBounds() const noexcept;
 
 protected:
 private:
-    AABB2 CalcOrthoBounds() const noexcept;
-    AABB2 CalcViewBounds() const noexcept;
 
     float m_aspectRatio = MathUtils::M_16_BY_9_RATIO;
     float m_zoomLevel = 8.0f;
