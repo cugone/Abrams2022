@@ -192,3 +192,9 @@ AABB2 OrthographicCameraController::CalcOrthoBounds() const noexcept {
     auto ortho_maxs = Vector2{half_view_width, half_view_height};
     return AABB2{ortho_mins, ortho_maxs};
 }
+
+AABB2 OrthographicCameraController::CalcViewBounds() const noexcept {
+    auto view_bounds = CalcOrthoBounds();
+    view_bounds.Translate(GetCamera().GetPosition());
+    return view_bounds;
+}

@@ -65,6 +65,8 @@ public:
 protected:
 private:
     AABB2 CalcOrthoBounds() const noexcept;
+    AABB2 CalcViewBounds() const noexcept;
+
     float m_aspectRatio = MathUtils::M_16_BY_9_RATIO;
     float m_zoomLevel = 8.0f;
     float m_defaultMinZoomLevel = 8.0f;
