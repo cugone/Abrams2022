@@ -12,7 +12,7 @@
 
 
 OrthographicCameraController::OrthographicCameraController() noexcept
-    : OrthographicCameraController(1.777778f)
+    : OrthographicCameraController(MathUtils::M_16_BY_9_RATIO)
 {}
 
 OrthographicCameraController::OrthographicCameraController(float aspectRatio) noexcept
