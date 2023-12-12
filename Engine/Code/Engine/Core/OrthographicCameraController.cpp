@@ -184,3 +184,11 @@ Vector2 OrthographicCameraController::ConvertWorldToScreenCoords(Vector2 worldCo
     const auto* const renderer = ServiceLocator::get<IRendererService>();
     return renderer->ConvertWorldToScreenCoords(m_Camera, worldCoords);
 }
+
+AABB2 OrthographicCameraController::CalcOrthoBounds() const noexcept {
+    float half_view_height = GetCamera().GetViewHeight() * 0.5f;
+    float half_view_width = half_view_height * GetAspectRatio();
+    auto ortho_mins = Vector2{-half_view_width, -half_view_height};
+    auto ortho_maxs = Vector2{half_view_width, half_view_height};
+    return AABB2{ortho_mins, ortho_maxs};
+}
