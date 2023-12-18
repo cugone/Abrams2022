@@ -275,13 +275,10 @@ public:
             switch(*iter++) {
             case 'r':
                 return MatrixFormatView::Row;
-                break;
             case 'v':
                 return MatrixFormatView::VectorRow;
-                break;
             case 's':
                 return MatrixFormatView::Square;
-                break;
             default:
                 throw std::format_error("Matrix4: invalid format specification");
             }
