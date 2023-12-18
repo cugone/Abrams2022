@@ -1,10 +1,10 @@
 #pragma once
 
 #include <initializer_list>
-#include <ostream>
+#include <format>
 #include <string>
+#include <iosfwd>
 #include <tuple>
-#include <vector>
 
 class Rgba {
 public:
@@ -110,3 +110,63 @@ private:
 namespace StringUtils {
 [[nodiscard]] std::string to_string(const Rgba& clr) noexcept;
 }
+
+
+template<>
+class std::formatter<Rgba> {
+public:
+    enum class RgbaFormatView {
+        Hex
+        ,HexCap
+        ,Decimal
+        ,Float
+        ,Raw
+    };
+    constexpr auto parse(auto& ctx) {
+        auto iter = ctx.begin();
+        if(iter == ctx.end() || *iter == '}') {
+            return iter;
+        }
+        view = [&iter]() {
+            switch(*iter++) {
+            case 'x':
+                return RgbaFormatView::Hex;
+            case 'X':
+                return RgbaFormatView::HexCap;
+            case 'd':
+                return RgbaFormatView::Decimal;
+            case 'f':
+                return RgbaFormatView::Float;
+            default:
+                throw std::format_error("Rgba: invalid format specification");
+            }
+        }();
+        return iter;
+    }
+    auto format(const Rgba& c, auto& ctx) const {
+        const auto floats = c.GetAsFloats();
+        const auto raw = c.GetAsRawValue();
+        if(view == RgbaFormatView::Hex) {
+            if(c.a == 0) {
+                return std::format_to(ctx.out(), "#{:x}{:x}{:x}", c.r, c.g, c.b);
+            } else {
+                return std::format_to(ctx.out(), "#{:x}{:x}{:x}{:x}", c.r, c.g, c.b, c.a);
+            }
+        } else if(view == RgbaFormatView::HexCap) {
+            if(c.a == 0) {
+                return std::format_to(ctx.out(), "#{:X}{:X}{:X}", c.r, c.g, c.b);
+            } else {
+                return std::format_to(ctx.out(), "#{:X}{:X}{:X}{:X}", c.r, c.g, c.b, c.a);
+            }
+        } else if(view == RgbaFormatView::Decimal) {
+            return std::format_to(ctx.out(), "{},{},{},{}", c.r, c.g, c.b, c.a);
+        } else if(view == RgbaFormatView::Float) {
+            return std::format_to(ctx.out(), "{},{},{},{}", std::get<0>(floats), std::get<1>(floats), std::get<2>(floats), std::get<3>(floats));
+        } else if(view == RgbaFormatView::Raw) {
+            return std::format_to(ctx.out(), "", raw);
+        } else {
+            throw std::format_error("Rgba: Unknown Format View");
+        }
+    };
+    RgbaFormatView view{RgbaFormatView::Hex};
+};
