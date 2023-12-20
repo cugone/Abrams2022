@@ -6,6 +6,8 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 
+#include <format>
+
 bool XboxController::WasAnyButtonJustPressed() const noexcept {
     return (m_previousButtonState.to_ulong() < m_currentButtonState.to_ulong());
 }
@@ -81,7 +83,7 @@ void XboxController::Update(int controller_number) noexcept {
 
     if(error_status != ERROR_SUCCESS) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogErrorLine("XInputGetState returned: " + std::to_string(error_status));
+        logger->LogErrorLine(std::format("XInputGetState returned: {}", error_status));
         return;
     }
 
