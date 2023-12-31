@@ -219,3 +219,33 @@ void OrthographicCameraController::SetModelViewProjection() noexcept {
         r->SetViewMatrix(v);
     }
 }
+
+void OrthographicCameraController::SetModelViewProjectionBounds(Vector2 near_far_distances /*= Vector2{0.0f, 1000.0f}*/, Vector3 max_shake_offsets /*= Vector3{2.5f, 25.0f, 25.0f}*/) const noexcept {
+    const auto ortho_bounds = CalcOrthoBounds();
+
+    if(auto* r = ServiceLocator::get<IRendererService>(); r != nullptr) {
+        r->SetModelMatrix(Matrix4::I);
+        r->SetViewMatrix(Matrix4::I);
+        const auto leftBottom = Vector2{ortho_bounds.mins.x, ortho_bounds.maxs.y};
+        const auto rightTop = Vector2{ortho_bounds.maxs.x, ortho_bounds.mins.y};
+        m_Camera.SetupView(leftBottom, rightTop, near_far_distances);
+        r->SetCamera(GetCamera());
+
+        const Camera2D& base_camera = GetCamera();
+        Camera2D shakyCam = GetCamera();
+        const float shake = shakyCam.GetShake();
+        const float shaky_offsetX = max_shake_offsets.x * shake * MathUtils::GetRandomNegOneToOne<float>();
+        const float shaky_offsetY = max_shake_offsets.y * shake * MathUtils::GetRandomNegOneToOne<float>();
+        const float shaky_angle = max_shake_offsets.z * shake * MathUtils::GetRandomNegOneToOne<float>();
+        shakyCam.orientation_degrees = base_camera.orientation_degrees + shaky_angle;
+        shakyCam.position = base_camera.position + Vector2{shaky_offsetX, shaky_offsetY};
+
+        const float cam_rotation_z = shakyCam.GetOrientation();
+        const auto VRz = Matrix4::Create2DRotationDegreesMatrix(-cam_rotation_z);
+
+        const auto& cam_pos = shakyCam.GetPosition();
+        const auto Vt = Matrix4::CreateTranslationMatrix(-cam_pos);
+        const auto v = Matrix4::MakeRT(Vt, VRz);
+        r->SetViewMatrix(v);
+    }
+}
