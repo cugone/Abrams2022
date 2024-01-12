@@ -1496,6 +1496,27 @@ void Renderer::DrawX2D(const Rgba& color) noexcept {
     DrawX2D(Vector2::Zero, Vector2(0.5f, 0.5f), color);
 }
 
+void Renderer::DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize /*= 0.1f*/) noexcept {
+    arrowHeadSize = std::clamp(arrowHeadSize, 0.0f, 1.0f);
+    const auto n = direction.GetNormalize();
+    const auto bottom = position + (-n * tailLength * 0.5f);
+    const auto top = position + (n * tailLength * 0.5f);
+    const auto arrowheadBaseSize = tailLength * arrowHeadSize;
+    const auto displacement = bottom - top;
+    const auto arrowheadBaseLocation = top + (displacement * arrowHeadSize);
+    const auto left = arrowheadBaseLocation + (displacement.GetRightHandNormal() * arrowheadBaseSize * 0.5f);
+    const auto right = arrowheadBaseLocation + (displacement.GetLeftHandNormal() * arrowheadBaseSize * 0.5f);
+    const std::vector<Vertex3D> vbo = {
+    Vertex3D{Vector3{bottom}, color}, Vertex3D{Vector3{top}, color},
+    Vertex3D{Vector3{left}, color}, Vertex3D{Vector3{right}, color}};
+    const std::vector<unsigned int> ibo = {
+    0, 1,
+    1, 2,
+    1, 3,
+    };
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
+}
+
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) noexcept {
     auto num_sides_as_float = static_cast<float>(numSides);
     std::vector<Vector3> verts;
