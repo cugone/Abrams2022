@@ -3,9 +3,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
-#include <iomanip>
-#include <sstream>
-#include <utility>
+#include <ostream>
 
 const Rgba Rgba::White(255, 255, 255, 255);
 const Rgba Rgba::Black(0, 0, 0, 255);
@@ -43,9 +41,7 @@ const Rgba Rgba::NoAlpha(0, 0, 0, 0);
 
 namespace StringUtils {
 std::string to_string(const Rgba& clr) noexcept {
-    std::ostringstream ss;
-    ss << std::hex << clr;
-    return ss.str();
+    return std::format("{:x}", clr);
 }
 } // namespace StringUtils
 
@@ -71,21 +67,7 @@ Rgba Rgba::RandomLessThan(const Rgba& color) noexcept {
 }
 
 std::ostream& operator<<(std::ostream& os, const Rgba& rhs) noexcept {
-    if(os.flags() & std::ios_base::hex) {
-        auto old_fmt = os.flags();
-        auto old_fill = os.fill();
-        auto old_w = os.width();
-        os << '#';
-        os << std::setw(8);
-        os << std::right;
-        os << std::setfill('0');
-        os << rhs.GetAsRawValue();
-        os.flags(old_fmt);
-        os.fill(old_fill);
-        os.width(old_w);
-        return os;
-    }
-    os << static_cast<int>(rhs.r) << ',' << static_cast<int>(rhs.g) << ',' << static_cast<int>(rhs.b) << ',' << static_cast<int>(rhs.a);
+    os << std::format("{:x}", rhs);
     return os;
 }
 

@@ -141,7 +141,7 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
         if(auto* shader = rs->GetShader(shader_src.string())) {
             m_shader = shader;
         } else {
-            DebuggerPrintf(std::format("Shader: {}\n referenced in Material file \"{}\" did not already exist. Attempting to create from source...", shader_src.string(), m_name));
+            DebuggerPrintf(std::format("Shader: {}\n referenced in Material file \"{}\" did not already exist. Attempting to create from source...", shader_src, m_name));
             if(!rs->RegisterShader(shader_src.string())) {
                 DebuggerPrintf("failed.\n");
                 return false;

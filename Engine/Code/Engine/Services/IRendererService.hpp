@@ -321,6 +321,7 @@ public:
     virtual void DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawX2D(const Rgba& color) noexcept = 0;
+    virtual void DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize = 0.1f) noexcept = 0;
     virtual void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
@@ -628,6 +629,8 @@ public:
     void DrawFilledPolygon2D([[maybe_unused]] const Polygon2& polygon, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawX2D([[maybe_unused]] const Vector2& position = Vector2::Zero, [[maybe_unused]] const Vector2& half_extents = Vector2(0.5f, 0.5f), [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawX2D([[maybe_unused]] const Rgba& color) noexcept override {}
+    void DrawArrow2D([[maybe_unused]] const Vector2& position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] const Vector2& direction, [[maybe_unused]] float tailLength, [[maybe_unused]] float arrowHeadSize = 0.1f) noexcept override {}
+
     void DrawTextLine([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawTextLine([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawMultilineText([[maybe_unused]] KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}

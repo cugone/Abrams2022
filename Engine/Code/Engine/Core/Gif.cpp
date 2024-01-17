@@ -60,13 +60,13 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
     auto* r = ServiceLocator::get<IRendererService>();
     auto* logger = ServiceLocator::get<IFileLoggerService>();
     if(!std::filesystem::exists(filepath)) {
-        logger->LogLineAndFlush(std::format("File: {} does not exist.", filepath.string()));
+        logger->LogLineAndFlush(std::format("File: {} does not exist.", filepath));
         return false;
     }
     {
         std::error_code ec{};
         if(filepath = std::filesystem::canonical(filepath, ec); ec) {
-            logger->LogErrorLine(std::format("File: {} is inaccessible.", filepath.string()));
+            logger->LogErrorLine(std::format("File: {} is inaccessible.", filepath));
             return {};
         }
     }
@@ -74,7 +74,7 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
     {
         const auto magicBuffer = FileUtils::ReadSomeBinaryBufferFromFile(filepath, 0, 6);
         if(const bool isGif = magicBuffer.has_value() && (*magicBuffer == "GIF89a" || *magicBuffer == "GIF87a"); !isGif) {
-            logger->LogLineAndFlush(std::format("File: {} is not a .gif", filepath.string()));
+            logger->LogLineAndFlush(std::format("File: {} is not a .gif", filepath));
             return false;
         }
     }
@@ -88,7 +88,7 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
         int frame_count{0};
         int* delays{nullptr};
         if(uint8_t* data = stbi_load_gif_from_memory((*buffer).data(), static_cast<int>((*buffer).size()), &delays, &width, &height, &frame_count, nullptr, 4); data == nullptr) {
-            logger->LogLineAndFlush(std::format("stbi failed to load .gif from file: {}", filepath.string()));
+            logger->LogLineAndFlush(std::format("stbi failed to load .gif from file: {}", filepath));
             return false;
         } else {
             m_frameDelays = std::vector<TimeUtils::FPMilliseconds>(delays, delays + frame_count);
@@ -111,7 +111,7 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
                 if(!r->RegisterTexture(filepath.string(), std::move(texture))) {
                     stbi_image_free(data);
                     data = nullptr;
-                    logger->LogLineAndFlush(std::format("Failed to register texture from .gif file: {}", filepath.string()));
+                    logger->LogLineAndFlush(std::format("Failed to register texture from .gif file: {}", filepath));
                     return false;
                 }
             }

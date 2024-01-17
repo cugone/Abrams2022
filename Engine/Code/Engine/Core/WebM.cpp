@@ -44,7 +44,7 @@ public:
         if(metadata.id == webm::Id::kDocType) {
             if(ebml.doc_type.value() != "webm") {
                 if(auto* filelogger = ServiceLocator::get<IFileLoggerService>(); filelogger != nullptr) {
-                    filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath().string()));
+                    filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath()));
                     filelogger->Flush();
                 }
                 return webm::Status(webm::Status::kInvalidElementValue);

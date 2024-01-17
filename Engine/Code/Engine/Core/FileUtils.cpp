@@ -251,6 +251,7 @@ bool IsSystemPathId(const KnownPathID& pathid) noexcept {
     case KnownPathID::EngineLogs: return false;
     case KnownPathID::EditorContent: return false;
     case KnownPathID::Max: return false;
+    case KnownPathID::TempDirectory: return true;
 #if defined(PLATFORM_WINDOWS)
     case KnownPathID::Windows_AppDataRoaming: return true;
     case KnownPathID::Windows_AppDataLocal: return true;
@@ -337,8 +338,13 @@ std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept {
         if(FS::exists(p)) {
             p = FS::canonical(p);
         } else {
-            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{ "Content" });
+            (void)FileUtils::CreateFolders(GetWorkingDirectory() / FS::path{"Content"});
             p = GetKnownFolderPath(pathid);
+        }
+    } else if(pathid == KnownPathID::TempDirectory) {
+        p = GetTempDirectory();
+        if(FS::exists(p)) {
+            p = FS::canonical(p);
         }
     } else {
 #ifdef PLATFORM_WINDOWS
@@ -542,14 +548,12 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         const auto is_known_OS_dir = false;
 
         if(const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_next_to_exe || is_known_OS_dir; !safe) {
-            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p, GetWorkingDirectory(), GetKnownFolderPath(KnownPathID::GameData), GetKnownFolderPath(KnownPathID::EngineData), GetKnownFolderPath(KnownPathID::EditorContent))));
+            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p.string(), GetWorkingDirectory().string(), GetKnownFolderPath(KnownPathID::GameData).string(), GetKnownFolderPath(KnownPathID::EngineData).string(), GetKnownFolderPath(KnownPathID::EditorContent).string())));
             return false;
         }
         return true;
     } catch(const std::filesystem::filesystem_error& e) {
-        const auto path1_str = e.path1().string();
-        const auto path2_str = e.path1().string();
-        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), path1_str, path2_str));
+        DebuggerPrintf(std::format("\nFilesystem Error:\nWhat: {:s}\nCode: {}\nPath1: {:s}\nPath2: {:s}\n", e.what(), e.code().value(), e.path1(), e.path2()));
         return false;
     } catch(...) {
         DebuggerPrintf(std::format("\nUnspecified error trying to determine if path:\n{:s}\n is a safe read path.", p));

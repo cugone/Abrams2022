@@ -175,7 +175,7 @@ requires(N <= 20)
 }
 
 template<size_t N, size_t K>
-requires(N <= 20 && K <= 20 && (N - K) <= 20)
+requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 [[nodiscard]] constexpr unsigned long long nPr() noexcept {
     return Permutation<N>() / Permutation<(N - K)>();
 }
