@@ -26,17 +26,17 @@ bool Model::Import(std::filesystem::path filepath) noexcept {
     }
 */
     if(!FileUtils::IsSafeReadPath(filepath)) {
-        DebuggerPrintf(std::vformat("Model import failed. \"{}\" is not a safe read path.\n", std::make_format_args(filepath.string())));
+        DebuggerPrintf(std::format("Model import failed. \"{}\" is not a safe read path.\n", filepath));
         return false;
     }
     if(ext != ".obj") {
-        DebuggerPrintf(std::format("Model import failed. \"{}\" is not a supported model type. Must be .obj.\n", filepath.string()));
+        DebuggerPrintf(std::format("Model import failed. \"{}\" is not a supported model type. Must be .obj.\n", filepath));
         return false;
     }
     
     FileUtils::Obj obj;
     if(!obj.Load(filepath)) {
-        DebuggerPrintf(std::format("Model import failed. \"{}\" could not be loaded.\n", filepath.string()));
+        DebuggerPrintf(std::format("Model import failed. \"{}\" could not be loaded.\n", filepath));
         return false;
     }
     m_meshes.emplace_back(Mesh::Builder{obj.GetVbo(), obj.GetIbo()});

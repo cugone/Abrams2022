@@ -27,6 +27,7 @@
 #include <format>
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <source_location>

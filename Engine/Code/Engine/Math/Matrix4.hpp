@@ -149,6 +149,8 @@ public:
 
     [[nodiscard]] Matrix4 GetRotation() const noexcept;
     [[nodiscard]] Matrix4 GetRotation() noexcept;
+    [[nodiscard]] float GetRotation2D() const noexcept;
+    [[nodiscard]] float GetRotation2D() noexcept;
 
     [[nodiscard]] Vector3 CalcEulerAngles() const noexcept;
 
@@ -273,20 +275,17 @@ public:
             switch(*iter++) {
             case 'r':
                 return MatrixFormatView::Row;
-                break;
             case 'v':
                 return MatrixFormatView::VectorRow;
-                break;
             case 's':
                 return MatrixFormatView::Square;
-                break;
             default:
                 throw std::format_error("Matrix4: invalid format specification");
             }
         }();
         return iter;
     }
-    auto format(const Matrix4& m, auto& ctx) {
+    auto format(const Matrix4& m, auto& ctx) const {
         const auto& x = m.GetXComponents();
         const auto& y = m.GetYComponents();
         const auto& z = m.GetZComponents();

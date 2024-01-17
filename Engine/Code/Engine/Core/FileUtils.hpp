@@ -15,7 +15,7 @@
 template<>
 class std::formatter<std::filesystem::path> : public std::formatter<std::string> {
 public:
-    auto format(const std::filesystem::path& p, auto& ctx) {
+    auto format(const std::filesystem::path& p, auto& ctx) const {
         return std::formatter<std::string>::format(p.string(), ctx);
     }
 
@@ -39,6 +39,7 @@ enum class KnownPathID {
     Windows_CommonProfile,
     Windows_CurrentUserDesktop,
     Windows_CommonDesktop,
+    TempDirectory,
     GameData,
     GameConfig,
     GameFonts,
@@ -67,6 +68,7 @@ enum class KnownPathID {
 [[nodiscard]] std::filesystem::path GetKnownFolderPath(const KnownPathID& pathid) noexcept;
 [[nodiscard]] std::filesystem::path GetExePath() noexcept;
 [[nodiscard]] std::filesystem::path GetWorkingDirectory() noexcept;
+[[nodiscard]] std::filesystem::path GetTempDirectory() noexcept;
 [[nodiscard]] void SetWorkingDirectory(const std::filesystem::path& p) noexcept;
 [[nodiscard]] bool IsSafeWritePath(const std::filesystem::path& p) noexcept;
 [[nodiscard]] bool IsSafeReadPath(const std::filesystem::path& p) noexcept;

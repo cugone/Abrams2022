@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include <format>
+#include <sstream>
 #include <type_traits>
 
 bool operator==(const ViewportDesc& a, const ViewportDesc& b) noexcept {

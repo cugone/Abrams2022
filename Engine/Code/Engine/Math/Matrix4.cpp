@@ -969,6 +969,14 @@ Matrix4 Matrix4::GetRotation() noexcept {
     return static_cast<const Matrix4&>(*this).GetRotation();
 }
 
+float Matrix4::GetRotation2D() const noexcept {
+    return std::atan2(GetIBasis().y, GetIBasis().x);
+}
+
+float Matrix4::GetRotation2D() noexcept {
+    return static_cast<const Matrix4&>(*this).GetRotation2D();
+}
+
 Vector3 Matrix4::CalcEulerAngles() const noexcept {
     //Reference: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.371.6578&rep=rep1&type=pdf
 
@@ -1276,10 +1284,7 @@ Matrix4 operator*(float lhs, const Matrix4& rhs) noexcept {
 }
 
 std::ostream& operator<<(std::ostream& out_stream, const Matrix4& m) noexcept {
-    out_stream << '[' << m.m_indicies[0] << ',' << m.m_indicies[1] << ',' << m.m_indicies[2] << ',' << m.m_indicies[3] << ','
-               << m.m_indicies[4] << ',' << m.m_indicies[5] << ',' << m.m_indicies[6] << ',' << m.m_indicies[7] << ','
-               << m.m_indicies[8] << ',' << m.m_indicies[9] << ',' << m.m_indicies[10] << ',' << m.m_indicies[11] << ','
-               << m.m_indicies[12] << ',' << m.m_indicies[13] << ',' << m.m_indicies[14] << ',' << m.m_indicies[15] << ']';
+    out_stream << std::format("{}", m);
     return out_stream;
 }
 
@@ -1326,9 +1331,5 @@ std::istream& operator>>(std::istream& in_stream, Matrix4& m) noexcept {
 }
 
 std::string StringUtils::to_string(const Matrix4& m) noexcept {
-    const auto& x = m.GetXComponents();
-    const auto& y = m.GetYComponents();
-    const auto& z = m.GetZComponents();
-    const auto& w = m.GetWComponents();
-    return std::format("[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]", x.x, x.y, x.z, x.w, y.x, y.y, y.z, y.w, z.x, z.y, z.z, z.w, w.x, w.y, w.z, w.w);
+    return std::format("{}", m);
 }

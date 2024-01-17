@@ -103,7 +103,7 @@ Renderer::Renderer() noexcept {
     auto* config = ServiceLocator::get<IConfigService>();
     if(FS::path path{"Engine/Config/options.config"}; FS::exists(path)) {
         if(!config->AppendFromFile(path)) {
-            DebuggerPrintf(std::format("Could not load existing configuration from \"{}\"\n", path.string()));
+            DebuggerPrintf(std::format("Could not load existing configuration from \"{}\"\n", path));
         }
     }
     m_current_outputMode = [this, &config]() -> RHIOutputMode {
@@ -145,7 +145,7 @@ Renderer::Renderer() noexcept {
     }(); //IIIL
     if(FS::path path{"Engine/Config/options.config"}; !FS::exists(path)) {
         if(!config->SaveToFile(path)) {
-            DebuggerPrintf(std::format("Could not save configuration to \"{}\"\n", path.string()));
+            DebuggerPrintf(std::format("Could not save configuration to \"{}\"\n", path));
         }
     }
 }
@@ -1494,6 +1494,27 @@ void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector
 
 void Renderer::DrawX2D(const Rgba& color) noexcept {
     DrawX2D(Vector2::Zero, Vector2(0.5f, 0.5f), color);
+}
+
+void Renderer::DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize /*= 0.1f*/) noexcept {
+    arrowHeadSize = std::clamp(arrowHeadSize, 0.0f, 1.0f);
+    const auto n = direction.GetNormalize();
+    const auto bottom = position + (-n * tailLength * 0.5f);
+    const auto top = position + (n * tailLength * 0.5f);
+    const auto arrowheadBaseSize = tailLength * arrowHeadSize;
+    const auto displacement = bottom - top;
+    const auto arrowheadBaseLocation = top + (displacement * arrowHeadSize);
+    const auto left = arrowheadBaseLocation + (displacement.GetRightHandNormal() * arrowheadBaseSize * 0.5f);
+    const auto right = arrowheadBaseLocation + (displacement.GetLeftHandNormal() * arrowheadBaseSize * 0.5f);
+    const std::vector<Vertex3D> vbo = {
+    Vertex3D{Vector3{bottom}, color}, Vertex3D{Vector3{top}, color},
+    Vertex3D{Vector3{left}, color}, Vertex3D{Vector3{right}, color}};
+    const std::vector<unsigned int> ibo = {
+    0, 1,
+    1, 2,
+    1, 3,
+    };
+    DrawIndexed(PrimitiveType::Lines, vbo, ibo);
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) noexcept {
@@ -3550,7 +3571,7 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
 void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
@@ -3558,8 +3579,7 @@ void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool re
     auto cb =
     [this](const FS::path& p) {
         if(!RegisterFont(p)) {
-            const auto pathAsString = p.string();
-            DebuggerPrintf(std::format("Failed to load font at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load font at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".fnt", cb, recursive);
@@ -4009,16 +4029,15 @@ bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
 void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {
-        const auto pathAsString = p.string();
         if(!RegisterMaterial(p)) {
-            DebuggerPrintf(std::format("Failed to load material at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load material at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, ".material", cb, recursive);
@@ -4143,7 +4162,7 @@ std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromDesc(ShaderProgr
 
 void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path filepath, const PipelineStage& target) noexcept {
     auto sp = CreateShaderProgramFromCsoFile(filepath, target);
-    const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath.string());
+    const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath);
     GUARANTEE_OR_DIE(sp, error_msg.c_str());
     RegisterShaderProgram(filepath.string(), std::move(sp));
 }
@@ -4797,16 +4816,15 @@ Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, con
 void Renderer::RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
-        DebuggerPrintf(std::format("Attempting to Register Textures from unknown path: {}\n", FS::absolute(folderpath).string()));
+        DebuggerPrintf(std::format("Attempting to Register Textures from unknown path: {}\n", FS::absolute(folderpath)));
         return;
     }
     folderpath = FS::canonical(folderpath);
     folderpath.make_preferred();
     auto cb =
     [this](const FS::path& p) {
-        const auto pathAsString = p.string();
         if(!RegisterTexture(p)) {
-            DebuggerPrintf(std::format("Failed to load texture at {}\n", pathAsString));
+            DebuggerPrintf(std::format("Failed to load texture at {}\n", p));
         }
     };
     FileUtils::ForEachFileInFolder(folderpath, std::string{}, cb, recursive);
@@ -5412,7 +5430,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     const auto files = FileUtils::GetAllPathsInFolders(folderpath, Image::GetSupportedExtensionsList());
     if(files.empty()) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath.string(), Image::GetSupportedExtensionsList()));
+        logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath, Image::GetSupportedExtensionsList()));
         logger->Flush();
         return {};
     }

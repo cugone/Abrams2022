@@ -371,6 +371,7 @@ public:
     void DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color = Rgba::White) noexcept override;
     void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept override;
     void DrawX2D(const Rgba& color) noexcept override;
+    void DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize = 0.1f) noexcept override;
     void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
     void DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
     void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;

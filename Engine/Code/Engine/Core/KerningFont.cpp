@@ -93,14 +93,14 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
         namespace FS = std::filesystem;
         const auto path_exists = FS::exists(filepath);
         if(!path_exists) {
-            DebuggerPrintf(std::format("Failed to read file: {} \nDoes not exist.\n", m_filepath.string()));
+            DebuggerPrintf(std::format("Failed to read file: {} \nDoes not exist.\n", m_filepath));
             return false;
         }
         {
             std::error_code ec{};
             filepath = FS::canonical(filepath, ec);
             if(ec || !FileUtils::IsSafeReadPath(filepath)) {
-                DebuggerPrintf(std::format("File: {} is inaccessible.\n", filepath.string()));
+                DebuggerPrintf(std::format("File: {} is inaccessible.\n", filepath));
                 return false;
             }
         }
@@ -110,23 +110,23 @@ bool KerningFont::LoadFromFile(std::filesystem::path filepath) noexcept {
         const auto is_fnt = filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".fnt";
         const auto is_valid = path_exists && is_not_directory && is_file && is_fnt;
         if(!is_valid) {
-            DebuggerPrintf(std::format("{} is not a BMFont file.\n", filepath.string()));
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", filepath));
             return false;
         }
         if(m_is_loaded) {
-            DebuggerPrintf(std::format("{} is already loaded.\n", filepath.string()));
+            DebuggerPrintf(std::format("{} is already loaded.\n", filepath));
             return false;
         }
         m_filepath = filepath;
     }
     if(const auto& buffer = FileUtils::ReadBinaryBufferFromFile(m_filepath.string()); buffer.has_value()) {
         if(buffer->size() < 4) {
-            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath));
             return false;
         }
         return LoadFromBuffer(*buffer);
     } else {
-        DebuggerPrintf(std::format("Failed to read file: {} \n", m_filepath.string()));
+        DebuggerPrintf(std::format("Failed to read file: {} \n", m_filepath));
         return false;
     }
 }
@@ -721,7 +721,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
     constexpr const uint8_t CURRENT_BMF_VERSION = 3;
     if(bss.read(reinterpret_cast<char*>(&header), sizeof(header))) {
         if(!(header.id[0] == 'B' && header.id[1] == 'M' && header.id[2] == 'F')) {
-            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
+            DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath));
             return false;
         }
         if(header.version != CURRENT_BMF_VERSION) {
@@ -744,7 +744,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             std::string font_name(block_size - sizeof(info), '\0');
             bss.read(font_name.data(), font_name.size());
             if(info.font_size < 0) {
-                DebuggerPrintf(std::format("{} uses \"Match char height\" option which will result in negative font sizes.\n", m_filepath.string()));
+                DebuggerPrintf(std::format("{} uses \"Match char height\" option which will result in negative font sizes.\n", m_filepath));
             }
             m_info.charset = info.char_set;
             m_info.em_size = info.font_size;
@@ -795,7 +795,7 @@ bool KerningFont::LoadFromBinary(std::vector<unsigned char>& buffer) noexcept {
             uint32_t char_count = block_size / chars_size;
             for(uint32_t i = 0; i < char_count; ++i) {
                 if(!bss.read(reinterpret_cast<char*>(&chars), chars_size)) {
-                    DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath.string()));
+                    DebuggerPrintf(std::format("{} is not a BMFont file.\n", m_filepath));
                     return false;
                 }
                 CharDef d{};

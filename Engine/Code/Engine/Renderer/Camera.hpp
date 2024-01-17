@@ -70,6 +70,7 @@ protected:
 private:
     void RecalculateProjectionMatrix() noexcept;
     void RecalculateViewMatrix() noexcept;
+    void RecalculateViewProjectionMatrix() noexcept;
 
     float m_aspect_ratio = MathUtils::M_16_BY_9_RATIO;
     float m_fov = 60.0f;

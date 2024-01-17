@@ -118,7 +118,7 @@ namespace FileUtils {
         std::string valid_extension = ".mtl";
         bool not_mtl = StringUtils::ToLowerCase(filepath.extension().string()) != valid_extension;
         bool invalid = not_exist || not_mtl;
-        const auto error_msg = std::format("{} does not exist or is not a .mtl file.\n", filepath.string());
+        const auto error_msg = std::format("{} does not exist or is not a .mtl file.\n", filepath);
         GUARANTEE_OR_DIE(!invalid, error_msg.c_str());
         filepath = FS::canonical(filepath);
         filepath.make_preferred();
@@ -229,5 +229,5 @@ void PrintErrorToDebugger(std::filesystem::path filepath, std::string_view eleme
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
-    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath.string(), line_index, elementType));
+    DebuggerPrintf(std::format("{}({}): Invalid {}\n", filepath, line_index, elementType));
 }
