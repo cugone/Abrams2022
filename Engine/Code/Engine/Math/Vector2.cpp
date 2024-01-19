@@ -21,6 +21,12 @@ Vector2::Vector2(const Vector3& rhs) noexcept
     /* DO NOTHING */
 }
 
+Vector2::Vector2(const std::pair<float, float> initPair) noexcept
+: x(initPair.first)
+, y(initPair.second) {
+    /* DO NOTHING */
+}
+
 Vector2::Vector2(std::tuple<float, float> initTuple) noexcept
 : x(std::get<0>(initTuple))
 , y(std::get<1>(initTuple)) {
