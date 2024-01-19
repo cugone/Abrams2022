@@ -30,8 +30,8 @@ public:
 
     ~Vector2() noexcept = default;
 
-    Vector2(std::tuple<float, float> initTuple) noexcept;
-    Vector2(std::initializer_list<float> initList) noexcept;
+    explicit Vector2(std::tuple<float, float> initTuple) noexcept;
+    explicit Vector2(std::initializer_list<float> initList) noexcept;
     explicit Vector2(const std::string& value) noexcept;
 
     constexpr explicit Vector2(float initialX, float initialY) noexcept
