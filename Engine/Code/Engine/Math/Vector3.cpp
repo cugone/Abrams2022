@@ -55,6 +55,13 @@ Vector3::Vector3(const Quaternion& q) noexcept
     Normalize();
 }
 
+Vector3::Vector3(std::tuple<float, float, float> initTuple) noexcept
+: x(std::get<0>(initTuple))
+, y(std::get<1>(initTuple))
+, z(std::get<2>(initTuple)) {
+    /* DO NOTHING */
+}
+
 Vector3::Vector3(const std::string& value) noexcept {
     if(value.empty()) {
         return;
