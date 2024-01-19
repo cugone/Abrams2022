@@ -3,6 +3,10 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vector3.hpp"
+#include "Engine/Math/Vector4.hpp"
+
 #include "Engine/Profiling/Instrumentor.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
 

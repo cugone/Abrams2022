@@ -27,13 +27,13 @@ Vector2::Vector2(const std::pair<float, float> initPair) noexcept
     /* DO NOTHING */
 }
 
-Vector2::Vector2(std::tuple<float, float> initTuple) noexcept
+Vector2::Vector2(const std::tuple<float, float>& initTuple) noexcept
 : x(std::get<0>(initTuple))
 , y(std::get<1>(initTuple)) {
     /* DO NOTHING */
 }
 
-Vector2::Vector2(std::initializer_list<float> initList) noexcept {
+Vector2::Vector2(const std::initializer_list<float>& initList) noexcept {
     const auto length = initList.size();
     switch(length) {
     case 1:

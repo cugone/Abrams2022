@@ -55,14 +55,14 @@ Vector3::Vector3(const Quaternion& q) noexcept
     Normalize();
 }
 
-Vector3::Vector3(std::tuple<float, float, float> initTuple) noexcept
+Vector3::Vector3(const std::tuple<float, float, float>& initTuple) noexcept
 : x(std::get<0>(initTuple))
 , y(std::get<1>(initTuple))
 , z(std::get<2>(initTuple)) {
     /* DO NOTHING */
 }
 
-Vector3::Vector3(std::initializer_list<float> initList) noexcept {
+Vector3::Vector3(const std::initializer_list<float>& initList) noexcept {
     const auto length = initList.size();
     switch(length) {
     case 1:

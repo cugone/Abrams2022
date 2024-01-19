@@ -38,8 +38,8 @@ public:
     explicit Vector3(const Vector2& xy, float initialZ) noexcept;
     explicit Vector3(const Vector4& vec4) noexcept;
     explicit Vector3(const Quaternion& q) noexcept;
-    explicit Vector3(std::tuple<float, float, float> initTuple) noexcept;
-    explicit Vector3(std::initializer_list<float> initList) noexcept;
+    explicit Vector3(const std::tuple<float, float, float>& initTuple) noexcept;
+    explicit Vector3(const std::initializer_list<float>& initList) noexcept;
 
     [[nodiscard]] Vector3 operator+(const Vector3& rhs) const noexcept;
     Vector3& operator+=(const Vector3& rhs) noexcept;
