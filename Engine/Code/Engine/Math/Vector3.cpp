@@ -62,6 +62,27 @@ Vector3::Vector3(std::tuple<float, float, float> initTuple) noexcept
     /* DO NOTHING */
 }
 
+Vector3::Vector3(std::initializer_list<float> initList) noexcept {
+    const auto length = initList.size();
+    switch(length) {
+    case 1:
+        x = y = z = (*std::begin(initList));
+        break;
+    case 2:
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    if(length >= std::size_t{3u}) {
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+        z = (*std::next(std::begin(initList), 2));
+    }
+}
+
 Vector3::Vector3(const std::string& value) noexcept {
     if(value.empty()) {
         return;

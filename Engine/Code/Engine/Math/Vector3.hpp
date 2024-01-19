@@ -1,8 +1,10 @@
 #pragma once
 
 #include <format>
+#include <initializer_list>
 #include <string>
 #include <tuple>
+#include <utility>
 
 class Vector2;
 class IntVector3;
@@ -37,6 +39,7 @@ public:
     explicit Vector3(const Vector4& vec4) noexcept;
     explicit Vector3(const Quaternion& q) noexcept;
     explicit Vector3(std::tuple<float, float, float> initTuple) noexcept;
+    explicit Vector3(std::initializer_list<float> initList) noexcept;
 
     [[nodiscard]] Vector3 operator+(const Vector3& rhs) const noexcept;
     Vector3& operator+=(const Vector3& rhs) noexcept;

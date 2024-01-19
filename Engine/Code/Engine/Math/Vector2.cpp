@@ -27,6 +27,22 @@ Vector2::Vector2(std::tuple<float, float> initTuple) noexcept
     /* DO NOTHING */
 }
 
+Vector2::Vector2(std::initializer_list<float> initList) noexcept {
+    const auto length = initList.size();
+    switch(length) {
+    case 1:
+        x = y = (*std::begin(initList));
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    if(length >= std::size_t{2u}) {
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+    }
+}
+
 Vector2::Vector2(const std::string& value) noexcept {
     if(value.empty()) {
         return;
