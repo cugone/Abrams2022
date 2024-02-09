@@ -42,15 +42,7 @@ public:
 
     webm::Status OnEbml(const webm::ElementMetadata& metadata, const webm::Ebml& ebml) override {
         if(metadata.id == webm::Id::kDocType) {
-            if(ebml.doc_type.is_present() && ebml.doc_type.value() != "webm") {
-                if(auto* filelogger = ServiceLocator::get<IFileLoggerService>(); filelogger != nullptr) {
-                    filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath()));
-                    filelogger->Flush();
-                }
-                return webm::Status(webm::Status::kInvalidElementValue);
-            }
-        } else if(metadata.id == webm::Id::kEbml) {
-            if(ebml.doc_type.is_present() && ebml.doc_type.value() != "webm") {
+            if(ebml.doc_type.value() != "webm") {
                 if(auto* filelogger = ServiceLocator::get<IFileLoggerService>(); filelogger != nullptr) {
                     filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath()));
                     filelogger->Flush();
