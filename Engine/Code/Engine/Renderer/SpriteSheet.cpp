@@ -91,5 +91,7 @@ void SpriteSheet::LoadFromXml(const XMLElement& elem) noexcept {
         GUARANTEE_OR_DIE(!ec, error_msg.c_str());
     }
     p.make_preferred();
-    m_spriteSheetTexture = ServiceLocator::get<IRendererService>()->CreateOrGetTexture(p.string(), IntVector3::XY_Axis);
+    if(auto* r = ServiceLocator::get<IRendererService>(); r != nullptr) {
+        m_spriteSheetTexture = r->CreateOrGetTexture(p.string(), IntVector3::XY_Axis);
+    }
 }
