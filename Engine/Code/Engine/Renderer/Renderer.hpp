@@ -176,8 +176,8 @@ public:
     [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem) noexcept override;
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::filesystem::path filepath) noexcept override;
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const AnimatedSpriteDesc& desc) noexcept override;
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override;
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept override;
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override;
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept override;
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem) noexcept override;
     [[nodiscard]] std::unique_ptr<Flipbook> CreateFlipbookFromFolder(std::filesystem::path folderpath, unsigned int framesPerSecond) noexcept override;
 

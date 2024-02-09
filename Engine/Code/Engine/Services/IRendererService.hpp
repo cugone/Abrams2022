@@ -25,6 +25,8 @@
 #include "Engine/Renderer/RendererTypes.hpp"
 #include "Engine/Renderer/Texture.hpp"
 
+#include <memory>
+
 class Rgba;
 class Frustum;
 class Camera2D;
@@ -129,8 +131,8 @@ public:
     [[nodiscard]] virtual std::shared_ptr<SpriteSheet> CreateSpriteSheet(const XMLElement& elem) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::filesystem::path filepath) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const AnimatedSpriteDesc& desc) noexcept = 0;
-    [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept = 0;
-    [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept = 0;
+    [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept = 0;
+    [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<AnimatedSprite> CreateAnimatedSprite(const XMLElement& elem) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<Flipbook> CreateFlipbookFromFolder(std::filesystem::path folderpath, unsigned int framesPerSecond) noexcept = 0;
 
@@ -434,8 +436,8 @@ public:
     [[nodiscard]] std::shared_ptr<SpriteSheet> CreateSpriteSheet([[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::filesystem::path filepath) noexcept override { return {}; }
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const AnimatedSpriteDesc& desc) noexcept override { return {}; }
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override { return {}; }
-    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::weak_ptr<SpriteSheet> sheet, [[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::shared_ptr<SpriteSheet> sheet, [[maybe_unused]] const IntVector2& startSpriteCoords = IntVector2::Zero) noexcept override { return {}; }
+    [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] std::shared_ptr<SpriteSheet> sheet, [[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
     [[nodiscard]] std::unique_ptr<AnimatedSprite> CreateAnimatedSprite([[maybe_unused]] const XMLElement& elem) noexcept override { return {}; }
     [[nodiscard]] std::unique_ptr<Flipbook> CreateFlipbookFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] unsigned int framesPerSecond) noexcept override { return {}; };
 
