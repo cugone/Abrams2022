@@ -43,6 +43,7 @@ public:
 
     IntVector2 GetDimensions() const noexcept;
     std::size_t GetFrameCount() const noexcept;
+    std::size_t GetCurrentFrame() const noexcept;
     void SetImage(std::filesystem::path newFilepath) noexcept;
 
 protected:

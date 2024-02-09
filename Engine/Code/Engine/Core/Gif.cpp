@@ -189,6 +189,10 @@ IntVector2 Gif::GetDimensions() const noexcept {
     return IntVector2{m_texture->GetDimensions().x, m_texture->GetDimensions().y};
 }
 
+std::size_t Gif::GetCurrentFrame() const noexcept {
+    return m_currentFrame;
+}
+
 std::size_t Gif::GetFrameCount() const noexcept {
     return m_totalFrames;
 }

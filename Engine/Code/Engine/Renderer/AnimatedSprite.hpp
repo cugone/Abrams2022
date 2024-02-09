@@ -6,6 +6,8 @@
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 
+#include <string>
+
 class Material;
 class Texture;
 struct AnimatedSpriteDesc;
@@ -35,6 +37,7 @@ public:
     [[nodiscard]] int GetNumSprites() const noexcept;
     [[nodiscard]] IntVector2 GetFrameDimensions() const noexcept;
     [[nodiscard]] int GetFrameCount() const noexcept;
+    [[nodiscard]] const std::string& GetName() const noexcept;
     void TogglePause() noexcept;
     void Pause() noexcept;                                                  // Starts unpaused (playing) by default
     void Resume() noexcept;                                                 // Resume after pausing
@@ -63,6 +66,7 @@ private:
     [[nodiscard]] SpriteAnimMode GetAnimModeFromOptions(bool looping, bool backwards, bool ping_pong /*= false*/) noexcept;
     [[nodiscard]] int GetIndexFromCoords(const IntVector2& coords) noexcept;
 
+    std::string m_name{};
     Material* m_material = nullptr;
     std::weak_ptr<SpriteSheet> m_sheet{};
     TimeUtils::FPSeconds m_duration_seconds = TimeUtils::FPFrames{1};
@@ -72,10 +76,12 @@ private:
     SpriteAnimMode m_playback_mode = SpriteAnimMode::Looping;
     int m_start_index{0};
     int m_end_index{1};
+    static inline int m_unknown_id{0};
     bool m_is_playing = true;
 };
 
 struct AnimatedSpriteDesc {
+    std::string name{};
     Material* material{};
     std::weak_ptr<SpriteSheet> spriteSheet{};
     TimeUtils::FPSeconds durationSeconds{TimeUtils::FPFrames{1.0f}};
