@@ -1115,7 +1115,7 @@ std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::filesystem::
     return nullptr;
 }
 
-std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept {
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept {
     return std::make_unique<AnimatedSprite>(sheet, elem);
 }
 
@@ -1123,7 +1123,7 @@ std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const XMLElement&
     return std::make_unique<AnimatedSprite>(elem);
 }
 
-std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) noexcept {
+std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) noexcept {
     return std::make_unique<AnimatedSprite>(sheet, startSpriteCoords);
 }
 

@@ -124,7 +124,7 @@ std::string GetAttributeAsString(const XMLElement& element, const std::string& a
 // Qualifier: noexcept
 // Parameter: const XMLElement& element: The parent element.
 // Parameter: const std::string& childname: The name of the child element to iterate. Provide an empty string to iterate over all children.
-// Parameter: UnaryFunction&& f: UnaryFunction Callable to invoke for each child element of the parent. Must be of the signature void f(XMLElement&). cv-qualified is optional.
+// Parameter: UnaryFunction&& f: UnaryFunction Callable to invoke for each child element of the parent. Must be of the signature void f(const XMLElement&).
 //************************************
 template<typename UnaryFunction>
 UnaryFunction ForEachChildElement(const XMLElement& element, const std::string& childname, UnaryFunction&& f) noexcept {
@@ -142,7 +142,7 @@ UnaryFunction ForEachChildElement(const XMLElement& element, const std::string& 
 // Returns:   UnaryFunction: A copy of the UnaryFunction Callable argument.
 // Qualifier: noexcept
 // Parameter: const XMLElement& element: The parent element.
-// Parameter: UnaryFunction&& f: UnaryFunction Callable to invoke for each attribute of the parent element. Must be of the signature void f(XMLAttribute&). cv-qualified is optional.
+// Parameter: UnaryFunction&& f: UnaryFunction Callable to invoke for each attribute of the parent element. Must be of the signature void f(const XMLAttribute&).
 //************************************
 template<typename UnaryFunction>
 UnaryFunction ForEachAttribute(const XMLElement& element, UnaryFunction&& f) noexcept {

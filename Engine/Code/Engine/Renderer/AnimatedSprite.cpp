@@ -50,7 +50,8 @@ AnimatedSprite::AnimatedSprite(std::weak_ptr<SpriteSheet> sheet, const IntVector
 }
 
 AnimatedSprite::AnimatedSprite(const AnimatedSpriteDesc& desc) noexcept
-: m_material(desc.material)
+: m_name(desc.name)
+, m_material(desc.material)
 , m_sheet(desc.spriteSheet)
 , m_duration_seconds(desc.durationSeconds)
 , m_playback_mode(desc.playbackMode)
@@ -198,6 +199,10 @@ int AnimatedSprite::GetFrameCount() const noexcept {
     return m_end_index - m_start_index;
 }
 
+const std::string& AnimatedSprite::GetName() const noexcept {
+    return m_name;
+}
+
 void AnimatedSprite::TogglePause() noexcept {
     m_is_playing = !m_is_playing;
 }
@@ -309,9 +314,14 @@ int AnimatedSprite::GetIndexFromCoords(const IntVector2& coords) noexcept {
 
 void AnimatedSprite::LoadFromXml(const XMLElement& elem) noexcept {
     DataUtils::ValidateXmlElement(elem, "animation", "animationset", "", "spritesheet", "name");
+    if(m_name = DataUtils::ParseXmlAttribute(elem, "name", std::string{"UnknownAnimatedSprite"}); m_name == "UnknownAnimatedSprite") {
+        m_name = std::format("UnknownAnimatedSprite_{}", m_unknown_id++);
+    }
     if(const auto* xml_sheet = elem.FirstChildElement("spritesheet")) {
         DataUtils::ValidateXmlElement(*xml_sheet, "spritesheet", "", "src,dimensions");
-        m_sheet = ServiceLocator::get<IRendererService>()->CreateSpriteSheet(*xml_sheet);
+        if(m_sheet.expired()) {
+            m_sheet = ServiceLocator::get<IRendererService>()->CreateSpriteSheet(*xml_sheet);
+        }
     }
 
     const auto* xml_animset = elem.FirstChildElement("animationset");

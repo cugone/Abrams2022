@@ -53,8 +53,8 @@ public:
     explicit Vector4(const Vector2& xy, float initialZ, float initialW) noexcept;
     explicit Vector4(const Vector2& xy, const Vector2& zw) noexcept;
     explicit Vector4(float initialX, float initialY, float initialZ, float initialW) noexcept;
-    explicit Vector4(std::tuple<float, float, float, float> initTuple) noexcept;
-    explicit Vector4(std::initializer_list<float> initList) noexcept;
+    explicit Vector4(const std::tuple<float, float, float, float>& initTuple) noexcept;
+    explicit Vector4(const std::initializer_list<float>& initList) noexcept;
 
     [[nodiscard]] bool operator==(const Vector4& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const Vector4& rhs) const noexcept;

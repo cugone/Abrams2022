@@ -70,7 +70,7 @@ Vector4::Vector4(float initialX, float initialY, float initialZ, float initialW)
     /* DO NOTHING */
 }
 
-Vector4::Vector4(std::tuple<float, float, float, float> initTuple) noexcept
+Vector4::Vector4(const std::tuple<float, float, float, float>& initTuple) noexcept
 : x(std::get<0>(initTuple))
 , y(std::get<1>(initTuple))
 , z(std::get<2>(initTuple))
@@ -78,7 +78,7 @@ Vector4::Vector4(std::tuple<float, float, float, float> initTuple) noexcept
     /* DO NOTHING */
 }
 
-Vector4::Vector4(std::initializer_list<float> initList) noexcept {
+Vector4::Vector4(const std::initializer_list<float>& initList) noexcept {
     const auto length = initList.size();
     switch(length) {
     case 1:

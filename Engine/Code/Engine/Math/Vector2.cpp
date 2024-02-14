@@ -21,6 +21,34 @@ Vector2::Vector2(const Vector3& rhs) noexcept
     /* DO NOTHING */
 }
 
+Vector2::Vector2(const std::pair<float, float> initPair) noexcept
+: x(initPair.first)
+, y(initPair.second) {
+    /* DO NOTHING */
+}
+
+Vector2::Vector2(const std::tuple<float, float>& initTuple) noexcept
+: x(std::get<0>(initTuple))
+, y(std::get<1>(initTuple)) {
+    /* DO NOTHING */
+}
+
+Vector2::Vector2(const std::initializer_list<float>& initList) noexcept {
+    const auto length = initList.size();
+    switch(length) {
+    case 1:
+        x = y = (*std::begin(initList));
+        break;
+    default:
+        /* DO NOTHING */
+        break;
+    }
+    if(length >= std::size_t{2u}) {
+        x = (*std::next(std::begin(initList), 0));
+        y = (*std::next(std::begin(initList), 1));
+    }
+}
+
 Vector2::Vector2(const std::string& value) noexcept {
     if(value.empty()) {
         return;

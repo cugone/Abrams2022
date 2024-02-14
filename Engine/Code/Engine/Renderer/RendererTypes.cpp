@@ -1,12 +1,14 @@
 #include "Engine/Renderer/RendererTypes.hpp"
 
+#include <format>
+
 screenshot_job_t::screenshot_job_t()
 : m_saveLocation{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}} {
     namespace FS = std::filesystem;
     (void)FileUtils::CreateFolders(m_saveLocation);
     const std::filesystem::path folder = m_saveLocation;
-    const auto screenshot_count = FileUtils::CountFilesInFolders(folder);
-    const auto filepath = folder / FS::path{"Screenshot_" + std::to_string(screenshot_count + 1) + ".png"};
+    const auto screenshot_count = std::size_t{1u} + FileUtils::CountFilesInFolders(folder);
+    const auto filepath = folder / FS::path{std::format("Screenshot_{}.png", screenshot_count)};
     m_saveLocation = filepath;
 }
 
