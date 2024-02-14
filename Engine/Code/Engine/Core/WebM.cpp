@@ -264,33 +264,19 @@ void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noex
         auto* dc = renderer->GetDeviceContext();
         auto* dx_dc = dc->GetDxContext();
         auto* dx_resource = m_decodedFrame.Get();
-        D3D11_MAPPED_SUBRESOURCE mapped_resource{};
-        if(auto hr = dx_dc->Map(dx_resource, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource); SUCCEEDED(hr)) {
-            D3D11_TEXTURE2D_DESC desc{};
-            m_decodedFrame->GetDesc(&desc);
-            const auto width = desc.Width;
-            const auto height = desc.Height;
-            const auto* src = encodedFrame.data();
-            const auto* dst = (unsigned int*)mapped_resource.pData;
-            const auto byte_width = width * sizeof(Rgba);
-
-            //Width and height must be even.
-            //Direct3D 11 staging resources and initData parameters for this format use
-            //(rowPitch * (height + (height / 2))) bytes.
-            //The first (SysMemPitch * height) bytes are the Y plane,
-            //the remaining (SysMemPitch * (height / 2)) bytes are the UV plane.
-
-            if(mapped_resource.RowPitch == byte_width) {
-                std::memcpy(mapped_resource.pData, src, encodedFrame.size() * sizeof(Rgba));
-                dx_dc->Unmap(dx_resource, 0);
-            } else {
-                for(unsigned int i = 0u; i < height; i++) {
-                    std::memcpy(mapped_resource.pData, src, width); // copy one row at a time because msr.RowPitch may be != (width * 4)
-                    dst += mapped_resource.RowPitch >> 2;    // msr.RowPitch is in bytes so for 32-bit data we divide by 4 (or downshift by 2, same thing)
-                    src += width;                // assumes pitch of source data is equal to width * 4
-                }
-                dx_dc->Unmap(dx_resource, 0);
+        D3D11_MAPPED_SUBRESOURCE dx_subresource{};
+        UINT dx_subresource_id = D3D11CalcSubresource(0, 0, 0);
+        if(auto hr = dx_dc->Map(dx_resource, dx_subresource_id, D3D11_MAP_WRITE_DISCARD, 0, &dx_subresource); SUCCEEDED(hr)) {
+            // Copy from CPU access texture to bitmap buffer
+            auto* dst = reinterpret_cast<uint8_t*>(dx_subresource.pData);
+            for(int i = 0; i < m_height; i++) {
+                std::memcpy(dst + dx_subresource.RowPitch * i, encodedFrame.data() + dx_subresource.RowPitch * i, dx_subresource.RowPitch);
             }
+            for(int i = 1; i < m_height / 2; i++) {
+                std::memcpy(dst + dx_subresource.RowPitch * (m_height + i), encodedFrame.data() + (m_height * dx_subresource.RowPitch) + dx_subresource.RowPitch * i, dx_subresource.RowPitch);
+            }
+
+            dx_dc->Unmap(dx_resource, dx_subresource_id);
         }
     }
     
