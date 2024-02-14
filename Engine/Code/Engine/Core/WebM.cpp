@@ -215,24 +215,12 @@ void WebM::SetPixelDimensions(uint64_t width, uint64_t height) noexcept {
     tex_desc.SampleDesc.Count = 1;
     tex_desc.SampleDesc.Quality = 0;
 
-    // Setup Initial Data
-    D3D11_SUBRESOURCE_DATA subresource_data = {};
-
-    subresource_data.pSysMem = data.data();
-    subresource_data.SysMemPitch = widthAsUInt * sizeof(Rgba);
-    subresource_data.SysMemSlicePitch = static_cast<unsigned long long>(widthAsUInt) * static_cast<unsigned long long>(heightAsUInt) * sizeof(Rgba);
-
     Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_tex{};
-
-    //If IMMUTABLE or not multi-sampled, must use initial data.
-    bool isMultiSampled = tex_desc.SampleDesc.Count != 1 || tex_desc.SampleDesc.Quality != 0;
-    bool isImmutable = !!(bufferUsage & BufferUsage::Static);
-    bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     auto* device = r->GetDevice();
     auto* dx_device = device->GetDxDevice();
     {
-        HRESULT hr_create = dx_device->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
+        HRESULT hr_create = dx_device->CreateTexture2D(&tex_desc, nullptr, &dx_tex);
         const auto err_msg = std::format("Failed to create output texture for WebM file. Requested dimensions: {}x{}", width, height);
         GUARANTEE_OR_DIE(SUCCEEDED(hr_create), err_msg.c_str());
     }
