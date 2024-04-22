@@ -293,8 +293,17 @@ void WebM::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 void WebM::Render([[maybe_unused]] const Matrix4& transform /*= Matrix4::I*/) const noexcept {
     auto* r = ServiceLocator::get<IRendererService>();
-    r->SetMaterial("__2D");
-    r->SetTexture(m_currentFrame.get());
+    r->SetMaterial("__webm");
+
+    auto* dx_context = r->GetDeviceContext()->GetDxContext();
+
+    std::array<ID3D11ShaderResourceView * const *, 2> srvs = {m_srvY.GetAddressOf(), m_srvUV.GetAddressOf()};
+    dx_context->VSSetShaderResources(0, 2, *srvs.data());
+    dx_context->PSSetShaderResources(0, 2, *srvs.data());
+    dx_context->DSSetShaderResources(0, 2, *srvs.data());
+    dx_context->HSSetShaderResources(0, 2, *srvs.data());
+    dx_context->GSSetShaderResources(0, 2, *srvs.data());
+
     r->DrawQuad2D(transform);
 }
 
