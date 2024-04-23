@@ -643,19 +643,20 @@ std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const Structu
 }
 
 bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept {
-    namespace FS = std::filesystem;
-    FS::path p(name);
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(texture.get() == nullptr) {
+        return false;
+    }
+    std::filesystem::path p(name);
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::exists(p)) {
         std::error_code ec{};
-        p = FS::canonical(p, ec);
+        p = std::filesystem::canonical(p, ec);
         if(ec) {
             std::cout << ec.message();
             return false;
         }
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == m_textures.end()) {
+    if(auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); }); found_texture == m_textures.end()) {
         m_textures.emplace_back(std::make_pair(name, std::move(texture)));
         return true;
     } else {
