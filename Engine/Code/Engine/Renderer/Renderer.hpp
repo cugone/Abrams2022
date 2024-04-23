@@ -340,6 +340,7 @@ public:
     void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept override;
     void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept override;
 
+    void DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Rgba& color = Rgba::White, std::size_t resolution = 64u) noexcept override;
     void DrawCube(const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::One * 0.5f, const Rgba& color = Rgba::White) override;
     void DrawQuad(const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_Axis, const Vector3& normalFront = Vector3::Z_Axis, const Vector3& worldUp = Vector3::Y_Axis) noexcept override;
     void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, const Vector4& texCoords = Vector4::ZW_Axis, const Vector3& normalFront = Vector3::Z_Axis, const Vector3& worldUp = Vector3::Y_Axis) noexcept override;

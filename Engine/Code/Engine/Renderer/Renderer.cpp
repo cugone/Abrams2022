@@ -4447,6 +4447,32 @@ void Renderer::SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* 
     m_rhi_context->SetComputeStructuredBuffer(index, buffer);
 }
 
+void Renderer::DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Rgba& color /*= Rgba::WHite*/, std::size_t resolution /*= 64*/) noexcept {
+    Vector2 prevPointOnCurve = p0;
+
+    std::vector<Vector3> verts;
+    resolution = (std::max)(std::size_t{1u}, resolution);
+    verts.reserve(std::size_t{2u} * resolution);
+    for(int i = 0; i < resolution; ++i) {
+        const auto t = (i + 1.0f) / resolution;
+        const auto nextPointOnCurve = MathUtils::InterpolateBezier(p0, p1, p2, t);
+        verts.emplace_back(prevPointOnCurve, 0.0f);
+        verts.emplace_back(nextPointOnCurve, 0.0f);
+        prevPointOnCurve = nextPointOnCurve;
+    }
+
+    std::vector<Vertex3D> vbo{};
+    vbo.reserve(verts.size());
+    for (const auto v : verts) {
+        vbo.emplace_back(v, color);
+    }
+
+    std::vector<unsigned int> ibo{};
+    ibo.resize(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0u);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
+}
+
 void Renderer::DrawCube(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::ONE * 0.5f*/, const Rgba& color /*= Rgba::White*/) {
     const auto left = Vector3{-halfExtents.x, 0.0f, 0.0f};
     const auto right = Vector3{halfExtents.x, 0.0f, 0.0f};
