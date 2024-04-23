@@ -667,15 +667,15 @@ bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture>
 Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::exists(nameOrFile)) {
         p = FS::canonical(p);
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == m_textures.end()) {
+    if(auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); }); found_texture == std::end(m_textures)) {
         return nullptr;
+    } else {
+        return (*found_texture).second.get();
     }
-    return (*found_texture).second.get();
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) noexcept {
