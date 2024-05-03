@@ -458,16 +458,18 @@ void App<T>::RunFrame() {
 
     BeginFrame();
 
+    static TimeUtils::FPMilliseconds accumulator{};
     static TimeUtils::FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
     TimeUtils::FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
     TimeUtils::FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
+    accumulator += deltaSeconds;
 
-#ifdef DEBUG_BUILD
-    deltaSeconds = (std::min)(TimeUtils::FPSeconds{TimeUtils::FPFrames{1}}, deltaSeconds);
-#endif
+    while(accumulator >= deltaSeconds) {
+        Update(deltaSeconds);
+        accumulator -= deltaSeconds;
+    }
 
-    Update(deltaSeconds);
     Render();
     EndFrame();
     AllocationTracker::tick();
