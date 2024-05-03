@@ -122,7 +122,7 @@ Quaternion::Quaternion(const Vector3& rotations) noexcept
 Quaternion::Quaternion(const std::string& value) noexcept {
     const auto result = Vector4{value};
     w = result.x;
-    axis.SetXYZ(result.x, result.y, result.z);
+    axis.SetXYZ(result.y, result.z, result.w);
     if(!MathUtils::IsEquivalent(CalcLengthSquared(), 1.0f)) {
         Normalize();
     }
