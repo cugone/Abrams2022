@@ -364,12 +364,13 @@ Quaternion Quaternion::CreatePureQuaternion(const Vector3& v) noexcept {
 
 Quaternion Quaternion::CreateFromAxisAngle(const Vector3& axis, float degreesAngle) noexcept {
     const auto angle = MathUtils::ConvertDegreesToRadians(degreesAngle);
-    const auto factor = std::sin(angle * 0.5f);
+    const auto half_angle = angle * 0.5f;
+    const auto factor = std::sin(half_angle);
 
-    const auto factoredAxis = axis.GetNormalize() * factor;
-    const auto w = std::cos(angle * 0.5f);
+    const auto [x, y, z] = axis.GetNormalize() * factor;
+    const auto w = std::cos(half_angle);
 
-    return Quaternion(w, factoredAxis);
+    return Quaternion(w, x, y, z);
 }
 
 Quaternion Quaternion::CreateFromEulerAnglesDegrees(float pitch, float yaw, float roll) noexcept {
