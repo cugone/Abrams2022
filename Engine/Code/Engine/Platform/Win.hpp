@@ -15,6 +15,7 @@
     #include <processthreadsapi.h>
     #include <shellapi.h>
     #include <wincrypt.h>
+    #include <Psapi.h>
     #pragma comment(lib, "Crypt32.lib")
 
 

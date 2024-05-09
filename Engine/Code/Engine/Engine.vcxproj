@@ -184,6 +184,7 @@
     <ClCompile Include="Services\ServiceLocator.cpp" />
     <ClCompile Include="System\Cpu.cpp" />
     <ClCompile Include="System\OS.cpp" />
+    <ClCompile Include="System\Process.cpp" />
     <ClCompile Include="System\Ram.cpp" />
     <ClCompile Include="System\System.cpp" />
     <ClCompile Include="UI\UICanvas.cpp" />
@@ -532,6 +533,7 @@
     <ClInclude Include="Services\ServiceLocator.hpp" />
     <ClInclude Include="System\Cpu.hpp" />
     <ClInclude Include="System\OS.hpp" />
+    <ClInclude Include="System\Process.hpp" />
     <ClInclude Include="System\Ram.hpp" />
     <ClInclude Include="System\System.hpp" />
     <ClInclude Include="UI\UICanvas.hpp" />
