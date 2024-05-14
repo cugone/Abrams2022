@@ -657,6 +657,7 @@ bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture>
     }
     p.make_preferred();
     if(auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); }); found_texture == m_textures.end()) {
+        texture->SetDebugName(name);
         m_textures.emplace_back(std::make_pair(name, std::move(texture)));
         return true;
     } else {
