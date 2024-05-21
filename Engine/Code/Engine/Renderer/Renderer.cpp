@@ -5488,7 +5488,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     tex_desc.ArraySize = depth;
 
     constexpr auto bufferUsage = BufferUsage::Static;
-    constexpr auto bindUsage = BufferBindUsage::Shader_Resource;
+    const auto bindUsage = BufferBindUsage::Shader_Resource;
     constexpr auto imageFormat = ImageFormat::R8G8B8A8_UNorm;
 
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
