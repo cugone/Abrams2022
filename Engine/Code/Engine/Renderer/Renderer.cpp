@@ -4236,7 +4236,7 @@ void Renderer::ResetMaterial() noexcept {
 bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
     namespace FS = std::filesystem;
     FS::path p{nameOrFile};
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::is_regular_file(p)) {
         std::error_code ec{};
         p = FS::canonical(p, ec);
         if(ec) {
