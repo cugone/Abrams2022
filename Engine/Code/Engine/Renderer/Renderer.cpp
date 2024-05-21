@@ -5085,8 +5085,7 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         auto tex = std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
@@ -5135,8 +5134,7 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5179,8 +5177,7 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5240,8 +5237,7 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         std::unique_ptr<Texture> tex{};
         if(is_gif) {
             tex = std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
@@ -5300,8 +5296,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5392,8 +5387,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5445,8 +5439,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
     delete[] subresource_data;
     subresource_data = nullptr;
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5527,8 +5520,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
     delete[] subresource_data;
     subresource_data = nullptr;
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5581,8 +5573,7 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         auto tex = std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
@@ -5634,8 +5625,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5679,8 +5669,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
