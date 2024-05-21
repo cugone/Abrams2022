@@ -5521,7 +5521,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     delete[] subresource_data;
     subresource_data = nullptr;
     if(bool succeeded = SUCCEEDED(hr); succeeded) {
-        return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
+        auto tex = std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
+        tex->IsLoaded(true);
+        return tex;
     } else {
         return nullptr;
     }
