@@ -98,7 +98,7 @@ public:
         {
             constexpr auto fmt = R"({{"name": "process_name", "ph": "M", "pid": {}, "tid": {}, "args": {{ "name": "{}" }} }})";
             const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
-            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.processName.c_str()));
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.processName));
             break;
         }
         case MetaDataCategory::ProcessLabels:
@@ -114,7 +114,7 @@ public:
         {
             constexpr auto fmt = R"({{"name": "thread_name", "ph": "M", "pid": {}, "tid": {}, "args": {{ "name": "{}" }} }})";
             const auto tid = [&data]() -> unsigned int { std::ostringstream ss; ss << data.threadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
-            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.threadName.c_str()));
+            m_OutputStream << std::vformat(fmt, std::make_format_args(data.ProcessID, tid, data.threadName));
             break;
         }
         case MetaDataCategory::ThreadSortIndex: {
@@ -140,10 +140,12 @@ public:
         const auto tid = [result]() -> unsigned int { std::ostringstream ss; ss << result.ThreadID; return static_cast<unsigned int>(std::stoull(ss.str())); }();
         std::replace(std::begin(name), std::end(name), '"', '\'');
         constexpr auto fmt = R"({{"cat":"function","dur":{},"name":"{:s}","ph":"X","pid": {},"tid":{},"ts":{}}})";
+        const auto duration = result.End - result.Start;
+        const auto pid = ThreadUtils::GetProcessId();
         m_OutputStream << std::vformat(fmt, std::make_format_args(
-                                            (result.End - result.Start),
-                                            name.c_str(),
-                                            ThreadUtils::GetProcessId(),
+                                            duration,
+                                            name,
+                                            pid,
                                             tid,
                                             result.Start));
     }

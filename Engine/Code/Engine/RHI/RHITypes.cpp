@@ -62,7 +62,7 @@ RHIOutputMode operator++(RHIOutputMode& mode, int) noexcept {
     return result;
 }
 
-std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept {
+std::string VendorIdToFriendlyName(unsigned int vendorId) noexcept {
     switch(vendorId) {
     case 0x0014: return "Loongson Technology LLC";
     case 0x0731: return "Jingjia Microelectronics Co Ltd";
