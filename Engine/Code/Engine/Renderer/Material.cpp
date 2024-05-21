@@ -224,11 +224,14 @@ bool Material::LoadFromXml(const XMLElement& element) noexcept {
 void Material::LoadTexture(const TextureID& slotId, std::filesystem::path p) noexcept {
     SetTextureSlotToInvalid(slotId);
     if(!IsIntrinsic(p)) {
-        std::error_code ec{};
-        p = std::filesystem::canonical(p, ec);
-        if(ec) {
-            DebuggerPrintf(std::format("{} texture referenced in Material file \"{}\" could not be found. The filesystem returned an error: {}\n", StringUtils::to_string(slotId), m_name, ec.message()));
-            return;
+        auto* rs = ServiceLocator::get<IRendererService>();
+        if(!rs->IsTextureLoaded(p.string())) {
+            std::error_code ec{};
+            p = std::filesystem::canonical(p, ec);
+            if(ec) {
+                DebuggerPrintf(std::format("{} texture referenced in Material file \"{}\" could not be found. The filesystem returned an error: {}\n", StringUtils::to_string(slotId), m_name, ec.message()));
+                return;
+            }
         }
     }
     p.make_preferred();
