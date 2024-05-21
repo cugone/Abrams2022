@@ -425,7 +425,7 @@ void Renderer::LogAvailableDisplays() noexcept {
         ++it;
     }
     ss << std::format("{:->80}", '\n');
-    ServiceLocator::get<IFileLoggerService>()->LogAndFlush(ss.str());
+    ServiceLocator::get<IFileLoggerService>()->Log(ss.str());
 }
 
 Vector2 Renderer::GetScreenCenter() const noexcept {
@@ -5459,7 +5459,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     if(files.empty()) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath, Image::GetSupportedExtensionsList()));
-        logger->Flush();
         return {};
     }
 
@@ -5475,7 +5474,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     if(!std::all_of(std::cbegin(images), std::cend(images), [&](const Image& a) { return images[0].GetDimensions() == a.GetDimensions(); })) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogWarnLine("Create2DTextureArrayFromFolder: All images must be the same dimensions.");
-        logger->Flush();
         return {};
     }
 

@@ -479,7 +479,7 @@ template<GameType T>
 void App<T>::LogSystemDescription() const {
     PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
-    g_theFileLogger->LogAndFlush(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
+    g_theFileLogger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
 template<GameType T>
