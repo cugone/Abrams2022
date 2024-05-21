@@ -548,7 +548,12 @@ bool IsSafeReadPath(const std::filesystem::path& p) noexcept {
         const auto is_known_OS_dir = false;
 
         if(const auto safe = is_in_working_dir || is_in_gamedata_dir || is_in_enginedata_dir || is_in_editorcontent_dir || is_next_to_exe || is_known_OS_dir; !safe) {
-            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p.string(), GetWorkingDirectory().string(), GetKnownFolderPath(KnownPathID::GameData).string(), GetKnownFolderPath(KnownPathID::EngineData).string(), GetKnownFolderPath(KnownPathID::EditorContent).string())));
+            const auto p_str = p.string();
+            const auto workingdir_str = GetWorkingDirectory().string();
+            const auto kfpGameDatadir_str = GetKnownFolderPath(KnownPathID::GameData).string();
+            const auto kfpEngineDatadir_str = GetKnownFolderPath(KnownPathID::EngineData).string();
+            const auto kfpEditorContentdir_str = GetKnownFolderPath(KnownPathID::EditorContent).string();
+            DebuggerPrintf(std::vformat("Filesystem Error: {:s} is not a safe read location. File must exist in or be a child of:\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n\"{:s}\"\n: ", std::make_format_args(p_str, workingdir_str, kfpGameDatadir_str, kfpEngineDatadir_str, kfpEditorContentdir_str)));
             return false;
         }
         return true;

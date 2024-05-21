@@ -87,36 +87,33 @@ bool Gif::Load(std::filesystem::path filepath) noexcept {
         int height{0};
         int frame_count{0};
         int* delays{nullptr};
-        if(uint8_t* data = stbi_load_gif_from_memory((*buffer).data(), static_cast<int>((*buffer).size()), &delays, &width, &height, &frame_count, nullptr, 4); data == nullptr) {
+        auto data_deleter = [](uint8_t* p) {
+            stbi_image_free(p);
+        };
+        auto data = std::unique_ptr<uint8_t, decltype(data_deleter)>(stbi_load_gif_from_memory((*buffer).data(), static_cast<int>((*buffer).size()), &delays, &width, &height, &frame_count, nullptr, 4), data_deleter);
+        if(data.get() == nullptr) {
             logger->LogLineAndFlush(std::format("stbi failed to load .gif from file: {}", filepath));
             return false;
-        } else {
-            m_frameDelays = std::vector<TimeUtils::FPMilliseconds>(delays, delays + frame_count);
-            m_totalFrames = frame_count;
-            m_endFrame = (std::min)(m_endFrame, m_totalFrames - std::size_t{1u});
-            m_currentFrame = m_startFrame;
-            m_direction = 1;
-            if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
-                m_currentFrame = m_endFrame;
-                m_direction = -1;
+        }
+        m_frameDelays = std::vector<TimeUtils::FPMilliseconds>(delays, delays + frame_count);
+        m_totalFrames = frame_count;
+        m_endFrame = (std::min)(m_endFrame, m_totalFrames - std::size_t{1u});
+        m_currentFrame = m_startFrame;
+        m_direction = 1;
+        if(m_playMode == PlayMode::PlayToBeginning || m_playMode == PlayMode::Reverse) {
+            m_currentFrame = m_endFrame;
+            m_direction = -1;
+        }
+        m_duration = TimeUtils::FPSeconds{std::accumulate(std::cbegin(m_frameDelays), std::cend(m_frameDelays), TimeUtils::FPMilliseconds::zero(), [&](const auto& a, const auto& b) { return TimeUtils::FPMilliseconds(a.count() + b.count()); })};
+        if(m_texture = r->GetTexture(filepath.string()); m_texture != nullptr) {
+            return true;
+        }
+        if(auto texture = r->Create2DTextureArrayFromMemory(data.get(), width, height, frame_count); texture != nullptr) {
+            m_texture = texture.get();
+            if(!r->RegisterTexture(filepath.string(), std::move(texture))) {
+                logger->LogLineAndFlush(std::format("Failed to register texture from .gif file: {}", filepath));
+                return false;
             }
-            m_duration = TimeUtils::FPSeconds{std::accumulate(std::cbegin(m_frameDelays), std::cend(m_frameDelays), TimeUtils::FPMilliseconds::zero(), [&](const auto& a, const auto& b) { return TimeUtils::FPMilliseconds(a.count() + b.count()); })};
-            if(m_texture = r->GetTexture(filepath.string()); m_texture != nullptr) {
-                stbi_image_free(data);
-                data = nullptr;
-                return true;
-            }
-            if(auto texture = r->Create2DTextureArrayFromMemory(data, width, height, frame_count); texture != nullptr) {
-                m_texture = texture.get();
-                if(!r->RegisterTexture(filepath.string(), std::move(texture))) {
-                    stbi_image_free(data);
-                    data = nullptr;
-                    logger->LogLineAndFlush(std::format("Failed to register texture from .gif file: {}", filepath));
-                    return false;
-                }
-            }
-            stbi_image_free(data);
-            data = nullptr;
         }
         return true;
     }

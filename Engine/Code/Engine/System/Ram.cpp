@@ -9,8 +9,10 @@ unsigned long long GetPhysicalRam() noexcept;
 unsigned long long GetAvailableRam() noexcept;
 
 std::ostream& System::Ram::operator<<(std::ostream& out, const System::Ram::RamDesc& desc) noexcept {
-    out << std::vformat("{:<40}{:>35.1f} GB\n", std::make_format_args("Installed RAM:", static_cast<long double>(desc.installed) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den));
-    out << std::vformat("{:<40}{:>35.1f} GB\n", std::make_format_args("Available RAM:", static_cast<long double>(desc.available) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den));
+    const auto installed = static_cast<long double>(desc.installed) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+    const auto available = static_cast<long double>(desc.available) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+    out << std::vformat("{:<40}{:>35.1f} GB\n", std::make_format_args("Installed RAM:", installed));
+    out << std::vformat("{:<40}{:>35.1f} GB\n", std::make_format_args("Available RAM:", available));
     return out;
 }
 

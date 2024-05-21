@@ -661,6 +661,9 @@
     <ClCompile Include="RHI\RHIVideoDecoder.cpp">
       <Filter>RHI</Filter>
     </ClCompile>
+    <ClCompile Include="System\Process.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1700,6 +1703,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\box2d\box2d.h">
       <Filter>Thirdparty\box2d</Filter>
+    </ClInclude>
+    <ClInclude Include="System\Process.hpp">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
