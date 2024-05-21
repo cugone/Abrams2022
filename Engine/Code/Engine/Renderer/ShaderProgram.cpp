@@ -186,7 +186,6 @@ ShaderProgramDesc& ShaderProgramDesc::operator=(ShaderProgramDesc&& other) noexc
 }
 
 ShaderProgramDesc::~ShaderProgramDesc() noexcept {
-    name = std::string{};
     if(vs_bytecode) {
         vs_bytecode->Release();
         vs_bytecode = nullptr;

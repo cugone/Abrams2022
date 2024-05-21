@@ -397,7 +397,13 @@ template<typename T>
     return ((T{1} - t) * a) + (t * b);
 }
 
+template<typename T>
+[[nodiscard]] T InterpolateBezier(const T& a, const T& b, const T& c, float t) {
+    return Interpolate(Interpolate(a, b, t), Interpolate(b, c, t), t);
+}
+
 [[nodiscard]] Vector2 Interpolate(const Vector2& a, const Vector2& b, float t);
+[[nodiscard]] Vector2 InterpolateBezier(const Vector2& a, const Vector2& b, const Vector2& c, float t);
 [[nodiscard]] Vector3 Interpolate(const Vector3& a, const Vector3& b, float t);
 [[nodiscard]] Vector4 Interpolate(const Vector4& a, const Vector4& b, float t);
 [[nodiscard]] IntVector2 Interpolate(const IntVector2& a, const IntVector2& b, float t);

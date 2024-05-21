@@ -47,13 +47,13 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
         Microsoft::WRL::ComPtr<ID3D11Texture2D> bb{};
         renderer->GetDevice()->GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&bb));
         m_Texture = std::make_unique<Texture2D>(*renderer->GetDevice(), bb);
-        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{(int)m_Desc.width, (int)m_Desc.height});
+        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{static_cast<int>(m_Desc.width), static_cast<int>(m_Desc.height)});
     } else {
         auto* renderer = ServiceLocator::get<IRendererService>();
         const auto data = std::vector<Rgba>(m_Desc.width * m_Desc.height, Rgba::Periwinkle);
         const auto usage = BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target;
         m_Texture = renderer->Create2DTextureFromMemory(data, m_Desc.width, m_Desc.height, BufferUsage::Default, usage, m_Desc.format);
-        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{(int)m_Desc.width, (int)m_Desc.height});
+        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{static_cast<int>(m_Desc.width), static_cast<int>(m_Desc.height)});
     }
 }
 

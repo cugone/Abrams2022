@@ -49,7 +49,7 @@ struct GraphicsCardDesc {
     bool is_unspecified = false;
 };
 
-std::string_view VendorIdToFriendlyName(unsigned int vendorId) noexcept;
+std::string VendorIdToFriendlyName(unsigned int vendorId) noexcept;
 
 template<>
 class std::formatter<GraphicsCardDesc> {
@@ -61,29 +61,31 @@ public:
         const auto videoMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedVideoMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
         const auto systemMemAsGB = static_cast<long double>(graphicsCardDesc.DedicatedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
         const auto sharedMemAsGB = static_cast<long double>(graphicsCardDesc.SharedSystemMemory) * MathUtils::GIB_BYTES_RATIO.num / MathUtils::GIB_BYTES_RATIO.den;
+        const auto vendorName = VendorIdToFriendlyName(graphicsCardDesc.VendorId);
+        const auto gpuType_str = std::string((graphicsCardDesc.is_unspecified ? "Unknown" : (graphicsCardDesc.is_software ? "Software" : "Hardware")));
         return std::vformat_to(ctx.out(),
         "{0:<40}{10:>35}\n{1:<40}{11:>35X}\n{2:<40}{12:>35}\n{3:<40}{13:>35X}\n{4:<40}{14:>35X}\n{5:<40}{15:>35X}\n{6:<40}{16:>35.1f} GB\n{7:<40}{17:>35.1f} GB\n{8:<40}{18:>35.1f} GB\n{9:<40}{19:>35}"
         ,std::make_format_args(
-         std::string_view{"Name:"}
-        ,std::string_view{"Vendor ID:"}
-        ,std::string_view{"Vendor Name:"}
-        ,std::string_view{"Device ID:"}
-        ,std::string_view{"Subsystem ID:"}
-        ,std::string_view{"Revision:"}
-        ,std::string_view{"Video Memory:"}
-        ,std::string_view{"System Memory:"}
-        ,std::string_view{"Shared System Memory:"}
-        ,std::string_view{"Adapter Type:"}
+         "Name:"
+        ,"Vendor ID:"
+        ,"Vendor Name:"
+        ,"Device ID:"
+        ,"Subsystem ID:"
+        ,"Revision:"
+        ,"Video Memory:"
+        ,"System Memory:"
+        ,"Shared System Memory:"
+        ,"Adapter Type:"
         ,graphicsCardDesc.Description
         ,graphicsCardDesc.VendorId
-        ,VendorIdToFriendlyName(graphicsCardDesc.VendorId)
+        ,vendorName
         ,graphicsCardDesc.DeviceId
         ,graphicsCardDesc.SubSysId
         ,graphicsCardDesc.Revision
         ,videoMemAsGB
         ,systemMemAsGB
         ,sharedMemAsGB
-        ,std::string_view{(graphicsCardDesc.is_unspecified ? "Unknown" : (graphicsCardDesc.is_software ? "Software" : "Hardware"))})
+        ,gpuType_str)
         );
     }
 

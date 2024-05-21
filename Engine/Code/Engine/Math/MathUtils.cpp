@@ -1295,6 +1295,12 @@ Vector2 Interpolate(const Vector2& a, const Vector2& b, float t) {
     return Vector2(x, y);
 }
 
+Vector2 InterpolateBezier(const Vector2& a, const Vector2& b, const Vector2& c, float t) {
+    const auto x = InterpolateBezier(a.x, b.x, c.x, t);
+    const auto y = InterpolateBezier(a.y, b.y, c.y, t);
+    return Vector2{x, y};
+}
+
 Vector3 Interpolate(const Vector3& a, const Vector3& b, float t) {
     const auto x = Interpolate(a.x, b.x, t);
     const auto y = Interpolate(a.y, b.y, t);

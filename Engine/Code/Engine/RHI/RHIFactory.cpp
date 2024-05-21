@@ -1,5 +1,6 @@
 #include "Engine/RHI/RHIFactory.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Renderer/Window.hpp"

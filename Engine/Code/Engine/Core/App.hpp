@@ -458,16 +458,18 @@ void App<T>::RunFrame() {
 
     BeginFrame();
 
+    static TimeUtils::FPMilliseconds accumulator{};
     static TimeUtils::FPSeconds previousFrameTime = TimeUtils::GetCurrentTimeElapsed();
     TimeUtils::FPSeconds currentFrameTime = TimeUtils::GetCurrentTimeElapsed();
     TimeUtils::FPSeconds deltaSeconds = (currentFrameTime - previousFrameTime);
     previousFrameTime = currentFrameTime;
+    accumulator += deltaSeconds;
 
-#ifdef DEBUG_BUILD
-    deltaSeconds = (std::min)(TimeUtils::FPSeconds{TimeUtils::FPFrames{1}}, deltaSeconds);
-#endif
+    while(accumulator >= deltaSeconds) {
+        Update(deltaSeconds);
+        accumulator -= deltaSeconds;
+    }
 
-    Update(deltaSeconds);
     Render();
     EndFrame();
     AllocationTracker::tick();
@@ -477,7 +479,7 @@ template<GameType T>
 void App<T>::LogSystemDescription() const {
     PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
-    g_theFileLogger->LogAndFlush(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
+    g_theFileLogger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
 template<GameType T>

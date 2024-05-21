@@ -425,7 +425,7 @@ void Renderer::LogAvailableDisplays() noexcept {
         ++it;
     }
     ss << std::format("{:->80}", '\n');
-    ServiceLocator::get<IFileLoggerService>()->LogAndFlush(ss.str());
+    ServiceLocator::get<IFileLoggerService>()->Log(ss.str());
 }
 
 Vector2 Renderer::GetScreenCenter() const noexcept {
@@ -643,19 +643,21 @@ std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const Structu
 }
 
 bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept {
-    namespace FS = std::filesystem;
-    FS::path p(name);
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(texture.get() == nullptr) {
+        return false;
+    }
+    std::filesystem::path p(name);
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::exists(p)) {
         std::error_code ec{};
-        p = FS::canonical(p, ec);
+        p = std::filesystem::canonical(p, ec);
         if(ec) {
             std::cout << ec.message();
             return false;
         }
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == m_textures.end()) {
+    if(auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); }); found_texture == m_textures.end()) {
+        texture->SetDebugName(name);
         m_textures.emplace_back(std::make_pair(name, std::move(texture)));
         return true;
     } else {
@@ -666,15 +668,15 @@ bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture>
 Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::exists(nameOrFile)) {
         p = FS::canonical(p);
     }
     p.make_preferred();
-    auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); });
-    if(found_texture == m_textures.end()) {
+    if(auto found_texture = std::find_if(std::cbegin(m_textures), std::cend(m_textures), [&p](const auto& t) { return t.first == p.string(); }); found_texture == std::end(m_textures)) {
         return nullptr;
+    } else {
+        return (*found_texture).second.get();
     }
-    return (*found_texture).second.get();
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) noexcept {
@@ -4234,7 +4236,7 @@ void Renderer::ResetMaterial() noexcept {
 bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
     namespace FS = std::filesystem;
     FS::path p{nameOrFile};
-    if(!StringUtils::StartsWith(p.string(), "__")) {
+    if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::is_regular_file(p)) {
         std::error_code ec{};
         p = FS::canonical(p, ec);
         if(ec) {
@@ -4445,6 +4447,32 @@ void Renderer::SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer)
 
 void Renderer::SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept {
     m_rhi_context->SetComputeStructuredBuffer(index, buffer);
+}
+
+void Renderer::DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Rgba& color /*= Rgba::WHite*/, std::size_t resolution /*= 64*/) noexcept {
+    Vector2 prevPointOnCurve = p0;
+
+    std::vector<Vector3> verts;
+    resolution = (std::max)(std::size_t{1u}, resolution);
+    verts.reserve(std::size_t{2u} * resolution);
+    for(int i = 0; i < resolution; ++i) {
+        const auto t = (i + 1.0f) / resolution;
+        const auto nextPointOnCurve = MathUtils::InterpolateBezier(p0, p1, p2, t);
+        verts.emplace_back(prevPointOnCurve, 0.0f);
+        verts.emplace_back(nextPointOnCurve, 0.0f);
+        prevPointOnCurve = nextPointOnCurve;
+    }
+
+    std::vector<Vertex3D> vbo{};
+    vbo.reserve(verts.size());
+    for (const auto v : verts) {
+        vbo.emplace_back(v, color);
+    }
+
+    std::vector<unsigned int> ibo{};
+    ibo.resize(vbo.size());
+    std::iota(std::begin(ibo), std::end(ibo), 0u);
+    DrawIndexed(PrimitiveType::LinesStrip, vbo, ibo);
 }
 
 void Renderer::DrawCube(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::ONE * 0.5f*/, const Rgba& color /*= Rgba::White*/) {
@@ -5057,8 +5085,7 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         auto tex = std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
@@ -5107,8 +5134,7 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5151,8 +5177,7 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture1D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture1D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5212,8 +5237,7 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         std::unique_ptr<Texture> tex{};
         if(is_gif) {
             tex = std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
@@ -5272,8 +5296,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5364,8 +5387,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5417,8 +5439,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
     delete[] subresource_data;
     subresource_data = nullptr;
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5431,7 +5452,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     if(files.empty()) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogWarnLine(std::format("Create2DTextureArrayFromFolder: folder \"{}\" contains no supported images. Images must be: {}", folderpath, Image::GetSupportedExtensionsList()));
-        logger->Flush();
         return {};
     }
 
@@ -5447,7 +5467,6 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     if(!std::all_of(std::cbegin(images), std::cend(images), [&](const Image& a) { return images[0].GetDimensions() == a.GetDimensions(); })) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogWarnLine("Create2DTextureArrayFromFolder: All images must be the same dimensions.");
-        logger->Flush();
         return {};
     }
 
@@ -5462,7 +5481,7 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     tex_desc.ArraySize = depth;
 
     constexpr auto bufferUsage = BufferUsage::Static;
-    constexpr auto bindUsage = BufferBindUsage::Shader_Resource;
+    const auto bindUsage = BufferBindUsage::Shader_Resource;
     constexpr auto imageFormat = ImageFormat::R8G8B8A8_UNorm;
 
     tex_desc.Usage = BufferUsageToD3DUsage(bufferUsage);
@@ -5501,9 +5520,10 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture2D(&tex_desc, (mustUseInitialData ? subresource_data : nullptr), &dx_tex);
     delete[] subresource_data;
     subresource_data = nullptr;
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
-        return std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
+        auto tex = std::make_unique<TextureArray2D>(*m_rhi_device, dx_tex);
+        tex->IsLoaded(true);
+        return tex;
     } else {
         return nullptr;
     }
@@ -5555,8 +5575,7 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         auto tex = std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
         tex->SetDebugName(filepath.string().c_str());
         tex->IsLoaded(true);
@@ -5608,8 +5627,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;
@@ -5653,8 +5671,7 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
     bool mustUseInitialData = isImmutable || !isMultiSampled;
 
     HRESULT hr = m_rhi_device->GetDxDevice()->CreateTexture3D(&tex_desc, (mustUseInitialData ? &subresource_data : nullptr), &dx_tex);
-    bool succeeded = SUCCEEDED(hr);
-    if(succeeded) {
+    if(bool succeeded = SUCCEEDED(hr); succeeded) {
         return std::make_unique<Texture3D>(*m_rhi_device, dx_tex);
     } else {
         return nullptr;

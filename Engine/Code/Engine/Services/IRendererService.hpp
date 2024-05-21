@@ -292,6 +292,7 @@ public:
     virtual void SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept = 0;
     virtual void SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept = 0;
 
+    virtual void DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Rgba& color = Rgba::White, std::size_t resolution = 64u) noexcept = 0;
     virtual void DrawCube(const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::One * 0.5f, const Rgba& color = Rgba::White) = 0;
     virtual void DrawQuad(const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, const Rgba& color = Rgba::White, const Vector4& texCoords = Vector4::ZW_Axis, const Vector3& normalFront = Vector3::Z_Axis, const Vector3& worldUp = Vector3::Y_Axis) noexcept = 0;
     virtual void DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position = Vector3::Zero, const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, const Vector4& texCoords = Vector4::ZW_Axis, const Vector3& normalFront = Vector3::Z_Axis, const Vector3& worldUp = Vector3::Y_Axis) noexcept = 0;
@@ -600,6 +601,7 @@ public:
     void SetComputeConstantBuffer([[maybe_unused]] unsigned int index, [[maybe_unused]] ConstantBuffer* buffer) noexcept override {}
     void SetComputeStructuredBuffer([[maybe_unused]] unsigned int index, [[maybe_unused]] StructuredBuffer* buffer) noexcept override {}
 
+    void DrawBezier([[maybe_unused]] const Vector2& p0, [[maybe_unused]] const Vector2& p1, [[maybe_unused]] const Vector2& p2, [[maybe_unused]] const Rgba& color = Rgba::White, [[maybe_unused]] std::size_t resolution = 64u) noexcept override {}
     void DrawCube([[maybe_unused]] const Vector3& position = Vector3::Zero, [[maybe_unused]] const Vector3& halfExtents = Vector3::One * 0.5f, [[maybe_unused]] const Rgba& color = Rgba::White) override {}
     void DrawQuad([[maybe_unused]] const Vector3& position = Vector3::Zero, [[maybe_unused]] const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, [[maybe_unused]] const Rgba& color = Rgba::White, [[maybe_unused]] const Vector4& texCoords = Vector4::ZW_Axis, [[maybe_unused]] const Vector3& normalFront = Vector3::Z_Axis, [[maybe_unused]] const Vector3& worldUp = Vector3::Y_Axis) noexcept override {}
     void DrawQuad([[maybe_unused]] const Rgba& frontColor, [[maybe_unused]] const Rgba& backColor, [[maybe_unused]] const Vector3& position = Vector3::Zero, [[maybe_unused]] const Vector3& halfExtents = Vector3::XY_Axis * 0.5f, [[maybe_unused]] const Vector4& texCoords = Vector4::ZW_Axis, [[maybe_unused]] const Vector3& normalFront = Vector3::Z_Axis, [[maybe_unused]] const Vector3& worldUp = Vector3::Y_Axis) noexcept override {}

@@ -2,6 +2,7 @@
 
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
+#include <string>
 #include <memory>
 
 class InputLayout;
