@@ -199,6 +199,12 @@ AABB2 OrthographicCameraController::CalcViewBounds() const noexcept {
     return view_bounds;
 }
 
+AABB2 OrthographicCameraController::CalcCullBounds() const noexcept {
+    auto cull_bounds = CalcViewBounds();
+    cull_bounds.AddPaddingToSides(1.0f, 1.0f);
+    return cull_bounds;
+}
+
 void OrthographicCameraController::SetModelViewProjection() noexcept {
     const auto view_bounds = CalcViewBounds();
 
