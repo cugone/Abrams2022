@@ -63,6 +63,8 @@ constexpr const float M_2_SQRTPI = 1.12837916709551257390f;      // 2/sqrt(pi)
 constexpr const float M_1_SQRT2 = 0.70710678118654752440f;       // 1/sqrt(2)
 constexpr const float M_SQRT3_3 = 0.57735026918962576451f;       // sqrt(3)/3
 constexpr const float M_TAU = 1.61803398874989484821f;           // tau (golden ratio)
+constexpr const std::ratio<16, 9> WIDESCREEN_RATIO;              // 16:9
+constexpr const std::ratio<4, 3> FULLSCREEN_RATIO;               // 4:3
 constexpr const float M_16_BY_9_RATIO = 1.77777777777777777778f; // 16/9
 constexpr const float M_4_BY_3_RATIO = 1.33333333333333333333f;  // 4/3
 constexpr const std::ratio<1, 1024> KIB_BYTES_RATIO;             // Kilobyte/Bytes
