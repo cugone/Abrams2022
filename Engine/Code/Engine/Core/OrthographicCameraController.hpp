@@ -5,6 +5,8 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 
+#include <ratio>
+
 class Renderer;
 class InputSystem;
 
@@ -12,6 +14,11 @@ class OrthographicCameraController {
 public:
     OrthographicCameraController() noexcept;
     explicit OrthographicCameraController(float aspectRatio) noexcept;
+    
+    template<intmax_t N, intmax_t D>
+    explicit OrthographicCameraController(std::ratio<N, D> aspectRatio = MathUtils::WIDESCREEN_RATIO) noexcept
+    : OrthographicCameraController(static_cast<float>(aspectRatio.num) / static_cast<float>(aspectRatio.den))
+    { /* DO NOTHING */ }
 
     void Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept;
 
