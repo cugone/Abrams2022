@@ -73,6 +73,7 @@ constexpr const std::ratio<1, 1073741824> GIB_BYTES_RATIO;       // Gigabyte/Byt
 constexpr const std::ratio<1024, 1> BYTES_KIB_RATIO;             // Bytes/Kilobytes
 constexpr const std::ratio<1048576, 1> BYTES_MIB_RATIO;          // Bytes/Megabytes
 constexpr const std::ratio<1073741824, 1> BYTES_GIB_RATIO;       // Bytes/Gigabytes
+constexpr const float M_SPEED_OF_LIGHT = 299311200.0f;           // m/s Speed of light in a vacuum
 
 template<std::integral auto num>
 constexpr int DigitCount = num >= -9 && num <= 9 ? 1 : 1 + DigitCount<num / 10>;
