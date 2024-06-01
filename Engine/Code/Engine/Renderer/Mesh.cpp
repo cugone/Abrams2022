@@ -64,6 +64,10 @@ void Mesh::Builder::Clear() noexcept {
     draw_instructions.clear();
 }
 
+bool Mesh::Builder::IsEmpty() const noexcept {
+    return verticies.empty() && indicies.empty() && draw_instructions.empty();
+}
+
 void Mesh::Builder::SetTangent(const Vector3& tangent) noexcept {
     m_vertex_prototype.tangent = tangent;
 }
