@@ -11,37 +11,43 @@
 #include <algorithm>
 
 
-OrthographicCameraController::OrthographicCameraController() noexcept
-    : OrthographicCameraController(MathUtils::M_16_BY_9_RATIO)
+OrthographicCameraController::OrthographicCameraController(Options options /*= Options{}*/) noexcept
+    : OrthographicCameraController(MathUtils::M_16_BY_9_RATIO, options)
 {}
 
-OrthographicCameraController::OrthographicCameraController(float aspectRatio) noexcept
-: m_aspectRatio(aspectRatio) {
+OrthographicCameraController::OrthographicCameraController(float aspectRatio, Options options /*= Options{}*/) noexcept
+: m_aspectRatio(aspectRatio)
+, m_options(options)
+{
     /* DO NOTHING */
 }
 
 void OrthographicCameraController::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
     PROFILE_BENCHMARK_FUNCTION();
     auto* input = ServiceLocator::get<IInputService>();
-    if(input->IsKeyDown(KeyCode::RButton)) {
+    if(!m_options.lockInput && input->IsKeyDown(KeyCode::RButton)) {
         const auto up = -Vector2::Y_Axis * static_cast<float>(m_translationSpeedMultiplier * m_cameraSpeedMultiplier) * m_translationSpeed * deltaSeconds.count();
         const auto down = -up;
         const auto left = -Vector2::X_Axis * static_cast<float>(m_translationSpeedMultiplier * m_cameraSpeedMultiplier) * m_translationSpeed * deltaSeconds.count();
         const auto right = -left;
-        if(input->IsKeyDown(KeyCode::W)) {
-            Translate(up);
-        } else if(input->IsKeyDown(KeyCode::S)) {
-            Translate(down);
+        if(!m_options.lockTranslation) {
+            if(input->IsKeyDown(KeyCode::W)) {
+                Translate(up);
+            } else if(input->IsKeyDown(KeyCode::S)) {
+                Translate(down);
+            }
+            if(input->IsKeyDown(KeyCode::A)) {
+                Translate(left);
+            } else if(input->IsKeyDown(KeyCode::D)) {
+                Translate(right);
+            }
         }
-        if(input->IsKeyDown(KeyCode::A)) {
-            Translate(left);
-        } else if(input->IsKeyDown(KeyCode::D)) {
-            Translate(right);
-        }
-        if(input->WasMouseWheelJustScrolledUp()) {
-            ZoomIn();
-        } else if(input->WasMouseWheelJustScrolledDown()) {
-            ZoomOut();
+        if(!m_options.lockZoom) {
+            if(input->WasMouseWheelJustScrolledUp()) {
+                ZoomIn();
+            } else if(input->WasMouseWheelJustScrolledDown()) {
+                ZoomOut();
+            }
         }
     }
     m_zoomLevel = std::clamp(m_zoomLevel, m_minZoomLevel, m_maxZoomLevel);

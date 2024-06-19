@@ -12,8 +12,13 @@ class InputSystem;
 
 class OrthographicCameraController {
 public:
-    OrthographicCameraController() noexcept;
-    explicit OrthographicCameraController(float aspectRatio) noexcept;
+    struct Options {
+        bool lockInput{false};
+        bool lockTranslation{false};
+        bool lockZoom{false};
+    };
+    OrthographicCameraController(Options options = Options{}) noexcept;
+    explicit OrthographicCameraController(float aspectRatio, Options options = Options{}) noexcept;
     
     template<intmax_t N, intmax_t D>
     explicit OrthographicCameraController(std::ratio<N, D> aspectRatio = MathUtils::WIDESCREEN_RATIO) noexcept
@@ -100,4 +105,5 @@ private:
     float m_rotationSpeed = 180.0f;
     float m_zoomSpeed = 8.0f;
     float m_maxZoomSpeed = 24.0f;
+    Options m_options = Options{};
 };
