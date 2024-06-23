@@ -30,7 +30,6 @@
 
 #include <iterator>
 #include <sstream>
-#include <string>
 #include <utility>
 
 constexpr const uint16_t IDM_COPY = 0;

@@ -3,6 +3,7 @@
 #include "Engine/Core/Rgba.hpp"
 
 #include <filesystem>
+#include <string>
 #include <vector>
 
 class Renderer;

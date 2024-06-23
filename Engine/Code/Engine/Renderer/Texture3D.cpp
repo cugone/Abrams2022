@@ -6,6 +6,8 @@
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
+#include <string>
+
 Texture3D::Texture3D(const RHIDevice& device, Microsoft::WRL::ComPtr<ID3D11Texture3D> dxTexture) noexcept
 : Texture(device)
 , m_dx_tex(dxTexture) {

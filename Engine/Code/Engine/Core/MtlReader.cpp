@@ -13,7 +13,6 @@
 #include <numeric>
 #include <optional>
 #include <sstream>
-#include <string>
 #include <string_view>
 
 [[nodiscard]] std::optional<Rgba> GetColor(const std::string& cur_line) noexcept {

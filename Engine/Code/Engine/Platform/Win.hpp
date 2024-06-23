@@ -5,6 +5,7 @@
 #if defined(PLATFORM_WINDOWS)
 
 #include "Engine/Math/AABB2.hpp"
+#include <string>
 
     #define WIN32_LEAN_AND_MEAN
     #define NOMINMAX

@@ -9,6 +9,7 @@
 #include "Engine/Math/Matrix4.hpp"
 
 #include <filesystem>
+#include <string>
 
 class Texture;
 class Shader;

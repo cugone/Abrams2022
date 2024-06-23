@@ -5,6 +5,7 @@
 #include "Engine/Core/FileUtils.hpp"
 
 #include <iostream>
+#include <string>
 #include <sstream>
 
 namespace FileUtils {

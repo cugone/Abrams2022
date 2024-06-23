@@ -12,6 +12,8 @@
 
 #if defined(PLATFORM_WINDOWS)
 
+#include <string>
+
 #include <commdlg.h>
 
 AABB2 RectToAABB2(const RECT& rect) noexcept {

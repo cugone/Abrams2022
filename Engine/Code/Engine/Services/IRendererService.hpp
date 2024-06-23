@@ -26,6 +26,7 @@
 #include "Engine/Renderer/Texture.hpp"
 
 #include <memory>
+#include <string>
 
 class Rgba;
 class Frustum;

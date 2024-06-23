@@ -6,7 +6,6 @@
 #include <atomic>
 #include <shared_mutex>
 #include <source_location>
-#include <string>
 #include <vector>
 
 class StackTrace final {

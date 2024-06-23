@@ -8,6 +8,7 @@
 #include "Engine/Profiling/Instrumentor.hpp"
 
 #include <chrono>
+#include <string>
 #include <sstream>
 
 void JobSystem::GenericJobWorker(std::condition_variable* signal) noexcept {

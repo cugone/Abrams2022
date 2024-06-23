@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <sstream>
 #include <thread>
 #include <utility>

@@ -5,6 +5,8 @@
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/Renderer/DirectX/DX11.hpp"
 
+#include <string>
+
 void Sampler::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG
     m_dx_state->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.size()), name.data());
