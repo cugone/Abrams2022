@@ -5,6 +5,8 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/RHI/RHIDevice.hpp"
 
+#include <string>
+
 Texture1D::Texture1D(const RHIDevice& device, Microsoft::WRL::ComPtr<ID3D11Texture1D> dxTexture) noexcept
 : Texture(device)
 , m_dx_tex(dxTexture) {

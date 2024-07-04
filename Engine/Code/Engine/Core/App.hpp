@@ -52,6 +52,7 @@
 #include <format>
 #include <iomanip>
 #include <memory>
+#include <string>
 
 template<GameType T>
 class App : public EngineSubsystem, public IAppService {

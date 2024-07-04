@@ -2,11 +2,8 @@
 
 #include "Engine/Core/StringUtils.hpp"
 
-//#include <cstdint>
 #include <filesystem>
-//#include <memory>
 #include <optional>
-//#include <sstream>
 #include <vector>
 
 namespace FileUtils {

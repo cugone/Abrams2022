@@ -8,6 +8,8 @@
 #include "Engine/UI/UIPanelSlot.hpp"
 #include "Engine/UI/UITypes.hpp"
 
+#include <string>
+
 class UIPanel;
 class UIPanelSlot;
 

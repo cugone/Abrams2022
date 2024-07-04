@@ -27,6 +27,7 @@
 
 #include <array>
 #include <format>
+#include <string>
 #include <sstream>
 #include <numeric>
 

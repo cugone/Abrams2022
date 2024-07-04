@@ -5,7 +5,6 @@
 #include "Engine/Math/IntVector2.hpp"
 
 #include <filesystem>
-#include <string>
 
 class Renderer;
 class Texture;
