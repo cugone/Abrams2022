@@ -452,13 +452,13 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
     const auto a = Wrap(rhs - lhs, minValue, maxValue);
     const auto b = Wrap(lhs - rhs, minValue, maxValue);
     return (std::min)(a, b);
 }
 
-[[nodiscard]] auto CalcShortestPeriodicDistanceSigned(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistanceSigned(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
     const auto a = Wrap(rhs - lhs, minValue, maxValue);
     const auto b = Wrap(lhs - rhs, minValue, maxValue);
     if(b > a) {
