@@ -5,6 +5,7 @@
 #include "Engine/Scene/ECS.hpp"
 
 #include <memory>
+#include <string>
 
 namespace a2de {
 class Entity;
