@@ -3,8 +3,6 @@
 #include "Engine/Math/Plane2.hpp"
 #include "Engine/Physics/PhysicsUtils.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
@@ -76,24 +74,20 @@ void PhysicsSystem::EnableDrag(bool isGravityEnabled) noexcept {
 
 PhysicsSystem::PhysicsSystem(const PhysicsSystemDesc& desc /*= PhysicsSystemDesc{}*/)
 {
-    PROFILE_BENCHMARK_FUNCTION();
     m_desc = desc;
 }
 
 PhysicsSystem::~PhysicsSystem() {
-    PROFILE_BENCHMARK_FUNCTION();
     m_is_running = false;
 }
 
 void PhysicsSystem::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     //_is_running = true;
     //_update_thread = std::thread(&PhysicsSystem::Update_Worker, this);
     //ThreadUtils::SetThreadDescription(_update_thread, "Physics Async Update");
 }
 
 void PhysicsSystem::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(!m_is_running) {
         return;
     }
@@ -117,7 +111,6 @@ void PhysicsSystem::BeginFrame() noexcept {
 }
 
 void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(!this->m_is_running) {
         return;
     }
@@ -142,7 +135,6 @@ void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(auto* body : m_rigidBodies) {
         if(!body) {
             continue;
@@ -158,7 +150,6 @@ void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noex
 }
 
 void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(auto&& fg : m_forceGenerators) {
         fg->notify(deltaSeconds);
     }
@@ -168,13 +159,11 @@ void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds)
 }
 
 void PhysicsSystem::ApplyGravityAndDrag(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_gravityFG.notify(deltaSeconds);
     m_dragFG.notify(deltaSeconds);
 }
 
 std::vector<RigidBody*> PhysicsSystem::BroadPhaseCollision(const AABB2& /*query_area*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     std::vector<RigidBody*> potential_collisions{};
     for(auto iterA = std::begin(m_rigidBodies); iterA != std::end(m_rigidBodies); ++iterA) {
         for(auto iterB = iterA + 1; iterB != std::end(m_rigidBodies); ++iterB) {
@@ -202,7 +191,6 @@ std::vector<RigidBody*> PhysicsSystem::BroadPhaseCollision(const AABB2& /*query_
 }
 
 void PhysicsSystem::SolveCollision(const PhysicsSystem::CollisionDataSet& actual_collisions) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(auto& collision : actual_collisions) {
         auto* a = collision.a;
         auto* b = collision.b;
@@ -229,7 +217,6 @@ void PhysicsSystem::SolveCollision(const PhysicsSystem::CollisionDataSet& actual
 }
 
 void PhysicsSystem::SolveConstraints() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(int i = 0; i < m_desc.position_solver_iterations; ++i) {
         SolvePositionConstraints();
     }
@@ -239,7 +226,6 @@ void PhysicsSystem::SolveConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolvePositionConstraints() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolvePositionConstraint();
@@ -248,7 +234,6 @@ void PhysicsSystem::SolvePositionConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolveVelocityConstraints() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolveVelocityConstraint();
@@ -257,7 +242,6 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 }
 
 void PhysicsSystem::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     auto* renderer = ServiceLocator::get<IRendererService>();
     if(m_show_colliders) {
         for(const auto& body : m_rigidBodies) {
@@ -278,7 +262,6 @@ void PhysicsSystem::Render() const noexcept {
 }
 
 void PhysicsSystem::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     //std::scoped_lock<std::mutex> lock(_cs);
     for(auto& body : m_rigidBodies) {
         body->Endframe();
