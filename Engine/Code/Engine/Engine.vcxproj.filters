@@ -1707,6 +1707,9 @@
     <ClInclude Include="System\Process.hpp">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="Core\RingBuffer.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">

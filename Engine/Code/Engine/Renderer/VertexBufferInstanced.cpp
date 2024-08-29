@@ -2,14 +2,11 @@
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
 VertexBufferInstanced::VertexBufferInstanced(const RHIDevice& owner, const buffer_t& buffer, const BufferUsage& usage, const BufferBindUsage& bindUsage) noexcept
 : ArrayBuffer<Vertex3DInstanced>() {
-    PROFILE_BENCHMARK_FUNCTION();
     D3D11_BUFFER_DESC buffer_desc{};
     buffer_desc.Usage = BufferUsageToD3DUsage(usage);
     buffer_desc.BindFlags = BufferBindUsageToD3DBindFlags(bindUsage);
@@ -27,7 +24,6 @@ VertexBufferInstanced::VertexBufferInstanced(const RHIDevice& owner, const buffe
 }
 
 VertexBufferInstanced::~VertexBufferInstanced() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsValid()) {
         m_dx_buffer.Reset();
         m_dx_buffer = nullptr;
@@ -35,7 +31,6 @@ VertexBufferInstanced::~VertexBufferInstanced() noexcept {
 }
 
 void VertexBufferInstanced::Update(RHIDeviceContext& context, const buffer_t& buffer) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     D3D11_MAPPED_SUBRESOURCE resource{};
     auto* dx_context = context.GetDxContext();
     HRESULT hr = dx_context->Map(m_dx_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0U, &resource);

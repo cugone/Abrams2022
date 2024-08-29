@@ -133,26 +133,6 @@ void Gif::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
         m_frameDuration = TimeUtils::FPSeconds::zero();
     }
     switch(m_playMode) {
-    case PlayMode::PlayToBeginning:
-        if(m_currentFrame > m_endFrame) {
-            m_currentFrame = m_startFrame;
-        }
-        break;
-    case PlayMode::PlayToEnd:
-        if(m_currentFrame > m_endFrame) {
-            m_currentFrame = m_endFrame;
-        }
-        break;
-    case PlayMode::Loop:
-        if(m_currentFrame > m_endFrame) {
-            m_currentFrame = m_startFrame;
-        }
-        break;
-    case PlayMode::Reverse:
-        if(m_currentFrame > m_endFrame) {
-            m_currentFrame = m_endFrame;
-        }
-        break;
     case PlayMode::PingPong:
         if(m_currentFrame < m_startFrame || m_currentFrame == std::size_t(-1)) {
             m_currentFrame = m_startFrame;
@@ -161,6 +141,20 @@ void Gif::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
         if(m_currentFrame > m_endFrame) {
             m_currentFrame = m_endFrame;
             m_direction = -m_direction;
+        }
+        break;
+    case PlayMode::PlayToBeginning:
+        [[fallthrough]];
+    case PlayMode::Loop:
+        if(m_currentFrame > m_endFrame) {
+            m_currentFrame = m_startFrame;
+        }
+        break;
+    case PlayMode::PlayToEnd:
+        [[fallthrough]];
+    case PlayMode::Reverse:
+        if(m_currentFrame > m_endFrame) {
+            m_currentFrame = m_endFrame;
         }
         break;
     default:
@@ -197,6 +191,102 @@ std::size_t Gif::GetFrameCount() const noexcept {
 void Gif::SetImage(std::filesystem::path newFilepath) noexcept {
     SetFrameRange(0u, static_cast<std::size_t>(-1));
     Load(newFilepath);
+}
+
+bool Gif::IsAtEnd() const noexcept {
+    switch(m_playMode) {
+    case Gif::PlayMode::PingPong:
+        if(m_direction >= 0) {
+            return IsAtFrameEnd() && m_currentFrame == m_endFrame;
+        } else if(m_direction < 0) {
+            return IsAtFrameStart() && m_currentFrame == 0;
+        } else {
+            return false;
+        }
+        break;
+    case Gif::PlayMode::PlayToEnd:
+        [[fallthrough]];
+    case Gif::PlayMode::Loop:
+        return IsAtFrameEnd() && m_currentFrame == m_endFrame;
+    case Gif::PlayMode::PlayToBeginning:
+        [[fallthrough]];
+    case Gif::PlayMode::Reverse:
+        return IsAtFrameStart() && m_currentFrame == 0;
+    default:
+        return false;
+    }
+}
+
+bool Gif::IsAtBeginning() const noexcept {
+    switch(m_playMode) {
+    case Gif::PlayMode::PingPong:
+        if(m_direction >= 0) {
+            return IsAtFrameStart() && m_currentFrame == 0;
+        } else if(m_direction < 0) {
+            return IsAtFrameEnd() && m_currentFrame == m_endFrame;
+        } else {
+            return false;
+        }
+        break;
+    case Gif::PlayMode::PlayToEnd:
+        [[fallthrough]];
+    case Gif::PlayMode::Loop:
+        return IsAtFrameStart() && m_currentFrame == 0;
+    case Gif::PlayMode::PlayToBeginning:
+        [[fallthrough]];
+    case Gif::PlayMode::Reverse:
+        return IsAtFrameEnd() && m_currentFrame == m_endFrame;
+    default:
+        return false;
+    }
+}
+
+bool Gif::IsAtFrameStart() const noexcept {
+    return m_frameDelays[m_currentFrame] == TimeUtils::FPMilliseconds::zero();
+}
+
+bool Gif::IsAtFrameEnd() const noexcept {
+    const auto frame_delay = [this]() {
+        try {
+            return m_frameDelays.at(m_currentFrame);
+        } catch(...) {
+            return m_frameDelays[m_startFrame];
+        }
+    }();
+    return m_frameDuration >= frame_delay;
+}
+
+bool Gif::IsAtFrameStart(std::size_t frameIdx) const noexcept {
+    return m_currentFrame == frameIdx ? IsAtFrameStart() : false;
+}
+
+bool Gif::IsAtFrameEnd(std::size_t frameIdx) const noexcept {
+    return m_currentFrame == frameIdx ? IsAtFrameEnd() : false;
+}
+
+void Gif::Restart() noexcept {
+    switch(m_playMode) {
+    case Gif::PlayMode::PingPong:
+        if(m_direction >= 0) {
+            m_currentFrame = 0;
+        } else if(m_direction < 0) {
+            m_currentFrame = m_endFrame;
+        }
+        break;
+    case Gif::PlayMode::PlayToEnd:
+        [[fallthrough]];
+    case Gif::PlayMode::Loop:
+        m_currentFrame = 0;
+        break;
+    case Gif::PlayMode::PlayToBeginning:
+        [[fallthrough]];
+    case Gif::PlayMode::Reverse:
+        m_currentFrame = m_endFrame;
+        break;
+    default:
+        m_currentFrame = 0;
+        break;
+    }
 }
 
 } // namespace FileUtils

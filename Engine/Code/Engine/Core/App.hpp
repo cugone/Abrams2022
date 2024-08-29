@@ -23,7 +23,6 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Platform/Win.hpp"
-#include "Engine/Profiling/Instrumentor.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
 
@@ -141,7 +140,6 @@ namespace detail {
 
 template<GameType T>
 /*static*/ void App<T>::CreateApp(const std::string& title) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(m_theApp) {
         return;
     }
@@ -153,7 +151,6 @@ template<GameType T>
 
 template<GameType T>
 /*static*/ void App<T>::DestroyApp() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(!m_theApp) {
         return;
     }
@@ -165,7 +162,6 @@ App<T>::App(const std::string& title, const std::string& cmdString)
 : EngineSubsystem()
 , m_title{title}
 , m_theConfig{std::make_unique<Config>(KeyValueParser{cmdString})} {
-    PROFILE_BENCHMARK_FUNCTION();
     SetupEngineSystemPointers();
     SetupEngineSystemChainOfResponsibility();
     LogSystemDescription();
@@ -192,7 +188,6 @@ App<T>::~App() noexcept {
 
 template<GameType T>
 void App<T>::SetupEngineSystemPointers() {
-    PROFILE_BENCHMARK_FUNCTION();
     ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
 
     m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), std::move(std::make_unique<std::condition_variable>()));
@@ -239,7 +234,6 @@ void App<T>::SetupEngineSystemPointers() {
 
 template<GameType T>
 void App<T>::SetupEngineSystemChainOfResponsibility() {
-    PROFILE_BENCHMARK_FUNCTION();
     g_theConsole->SetNextHandler(g_theUISystem);
     g_theUISystem->SetNextHandler(g_theInputSystem);
     g_theInputSystem->SetNextHandler(g_thePhysicsSystem);
@@ -251,7 +245,6 @@ void App<T>::SetupEngineSystemChainOfResponsibility() {
 
 template<GameType T>
 void App<T>::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     auto& settings = g_theGame->GetSettings();
 
     bool vsync = settings.DefaultVsyncEnabled();
@@ -299,7 +292,6 @@ void App<T>::InitializeService() {
 
 template<GameType T>
 void App<T>::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     g_theJobSystem->BeginFrame();
     g_theUISystem->BeginFrame();
     g_theInputSystem->BeginFrame();
@@ -313,7 +305,6 @@ void App<T>::BeginFrame() noexcept {
 
 template<GameType T>
 void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->Update(deltaSeconds);
     g_theInputSystem->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
@@ -326,7 +317,6 @@ void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 template<GameType T>
 void App<T>::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     g_theGame->Render();
     g_theUISystem->Render();
     g_theConsole->Render();
@@ -339,7 +329,6 @@ void App<T>::Render() const noexcept {
 
 template<GameType T>
 void App<T>::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     g_theUISystem->EndFrame();
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
@@ -478,7 +467,6 @@ void App<T>::RunFrame() {
 
 template<GameType T>
 void App<T>::LogSystemDescription() const {
-    PROFILE_BENCHMARK_FUNCTION();
     const auto system = System::GetSystemDesc();
     g_theFileLogger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
