@@ -20,7 +20,6 @@ Mesh::Mesh(Builder&& builder) noexcept {
     m_builder.verticies = std::move(builder.verticies);
     m_builder.indicies = std::move(builder.indicies);
     m_builder.draw_instructions = std::move(builder.draw_instructions);
-    builder.Clear();
 }
 
 Mesh::Builder::Builder(const std::vector<Vertex3D>& verts, const std::vector<unsigned int>& indcs) noexcept
@@ -62,6 +61,10 @@ void Mesh::Builder::Clear() noexcept {
     verticies.clear();
     indicies.clear();
     draw_instructions.clear();
+}
+
+bool Mesh::Builder::IsEmpty() const noexcept {
+    return verticies.empty() && indicies.empty() && draw_instructions.empty();
 }
 
 void Mesh::Builder::SetTangent(const Vector3& tangent) noexcept {

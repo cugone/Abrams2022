@@ -390,6 +390,7 @@
     <ClInclude Include="Core\Obj.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\Riff.hpp" />
+    <ClInclude Include="Core\RingBuffer.hpp" />
     <ClInclude Include="Core\Stopwatch.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\ThreadUtils.hpp" />

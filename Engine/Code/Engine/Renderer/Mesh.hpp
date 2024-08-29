@@ -42,6 +42,7 @@ public:
         void Begin(const PrimitiveType& type, std::size_t indexStart) noexcept;
         void End(Material* mat = nullptr) noexcept;
         void Clear() noexcept;
+        bool IsEmpty() const noexcept;
 
         void SetTangent(const Vector3& tangent) noexcept;
         void SetBitangent(const Vector3& bitangent) noexcept;

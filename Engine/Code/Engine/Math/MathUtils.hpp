@@ -63,6 +63,8 @@ constexpr const float M_2_SQRTPI = 1.12837916709551257390f;      // 2/sqrt(pi)
 constexpr const float M_1_SQRT2 = 0.70710678118654752440f;       // 1/sqrt(2)
 constexpr const float M_SQRT3_3 = 0.57735026918962576451f;       // sqrt(3)/3
 constexpr const float M_TAU = 1.61803398874989484821f;           // tau (golden ratio)
+constexpr const std::ratio<16, 9> WIDESCREEN_RATIO;              // 16:9
+constexpr const std::ratio<4, 3> FULLSCREEN_RATIO;               // 4:3
 constexpr const float M_16_BY_9_RATIO = 1.77777777777777777778f; // 16/9
 constexpr const float M_4_BY_3_RATIO = 1.33333333333333333333f;  // 4/3
 constexpr const std::ratio<1, 1024> KIB_BYTES_RATIO;             // Kilobyte/Bytes
@@ -71,6 +73,7 @@ constexpr const std::ratio<1, 1073741824> GIB_BYTES_RATIO;       // Gigabyte/Byt
 constexpr const std::ratio<1024, 1> BYTES_KIB_RATIO;             // Bytes/Kilobytes
 constexpr const std::ratio<1048576, 1> BYTES_MIB_RATIO;          // Bytes/Megabytes
 constexpr const std::ratio<1073741824, 1> BYTES_GIB_RATIO;       // Bytes/Gigabytes
+constexpr const float M_SPEED_OF_LIGHT = 299311200.0f;           // m/s Speed of light in a vacuum
 
 template<std::integral auto num>
 constexpr int DigitCount = num >= -9 && num <= 9 ? 1 : 1 + DigitCount<num / 10>;
@@ -449,13 +452,13 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
     const auto a = Wrap(rhs - lhs, minValue, maxValue);
     const auto b = Wrap(lhs - rhs, minValue, maxValue);
     return (std::min)(a, b);
 }
 
-[[nodiscard]] auto CalcShortestPeriodicDistanceSigned(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistanceSigned(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
     const auto a = Wrap(rhs - lhs, minValue, maxValue);
     const auto b = Wrap(lhs - rhs, minValue, maxValue);
     if(b > a) {

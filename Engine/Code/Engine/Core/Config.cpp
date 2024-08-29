@@ -5,8 +5,6 @@
 #include "Engine/Core/KeyValueParser.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include <algorithm>
 #include <format>
 #include <locale>
@@ -14,12 +12,11 @@
 
 Config::Config(KeyValueParser&& kvp) noexcept
 : m_config(std::move(kvp.Release())) {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 Config::Config(Config&& other) noexcept
 : m_config(std::move(other.m_config)) {
-    PROFILE_BENCHMARK_FUNCTION();
     other.m_config = {};
 }
 
@@ -30,7 +27,6 @@ Config& Config::operator=(Config&& rhs) noexcept {
 }
 
 bool Config::LoadFromFile(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(std::filesystem::exists(filepath)) {
         KeyValueParser kvp(filepath);
         m_config = std::move(kvp.Release());
@@ -40,7 +36,6 @@ bool Config::LoadFromFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::AppendFromFile(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(std::filesystem::exists(filepath)) {
         KeyValueParser kvp(filepath);
         const auto&& new_entries = std::move(kvp.Release());
@@ -61,7 +56,6 @@ bool Config::AppendFromFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::AppendToFile(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(std::filesystem::exists(filepath)) {
         std::ofstream ofs;
         ofs.open(filepath, std::ios_base::app);
@@ -74,7 +68,6 @@ bool Config::AppendToFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::SaveToFile(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     std::ofstream ofs;
     ofs.open(filepath);
     PrintConfigs(ofs);
@@ -368,7 +361,6 @@ void Config::SetValue(const std::string& key, const char* value) noexcept {
 }
 
 void Config::PrintConfig(const std::string& key, std::ostream& output) const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(const auto iter = m_config.find(key); iter != std::end(m_config)) {
         PrintKeyValue(output, iter->first, iter->second);
     } else {
@@ -377,14 +369,12 @@ void Config::PrintConfig(const std::string& key, std::ostream& output) const noe
 }
 
 void Config::PrintConfigs(std::ostream& output) const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(const auto& [key, value] : m_config) {
         PrintKeyValue(output, key, value);
     }
 }
 
 void Config::PrintKeyValue(std::ostream& output, const std::string& key, const std::string& value) const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(const bool value_has_space = value.find_first_of(" \r\n\t\v\f") != std::string::npos; value_has_space) {
         output << std::format("{}=\"{}\"\n", key, value);
     } else {

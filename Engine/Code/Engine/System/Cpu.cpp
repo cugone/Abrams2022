@@ -8,7 +8,6 @@
 #include <format>
 #include <memory>
 #include <sstream>
-#include <string>
 
 std::string StringUtils::to_string(const System::Cpu::ProcessorArchitecture& architecture) noexcept {
     switch(architecture) {

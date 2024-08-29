@@ -7,7 +7,6 @@
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
 #include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include "Engine/RHI/RHIOutput.hpp"
@@ -140,7 +139,6 @@ UISystem::~UISystem() noexcept {
 }
 
 void UISystem::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
 
     auto* renderer = ServiceLocator::get<IRendererService>();
@@ -177,7 +175,6 @@ void UISystem::Initialize() noexcept {
 }
 
 void UISystem::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -187,7 +184,6 @@ void UISystem::BeginFrame() noexcept {
 }
 
 void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     const auto* const app = ServiceLocator::get<IAppService>();
     auto& io = ImGui::GetIO();
     io.AddFocusEvent(app->HasFocus());
@@ -203,7 +199,6 @@ void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
 }
 
 void UISystem::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -225,7 +220,6 @@ void UISystem::Render() const noexcept {
 }
 
 void UISystem::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     ImGui::EndFrame();
     ImGui::UpdatePlatformWindows();
 }

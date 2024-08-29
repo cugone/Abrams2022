@@ -6,8 +6,6 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include "Engine/Renderer/Window.hpp"
 
 
@@ -84,7 +82,6 @@ void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) noexcept {
 }
 
 void InputSystem::UpdateXboxConnectedState() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     for(int i = 0; i < m_max_controller_count; ++i) {
         m_xboxControllers[i].UpdateConnectedState(i);
     }
@@ -978,12 +975,10 @@ InputSystem::~InputSystem() noexcept {
 }
 
 void InputSystem::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     UpdateXboxConnectedState();
 }
 
 void InputSystem::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(m_connection_poll.CheckAndReset()) {
         UpdateXboxConnectedState();
     }
@@ -993,17 +988,14 @@ void InputSystem::BeginFrame() noexcept {
 }
 
 void InputSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     /* DO NOTHING */
 }
 
 void InputSystem::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     /* DO NOTHING */
 }
 
 void InputSystem::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_mouseDelta = Vector2::Zero;
     m_mousePrevCoords = m_mouseCoords;
     m_previousKeys = m_currentKeys;

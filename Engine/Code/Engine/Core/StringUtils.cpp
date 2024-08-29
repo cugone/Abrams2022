@@ -220,22 +220,21 @@ std::string ConvertUnicodeToMultiByte(const std::wstring& unicode_string) noexce
     if(unicode_string.empty()) {
         return {};
     }
-    std::unique_ptr<char[]> buf = nullptr;
-    auto buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf.get(), 0, nullptr, nullptr));
-    if(!buf_size) {
+    if(auto buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, nullptr, 0, nullptr, nullptr)); !buf_size) {
         return {};
+    } else {
+        if(std::unique_ptr<char[]> buf = std::make_unique<char[]>(buf_size * sizeof(char)); !buf) {
+            return {};
+        } else {
+            if(buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf.get(), static_cast<int>(buf_size), nullptr, nullptr)); !buf_size) {
+                return {};
+            } else {
+                std::string mb_string{};
+                mb_string.assign(buf.get(), buf_size - 1);
+                return mb_string;
+            }
+        }
     }
-    buf = std::make_unique<char[]>(buf_size * sizeof(char));
-    if(!buf) {
-        return {};
-    }
-    buf_size = static_cast<std::size_t>(::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, unicode_string.data(), -1, buf.get(), static_cast<int>(buf_size), nullptr, nullptr));
-    if(!buf_size) {
-        return {};
-    }
-    std::string mb_string{};
-    mb_string.assign(buf.get(), buf_size - 1);
-    return mb_string;
 }
 
 std::wstring ConvertMultiByteToUnicode(const std::string& multi_byte_string) noexcept {

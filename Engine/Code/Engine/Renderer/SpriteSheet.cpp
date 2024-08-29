@@ -6,6 +6,7 @@
 
 #include "Engine/Services/ServiceLocator.hpp"
 
+#include <string>
 #include <sstream>
 
 SpriteSheet::SpriteSheet(const XMLElement& elem) noexcept {

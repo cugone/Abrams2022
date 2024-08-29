@@ -13,8 +13,6 @@
 
 #include "Engine/Math/MathUtils.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 
@@ -118,7 +116,6 @@ void AudioSystem::InitializeAudioSystem() noexcept {
 }
 
 void AudioSystem::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
 #ifdef AUDIO_DEBUG
     XAUDIO2_DEBUG_CONFIGURATION config{};
     config.LogFileline = true;
@@ -237,19 +234,19 @@ AudioDSPResults AudioSystem::CalculateDSP(const Audio3DEmitter& emitter, const A
 }
 
 void AudioSystem::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 void AudioSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 void AudioSystem::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 void AudioSystem::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 bool AudioSystem::ProcessSystemMessage(const EngineMessage& /*msg*/) noexcept {
@@ -278,7 +275,6 @@ void AudioSystem::SetFormat(const FileUtils::detail::WavFormatChunk& format) noe
 }
 
 void AudioSystem::RegisterWavFilesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
@@ -314,7 +310,6 @@ void AudioSystem::DeactivateChannel(Channel& channel) noexcept {
 }
 
 void AudioSystem::Play(Sound& snd, SoundDesc desc /* = SoundDesc{}*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     std::scoped_lock<std::mutex> lock(m_cs);
     if(m_idle_channels.empty()) {
         return;
@@ -326,7 +321,6 @@ void AudioSystem::Play(Sound& snd, SoundDesc desc /* = SoundDesc{}*/) noexcept {
 }
 
 void AudioSystem::Play(std::filesystem::path filepath, SoundDesc desc /*= SoundDesc{}*/) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         return;
@@ -336,24 +330,20 @@ void AudioSystem::Play(std::filesystem::path filepath, SoundDesc desc /*= SoundD
 }
 
 void AudioSystem::Play(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     Play(filepath, SoundDesc{});
 }
 
 void AudioSystem::Play(const std::size_t id) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     Play(m_sounds[id].first, SoundDesc{});
 }
 
 void AudioSystem::Play(const std::filesystem::path& filepath, const bool looping) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     SoundDesc desc{};
     desc.loopCount = looping ? -1 : 0;
     Play(filepath, desc);
 }
 
 void AudioSystem::Play(const std::size_t id, const bool looping) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     SoundDesc desc{};
     desc.loopCount = looping ? -1 : 0;
     Play(m_sounds[id].first, desc);
@@ -364,7 +354,6 @@ void AudioSystem::SetDSPSettings(const AudioDSPSettings& newSettings) noexcept {
 }
 
 void AudioSystem::Stop(const std::filesystem::path& filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     const auto& found = std::find_if(std::cbegin(m_sounds), std::cend(m_sounds), [&filepath](const auto& snd) { return snd.first == filepath; });
     if(found != std::cend(m_sounds)) {
         for(auto& channel : found->second->GetChannels()) {
@@ -375,14 +364,12 @@ void AudioSystem::Stop(const std::filesystem::path& filepath) noexcept {
 }
 
 void AudioSystem::Stop(const std::size_t id) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     auto& channel = m_active_channels[id];
     channel->Stop();
     DeactivateChannel(*channel);
 }
 
 void AudioSystem::StopAll() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     const auto& op_id = IncrementAndGetOperationSetId();
     for(auto& active_sound : m_active_channels) {
         active_sound->Stop(op_id);
@@ -392,7 +379,6 @@ void AudioSystem::StopAll() noexcept {
 }
 
 AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
@@ -420,7 +406,6 @@ AudioSystem::Sound* AudioSystem::CreateSound(std::filesystem::path filepath) noe
 }
 
 AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
@@ -442,7 +427,6 @@ AudioSystem::Sound* AudioSystem::CreateSoundInstance(std::filesystem::path filep
 }
 
 void AudioSystem::RegisterWavFile(std::filesystem::path filepath) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
@@ -692,7 +676,6 @@ float AudioSystem::Channel::GetFrequency() const noexcept {
 
 AudioSystem::Sound::Sound(AudioSystem& audiosystem, std::filesystem::path filepath)
 : m_audio_system(&audiosystem) {
-    PROFILE_BENCHMARK_FUNCTION();
     namespace FS = std::filesystem;
     GUARANTEE_OR_DIE(FS::exists(filepath), "Attempting to create sound that does not exist.\n");
     {

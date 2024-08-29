@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <locale>
+#include <string>
 
 void RasterState::SetDebugName([[maybe_unused]] const std::string& name) const noexcept {
 #ifdef RENDER_DEBUG

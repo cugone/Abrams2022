@@ -10,7 +10,6 @@
 #include "Engine/Platform/Win.hpp"
 
 #include "Engine/Profiling/AllocationTracker.hpp"
-#include "Engine/Profiling/Instrumentor.hpp"
 
 #include "Engine/Services/IJobSystemService.hpp"
 #include "Engine/Services/ServiceLocator.hpp"
@@ -26,17 +25,14 @@ namespace FS = std::filesystem;
 FileLogger::FileLogger(const std::string& logName) noexcept
 : IFileLoggerService()
 {
-    PROFILE_BENCHMARK_FUNCTION();
     Initialize(logName);
 }
 
 FileLogger::~FileLogger() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     Shutdown();
 }
 
 void FileLogger::Log_worker() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
     auto* js = ServiceLocator::get<IJobSystemService>();
@@ -78,7 +74,6 @@ struct copy_log_job_t {
 };
 
 void FileLogger::DoCopyLog() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         auto* job_data = new copy_log_job_t;
         std::filesystem::path from_p = m_current_log_path;
@@ -96,7 +91,6 @@ void FileLogger::DoCopyLog() noexcept {
 }
 
 void FileLogger::CopyLog(void* user_data) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         auto* job_data = static_cast<copy_log_job_t*>(user_data);
         std::filesystem::path from = job_data->from;
@@ -112,7 +106,6 @@ void FileLogger::CopyLog(void* user_data) noexcept {
 }
 
 void FileLogger::FinalizeLog() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     std::filesystem::path from_p = m_current_log_path;
     from_p = FS::canonical(from_p);
     from_p.make_preferred();
@@ -135,7 +128,6 @@ void FileLogger::FinalizeLog() noexcept {
 }
 
 void FileLogger::Initialize(const std::string& log_name) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         LogLine("FileLogger already running.");
         return;
@@ -170,19 +162,11 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
     m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
     m_worker = std::jthread(&FileLogger::Log_worker, this);
     ThreadUtils::SetThreadDescription(m_worker, L"FileLogger");
-    ProfileMetadata metadata{};
-    metadata.threadName = "FileLogger";
-    metadata.threadID = m_worker.get_id();
-    metadata.ProcessID = ThreadUtils::GetProcessIDFromThread(m_worker);
-    metadata.threadSortIndex = 1;
-    Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadName, metadata);
-    Instrumentor::Get().WriteSessionData(MetaDataCategory::ThreadSortIndex, metadata);
     const auto ss = std::string{"Initializing Logger: "} + m_current_log_path.string() + "...";
     LogLine(ss.c_str());
 }
 
 void FileLogger::Shutdown() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsRunning()) {
         {
             auto ss = std::ostringstream{};
@@ -272,6 +256,5 @@ void FileLogger::SetIsRunning(bool value /*= true*/) noexcept {
 }
 
 void FileLogger::SaveLog() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     DoCopyLog();
 }

@@ -17,8 +17,6 @@
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/RHI/RHIOutput.hpp"
 
-#include "Engine/Profiling/Instrumentor.hpp"
-
 #include "Engine/Renderer/Camera2D.hpp"
 #include "Engine/Renderer/Material.hpp"
 #include "Engine/Renderer/Renderer.hpp"
@@ -30,7 +28,6 @@
 
 #include <iterator>
 #include <sstream>
-#include <string>
 #include <utility>
 
 constexpr const uint16_t IDM_COPY = 0;
@@ -715,13 +712,11 @@ void Console::PasteText(const std::string& text, std::string::const_iterator loc
 }
 
 void Console::Initialize() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_camera = std::make_unique<Camera2D>();
     RegisterDefaultCommands();
 }
 
 void Console::RegisterDefaultCommands() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     Console::Command help{};
     help.command_name = "help";
     help.help_text_short = "Displays every command with brief description.";
@@ -778,18 +773,16 @@ void Console::RegisterDefaultCommands() noexcept {
 }
 
 void Console::BeginFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(m_cursor_timer.CheckAndReset()) {
         m_show_cursor = !m_show_cursor;
     }
 }
 
 void Console::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
+    /* DO NOTHING */
 }
 
 void Console::Render() const noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     if(IsClosed()) {
         return;
     }
@@ -1003,7 +996,6 @@ bool Console::WasMouseWheelJustScrolledDown() const noexcept {
 }
 
 void Console::EndFrame() noexcept {
-    PROFILE_BENCHMARK_FUNCTION();
     m_mouseWheelPosition = 0;
 }
 
