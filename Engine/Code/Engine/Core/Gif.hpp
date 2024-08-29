@@ -46,6 +46,14 @@ public:
     std::size_t GetCurrentFrame() const noexcept;
     void SetImage(std::filesystem::path newFilepath) noexcept;
 
+    bool IsAtEnd() const noexcept;
+    bool IsAtBeginning() const noexcept;
+    bool IsAtFrameStart() const noexcept;
+    bool IsAtFrameEnd() const noexcept;
+    bool IsAtFrameStart(std::size_t frameIdx) const noexcept;
+    bool IsAtFrameEnd(std::size_t frameIdx) const noexcept;
+    void Restart() noexcept;
+
 protected:
 private:
     bool Load(const GifDesc& desc) noexcept;
