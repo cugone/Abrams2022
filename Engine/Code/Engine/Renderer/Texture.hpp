@@ -43,11 +43,11 @@ public:
 
 protected:
     const RHIDevice& m_device;
-    IntVector3 m_dimensions = IntVector3::Zero;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_dsv{};
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_rtv{};
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv{};
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_uav{};
+    IntVector3 m_dimensions = IntVector3::Zero;
     bool m_isLoaded = false;
     bool m_isArray = false;
 
