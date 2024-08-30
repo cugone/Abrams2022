@@ -42,7 +42,7 @@ public:
 
     webm::Status OnEbml(const webm::ElementMetadata& metadata, const webm::Ebml& ebml) override {
         if(metadata.id == webm::Id::kDocType) {
-            if(ebml.doc_type.value() != "webm") {
+            if(ebml.doc_type.is_present() && ebml.doc_type.value() != "webm") {
                 if(auto* filelogger = ServiceLocator::get<IFileLoggerService>(); filelogger != nullptr) {
                     filelogger->LogErrorLine(std::format("File: {} is not a webm file.", m_parent_webm->GetFilepath()));
                     filelogger->Flush();
@@ -53,7 +53,9 @@ public:
         return webm::Status(webm::Status::kOkCompleted);
     }
     webm::Status OnInfo(const webm::ElementMetadata& metadata, const webm::Info& info) override {
-        m_parent_webm->SetDuration(TimeUtils::FPMilliseconds{info.duration.value()});
+        if(info.duration.is_present()) {
+            m_parent_webm->SetDuration(TimeUtils::FPMilliseconds{info.duration.value()});
+        }
         return webm::Callback::OnInfo(metadata, info);
     }
     webm::Status OnFrame(const webm::FrameMetadata& metadata, webm::Reader* reader, std::uint64_t* bytes_remaining) override {
