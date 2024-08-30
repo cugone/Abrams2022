@@ -12,17 +12,16 @@ class Renderer;
 
 class RHIInstance {
 public:
-    [[nodiscard]] static RHIInstance* const CreateInstance() noexcept;
-    static void DestroyInstance() noexcept;
+    static RHIInstance& GetInstance() noexcept;
+    ~RHIInstance() noexcept;
 
     [[nodiscard]] std::unique_ptr<RHIDevice> CreateDevice() noexcept;
     static void ReportLiveObjects() noexcept;
 
 protected:
-    RHIInstance() = default;
-    ~RHIInstance() noexcept;
+    void CreateDebugInstance() noexcept;
 
 private:
-    static inline RHIInstance* m_instance = nullptr;
+    RHIInstance() noexcept;
     static inline Microsoft::WRL::ComPtr<IDXGIDebug> m_debuggerInstance = nullptr;
 };

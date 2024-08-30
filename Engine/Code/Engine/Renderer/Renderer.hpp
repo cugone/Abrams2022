@@ -562,7 +562,7 @@ private:
     std::size_t m_current_vbco_size = 0;
     std::size_t m_current_vbio_size = 0;
     std::size_t m_current_ibo_size = 0;
-    RHIInstance* m_rhi_instance = nullptr;
+    std::unique_ptr<RHIInstance> m_rhi_instance = nullptr;
     std::unique_ptr<RHIDevice> m_rhi_device = nullptr;
     std::unique_ptr<RHIDeviceContext> m_rhi_context = nullptr;
     std::unique_ptr<RHIOutput> m_rhi_output = nullptr;
