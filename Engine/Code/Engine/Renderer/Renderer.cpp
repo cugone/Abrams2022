@@ -315,7 +315,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 void Renderer::Initialize() noexcept {
-    m_rhi_instance = std::unique_ptr<RHIInstance>();
+    m_rhi_instance = std::make_unique<RHIInstance>();
     m_rhi_device = m_rhi_instance->CreateDevice();
 
     WindowDesc windowDesc{};

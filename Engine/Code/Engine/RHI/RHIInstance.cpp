@@ -7,24 +7,18 @@
 #include "Engine/RHI/RHIOutput.hpp"
 #include "Engine/Renderer/Window.hpp"
 
-RHIInstance& RHIInstance::GetInstance() noexcept {
-    static RHIInstance instance;
-    return instance;
-}
-
 void RHIInstance::CreateDebugInstance() noexcept {
 #if defined(RENDER_DEBUG)
-    auto& instance = GetInstance();
-    if(instance.m_debuggerInstance) {
+    if(m_debuggerInstance) {
         return;
     }
-    instance.m_debuggerInstance = nullptr;
+    m_debuggerInstance = nullptr;
 
     // Debug Setup
     if(HMODULE debug_module = ::LoadLibraryA("Dxgidebug.dll"); debug_module != nullptr) {
         using GetDebugModuleCB = HRESULT(WINAPI*)(REFIID, void**);
         GetDebugModuleCB cb = (GetDebugModuleCB)::GetProcAddress(debug_module, "DXGIGetDebugInterface");
-        HRESULT hr = cb(__uuidof(IDXGIDebug), reinterpret_cast<void**>(instance.m_debuggerInstance.GetAddressOf()));
+        HRESULT hr = cb(__uuidof(IDXGIDebug), reinterpret_cast<void**>(m_debuggerInstance.GetAddressOf()));
         bool succeeded = SUCCEEDED(hr);
         ASSERT_OR_DIE(succeeded, "DXGIDugger failed to initialize.");
         ReportLiveObjects();
@@ -38,8 +32,8 @@ std::unique_ptr<RHIDevice> RHIInstance::CreateDevice() noexcept {
 
 void RHIInstance::ReportLiveObjects() noexcept {
 #ifdef RENDER_DEBUG
-    if(GetInstance().m_debuggerInstance) {
-        GetInstance().m_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
+    if(m_debuggerInstance) {
+        m_debuggerInstance->ReportLiveObjects(DXGI_DEBUG_ALL, (DXGI_DEBUG_RLO_FLAGS)(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
     }
 #endif
 }
@@ -53,6 +47,6 @@ RHIInstance::RHIInstance() noexcept {
 RHIInstance::~RHIInstance() noexcept {
 #ifdef RENDER_DEBUG
     ReportLiveObjects();
-    GetInstance().m_debuggerInstance = nullptr;
+    m_debuggerInstance = nullptr;
 #endif
 }

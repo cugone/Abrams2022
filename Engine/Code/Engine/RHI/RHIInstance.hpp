@@ -12,7 +12,7 @@ class Renderer;
 
 class RHIInstance {
 public:
-    static RHIInstance& GetInstance() noexcept;
+    RHIInstance() noexcept;
     ~RHIInstance() noexcept;
 
     [[nodiscard]] std::unique_ptr<RHIDevice> CreateDevice() noexcept;
@@ -22,6 +22,5 @@ protected:
     void CreateDebugInstance() noexcept;
 
 private:
-    RHIInstance() noexcept;
     static inline Microsoft::WRL::ComPtr<IDXGIDebug> m_debuggerInstance = nullptr;
 };
