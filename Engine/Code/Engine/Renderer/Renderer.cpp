@@ -190,8 +190,7 @@ Renderer::~Renderer() noexcept {
     m_rhi_output.reset();
     m_rhi_context.reset();
     m_rhi_device.reset();
-    RHIInstance::DestroyInstance();
-    m_rhi_instance = nullptr;
+    m_rhi_instance.reset();
 }
 
 bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
@@ -316,7 +315,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 void Renderer::Initialize() noexcept {
-    m_rhi_instance = RHIInstance::CreateInstance();
+    m_rhi_instance = std::make_unique<RHIInstance>();
     m_rhi_device = m_rhi_instance->CreateDevice();
 
     WindowDesc windowDesc{};
@@ -4110,7 +4109,7 @@ RHIOutput* Renderer::GetOutput() const noexcept {
 }
 
 RHIInstance* Renderer::GetInstance() const noexcept {
-    return m_rhi_instance;
+    return m_rhi_instance.get();
 }
 
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcept {
