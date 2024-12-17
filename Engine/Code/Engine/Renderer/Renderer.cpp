@@ -1591,20 +1591,50 @@ void Renderer::DrawFilledPolygon2D(const Vector2& center, float radius, std::siz
 void Renderer::DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color /*= Rgba::White*/) noexcept {
     const std::vector<Vertex3D> vbo = [&polygon, &color]() {
         std::vector<Vertex3D> buffer;
-        buffer.reserve(polygon.GetVerts().size());
-        for(const auto& v : polygon.GetVerts()) {
-            buffer.push_back(Vertex3D(Vector3(v, 0.0f), color));
+        const auto size = polygon.GetVerts().size();
+        if(polygon.GetSides() > 4) {
+            buffer.reserve(1 + size);
+            buffer.push_back(Vertex3D(Vector3(polygon.GetPosition(), 0.0f), color));
+            for(const auto& v : polygon.GetVerts()) {
+                buffer.push_back(Vertex3D(Vector3(v, 0.0f), color));
+            }
+        } else {
+            buffer.reserve(size);
+            for(const auto& v : polygon.GetVerts()) {
+                buffer.push_back(Vertex3D(Vector3(v, 0.0f), color));
+            }
         }
         return buffer;
     }();
-    const std::vector<unsigned int> ibo = [this, &vbo]() {
-        std::vector<unsigned int> buffer(vbo.size() + 1);
-        for(unsigned int i = 0u; i < buffer.size(); ++i) {
-            buffer[i] = i % vbo.size();
+    const std::vector<unsigned int> ibo = [this, &polygon, &vbo]() {
+        std::vector<unsigned int> buffer;
+        if(polygon.GetSides() > 4) {
+            buffer.resize(3 * (1 + polygon.GetSides()));
+            unsigned int j = 0;
+            for(unsigned int i = 0u; i < buffer.size(); i += 3) {
+                buffer[i + 0] = 0;
+                buffer[i + 1] = (j + 1) % (polygon.GetSides() + 2);
+                buffer[i + 2] = (j + 2) % (polygon.GetSides() + 2);
+                ++j;
+            }
+            buffer.push_back(0);
+            buffer.push_back(j - 1);
+            buffer.push_back(1);
+        } else if(polygon.GetSides() == 4) {
+            buffer.resize(6);
+            buffer[0] = 0;
+            buffer[1] = 1;
+            buffer[2] = 2;
+            buffer[3] = 0;
+            buffer[4] = 2;
+            buffer[5] = 3;
+        } else {
+            buffer.resize(vbo.size());
+            std::iota(std::begin(buffer), std::end(buffer), 0);
         }
         return buffer;
     }();
-    DrawIndexed(PrimitiveType::TriangleStrip, vbo, ibo);
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
 void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
