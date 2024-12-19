@@ -1222,8 +1222,7 @@ void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHI
 }
 
 void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) noexcept {
-    bool use_thickness = thickness > 0.0f;
-    if(!use_thickness) {
+    if(bool use_thickness = thickness > 0.0f; !use_thickness) {
         Vertex3D start = Vertex3D(Vector3(Vector2(startX, startY), 0.0f), color, Vector2::Zero);
         Vertex3D end = Vertex3D(Vector3(Vector2(endX, endY), 0.0f), color, Vector2::One);
         std::vector<Vertex3D> vbo = {
@@ -1236,8 +1235,7 @@ void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, co
     Vector3 start = Vector3(Vector2(startX, startY), 0.0f);
     Vector3 end = Vector3(Vector2(endX, endY), 0.0f);
     Vector3 displacement = end - start;
-    float length = displacement.CalcLength();
-    if(length > 0.0f) {
+    if(float length = displacement.CalcLength(); length > 0.0f) {
         Vector3 direction = displacement.GetNormalize();
         Vector3 left_normal = Vector3(-direction.y, direction.x, 0.0f);
         Vector3 right_normal = Vector3(direction.y, -direction.x, 0.0f);
