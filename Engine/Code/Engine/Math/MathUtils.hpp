@@ -9,6 +9,7 @@
 #include "Engine/Math/Matrix4.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <numbers>
 #include <optional>
 #include <random>
@@ -516,6 +517,12 @@ template<std::size_t N, typename T>
 requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] auto Arc(auto t) {
     return SmoothStart<N>(t) + SmoothStop<N>(t);
+}
+
+template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
+[[nodiscard]] T SmoothStartElastic(const T& t) {
+    return -std::pow(2.0f, 10.0f * t - 10.0f) * std::sin((t * 10.0f - 10.75f) * MathUtils::M_2PI_3);
 }
 
 } // namespace EasingFunctions
