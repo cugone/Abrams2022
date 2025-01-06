@@ -515,7 +515,7 @@ requires(N > 0 && std::floating_point<T>)
 
 template<std::size_t N, typename T>
 requires(N > 0 && std::floating_point<T>)
-[[nodiscard]] auto Arc(auto t) {
+[[nodiscard]] T Arc(const T& t) {
     return SmoothStart<N>(t) + SmoothStop<N>(t);
 }
 
