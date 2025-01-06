@@ -1323,10 +1323,11 @@ void Renderer::DrawFilledCircle2D(const Disc2& circle, const Rgba& color /*= Rgb
 void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) noexcept {
     //TODO: Replace with shader
 
-    const auto num_sides = std::size_t{65};
+    const auto num_sides = std::size_t{64};
     const auto size = num_sides + 1u;
     std::vector<Vector3> verts{};
     verts.reserve(size);
+    verts.emplace_back(center);
     const auto anglePerVertex = 360.0f / static_cast<float>(num_sides);
     for(float degrees = 0.0f; degrees < 360.0f; degrees += anglePerVertex) {
         const auto radians = MathUtils::ConvertDegreesToRadians(degrees);
@@ -1341,13 +1342,13 @@ void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgb
         vbo.emplace_back(vert, color);
     }
 
-    std::vector<unsigned int> ibo(num_sides * 3);
+    std::vector<unsigned int> ibo((num_sides - 1) * 3);
     unsigned int j = 1u;
-    for(std::size_t i = 1; i < ibo.size(); i += 3) {
-        ibo[i] = (j++);
-        ibo[i + 1] = (j);
+    for(std::size_t i = 1; i < ibo.size() - 1; i += 3) {
+        ibo[i] = (j++) % num_sides;
+        ibo[i + 1] = (j == num_sides ? 1 : j) % num_sides;
     }
-    DrawIndexed(PrimitiveType::TriangleStrip, vbo, ibo);
+    DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
 void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
