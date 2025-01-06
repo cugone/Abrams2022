@@ -28,12 +28,12 @@ void GameBase::HandleWindowResize([[maybe_unused]] unsigned int newWidth, [[mayb
     /* DO NOTHING */
 }
 
-const GameSettings& GameBase::GetSettings() const noexcept {
-    return defaultSettings;
+const GameSettings* GameBase::GetSettings() const noexcept {
+    return &defaultSettings;
 }
 
-GameSettings& GameBase::GetSettings() noexcept {
-    return defaultSettings;
+GameSettings* GameBase::GetSettings() noexcept {
+    return &defaultSettings;
 }
 
 std::weak_ptr<Scene> GameBase::GetActiveScene() const noexcept {

@@ -25,8 +25,8 @@ public:
 
     virtual void HandleWindowResize([[maybe_unused]] unsigned int newWidth, [[maybe_unused]] unsigned int newHeight) noexcept;
 
-    virtual const GameSettings& GetSettings() const noexcept;
-    virtual GameSettings& GetSettings() noexcept;
+    virtual const GameSettings* GetSettings() const noexcept;
+    virtual GameSettings* GetSettings() noexcept;
 
     std::weak_ptr<Scene> GetActiveScene() const noexcept;
 
