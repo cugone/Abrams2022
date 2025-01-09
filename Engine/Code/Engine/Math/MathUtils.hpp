@@ -522,13 +522,13 @@ requires(N > 0 && std::floating_point<T>)
 template<std::size_t N, typename T>
 requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] T SmoothStartElastic(const T& t) {
-    return -std::pow(T{2.0}, T{10.0} * t - T{10.0}) * std::sin((t * T{10.0} - T{10.75}) * MathUtils::M_2PI_3);
+    return t < T{0.0} ? T{0.0} : (t > T{1.0} ? T{1.0} : -std::pow(T{2.0}, T{10.0} * t - T{10.0}) * std::sin((t * T{10.0} - T{10.75}) * MathUtils::M_2PI_3));
 }
 
 template<std::size_t N, typename T>
 requires(N > 0 && std::floating_point<T>)
 [[nodiscard]] T SmoothStopElastic(const T& t) {
-    return -std::pow(T{2.0}, T{-10.0} * t) * std::sin((t * T{10.0} - T{0.75}) * MathUtils::M_2PI_3) + T{1.0};
+    return t < T{0.0} ? T{0.0} : (t > T{1.0} ? T{1.0} : -std::pow(T{2.0}, T{-10.0} * t) * std::sin((t * T{10.0} - T{0.75}) * MathUtils::M_2PI_3) + T{1.0});
 }
 
 } // namespace EasingFunctions
