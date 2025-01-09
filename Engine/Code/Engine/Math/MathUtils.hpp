@@ -144,6 +144,7 @@ requires(!std::same_as<T, bool>)
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] bool IsPercentChance(const T& probability) noexcept {
     auto d = std::bernoulli_distribution(std::clamp(probability, T{0}, T{1}));
     return d(GetMT64RandomEngine(GetRandomSeed()));
