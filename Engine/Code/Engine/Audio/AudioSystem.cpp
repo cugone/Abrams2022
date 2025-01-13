@@ -317,6 +317,12 @@ void AudioSystem::Play(Sound& snd, SoundDesc desc /* = SoundDesc{}*/) noexcept {
     m_active_channels.push_back(std::move(m_idle_channels.back()));
     m_idle_channels.pop_back();
     auto& inserted_channel = m_active_channels.back();
+    inserted_channel->SetFrequency(desc.frequency);
+    inserted_channel->SetLoopBegin(desc.loopBegin);
+    inserted_channel->SetLoopEnd(desc.loopEnd);
+    inserted_channel->SetLoopCount(desc.loopCount < 0 ? -1 : desc.loopCount);
+    inserted_channel->SetStopWhenFinishedLooping(desc.stopWhenFinishedLooping);
+    inserted_channel->SetVolume(desc.volume);
     inserted_channel->Play(snd);
 }
 
