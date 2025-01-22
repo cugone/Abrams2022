@@ -19,6 +19,7 @@
 #include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace MathUtils {
@@ -333,7 +334,7 @@ float CalcDistanceSquared(const LineSegment2& lineA, const LineSegment2& lineB) 
     const auto a2 = lineA.end;
     const auto b1 = lineB.start;
     const auto b2 = lineB.end;
-    const auto distances = std::vector<float>{CalcDistanceSquared(a1, lineB), CalcDistanceSquared(a2, lineB), CalcDistanceSquared(b1, lineA), CalcDistanceSquared(b2, lineA)};
+    const auto distances = std::array<float, 4>{CalcDistanceSquared(a1, lineB), CalcDistanceSquared(a2, lineB), CalcDistanceSquared(b1, lineA), CalcDistanceSquared(b2, lineA)};
 
     return *std::min_element(std::cbegin(distances), std::cend(distances));
 }
