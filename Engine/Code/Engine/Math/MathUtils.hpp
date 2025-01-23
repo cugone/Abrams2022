@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector3.hpp"
 #include "Engine/Math/IntVector4.hpp"
@@ -7,6 +9,7 @@
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
+
 
 #include <algorithm>
 #include <cmath>
@@ -186,7 +189,9 @@ requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 }
 
 [[nodiscard]] float SineWave(float t, float period = 1.0f, float phase = 0.0f) noexcept;
+[[nodiscard]] float SineWave(float t, TimeUtils::FPSeconds period = TimeUtils::FPSeconds{1.0f}, float phase = 0.0f) noexcept;
 [[nodiscard]] float SineWaveDegrees(float t, float period = 1.0f, float phaseDegrees = 0.0f) noexcept;
+[[nodiscard]] float SineWaveDegrees(float t, TimeUtils::FPSeconds period = TimeUtils::FPSeconds{1.0f}, float phase = 0.0f) noexcept;
 [[nodiscard]] float SinCos(float sin, float cos);
 [[nodiscard]] float CosSin(float cos, float sin);
 [[nodiscard]] float SinCosDegrees(float sinDegrees, float cosDegrees);

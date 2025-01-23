@@ -100,6 +100,14 @@ float SineWaveDegrees(float t, float period /*= 1.0f*/, float phaseDegrees /*= 0
     return SineWave(t, period, MathUtils::ConvertDegreesToRadians(phaseDegrees));
 }
 
+float SineWave(float t, TimeUtils::FPSeconds period /*= TimeUtils::FPSeconds{1.0f}*/, float phase /*= 0.0f*/) noexcept {
+    return SineWave(t, period.count(), phase);
+}
+
+float SineWaveDegrees(float t, TimeUtils::FPSeconds period /*= TimeUtils::FPSeconds{1.0f}*/, float phaseDegrees /*= 0.0f*/) noexcept {
+    return SineWaveDegrees(t, period.count(), phaseDegrees);
+}
+
 float SinCos(float sin, float cos) {
     return std::sin(sin) * std::cos(cos);
 }
