@@ -1763,7 +1763,7 @@ void Renderer::DrawTextLine(const Matrix4& transform, const KerningFont* font, c
     Mesh::Render(builder);
 }
 
-void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+void Renderer::DrawMultilineText(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
     float y = font->GetLineHeight();
     float draw_loc_y = 0.0f;
     float draw_loc_x = 0.0f;
@@ -1785,7 +1785,7 @@ void Renderer::DrawMultilineText(KerningFont* font, const std::string& text, con
     DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
 }
 
-void Renderer::AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept {
+void Renderer::AppendMultiLineTextBuffer(const KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept {
     if(font == nullptr) {
         return;
     }
