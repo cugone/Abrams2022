@@ -321,6 +321,7 @@ requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 [[nodiscard]] bool Contains(const AABB2& a, const OBB2& b) noexcept;
 [[nodiscard]] bool Contains(const OBB2& a, const AABB2& b) noexcept;
 [[nodiscard]] bool Contains(const OBB2& a, const OBB2& b) noexcept;
+[[nodiscard]] bool Contains(const Disc2& a, const AABB2& b) noexcept;
 
 [[nodiscard]] bool IsPointInside(const AABB2& aabb, const Vector2& point) noexcept;
 [[nodiscard]] bool IsPointInside(const AABB3& aabb, const Vector3& point) noexcept;
