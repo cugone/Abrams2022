@@ -171,6 +171,18 @@ requires(std::floating_point<T>)
     return GetRandomInRange(T{-1}, T{1});
 }
 
+template<typename T>
+requires(std::integral<T>)
+[[nodiscard]] T NextMultipleAfter(T value, T multiple) noexcept {
+    return value + (multiple - (value % multiple));
+}
+
+template<typename T>
+requires(std::integral<T>)
+[[nodiscard]] T NextMultipleBefore(T value, T multiple) noexcept {
+    return value - (multiple - (value % multiple));
+}
+
 [[nodiscard]] double nCr(const int n, const int k) noexcept;
 [[nodiscard]] double Combination(const int n, const int k) noexcept;
 [[nodiscard]] double Combination_multiset(const int n, const int k) noexcept;
