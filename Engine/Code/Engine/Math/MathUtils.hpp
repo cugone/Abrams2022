@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/TimeUtils.hpp"
+
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector3.hpp"
 #include "Engine/Math/IntVector4.hpp"
@@ -8,7 +10,9 @@
 #include "Engine/Math/Vector4.hpp"
 #include "Engine/Math/Matrix4.hpp"
 
+
 #include <algorithm>
+#include <cmath>
 #include <numbers>
 #include <optional>
 #include <random>
@@ -143,6 +147,7 @@ requires(!std::same_as<T, bool>)
 }
 
 template<typename T>
+requires(std::floating_point<T>)
 [[nodiscard]] bool IsPercentChance(const T& probability) noexcept {
     auto d = std::bernoulli_distribution(std::clamp(probability, T{0}, T{1}));
     return d(GetMT64RandomEngine(GetRandomSeed()));
@@ -166,6 +171,18 @@ requires(std::floating_point<T>)
     return GetRandomInRange(T{-1}, T{1});
 }
 
+template<typename T>
+requires(std::integral<T>)
+[[nodiscard]] T NextMultipleAfter(T value, T multiple) noexcept {
+    return value + (multiple - (value % multiple));
+}
+
+template<typename T>
+requires(std::integral<T>)
+[[nodiscard]] T NextMultipleBefore(T value, T multiple) noexcept {
+    return value - (multiple - (value % multiple));
+}
+
 [[nodiscard]] double nCr(const int n, const int k) noexcept;
 [[nodiscard]] double Combination(const int n, const int k) noexcept;
 [[nodiscard]] double Combination_multiset(const int n, const int k) noexcept;
@@ -184,7 +201,9 @@ requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 }
 
 [[nodiscard]] float SineWave(float t, float period = 1.0f, float phase = 0.0f) noexcept;
+[[nodiscard]] float SineWave(float t, TimeUtils::FPSeconds period = TimeUtils::FPSeconds{1.0f}, float phase = 0.0f) noexcept;
 [[nodiscard]] float SineWaveDegrees(float t, float period = 1.0f, float phaseDegrees = 0.0f) noexcept;
+[[nodiscard]] float SineWaveDegrees(float t, TimeUtils::FPSeconds period = TimeUtils::FPSeconds{1.0f}, float phase = 0.0f) noexcept;
 [[nodiscard]] float SinCos(float sin, float cos);
 [[nodiscard]] float CosSin(float cos, float sin);
 [[nodiscard]] float SinCosDegrees(float sinDegrees, float cosDegrees);
@@ -314,6 +333,7 @@ requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 [[nodiscard]] bool Contains(const AABB2& a, const OBB2& b) noexcept;
 [[nodiscard]] bool Contains(const OBB2& a, const AABB2& b) noexcept;
 [[nodiscard]] bool Contains(const OBB2& a, const OBB2& b) noexcept;
+[[nodiscard]] bool Contains(const Disc2& a, const AABB2& b) noexcept;
 
 [[nodiscard]] bool IsPointInside(const AABB2& aabb, const Vector2& point) noexcept;
 [[nodiscard]] bool IsPointInside(const AABB3& aabb, const Vector3& point) noexcept;
@@ -514,8 +534,20 @@ requires(N > 0 && std::floating_point<T>)
 
 template<std::size_t N, typename T>
 requires(N > 0 && std::floating_point<T>)
-[[nodiscard]] auto Arc(auto t) {
+[[nodiscard]] T Arc(const T& t) {
     return SmoothStart<N>(t) + SmoothStop<N>(t);
+}
+
+template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
+[[nodiscard]] T SmoothStartElastic(const T& t) {
+    return t < T{0.0} ? T{0.0} : (t > T{1.0} ? T{1.0} : -std::pow(T{2.0}, T{10.0} * t - T{10.0}) * std::sin((t * T{10.0} - T{10.75}) * MathUtils::M_2PI_3));
+}
+
+template<std::size_t N, typename T>
+requires(N > 0 && std::floating_point<T>)
+[[nodiscard]] T SmoothStopElastic(const T& t) {
+    return t < T{0.0} ? T{0.0} : (t > T{1.0} ? T{1.0} : -std::pow(T{2.0}, T{-10.0} * t) * std::sin((t * T{10.0} - T{0.75}) * MathUtils::M_2PI_3) + T{1.0});
 }
 
 } // namespace EasingFunctions

@@ -245,7 +245,7 @@ void App<T>::SetupEngineSystemChainOfResponsibility() {
 
 template<GameType T>
 void App<T>::Initialize() noexcept {
-    auto& settings = g_theGame->GetSettings();
+    auto& settings = *g_theGame->GetSettings();
 
     bool vsync = settings.DefaultVsyncEnabled();
     if(g_theConfig->HasKey("vsync")) {

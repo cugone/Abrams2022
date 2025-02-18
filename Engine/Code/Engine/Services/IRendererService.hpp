@@ -328,8 +328,8 @@ public:
     virtual void DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize = 0.1f) noexcept = 0;
     virtual void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void DrawMultilineText(KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void AppendMultiLineTextBuffer(KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept = 0;
+    virtual void DrawMultilineText(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void AppendMultiLineTextBuffer(const KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept = 0;
 
     virtual void CopyTexture(const Texture* src, Texture* dst) const noexcept = 0;
     virtual void ResizeBuffers() noexcept = 0;
@@ -638,8 +638,8 @@ public:
 
     void DrawTextLine([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawTextLine([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void DrawMultilineText([[maybe_unused]] KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void AppendMultiLineTextBuffer([[maybe_unused]] KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Vector2& start_position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] std::vector<Vertex3D>& vbo, [[maybe_unused]] std::vector<unsigned int>& ibo) noexcept override {}
+    void DrawMultilineText([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void AppendMultiLineTextBuffer([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Vector2& start_position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] std::vector<Vertex3D>& vbo, [[maybe_unused]] std::vector<unsigned int>& ibo) noexcept override {}
 
     void CopyTexture([[maybe_unused]] const Texture* src, [[maybe_unused]] Texture* dst) const noexcept override {}
     void ResizeBuffers() noexcept override {}

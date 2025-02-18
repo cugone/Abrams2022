@@ -19,6 +19,7 @@
 #include "Engine/Profiling/ProfileLogScope.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace MathUtils {
@@ -97,6 +98,14 @@ float SineWave(float t, float period /*= 1.0f*/, float phase /*= 0.0f*/) noexcep
 
 float SineWaveDegrees(float t, float period /*= 1.0f*/, float phaseDegrees /*= 0.0f*/) noexcept {
     return SineWave(t, period, MathUtils::ConvertDegreesToRadians(phaseDegrees));
+}
+
+float SineWave(float t, TimeUtils::FPSeconds period /*= TimeUtils::FPSeconds{1.0f}*/, float phase /*= 0.0f*/) noexcept {
+    return SineWave(t, period.count(), phase);
+}
+
+float SineWaveDegrees(float t, TimeUtils::FPSeconds period /*= TimeUtils::FPSeconds{1.0f}*/, float phaseDegrees /*= 0.0f*/) noexcept {
+    return SineWaveDegrees(t, period.count(), phaseDegrees);
 }
 
 float SinCos(float sin, float cos) {
@@ -333,7 +342,7 @@ float CalcDistanceSquared(const LineSegment2& lineA, const LineSegment2& lineB) 
     const auto a2 = lineA.end;
     const auto b1 = lineB.start;
     const auto b2 = lineB.end;
-    const auto distances = std::vector<float>{CalcDistanceSquared(a1, lineB), CalcDistanceSquared(a2, lineB), CalcDistanceSquared(b1, lineA), CalcDistanceSquared(b2, lineA)};
+    const auto distances = std::array<float, 4>{CalcDistanceSquared(a1, lineB), CalcDistanceSquared(a2, lineB), CalcDistanceSquared(b1, lineA), CalcDistanceSquared(b2, lineA)};
 
     return *std::min_element(std::cbegin(distances), std::cend(distances));
 }
@@ -680,6 +689,14 @@ bool Contains(const OBB2& a, const AABB2& b) noexcept {
 
 bool Contains(const OBB2& a, const OBB2& b) noexcept {
     return Contains(AABB2(a), AABB2(b));
+}
+
+bool Contains(const Disc2& a, const AABB2& b) noexcept {
+    const auto tl = Vector2{b.mins.x, b.mins.y};
+    const auto tr = Vector2{b.maxs.x, b.mins.y};
+    const auto bl = Vector2{b.mins.x, b.maxs.y};
+    const auto br = Vector2{b.maxs.x, b.maxs.y};
+    return IsPointInside(a, tl) && IsPointInside(a, tr) && IsPointInside(a, bl) && IsPointInside(a, br);
 }
 
 bool IsPointInside(const AABB2& aabb, const Vector2& point) noexcept {
