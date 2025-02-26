@@ -8,9 +8,9 @@
 
 RHIFactory::RHIFactory() noexcept {
 #ifdef RENDER_DEBUG
-    auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory6), &m_dxgi_factory);
+    auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory7), &m_dxgi_factory);
 #else
-    auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory6), &m_dxgi_factory);
+    auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory7), &m_dxgi_factory);
 #endif
     GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
 }
