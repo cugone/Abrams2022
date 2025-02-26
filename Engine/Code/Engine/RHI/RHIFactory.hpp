@@ -24,5 +24,5 @@ public:
 
 protected:
 private:
-    Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgi_factory{};
+    Microsoft::WRL::ComPtr<IDXGIFactory7> m_dxgi_factory{};
 };
