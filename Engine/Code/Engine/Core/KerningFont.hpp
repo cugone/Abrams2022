@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector4.hpp"
 
@@ -86,8 +87,14 @@ public:
     [[nodiscard]] static float CalculateTextWidth(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
     [[nodiscard]] static float CalculateTextHeight(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
 
+    [[nodiscard]] static Vector2 CalculateTextDimensions(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
+    [[nodiscard]] static AABB2 CalculateTextArea(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
+
     [[nodiscard]] float CalculateTextWidth(const std::string& text, float scale = 1.0f) const noexcept;
     [[nodiscard]] float CalculateTextHeight(const std::string& text, float scale = 1.0f) const noexcept;
+
+    [[nodiscard]] Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) const noexcept;
+    [[nodiscard]] AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) const noexcept;
 
     [[nodiscard]] float GetLineHeight() const noexcept;
     [[nodiscard]] float GetLineHeightAsUV() const noexcept;
