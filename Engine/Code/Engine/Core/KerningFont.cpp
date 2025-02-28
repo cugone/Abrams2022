@@ -49,6 +49,22 @@ float KerningFont::CalculateTextHeight(const std::string& text, float scale /*= 
     return CalculateTextHeight(*this, text, scale);
 }
 
+Vector2 KerningFont::CalculateTextDimensions(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
+    return Vector2{CalculateTextWidth(font, text, scale), CalculateTextHeight(font, text, scale)};
+}
+
+Vector2 KerningFont::CalculateTextDimensions(const std::string& text, float scale /*= 1.0f*/) const noexcept {
+    return CalculateTextDimensions(*this, text, scale);
+}
+
+AABB2 KerningFont::CalculateTextArea(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
+    return AABB2{Vector2::Zero, CalculateTextDimensions(font, text, scale)};
+}
+
+AABB2 KerningFont::CalculateTextArea(const std::string& text, float scale /*= 1.0f*/) const noexcept {
+    return AABB2{Vector2::Zero, CalculateTextDimensions(*this, text, scale)};
+}
+
 float KerningFont::GetLineHeight() const noexcept {
     return static_cast<float>(m_common.line_height);
 }

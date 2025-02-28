@@ -129,7 +129,7 @@ bool UIWidget::HasPanelChild(const XMLElement& elem) {
     if(const auto* first_child = elem.FirstChildElement()) {
         const auto* elem_name_cstr = first_child->Name();
         const auto elem_name = std::string{elem_name_cstr ? elem_name_cstr : ""};
-        return elem_name == "canvas" || "grid";
+        return elem_name == "canvas" || elem_name == "grid";
     }
     return false;
 }
