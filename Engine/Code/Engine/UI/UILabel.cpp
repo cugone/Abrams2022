@@ -116,9 +116,7 @@ Vector2 UILabel::CalcBoundsFromFont(KerningFont* font) const {
     if(font == nullptr) {
         return {};
     }
-    const float width = font->CalculateTextWidth(m_text, m_scale);
-    const float height = font->CalculateTextHeight(m_text, m_scale);
-    return Vector2{width, height};
+    return font->CalculateTextDimensions(m_text, m_scale);
 }
 
 bool UILabel::LoadFromXml(const XMLElement& elem) noexcept {
