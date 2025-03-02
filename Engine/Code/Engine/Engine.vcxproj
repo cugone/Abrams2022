@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Thirdparty\clay\clay.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui_draw.cpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Video\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\clay\clay.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_api.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_block_allocator.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_body.h" />
