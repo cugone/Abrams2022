@@ -36,8 +36,8 @@ public:
 
     void HandleWindowResize(unsigned int newWidth, unsigned int newHeight) noexcept override;
 
-    const GameSettings& GetSettings() const noexcept override;
-    GameSettings& GetSettings() noexcept override;
+    const GameSettings* GetSettings() const noexcept override;
+    GameSettings* GetSettings() noexcept override;
 
     Texture* GetAssetTextureFromPath(const std::filesystem::path& path) const noexcept;
     AssetType GetAssetType(const std::filesystem::path& path) const noexcept;

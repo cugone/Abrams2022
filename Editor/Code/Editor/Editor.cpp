@@ -326,11 +326,11 @@ void Editor::HandleWindowResize(unsigned int newWidth, unsigned int newHeight) n
     buffer->Resize(newWidth, newHeight);
 }
 
-const GameSettings& Editor::GetSettings() const noexcept {
+const GameSettings* Editor::GetSettings() const noexcept {
     return GameBase::GetSettings();
 }
 
-GameSettings& Editor::GetSettings() noexcept {
+GameSettings* Editor::GetSettings() noexcept {
     return GameBase::GetSettings();
 }
 
