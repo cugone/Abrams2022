@@ -314,6 +314,7 @@ public:
     virtual void DrawFilledCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept = 0;
+    virtual void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents) noexcept = 0;
     virtual void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept = 0;
     virtual void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept = 0;
     virtual void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept = 0;
@@ -623,6 +624,7 @@ public:
     void DrawFilledCircle2D([[maybe_unused]] const Disc2& circle, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawFilledCircle2D([[maybe_unused]] const Vector2& center, [[maybe_unused]] float radius, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}
+    void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector4& edgeHalfExtents) noexcept override {}
     void DrawAABB2([[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor) noexcept override {}
     void DrawOBB2([[maybe_unused]] float orientationDegrees, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha) noexcept override {}
     void DrawOBB2([[maybe_unused]] const OBB2& obb, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}

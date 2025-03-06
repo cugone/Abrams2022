@@ -1352,14 +1352,27 @@ void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgb
 }
 
 void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
+    const auto borders = Vector4{edgeHalfExtents.x, edgeHalfExtents.y, edgeHalfExtents.x, edgeHalfExtents.y};
+    DrawAABB2(bounds, edgeColor, fillColor, borders);
+}
+
+void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept {
+    AABB2 bounds;
+    bounds.mins = Vector2(-0.5f, -0.5f);
+    bounds.maxs = Vector2(0.5f, 0.5f);
+    Vector4 edge_half_extents = Vector4::Zero;
+    DrawAABB2(bounds, edgeColor, fillColor, edge_half_extents);
+}
+
+void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents /*= Vector4::Zero*/) noexcept {
     const Vector2 lt_inner(bounds.mins.x, bounds.mins.y);
     const Vector2 lb_inner(bounds.mins.x, bounds.maxs.y);
     const Vector2 rt_inner(bounds.maxs.x, bounds.mins.y);
     const Vector2 rb_inner(bounds.maxs.x, bounds.maxs.y);
     const Vector2 lt_outer(bounds.mins.x - edgeHalfExtents.x, bounds.mins.y - edgeHalfExtents.y);
-    const Vector2 lb_outer(bounds.mins.x - edgeHalfExtents.x, bounds.maxs.y + edgeHalfExtents.y);
-    const Vector2 rt_outer(bounds.maxs.x + edgeHalfExtents.x, bounds.mins.y - edgeHalfExtents.y);
-    const Vector2 rb_outer(bounds.maxs.x + edgeHalfExtents.x, bounds.maxs.y + edgeHalfExtents.y);
+    const Vector2 lb_outer(bounds.mins.x - edgeHalfExtents.x, bounds.maxs.y + edgeHalfExtents.z);
+    const Vector2 rt_outer(bounds.maxs.x + edgeHalfExtents.z, bounds.mins.y - edgeHalfExtents.y);
+    const Vector2 rb_outer(bounds.maxs.x + edgeHalfExtents.z, bounds.maxs.y + edgeHalfExtents.w);
 
     const std::vector<Vertex3D> vbo = {
     Vertex3D(Vector3(rt_outer, 0.0f), edgeColor),
@@ -1390,19 +1403,11 @@ void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba&
     };
     // clang-format on
 
-    if(edgeHalfExtents == Vector2::Zero) {
+    if(edgeHalfExtents == Vector4::Zero) {
         DrawIndexed(PrimitiveType::Lines, vbo, ibo, ibo.size() - 6, 6);
     } else {
         DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
     }
-}
-
-void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept {
-    AABB2 bounds;
-    bounds.mins = Vector2(-0.5f, -0.5f);
-    bounds.maxs = Vector2(0.5f, 0.5f);
-    Vector2 edge_half_extents = Vector2::Zero;
-    DrawAABB2(bounds, edgeColor, fillColor, edge_half_extents);
 }
 
 void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor /*= Rgba::NoAlpha*/, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
