@@ -551,7 +551,12 @@
     <ClInclude Include="Video\VideoSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Renderer\DirectX\Shaders\roundedrectangle.hlsl" />
+    <FxCompile Include="Renderer\DirectX\Shaders\roundedrectangle.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Renderer\DirectX\Shaders\webm.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>
