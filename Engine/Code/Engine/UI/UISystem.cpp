@@ -3,6 +3,8 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Input/KeyCode.hpp"
+
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
 #include "Engine/Math/Vector4.hpp"
@@ -24,6 +26,7 @@
 #include "Engine/UI/UIWidget.hpp"
 
 #include <Thirdparty/Imgui/imgui_internal.h>
+#include <Thirdparty/clay/clay.h>
 
 #include <algorithm>
 
@@ -172,6 +175,11 @@ void UISystem::Initialize() noexcept {
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(dx_device, dx_context);
 
+    ClayInit();
+}
+
+void UISystem::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
+    m_clayLayoutCallback = std::move(layoutCallback);
 }
 
 void UISystem::BeginFrame() noexcept {
@@ -183,7 +191,7 @@ void UISystem::BeginFrame() noexcept {
     }
 }
 
-void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
+void UISystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     const auto* const app = ServiceLocator::get<IAppService>();
     auto& io = ImGui::GetIO();
     io.AddFocusEvent(app->HasFocus());
@@ -196,6 +204,9 @@ void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
         ImGui::ShowMetricsWindow(&m_show_imgui_metrics_window);
     }
 #endif
+
+    ClayUpdate(deltaSeconds);
+
 }
 
 void UISystem::Render() const noexcept {
@@ -217,6 +228,7 @@ void UISystem::Render() const noexcept {
     m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer->GetCurrentViewportAspectRatio());
     renderer->SetCamera(m_ui_camera);
 
+    ClayRender();
 }
 
 void UISystem::EndFrame() noexcept {
@@ -226,6 +238,216 @@ void UISystem::EndFrame() noexcept {
 
 bool UISystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     return ImGui_ImplWin32_WndProcHandler(static_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
+}
+
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) {
+    // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
+    // Note: Clay_String->chars is not guaranteed to be null terminated
+    KerningFont* font = static_cast<KerningFont*>(userData);
+    const auto str_text = std::string(text.chars, text.length);
+    return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+}
+
+void UISystem::ClayInit() noexcept {
+    std::size_t totalMemorySize = Clay_MinMemorySize();
+    Clay_Arena clayMemory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, (char*)(std::malloc(totalMemorySize)));
+
+    const auto error_f = [](Clay_ErrorData errorData) {
+        const auto str = std::string(errorData.errorText.chars, errorData.errorText.length);
+        const auto msg = std::format("{:s}", errorData.errorText.chars);
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogLineAndFlush(msg);
+        switch(errorData.errorType) {
+        case CLAY_ERROR_TYPE_TEXT_MEASUREMENT_FUNCTION_NOT_PROVIDED: {
+            ERROR_AND_DIE("Clay Error: No Text Measurement function pointer provided. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_ARENA_CAPACITY_EXCEEDED: {
+            ERROR_AND_DIE("Clay Error: Arena memory exceeded. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_ELEMENTS_CAPACITY_EXCEEDED: {
+            ERROR_AND_DIE("Clay Error: Element Capacity exceeded. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_TEXT_MEASUREMENT_CAPACITY_EXCEEDED: {
+            ERROR_AND_DIE("Clay Error: Text Measurement Capacity exceeded. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_DUPLICATE_ID: {
+            ERROR_AND_DIE("Clay Error: Duplicate Clay ID detected. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_FLOATING_CONTAINER_PARENT_NOT_FOUND: {
+            ERROR_AND_DIE("Clay Error: Floating container has no parent or was not found. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_PERCENTAGE_OVER_1: {
+            ERROR_AND_DIE("Clay Error: Percentage value exceedes 1.0. See log for details.");
+            break;
+        }
+        case CLAY_ERROR_TYPE_INTERNAL_ERROR: {
+            ERROR_AND_DIE("An internal Clay error occured. See log for details.");
+        }
+        default:
+            break;
+        }
+    };
+
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
+    Clay_Initialize(clayMemory, Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y}, Clay_ErrorHandler{error_f});
+    Clay_SetMeasureTextFunction(MeasureText, renderer->GetFont("System32"));
+}
+
+void UISystem::ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    auto* input = ServiceLocator::get<IInputService>();
+    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
+    Clay_SetLayoutDimensions(Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y});
+    const auto coords = input->GetMouseCoords();
+    const auto isMouseDown = input->IsKeyDown(KeyCode::LButton);
+    Clay_SetPointerState({coords.x, coords.y}, isMouseDown);
+    const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * 10.0f;
+    Clay_UpdateScrollContainers(true, Clay_Vector2{scrollDelta.x, scrollDelta.y}, deltaSeconds.count());
+}
+
+void UISystem::ClayRender() const noexcept {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    renderer->BeginHUDRender(m_ui_camera, Vector2(renderer->GetOutput()->GetCenter()), static_cast<float>(renderer->GetOutput()->GetDimensions().y));
+    Clay_BeginLayout();
+    if(m_clayLayoutCallback) {
+        m_clayLayoutCallback();
+    }
+    m_clay_commands = Clay_EndLayout();
+    for(std::size_t i = 0; i < m_clay_commands.length; ++i) {
+        auto* command = &m_clay_commands.internalArray[i];
+        switch(command->commandType) {
+        case CLAY_RENDER_COMMAND_TYPE_NONE: // This command type should be skipped.
+        {
+            ERROR_AND_DIE("A CLAY RENDER COMMAND TYPE OF NONE WAS ISSUED.");
+        }
+        case CLAY_RENDER_COMMAND_TYPE_RECTANGLE: // The renderer should draw a solid color rectangle.
+        {
+            const auto& config = command->renderData.rectangle;
+            const auto r = config.backgroundColor.r / 255.0f;
+            const auto g = config.backgroundColor.g / 255.0f;
+            const auto b = config.backgroundColor.b / 255.0f;
+            const auto a = config.backgroundColor.a / 255.0f;
+            const auto& bb = command->boundingBox;
+            const auto width = bb.width;
+            const auto height = bb.height;
+            const auto top = bb.y;
+            const auto left = bb.x;
+            const auto bottom = top + height;
+            const auto right = left + width;
+            const auto top_left = Vector2(left, top);
+            const auto bottom_right = Vector2(right, bottom);
+            const auto bounds = AABB2(top_left, bottom_right);
+            const auto fillColor = Rgba{r, g, b, a};
+            const auto tl_cr = command->renderData.rectangle.cornerRadius.topLeft;
+            const auto tr_cr = command->renderData.rectangle.cornerRadius.topRight;
+            const auto br_cr = command->renderData.rectangle.cornerRadius.bottomRight;
+            const auto bl_cr = command->renderData.rectangle.cornerRadius.bottomLeft;
+            std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+            if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+                const auto R = Matrix4::I;
+                const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+                const auto M = Matrix4::MakeSRT(S, R, T);
+                renderer->DrawQuad2D(M, fillColor);
+            } else {
+                renderer->DrawFilledRoundedRectangle2D(bounds, fillColor, tl_cr);
+            }
+            break;
+        }
+        case CLAY_RENDER_COMMAND_TYPE_BORDER: // The renderer should draw a colored border inset into the bounding box.
+        {
+            const auto& config = command->renderData.border;
+            const auto bounds = AABB2(command->boundingBox.x, command->boundingBox.y, command->boundingBox.x + command->boundingBox.width, command->boundingBox.y + command->boundingBox.height);
+            const auto r = command->renderData.rectangle.backgroundColor.r / 255.0f;
+            const auto g = command->renderData.rectangle.backgroundColor.g / 255.0f;
+            const auto b = command->renderData.rectangle.backgroundColor.b / 255.0f;
+            const auto a = command->renderData.rectangle.backgroundColor.a / 255.0f;
+            const auto fillColor = Rgba{r, g, b, a};
+            const auto borderColor = Rgba{config.color.r / 255.0f, config.color.g / 255.0f, config.color.b / 255.0f, config.color.a / 255.0f};
+            const auto borderLeft = static_cast<float>(command->renderData.border.width.left);
+            const auto borderRight = static_cast<float>(command->renderData.border.width.right);
+            const auto borderTop = static_cast<float>(command->renderData.border.width.top);
+            const auto borderBottom = static_cast<float>(command->renderData.border.width.bottom);
+            const auto border = Vector4{borderLeft, borderTop, borderRight, borderBottom} * 0.5f;
+            renderer->SetMaterial(renderer->GetMaterial("__2D"));
+            renderer->SetModelMatrix();
+            renderer->DrawAABB2(bounds, borderColor, fillColor, border);
+            break;
+        }
+
+        case CLAY_RENDER_COMMAND_TYPE_TEXT: // The renderer should draw text.
+        {
+            const auto& config = command->renderData.text;
+            const auto str = std::string(config.stringContents.chars, config.stringContents.length);
+            const auto r = config.textColor.r / 255.0f;
+            const auto g = config.textColor.g / 255.0f;
+            const auto b = config.textColor.b / 255.0f;
+            const auto a = config.textColor.a / 255.0f;
+            const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
+            const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
+            const auto bounds = AABB2(top_left, bottom_right);
+            auto color = Rgba{r, g, b, a};
+            const auto* font = static_cast<const KerningFont*>(command->userData);
+            const auto S = Matrix4::I;
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            renderer->DrawTextLine(M, font, str, color);
+            break;
+        }
+        case CLAY_RENDER_COMMAND_TYPE_IMAGE: // The renderer should draw an image.
+        {
+            const auto& config = command->renderData.image;
+            auto* mat = static_cast<Material*>(config.imageData);
+            const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
+            const auto bottom_right = top_left + Vector2(config.sourceDimensions.width, config.sourceDimensions.height);
+            const auto bounds = AABB2(top_left, bottom_right);
+            const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            const auto tint = [config]() -> const Rgba {
+                const auto r = config.backgroundColor.r / 255.0f;
+                const auto g = config.backgroundColor.g / 255.0f;
+                const auto b = config.backgroundColor.b / 255.0f;
+                const auto a = config.backgroundColor.a / 255.0f;
+                const auto config_clr = Rgba{r, g, b, a};
+                if(config_clr == Rgba::NoAlpha) {
+                    return Rgba::White;
+                }
+                return config_clr;
+            }();
+            renderer->SetMaterial(mat);
+            renderer->DrawQuad2D(M, tint);
+            break;
+        }
+        case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START: // The renderer should begin clipping all future draw commands, only rendering content that falls within the provided boundingBox.
+        {
+            const auto bounds = AABB2(command->boundingBox.x, command->boundingBox.y, command->boundingBox.x + command->boundingBox.width, command->boundingBox.y + command->boundingBox.height);
+            renderer->SetScissor(bounds);
+            break;
+        }
+        case CLAY_RENDER_COMMAND_TYPE_SCISSOR_END: // The renderer should finish any previously active clipping, and begin rendering elements in full again.
+        {
+            renderer->SetScissorAsPercent();
+            break;
+        }
+        case CLAY_RENDER_COMMAND_TYPE_CUSTOM: // The renderer should provide a custom implementation for handling this render command based on its .customData
+        {
+            break;
+        }
+        default:
+            break;
+        }
+    }
 }
 
 bool UISystem::HasFocus() const noexcept {
