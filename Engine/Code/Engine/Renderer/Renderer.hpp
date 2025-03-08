@@ -361,7 +361,10 @@ public:
     void DrawFilledCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept override;
     void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept override;
     void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override;
+    void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents) noexcept override;
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept override;
+    void DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
+    void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
     void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept override;
     void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override;
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
@@ -484,6 +487,7 @@ private:
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultNormalMapShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultFontShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultCircle2DShaderProgram() noexcept;
+    [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultRoundedRectangle2DShaderProgram() noexcept;
     [[nodiscard]] std::unique_ptr<ShaderProgram> CreateDefaultUnlit2DSpriteShaderProgram() noexcept;
 
     [[nodiscard]] void CreateAndRegisterDefaultShaders() noexcept;
@@ -491,6 +495,7 @@ private:
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultUnlitShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefault2DShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultCircle2DShader() noexcept;
+    [[nodiscard]] std::unique_ptr<Shader> CreateDefaultRoundedRectangle2DShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultUnlit2DSpriteShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalShader() noexcept;
     [[nodiscard]] std::unique_ptr<Shader> CreateDefaultNormalMapShader() noexcept;
@@ -506,6 +511,7 @@ private:
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultNormalMapMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultInvalidMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultCircle2DMaterial() noexcept;
+    [[nodiscard]] std::unique_ptr<Material> CreateDefaultRoundedRectangle2DMaterial() noexcept;
     [[nodiscard]] std::unique_ptr<Material> CreateDefaultUnlit2DSpriteMaterial() noexcept;
 
     void CreateAndRegisterDefaultEngineFonts() noexcept;
@@ -558,6 +564,7 @@ private:
     matrix_buffer_t m_matrix_data{};
     time_buffer_t m_time_data{};
     lighting_buffer_t m_lighting_data{};
+    roundedrec_buffer_t m_roundedrec_data{};
     std::size_t m_current_vbo_size = 0;
     std::size_t m_current_vbco_size = 0;
     std::size_t m_current_vbio_size = 0;
@@ -583,6 +590,7 @@ private:
     std::unique_ptr<ConstantBuffer> m_matrix_cb = nullptr;
     std::unique_ptr<ConstantBuffer> m_time_cb = nullptr;
     std::unique_ptr<ConstantBuffer> m_lighting_cb = nullptr;
+    std::unique_ptr<ConstantBuffer> m_roundedrec_cb = nullptr;
     std::vector<std::pair<std::string, std::unique_ptr<Texture>>> m_textures{};
     std::vector<std::pair<std::string, std::unique_ptr<ShaderProgram>>> m_shader_programs;
     std::vector<std::pair<std::string, std::unique_ptr<Shader>>> m_shaders;

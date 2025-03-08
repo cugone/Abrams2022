@@ -314,7 +314,10 @@ public:
     virtual void DrawFilledCircle2D(const Disc2& circle, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept = 0;
+    virtual void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents) noexcept = 0;
     virtual void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept = 0;
+    virtual void DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept = 0;
+    virtual void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept = 0;
     virtual void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept = 0;
     virtual void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept = 0;
     virtual void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
@@ -623,7 +626,10 @@ public:
     void DrawFilledCircle2D([[maybe_unused]] const Disc2& circle, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawFilledCircle2D([[maybe_unused]] const Vector2& center, [[maybe_unused]] float radius, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
     void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}
+    void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector4& edgeHalfExtents) noexcept override {}
     void DrawAABB2([[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor) noexcept override {}
+    void DrawRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]]float radius) noexcept override {};
+    void DrawFilledRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] float radius) noexcept override {};
     void DrawOBB2([[maybe_unused]] float orientationDegrees, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha) noexcept override {}
     void DrawOBB2([[maybe_unused]] const OBB2& obb, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}
     void DrawPolygon2D([[maybe_unused]] float centerX, [[maybe_unused]] float centerY, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}

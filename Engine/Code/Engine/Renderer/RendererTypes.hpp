@@ -84,6 +84,10 @@ struct lighting_buffer_t {
     float padding[3] = {0.0f, 0.0f, 0.0f};
 };
 
+struct roundedrec_buffer_t {
+    Vector4 fill_exp_padding2 = Vector4(1.0f, 10.0f, 4.0f, 0.0f);
+};
+
 struct ComputeJob {
     std::size_t uavCount = 0;
     std::vector<Texture*> uavTextures{};
