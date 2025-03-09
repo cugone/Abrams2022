@@ -75,7 +75,7 @@ private:
     std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
     Stopwatch m_ini_saveTimer{};
     std::function<void()> m_clayLayoutCallback{};
-    mutable Clay_RenderCommandArray m_clay_commands;
+    mutable Clay_RenderCommandArray m_clay_commands{};
     bool m_show_imgui_demo_window = false;
     bool m_show_imgui_metrics_window = false;
     bool m_save_settings_to_disk = false;
