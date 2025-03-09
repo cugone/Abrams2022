@@ -2,6 +2,11 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/Stopwatch.hpp"
+
+#include "Engine/Platform/Win.hpp"
 
 #include "Engine/Renderer/Camera2D.hpp"
 
@@ -24,14 +29,11 @@
 #include <map>
 #include <memory>
 
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/Stopwatch.hpp"
-#include "Engine/Platform/Win.hpp"
-
 class UIWidget;
 class Renderer;
 class FileLogger;
 class InputSystem;
+class KerningFont;
 
 //TODO: Maybe make Service
 class UISystem : public EngineSubsystem {
