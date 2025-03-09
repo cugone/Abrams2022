@@ -37,7 +37,7 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
 namespace Clay {
 Clay_Color RgbaToClayColor(Rgba color) noexcept {
     const auto&& [r, g, b, a] = color.GetAsFloats();
-    return { r, g, b, a };
+    return {r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f};
 }
 Clay_String StrToClayString(std::string str) noexcept {
     return Clay_String{static_cast<int32_t>(str.size()), str.c_str()};
@@ -386,20 +386,87 @@ void UISystem::ClayRender() const noexcept {
         {
             const auto& config = command->renderData.border;
             const auto bounds = AABB2(command->boundingBox.x, command->boundingBox.y, command->boundingBox.x + command->boundingBox.width, command->boundingBox.y + command->boundingBox.height);
-            const auto r = command->renderData.rectangle.backgroundColor.r / 255.0f;
-            const auto g = command->renderData.rectangle.backgroundColor.g / 255.0f;
-            const auto b = command->renderData.rectangle.backgroundColor.b / 255.0f;
-            const auto a = command->renderData.rectangle.backgroundColor.a / 255.0f;
-            const auto fillColor = Rgba{r, g, b, a};
             const auto borderColor = Rgba{config.color.r / 255.0f, config.color.g / 255.0f, config.color.b / 255.0f, config.color.a / 255.0f};
             const auto borderLeft = static_cast<float>(command->renderData.border.width.left);
             const auto borderRight = static_cast<float>(command->renderData.border.width.right);
             const auto borderTop = static_cast<float>(command->renderData.border.width.top);
             const auto borderBottom = static_cast<float>(command->renderData.border.width.bottom);
-            const auto border = Vector4{borderLeft, borderTop, borderRight, borderBottom} * 0.5f;
-            renderer->SetMaterial(renderer->GetMaterial("__2D"));
-            renderer->SetModelMatrix();
-            renderer->DrawAABB2(bounds, borderColor, fillColor, border);
+            if(borderLeft > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.maxs.x = new_bounds.mins.x + borderLeft;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderRight > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.mins.x = new_bounds.maxs.x - borderRight;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderTop > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.maxs.y = new_bounds.mins.y + borderTop;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderBottom > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.mins.y = new_bounds.maxs.y - borderBottom;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
             break;
         }
 
