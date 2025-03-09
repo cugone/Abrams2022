@@ -33,6 +33,27 @@
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept;
 
+
+namespace Clay {
+Clay_Color RgbaToClayColor(Rgba color) noexcept {
+    const auto&& [r, g, b, a] = color.GetAsFloats();
+    return { r, g, b, a };
+}
+Clay_String StrToClayString(std::string str) noexcept {
+    return Clay_String{static_cast<int32_t>(str.size()), str.c_str()};
+}
+
+Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept {
+    return Clay_Dimensions{v.x, v.y};
+}
+
+Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept {
+    return Clay_Vector2{v.x, v.y};
+}
+
+} // namespace Clay
+
+
 namespace ImGui {
 void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
     if(texture) {

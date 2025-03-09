@@ -101,3 +101,10 @@ void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vect
 [[nodiscard]] bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::Zero) noexcept;
 void TextColored(const Rgba& color, const char* fmt, ...) noexcept;
 } // namespace ImGui
+
+namespace Clay {
+Clay_Color RgbaToClayColor(Rgba color) noexcept;
+Clay_String StrToClayString(std::string str) noexcept;
+Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept;
+Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept;
+}
