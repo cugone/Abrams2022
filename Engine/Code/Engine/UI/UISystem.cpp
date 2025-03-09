@@ -317,19 +317,17 @@ void UISystem::ClayInit() noexcept {
     };
 
     auto* renderer = ServiceLocator::get<IRendererService>();
-    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
-    Clay_Initialize(clayMemory, Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y}, Clay_ErrorHandler{error_f});
+    Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
     Clay_SetMeasureTextFunction(MeasureText, renderer->GetFont("System32"));
 }
 
 void UISystem::ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
     auto* input = ServiceLocator::get<IInputService>();
-    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
-    Clay_SetLayoutDimensions(Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y});
+    Clay_SetLayoutDimensions(Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())));
     const auto coords = input->GetMouseCoords();
     const auto isMouseDown = input->IsKeyDown(KeyCode::LButton);
-    Clay_SetPointerState({coords.x, coords.y}, isMouseDown);
+    Clay_SetPointerState(Clay::Vector2ToClayVector2(coords), isMouseDown);
     const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * 10.0f;
     Clay_UpdateScrollContainers(true, Clay_Vector2{scrollDelta.x, scrollDelta.y}, deltaSeconds.count());
 }
