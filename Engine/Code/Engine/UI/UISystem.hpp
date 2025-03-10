@@ -2,15 +2,22 @@
 
 #include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
+#include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/Rgba.hpp"
+#include "Engine/Core/Stopwatch.hpp"
+
+#include "Engine/Platform/Win.hpp"
 
 #include "Engine/Renderer/Camera2D.hpp"
 
 #ifndef UI_DEBUG
     #define IMGUI_DISABLE_DEMO_WINDOWS
     #define IMGUI_DISABLE_METRICS_WINDOW
+    #define CLAY_DISABLE_DEBUG_WINDOW
 #else
     #undef IMGUI_DISABLE_DEMO_WINDOWS
     #undef IMGUI_DISABLE_METRICS_WINDOW
+    #undef CLAY_DISABLE_DEBUG_WINDOW
 #endif
 
 #include <Thirdparty/Imgui/imgui.h>
@@ -24,14 +31,11 @@
 #include <map>
 #include <memory>
 
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/Stopwatch.hpp"
-#include "Engine/Platform/Win.hpp"
-
 class UIWidget;
 class Renderer;
 class FileLogger;
 class InputSystem;
+class KerningFont;
 
 //TODO: Maybe make Service
 class UISystem : public EngineSubsystem {
@@ -63,6 +67,10 @@ public:
     [[nodiscard]] bool IsAnyImguiDebugWindowVisible() const noexcept;
 
     void SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept;
+    [[nodiscard]] bool IsClayDebugWindowVisible() const noexcept;
+    void ToggleClayDebugWindow() noexcept;
+
+    [[nodiscard]] bool IsAnyDebugWindowVisible() const noexcept;
 
 protected:
 private:
@@ -70,14 +78,17 @@ private:
     void ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ClayRender() const noexcept;
 
-    ImGuiContext* m_context{};
     mutable Camera2D m_ui_camera{};
-    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
-    Stopwatch m_ini_saveTimer{};
     std::function<void()> m_clayLayoutCallback{};
-    mutable Clay_RenderCommandArray m_clay_commands;
+    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
+    mutable Clay_RenderCommandArray m_clay_commands{};
+    Stopwatch m_ini_saveTimer{};
+    ImGuiContext* m_imguiContext{};
+    Clay_Context* m_clayContext{};
+    float m_clayScrollSpeed{10.0f};
     bool m_show_imgui_demo_window = false;
     bool m_show_imgui_metrics_window = false;
+    bool m_show_clay_debug_window = false;
     bool m_save_settings_to_disk = false;
 };
 
@@ -99,3 +110,11 @@ void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vect
 [[nodiscard]] bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::Zero) noexcept;
 void TextColored(const Rgba& color, const char* fmt, ...) noexcept;
 } // namespace ImGui
+
+namespace Clay {
+Clay_Color RgbaToClayColor(Rgba color) noexcept;
+Clay_String StrToClayString(const std::string& str) noexcept;
+Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept;
+Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept;
+Rgba ClayColorToRgba(Clay_Color textColor) noexcept;
+}

@@ -31,6 +31,36 @@
 #include <algorithm>
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept;
+
+
+namespace Clay {
+Clay_Color RgbaToClayColor(Rgba color) noexcept {
+    const auto&& [r, g, b, a] = color.GetAsFloats();
+    return {r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f};
+}
+Clay_String StrToClayString(const std::string& str) noexcept {
+    return Clay_String{static_cast<int32_t>(str.size()), str.data()};
+}
+
+Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept {
+    return Clay_Dimensions{v.x, v.y};
+}
+
+Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept {
+    return Clay_Vector2{v.x, v.y};
+}
+
+Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
+    const auto r = textColor.r / 255.0f;
+    const auto g = textColor.g / 255.0f;
+    const auto b = textColor.b / 255.0f;
+    const auto a = textColor.a / 255.0f;
+    return Rgba{r, g, b, a};
+}
+
+} // namespace Clay
+
 
 namespace ImGui {
 void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
@@ -127,7 +157,7 @@ void TextColored(const Rgba& color, const char* fmt, ...) noexcept {
 
 UISystem::UISystem() noexcept
 : EngineSubsystem()
-, m_context(ImGui::CreateContext()) {
+, m_imguiContext(ImGui::CreateContext()) {
 #ifdef UI_DEBUG
     IMGUI_CHECKVERSION();
 #endif
@@ -137,8 +167,8 @@ UISystem::~UISystem() noexcept {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
-    ImGui::DestroyContext(m_context);
-    m_context = nullptr;
+    ImGui::DestroyContext(m_imguiContext);
+    m_imguiContext = nullptr;
 }
 
 void UISystem::Initialize() noexcept {
@@ -180,6 +210,25 @@ void UISystem::Initialize() noexcept {
 
 void UISystem::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
     m_clayLayoutCallback = std::move(layoutCallback);
+}
+
+bool UISystem::IsClayDebugWindowVisible() const noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    return m_show_imgui_demo_window;
+#else
+    return false;
+#endif
+}
+
+void UISystem::ToggleClayDebugWindow() noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_show_clay_debug_window = !m_show_clay_debug_window;
+    auto* input = ServiceLocator::get<IInputService>();
+    if(!input->IsMouseCursorVisible()) {
+        input->ShowMouseCursor();
+    }
+    Clay_SetDebugModeEnabled(m_show_clay_debug_window);
+#endif
 }
 
 void UISystem::BeginFrame() noexcept {
@@ -240,12 +289,18 @@ bool UISystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
     return ImGui_ImplWin32_WndProcHandler(static_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
 }
 
-static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) {
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-    KerningFont* font = static_cast<KerningFont*>(userData);
-    const auto str_text = std::string(text.chars, text.length);
-    return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+    if(userData == nullptr || text.chars == nullptr) {
+        return Clay_Dimensions{0.0f, 0.0f};
+    }
+    if(KerningFont* font = static_cast<KerningFont*>(userData); font != nullptr) {
+        const auto str_text = std::string(text.chars, text.length);
+        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+    } else {
+        return Clay_Dimensions{0.0f, 0.0f};
+    }
 }
 
 void UISystem::ClayInit() noexcept {
@@ -295,20 +350,18 @@ void UISystem::ClayInit() noexcept {
     };
 
     auto* renderer = ServiceLocator::get<IRendererService>();
-    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
-    Clay_Initialize(clayMemory, Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y}, Clay_ErrorHandler{error_f});
+    m_clayContext = Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
     Clay_SetMeasureTextFunction(MeasureText, renderer->GetFont("System32"));
 }
 
 void UISystem::ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
     auto* input = ServiceLocator::get<IInputService>();
-    const auto dimsAsVec2 = Vector2(renderer->GetOutput()->GetDimensions());
-    Clay_SetLayoutDimensions(Clay_Dimensions{dimsAsVec2.x, dimsAsVec2.y});
+    Clay_SetLayoutDimensions(Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())));
     const auto coords = input->GetMouseCoords();
     const auto isMouseDown = input->IsKeyDown(KeyCode::LButton);
-    Clay_SetPointerState({coords.x, coords.y}, isMouseDown);
-    const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * 10.0f;
+    Clay_SetPointerState(Clay::Vector2ToClayVector2(coords), isMouseDown);
+    const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * m_clayScrollSpeed;
     Clay_UpdateScrollContainers(true, Clay_Vector2{scrollDelta.x, scrollDelta.y}, deltaSeconds.count());
 }
 
@@ -366,20 +419,87 @@ void UISystem::ClayRender() const noexcept {
         {
             const auto& config = command->renderData.border;
             const auto bounds = AABB2(command->boundingBox.x, command->boundingBox.y, command->boundingBox.x + command->boundingBox.width, command->boundingBox.y + command->boundingBox.height);
-            const auto r = command->renderData.rectangle.backgroundColor.r / 255.0f;
-            const auto g = command->renderData.rectangle.backgroundColor.g / 255.0f;
-            const auto b = command->renderData.rectangle.backgroundColor.b / 255.0f;
-            const auto a = command->renderData.rectangle.backgroundColor.a / 255.0f;
-            const auto fillColor = Rgba{r, g, b, a};
             const auto borderColor = Rgba{config.color.r / 255.0f, config.color.g / 255.0f, config.color.b / 255.0f, config.color.a / 255.0f};
             const auto borderLeft = static_cast<float>(command->renderData.border.width.left);
             const auto borderRight = static_cast<float>(command->renderData.border.width.right);
             const auto borderTop = static_cast<float>(command->renderData.border.width.top);
             const auto borderBottom = static_cast<float>(command->renderData.border.width.bottom);
-            const auto border = Vector4{borderLeft, borderTop, borderRight, borderBottom} * 0.5f;
-            renderer->SetMaterial(renderer->GetMaterial("__2D"));
-            renderer->SetModelMatrix();
-            renderer->DrawAABB2(bounds, borderColor, fillColor, border);
+            if(borderLeft > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.maxs.x = new_bounds.mins.x + borderLeft;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderRight > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.mins.x = new_bounds.maxs.x - borderRight;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderTop > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.maxs.y = new_bounds.mins.y + borderTop;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
+            if(borderBottom > 0.0f) {
+                auto new_bounds = bounds;
+                new_bounds.mins.y = new_bounds.maxs.y - borderBottom;
+                const auto tl_cr = command->renderData.border.cornerRadius.topLeft;
+                const auto tr_cr = command->renderData.border.cornerRadius.topRight;
+                const auto br_cr = command->renderData.border.cornerRadius.bottomRight;
+                const auto bl_cr = command->renderData.border.cornerRadius.bottomLeft;
+                std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+                if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
+                    renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                    const auto S = Matrix4::CreateScaleMatrix(new_bounds.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(new_bounds.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, borderColor);
+                } else {
+                    renderer->DrawFilledRoundedRectangle2D(new_bounds, borderColor, tl_cr);
+                }
+            }
             break;
         }
 
@@ -387,15 +507,11 @@ void UISystem::ClayRender() const noexcept {
         {
             const auto& config = command->renderData.text;
             const auto str = std::string(config.stringContents.chars, config.stringContents.length);
-            const auto r = config.textColor.r / 255.0f;
-            const auto g = config.textColor.g / 255.0f;
-            const auto b = config.textColor.b / 255.0f;
-            const auto a = config.textColor.a / 255.0f;
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
             const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
             const auto bounds = AABB2(top_left, bottom_right);
-            auto color = Rgba{r, g, b, a};
-            const auto* font = static_cast<const KerningFont*>(command->userData);
+            auto color = Clay::ClayColorToRgba(config.textColor);
+            auto* font = static_cast<KerningFont*>(command->userData);
             const auto S = Matrix4::I;
             const auto R = Matrix4::I;
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
@@ -506,6 +622,14 @@ void UISystem::ToggleImguiMetricsWindow() noexcept {
 bool UISystem::IsAnyImguiDebugWindowVisible() const noexcept {
 #ifdef UI_DEBUG
     return IsImguiDemoWindowVisible() || IsImguiMetricsWindowVisible();
+#else
+    return false;
+#endif
+}
+
+bool UISystem::IsAnyDebugWindowVisible() const noexcept {
+#ifdef UI_DEBUG
+    return IsAnyImguiDebugWindowVisible() || IsClayDebugWindowVisible();
 #else
     return false;
 #endif
