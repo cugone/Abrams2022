@@ -51,6 +51,14 @@ Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept {
     return Clay_Vector2{v.x, v.y};
 }
 
+Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
+    const auto r = textColor.r / 255.0f;
+    const auto g = textColor.g / 255.0f;
+    const auto b = textColor.b / 255.0f;
+    const auto a = textColor.a / 255.0f;
+    return Rgba{r, g, b, a};
+}
+
 } // namespace Clay
 
 
@@ -493,15 +501,11 @@ void UISystem::ClayRender() const noexcept {
         {
             const auto& config = command->renderData.text;
             const auto str = std::string(config.stringContents.chars, config.stringContents.length);
-            const auto r = config.textColor.r / 255.0f;
-            const auto g = config.textColor.g / 255.0f;
-            const auto b = config.textColor.b / 255.0f;
-            const auto a = config.textColor.a / 255.0f;
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
             const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
             const auto bounds = AABB2(top_left, bottom_right);
-            auto color = Rgba{r, g, b, a};
-            const auto* font = static_cast<const KerningFont*>(command->userData);
+            auto color = Clay::ClayColorToRgba(config.textColor);
+            auto* font = static_cast<KerningFont*>(command->userData);
             const auto S = Matrix4::I;
             const auto R = Matrix4::I;
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
