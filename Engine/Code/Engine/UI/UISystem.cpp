@@ -292,9 +292,15 @@ bool UISystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-    KerningFont* font = static_cast<KerningFont*>(userData);
-    const auto str_text = std::string(text.chars, text.length);
-    return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+    if(userData == nullptr || text.chars == nullptr) {
+        return Clay_Dimensions{0.0f, 0.0f};
+    }
+    if(KerningFont* font = static_cast<KerningFont*>(userData); font != nullptr) {
+        const auto str_text = std::string(text.chars, text.length);
+        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+    } else {
+        return Clay_Dimensions{0.0f, 0.0f};
+    }
 }
 
 void UISystem::ClayInit() noexcept {
