@@ -13,9 +13,11 @@
 #ifndef UI_DEBUG
     #define IMGUI_DISABLE_DEMO_WINDOWS
     #define IMGUI_DISABLE_METRICS_WINDOW
+    #define CLAY_DISABLE_DEBUG_WINDOW
 #else
     #undef IMGUI_DISABLE_DEMO_WINDOWS
     #undef IMGUI_DISABLE_METRICS_WINDOW
+    #undef CLAY_DISABLE_DEBUG_WINDOW
 #endif
 
 #include <Thirdparty/Imgui/imgui.h>
@@ -65,6 +67,10 @@ public:
     [[nodiscard]] bool IsAnyImguiDebugWindowVisible() const noexcept;
 
     void SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept;
+    [[nodiscard]] bool IsClayDebugWindowVisible() const noexcept;
+    void ToggleClayDebugWindow() noexcept;
+
+    [[nodiscard]] bool IsAnyDebugWindowVisible() const noexcept;
 
 protected:
 private:
@@ -80,6 +86,7 @@ private:
     mutable Clay_RenderCommandArray m_clay_commands{};
     bool m_show_imgui_demo_window = false;
     bool m_show_imgui_metrics_window = false;
+    bool m_show_clay_debug_window = false;
     bool m_save_settings_to_disk = false;
 };
 

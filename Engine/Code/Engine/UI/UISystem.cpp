@@ -204,6 +204,25 @@ void UISystem::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noe
     m_clayLayoutCallback = std::move(layoutCallback);
 }
 
+bool UISystem::IsClayDebugWindowVisible() const noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    return m_show_imgui_demo_window;
+#else
+    return false;
+#endif
+}
+
+void UISystem::ToggleClayDebugWindow() noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_show_clay_debug_window = !m_show_clay_debug_window;
+    auto* input = ServiceLocator::get<IInputService>();
+    if(!input->IsMouseCursorVisible()) {
+        input->ShowMouseCursor();
+    }
+    Clay_SetDebugModeEnabled(m_show_clay_debug_window);
+#endif
+}
+
 void UISystem::BeginFrame() noexcept {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -593,6 +612,14 @@ void UISystem::ToggleImguiMetricsWindow() noexcept {
 bool UISystem::IsAnyImguiDebugWindowVisible() const noexcept {
 #ifdef UI_DEBUG
     return IsImguiDemoWindowVisible() || IsImguiMetricsWindowVisible();
+#else
+    return false;
+#endif
+}
+
+bool UISystem::IsAnyDebugWindowVisible() const noexcept {
+#ifdef UI_DEBUG
+    return IsAnyImguiDebugWindowVisible() || IsClayDebugWindowVisible();
 #else
     return false;
 #endif
