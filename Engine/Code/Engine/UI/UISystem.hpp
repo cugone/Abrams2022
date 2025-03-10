@@ -78,12 +78,13 @@ private:
     void ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ClayRender() const noexcept;
 
-    ImGuiContext* m_context{};
     mutable Camera2D m_ui_camera{};
-    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
-    Stopwatch m_ini_saveTimer{};
     std::function<void()> m_clayLayoutCallback{};
+    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
     mutable Clay_RenderCommandArray m_clay_commands{};
+    Stopwatch m_ini_saveTimer{};
+    ImGuiContext* m_context{};
+    Clay_Context* m_clayContext{};
     float m_clayScrollSpeed{10.0f};
     bool m_show_imgui_demo_window = false;
     bool m_show_imgui_metrics_window = false;
