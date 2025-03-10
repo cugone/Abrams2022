@@ -347,7 +347,7 @@ void UISystem::ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept {
     const auto coords = input->GetMouseCoords();
     const auto isMouseDown = input->IsKeyDown(KeyCode::LButton);
     Clay_SetPointerState(Clay::Vector2ToClayVector2(coords), isMouseDown);
-    const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * 10.0f;
+    const auto scrollDelta = Vector2(IntVector2(input->GetMouseWheelHorizontalPositionNormalized(), input->GetMouseWheelPositionNormalized())) * m_clayScrollSpeed;
     Clay_UpdateScrollContainers(true, Clay_Vector2{scrollDelta.x, scrollDelta.y}, deltaSeconds.count());
 }
 
