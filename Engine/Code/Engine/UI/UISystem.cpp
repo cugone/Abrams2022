@@ -336,7 +336,7 @@ void UISystem::ClayInit() noexcept {
     };
 
     auto* renderer = ServiceLocator::get<IRendererService>();
-    Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
+    m_clayContext = Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
     Clay_SetMeasureTextFunction(MeasureText, renderer->GetFont("System32"));
 }
 
