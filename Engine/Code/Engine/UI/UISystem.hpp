@@ -83,7 +83,7 @@ private:
     std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
     mutable Clay_RenderCommandArray m_clay_commands{};
     Stopwatch m_ini_saveTimer{};
-    ImGuiContext* m_context{};
+    ImGuiContext* m_imguiContext{};
     Clay_Context* m_clayContext{};
     float m_clayScrollSpeed{10.0f};
     bool m_show_imgui_demo_window = false;

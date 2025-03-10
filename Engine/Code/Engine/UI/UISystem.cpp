@@ -149,7 +149,7 @@ void TextColored(const Rgba& color, const char* fmt, ...) noexcept {
 
 UISystem::UISystem() noexcept
 : EngineSubsystem()
-, m_context(ImGui::CreateContext()) {
+, m_imguiContext(ImGui::CreateContext()) {
 #ifdef UI_DEBUG
     IMGUI_CHECKVERSION();
 #endif
@@ -159,8 +159,8 @@ UISystem::~UISystem() noexcept {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
-    ImGui::DestroyContext(m_context);
-    m_context = nullptr;
+    ImGui::DestroyContext(m_imguiContext);
+    m_imguiContext = nullptr;
 }
 
 void UISystem::Initialize() noexcept {
