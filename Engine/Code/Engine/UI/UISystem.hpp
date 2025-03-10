@@ -113,7 +113,8 @@ void TextColored(const Rgba& color, const char* fmt, ...) noexcept;
 
 namespace Clay {
 Clay_Color RgbaToClayColor(Rgba color) noexcept;
-Clay_String StrToClayString(std::string str) noexcept;
+Clay_String StrToClayString(const std::string& str) noexcept;
 Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept;
 Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept;
+Rgba ClayColorToRgba(Clay_Color textColor) noexcept;
 }

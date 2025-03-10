@@ -39,8 +39,8 @@ Clay_Color RgbaToClayColor(Rgba color) noexcept {
     const auto&& [r, g, b, a] = color.GetAsFloats();
     return {r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f};
 }
-Clay_String StrToClayString(std::string str) noexcept {
-    return Clay_String{static_cast<int32_t>(str.size()), str.c_str()};
+Clay_String StrToClayString(const std::string& str) noexcept {
+    return Clay_String{static_cast<int32_t>(str.size()), str.data()};
 }
 
 Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept {
