@@ -178,10 +178,6 @@ void UISystem::Initialize() noexcept {
     namespace FS = std::filesystem;
 
     auto* renderer = ServiceLocator::get<IRendererService>();
-    auto* hwnd = renderer->GetOutput()->GetWindow()->GetWindowHandle();
-    auto* dx_device = renderer->GetDevice()->GetDxDevice();
-    auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
-
     const auto dims = Vector2{renderer->GetOutput()->GetDimensions()};
     auto& io = ImGui::GetIO();
     io.DisplaySize.x = dims.x;
@@ -205,7 +201,11 @@ void UISystem::Initialize() noexcept {
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos | ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
 
+    auto* hwnd = renderer->GetOutput()->GetWindow()->GetWindowHandle();
     ImGui_ImplWin32_Init(hwnd);
+
+    auto* dx_device = renderer->GetDevice()->GetDxDevice();
+    auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
     ImGui_ImplDX11_Init(dx_device, dx_context);
 
     ClayInit();
