@@ -85,6 +85,7 @@ private:
     Stopwatch m_ini_saveTimer{};
     ImGuiContext* m_imguiContext{};
     Clay_Context* m_clayContext{};
+    std::unique_ptr<char[]> m_clayMemoryBlock{};
     float m_clayScrollSpeed{10.0f};
     bool m_show_imgui_demo_window = false;
     bool m_show_imgui_metrics_window = false;

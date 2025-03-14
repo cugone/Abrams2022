@@ -164,11 +164,14 @@ UISystem::UISystem() noexcept
 }
 
 UISystem::~UISystem() noexcept {
+    m_clayMemoryBlock.reset(nullptr);
+
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
     ImGui::DestroyContext(m_imguiContext);
     m_imguiContext = nullptr;
+
 }
 
 void UISystem::Initialize() noexcept {
@@ -304,9 +307,6 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
 }
 
 void UISystem::ClayInit() noexcept {
-    std::size_t totalMemorySize = Clay_MinMemorySize();
-    Clay_Arena clayMemory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, (char*)(std::malloc(totalMemorySize)));
-
     const auto error_f = [](Clay_ErrorData errorData) {
         const auto str = std::string(errorData.errorText.chars, errorData.errorText.length);
         const auto msg = std::format("{:s}", errorData.errorText.chars);
@@ -348,6 +348,9 @@ void UISystem::ClayInit() noexcept {
             break;
         }
     };
+    std::size_t totalMemorySize = Clay_MinMemorySize();
+    m_clayMemoryBlock = std::make_unique<char[]>(totalMemorySize);
+    Clay_Arena clayMemory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, m_clayMemoryBlock.get());
 
     auto* renderer = ServiceLocator::get<IRendererService>();
     m_clayContext = Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
