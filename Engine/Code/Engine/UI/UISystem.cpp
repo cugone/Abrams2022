@@ -175,7 +175,6 @@ UISystem::~UISystem() noexcept {
 }
 
 void UISystem::Initialize() noexcept {
-    namespace FS = std::filesystem;
     ImguiInit();
     ClayInit();
 }
