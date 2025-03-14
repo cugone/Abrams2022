@@ -74,6 +74,8 @@ public:
 
 protected:
 private:
+    void ImguiInit() noexcept;
+
     void ClayInit() noexcept;
     void ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ClayRender() const noexcept;

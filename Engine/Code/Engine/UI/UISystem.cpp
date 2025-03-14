@@ -176,7 +176,11 @@ UISystem::~UISystem() noexcept {
 
 void UISystem::Initialize() noexcept {
     namespace FS = std::filesystem;
+    ImguiInit();
+    ClayInit();
+}
 
+void UISystem::ImguiInit() noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
     const auto dims = Vector2{renderer->GetOutput()->GetDimensions()};
     auto& io = ImGui::GetIO();
@@ -207,8 +211,6 @@ void UISystem::Initialize() noexcept {
     auto* dx_device = renderer->GetDevice()->GetDxDevice();
     auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
     ImGui_ImplDX11_Init(dx_device, dx_context);
-
-    ClayInit();
 }
 
 void UISystem::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
