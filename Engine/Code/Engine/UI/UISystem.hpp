@@ -31,7 +31,6 @@
 #include <map>
 #include <memory>
 
-class UIWidget;
 class Renderer;
 class FileLogger;
 class InputSystem;

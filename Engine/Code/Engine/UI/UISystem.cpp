@@ -23,8 +23,6 @@
 #include "Engine/Services/IInputService.hpp"
 #include "Engine/Services/ServiceLocator.hpp"
 
-#include "Engine/UI/UIWidget.hpp"
-
 #include <Thirdparty/Imgui/imgui_internal.h>
 #include <Thirdparty/clay/clay.h>
 
