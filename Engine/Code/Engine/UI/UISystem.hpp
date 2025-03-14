@@ -46,7 +46,6 @@ public:
     UISystem& operator=(const UISystem& other) = default;
     UISystem& operator=(UISystem&& other) = default;
     virtual ~UISystem() noexcept;
-
     virtual void Initialize() noexcept override;
     virtual void BeginFrame() noexcept override;
     virtual void Update(TimeUtils::FPSeconds deltaSeconds) noexcept override;
@@ -79,6 +78,9 @@ private:
     void ClayInit() noexcept;
     void ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ClayRender() const noexcept;
+
+    void ClayDeinitialize() noexcept;
+    void ImguiDeinitialize() noexcept;
 
     mutable Camera2D m_ui_camera{};
     std::function<void()> m_clayLayoutCallback{};

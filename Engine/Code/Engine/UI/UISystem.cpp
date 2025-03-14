@@ -164,14 +164,20 @@ UISystem::UISystem() noexcept
 }
 
 UISystem::~UISystem() noexcept {
-    m_clayMemoryBlock.reset(nullptr);
+    ClayDeinitialize();
+    ImguiDeinitialize();
+}
 
+void UISystem::ClayDeinitialize() noexcept {
+    m_clayMemoryBlock.reset(nullptr);
+}
+
+void UISystem::ImguiDeinitialize() noexcept {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
     ImGui::DestroyContext(m_imguiContext);
     m_imguiContext = nullptr;
-
 }
 
 void UISystem::Initialize() noexcept {
