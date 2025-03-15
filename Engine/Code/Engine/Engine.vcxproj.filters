@@ -649,6 +649,9 @@
     <ClCompile Include="UI\DearImgui.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="UI\ClayUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1675,6 +1678,9 @@
       <Filter>Thirdparty\clay</Filter>
     </ClInclude>
     <ClInclude Include="UI\DearImgui.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ClayUI.hpp">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
