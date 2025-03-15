@@ -646,6 +646,12 @@
     <ClCompile Include="..\Thirdparty\clay\clay.cpp">
       <Filter>Thirdparty\clay</Filter>
     </ClCompile>
+    <ClCompile Include="UI\DearImgui.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ClayUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -1670,6 +1676,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\clay\clay.h">
       <Filter>Thirdparty\clay</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\DearImgui.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ClayUI.hpp">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

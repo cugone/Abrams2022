@@ -188,6 +188,8 @@
     <ClCompile Include="System\Process.cpp" />
     <ClCompile Include="System\Ram.cpp" />
     <ClCompile Include="System\System.cpp" />
+    <ClCompile Include="UI\ClayUI.cpp" />
+    <ClCompile Include="UI\DearImgui.cpp" />
     <ClCompile Include="UI\UISystem.cpp" />
     <ClCompile Include="Video\VideoSystem.cpp" />
   </ItemGroup>
@@ -531,6 +533,8 @@
     <ClInclude Include="System\Process.hpp" />
     <ClInclude Include="System\Ram.hpp" />
     <ClInclude Include="System\System.hpp" />
+    <ClInclude Include="UI\ClayUI.hpp" />
+    <ClInclude Include="UI\DearImgui.hpp" />
     <ClInclude Include="UI\UISystem.hpp" />
     <ClInclude Include="Video\VideoSystem.hpp" />
   </ItemGroup>
