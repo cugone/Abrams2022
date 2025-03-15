@@ -1,11 +1,22 @@
 #include "Engine/UI/DearImgui.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include "Engine/Renderer/Renderer.hpp"
+
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IAppService.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
 #include <Thirdparty/Imgui/imgui_internal.h>
+
+#ifndef UI_DEBUG
+    #define IMGUI_DISABLE_DEMO_WINDOWS
+    #define IMGUI_DISABLE_METRICS_WINDOW
+#else
+    #undef IMGUI_DISABLE_DEMO_WINDOWS
+    #undef IMGUI_DISABLE_METRICS_WINDOW
+#endif
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

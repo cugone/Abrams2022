@@ -11,6 +11,12 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#ifndef UI_DEBUG
+    #define CLAY_DISABLE_DEBUG_WINDOW
+#else
+    #undef CLAY_DISABLE_DEBUG_WINDOW
+#endif
+
 
 namespace Clay {
 

@@ -5,7 +5,6 @@
 
 #include "Engine/Math/Vector2.hpp"
 
-#include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 
 #include <Thirdparty/clay/clay.h>

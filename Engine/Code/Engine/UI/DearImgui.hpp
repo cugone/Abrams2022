@@ -5,14 +5,6 @@
 #include "Engine/Core/Stopwatch.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 
-#ifndef UI_DEBUG
-    #define IMGUI_DISABLE_DEMO_WINDOWS
-    #define IMGUI_DISABLE_METRICS_WINDOW
-#else
-    #undef IMGUI_DISABLE_DEMO_WINDOWS
-    #undef IMGUI_DISABLE_METRICS_WINDOW
-#endif
-
 #include <Thirdparty/Imgui/imgui.h>
 #include <Thirdparty/Imgui/imgui_impl_dx11.h>
 #include <Thirdparty/Imgui/imgui_impl_win32.h>

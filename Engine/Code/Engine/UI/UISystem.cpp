@@ -1,33 +1,5 @@
 #include "Engine/UI/UISystem.hpp"
 
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/KerningFont.hpp"
-
-#include "Engine/Input/KeyCode.hpp"
-
-#include "Engine/Math/Vector2.hpp"
-#include "Engine/Math/Vector3.hpp"
-#include "Engine/Math/Vector4.hpp"
-
-#include "Engine/Profiling/ProfileLogScope.hpp"
-
-#include "Engine/RHI/RHIOutput.hpp"
-#include "Engine/RHI/RHIDevice.hpp"
-#include "Engine/RHI/RHIDeviceContext.hpp"
-
-#include "Engine/Renderer/Texture.hpp"
-#include "Engine/Renderer/Window.hpp"
-
-#include "Engine/Services/IAppService.hpp"
-#include "Engine/Services/IRendererService.hpp"
-#include "Engine/Services/IInputService.hpp"
-#include "Engine/Services/ServiceLocator.hpp"
-
-#include <Thirdparty/Imgui/imgui_internal.h>
-#include <Thirdparty/clay/clay.h>
-
-#include <algorithm>
-
 UISystem::UISystem() noexcept
 : EngineSubsystem()
 {

@@ -1,37 +1,11 @@
 #pragma once
 
-#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/Rgba.hpp"
-#include "Engine/Core/Stopwatch.hpp"
-
-#include "Engine/Platform/Win.hpp"
-
-#include "Engine/Renderer/Camera2D.hpp"
-
-#ifndef UI_DEBUG
-    #define IMGUI_DISABLE_DEMO_WINDOWS
-    #define IMGUI_DISABLE_METRICS_WINDOW
-    #define CLAY_DISABLE_DEBUG_WINDOW
-#else
-    #undef IMGUI_DISABLE_DEMO_WINDOWS
-    #undef IMGUI_DISABLE_METRICS_WINDOW
-    #undef CLAY_DISABLE_DEBUG_WINDOW
-#endif
 
 #include "Engine/UI/DearImgui.hpp"
 #include "Engine/UI/ClayUI.hpp"
 
-#include <filesystem>
 #include <functional>
-#include <map>
-#include <memory>
-
-class Renderer;
-class FileLogger;
-class InputSystem;
-class KerningFont;
 
 //TODO: Maybe make Service
 class UISystem : public EngineSubsystem {
