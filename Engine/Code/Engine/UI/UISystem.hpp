@@ -20,10 +20,8 @@
     #undef CLAY_DISABLE_DEBUG_WINDOW
 #endif
 
-#include <Thirdparty/Imgui/imgui.h>
-#include <Thirdparty/Imgui/imgui_impl_dx11.h>
-#include <Thirdparty/Imgui/imgui_impl_win32.h>
-#include <Thirdparty/Imgui/imgui_stdlib.h>
+#include "Engine/UI/DearImgui.hpp"
+
 #include <Thirdparty/clay/clay.h>
 
 #include <filesystem>
@@ -72,48 +70,22 @@ public:
 
 protected:
 private:
-    void ImguiInit() noexcept;
 
     void ClayInit() noexcept;
     void ClayUpdate(TimeUtils::FPSeconds deltaSeconds) noexcept;
     void ClayRender() const noexcept;
 
     void ClayDeinitialize() noexcept;
-    void ImguiDeinitialize() noexcept;
 
     mutable Camera2D m_ui_camera{};
+    DearImgui m_imgui{};
     std::function<void()> m_clayLayoutCallback{};
-    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
     mutable Clay_RenderCommandArray m_clay_commands{};
-    Stopwatch m_ini_saveTimer{};
-    ImGuiContext* m_imguiContext{};
     Clay_Context* m_clayContext{};
     std::unique_ptr<char[]> m_clayMemoryBlock{};
     float m_clayScrollSpeed{10.0f};
-    bool m_show_imgui_demo_window = false;
-    bool m_show_imgui_metrics_window = false;
     bool m_show_clay_debug_window = false;
-    bool m_save_settings_to_disk = false;
 };
-
-class Texture;
-class Rgba;
-class Vector2;
-class Vector4;
-//Custom ImGui overloads
-namespace ImGui {
-void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept;
-void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept;
-[[nodiscard]] bool ImageButton(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept;
-[[nodiscard]] bool ImageButton(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept;
-
-[[nodiscard]] bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0, Rgba* refColor = nullptr) noexcept;
-[[nodiscard]] bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::Zero) noexcept;
-void TextColored(const Rgba& color, const char* fmt, ...) noexcept;
-} // namespace ImGui
 
 namespace Clay {
 Clay_Color RgbaToClayColor(Rgba color) noexcept;
