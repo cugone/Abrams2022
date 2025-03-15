@@ -346,21 +346,6 @@
     <ClCompile Include="Core\Config.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="UI\UICanvas.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UIElement.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UITypes.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UIPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UILabel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Stopwatch.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -468,15 +453,6 @@
     </ClCompile>
     <ClCompile Include="Math\Ray3.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UIWidget.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UIPictureBox.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\UIPanelSlot.cpp">
-      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Camera.cpp">
       <Filter>Renderer\Core</Filter>
@@ -669,6 +645,12 @@
     </ClCompile>
     <ClCompile Include="..\Thirdparty\clay\clay.cpp">
       <Filter>Thirdparty\clay</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\DearImgui.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ClayUI.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -894,21 +876,6 @@
     <ClInclude Include="Core\Event.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="UI\UICanvas.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UIElement.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UITypes.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UIPanel.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UILabel.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Stopwatch.hpp">
       <Filter>Core</Filter>
     </ClInclude>
@@ -1031,15 +998,6 @@
     </ClInclude>
     <ClInclude Include="Math\Ray3.hpp">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UIWidget.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UIPictureBox.hpp">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\UIPanelSlot.hpp">
-      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Camera.hpp">
       <Filter>Renderer\Core</Filter>
@@ -1718,6 +1676,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\clay\clay.h">
       <Filter>Thirdparty\clay</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\DearImgui.hpp">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ClayUI.hpp">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
