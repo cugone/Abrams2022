@@ -37,6 +37,7 @@ protected:
 private:
     mutable Camera2D m_ui_camera{};
     std::function<void()> m_clayLayoutCallback{};
+    std::function<void(void*)> m_clayCustomCallback{};
     mutable Clay_RenderCommandArray m_clay_commands{};
     Clay_Context* m_clayContext{};
     std::unique_ptr<char[]> m_clayMemoryBlock{};

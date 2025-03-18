@@ -335,6 +335,10 @@ void ClayUI::Render() const noexcept {
         }
         case CLAY_RENDER_COMMAND_TYPE_CUSTOM: // The renderer should provide a custom implementation for handling this render command based on its .customData
         {
+            const auto& config = command->renderData.custom;
+            if(m_clayCustomCallback) {
+                m_clayCustomCallback(config.customData);
+            }
             break;
         }
         default:
