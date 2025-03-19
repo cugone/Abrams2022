@@ -307,17 +307,8 @@ void ClayUI::Render() const noexcept {
             const auto R = Matrix4::I;
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
             const auto M = Matrix4::MakeSRT(S, R, T);
-            const auto tint = [config]() -> const Rgba {
-                const auto r = config.backgroundColor.r / 255.0f;
-                const auto g = config.backgroundColor.g / 255.0f;
-                const auto b = config.backgroundColor.b / 255.0f;
-                const auto a = config.backgroundColor.a / 255.0f;
-                const auto config_clr = Rgba{r, g, b, a};
-                if(config_clr == Rgba::NoAlpha) {
-                    return Rgba::White;
-                }
-                return config_clr;
-            }();
+            const auto clay_color = Clay::ClayColorToRgba(config.backgroundColor);
+            const auto tint = clay_color == Rgba::NoAlpha ? Rgba::White : clay_color;
             renderer->SetMaterial(mat);
             renderer->DrawQuad2D(M, tint);
             break;
@@ -335,6 +326,10 @@ void ClayUI::Render() const noexcept {
         }
         case CLAY_RENDER_COMMAND_TYPE_CUSTOM: // The renderer should provide a custom implementation for handling this render command based on its .customData
         {
+            const auto& config = command->renderData.custom;
+            if(m_clayCustomCallback) {
+                m_clayCustomCallback(config.customData);
+            }
             break;
         }
         default:
