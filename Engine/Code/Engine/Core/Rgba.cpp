@@ -158,10 +158,10 @@ void Rgba::SetRGBAFromARGB(std::string name) noexcept {
         uint32_t value_int = std::stoul(name, &char_count, 16);
         if(char_count == 10) { //0xAARRGGBB -> 0xRRGGBBAA
             const auto temp = Rgba(value_int);
+            a = temp.r;
             r = temp.g;
             g = temp.b;
             b = temp.a;
-            a = temp.r;
         } else if(char_count == 8) { //0xRRGGBB
             SetRGBFromRawValue(value_int);
             a = 255;
