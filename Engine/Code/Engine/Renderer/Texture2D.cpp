@@ -75,7 +75,7 @@ void Texture2D::SetTexture() noexcept {
             }
         } else {
             D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            desc.Format = t_desc.Format;
             desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             desc.Texture2D.MipLevels = 1;
             auto hr = m_device.GetDxDevice()->CreateShaderResourceView(m_dx_tex.Get(), &desc, &m_srv);
