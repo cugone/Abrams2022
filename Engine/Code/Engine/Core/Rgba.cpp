@@ -286,6 +286,12 @@ void Rgba::SetRGBFromRawValue(uint32_t value) noexcept {
     b = static_cast<uint8_t>((value & 0x0000ffu) >> 0);
 }
 
+void Rgba::SetBGRFromRawValue(uint32_t value) noexcept {
+    b = static_cast<uint8_t>((value & 0xff0000u) >> 16);
+    g = static_cast<uint8_t>((value & 0x00ff00u) >> 8);
+    r = static_cast<uint8_t>((value & 0x0000ffu) >> 0);
+}
+
 void Rgba::SetFromFloats(std::initializer_list<float> ilist) noexcept {
     const auto length = ilist.size();
     constexpr auto convertToUChar = [](auto&& v) -> unsigned char {

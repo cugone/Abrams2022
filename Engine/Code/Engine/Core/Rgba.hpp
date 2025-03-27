@@ -78,6 +78,7 @@ public:
     void SetBGRAFromRawValue(uint32_t value) noexcept;
     void SetRGBAFromRawValue(uint32_t value) noexcept;
     void SetRGBFromRawValue(uint32_t value) noexcept;
+    void SetBGRFromRawValue(uint32_t value) noexcept;
     void SetFromFloats(std::initializer_list<float> ilist) noexcept;
     [[nodiscard]] bool IsRgbEqual(const Rgba& rhs) const noexcept;
     [[nodiscard]] bool operator==(const Rgba& rhs) const noexcept;
