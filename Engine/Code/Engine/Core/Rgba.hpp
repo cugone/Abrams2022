@@ -71,6 +71,7 @@ public:
     void InvertAlpha() noexcept;
 
     void SetRGBAFromARGB(std::string name) noexcept;
+    void SetRGBAFromBGRA(std::string name) noexcept;
 
     [[nodiscard]] uint32_t GetAsRawValue() const noexcept;
     void SetFromRawValue(uint32_t value) noexcept;

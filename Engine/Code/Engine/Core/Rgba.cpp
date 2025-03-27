@@ -189,6 +189,45 @@ void Rgba::SetRGBAFromARGB(std::string name) noexcept {
     }
 }
 
+void Rgba::SetRGBAFromBGRA(std::string name) noexcept {
+    if(name.empty()) {
+        return;
+    }
+    name = StringUtils::ToUpperCase(name);
+
+    if(std::size_t hash_loc = name.find_first_of('#'); hash_loc != std::string::npos) {
+        name.replace(hash_loc, 1, "0X");
+        std::size_t char_count = 0;
+        uint32_t value_int = std::stoul(name, &char_count, 16);
+        if(char_count == 10) { //0xBBGGRRAA -> 0xRRGGBBAA
+            SetBGRAFromRawValue(value_int);
+        } else if(char_count == 8) { //0xBBGGRR
+            SetBGRFromRawValue(value_int);
+            a = 255;
+        } else {
+            /* DO NOTHING */
+        }
+    } else {
+        const auto v = StringUtils::Split(name);
+        const auto v_s = v.size();
+        if(v_s > 1) {
+            if(!(v_s < 3)) {
+                b = static_cast<unsigned char>(std::stoi(v[0].data()));
+                g = static_cast<unsigned char>(std::stoi(v[1].data()));
+                r = static_cast<unsigned char>(std::stoi(v[2].data()));
+                if(v_s > 3) {
+                    b = static_cast<unsigned char>(std::stoi(v[0].data()));
+                    g = static_cast<unsigned char>(std::stoi(v[1].data()));
+                    r = static_cast<unsigned char>(std::stoi(v[2].data()));
+                    a = static_cast<unsigned char>(std::stoi(v[3].data()));
+                }
+            }
+        } else {
+            SetValueFromName(v_s ? v[0] : "");
+        }
+    }
+}
+
 Rgba::Rgba(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha /*= 0xFF*/) noexcept
 : r(red)
 , g(green)
