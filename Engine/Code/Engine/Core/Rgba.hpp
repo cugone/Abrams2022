@@ -75,6 +75,7 @@ public:
     [[nodiscard]] uint32_t GetAsRawValue() const noexcept;
     void SetFromRawValue(uint32_t value) noexcept;
     void SetARGBFromRawValue(uint32_t value) noexcept;
+    void SetBGRAFromRawValue(uint32_t value) noexcept;
     void SetRGBAFromRawValue(uint32_t value) noexcept;
     void SetRGBFromRawValue(uint32_t value) noexcept;
     void SetFromFloats(std::initializer_list<float> ilist) noexcept;

@@ -266,6 +266,13 @@ void Rgba::SetARGBFromRawValue(uint32_t value) noexcept {
     b = static_cast<uint8_t>((value & 0x000000FFu) >> 0);
 }
 
+void Rgba::SetBGRAFromRawValue(uint32_t value) noexcept {
+    b = static_cast<uint8_t>((value & 0xFF000000u) >> 24);
+    g = static_cast<uint8_t>((value & 0x00FF0000u) >> 16);
+    r = static_cast<uint8_t>((value & 0x0000FF00u) >> 8);
+    a = static_cast<uint8_t>((value & 0x000000FFu) >> 0);
+}
+
 void Rgba::SetRGBAFromRawValue(uint32_t value) noexcept {
     r = static_cast<uint8_t>((value & 0xFF000000u) >> 24);
     g = static_cast<uint8_t>((value & 0x00FF0000u) >> 16);
