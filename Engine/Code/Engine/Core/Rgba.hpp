@@ -140,6 +140,8 @@ public:
                 return RgbaFormatView::Decimal;
             case 'f':
                 return RgbaFormatView::Float;
+            case 'n':
+                return RgbaFormatView::Raw;
             default:
                 throw std::format_error("Rgba: invalid format specification");
             }
@@ -166,7 +168,7 @@ public:
         } else if(view == RgbaFormatView::Float) {
             return std::format_to(ctx.out(), "{},{},{},{}", std::get<0>(floats), std::get<1>(floats), std::get<2>(floats), std::get<3>(floats));
         } else if(view == RgbaFormatView::Raw) {
-            return std::format_to(ctx.out(), "", raw);
+            return std::format_to(ctx.out(), "{}", raw);
         } else {
             throw std::format_error("Rgba: Unknown Format View");
         }
