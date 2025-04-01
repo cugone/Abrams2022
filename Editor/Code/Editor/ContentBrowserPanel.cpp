@@ -133,6 +133,23 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
                     std::filesystem::copy_file(path, currentDirectory / filename);
                 }
             }
+            if(ImGui::MenuItem("Font")) {
+                ImGui::CloseCurrentPopup();
+                static const auto extension_list = StringUtils::Split(".ttf,.fnt");
+                static const auto opf_str = [&]() {
+                    std::string result;
+                    for(auto e : extension_list) {
+                        result.append(std::format("{0} file ({1})\0*{1}\0"sv, StringUtils::ToUpperCase(e.substr(1)), e));
+                    }
+                    result += "All Files (*.*)\0*.*\0\0"s;
+                    return result;
+                }();
+                if(auto path = FileDialogs::OpenFile(opf_str.data()); !path.empty()) {
+                    const auto asPath = std::filesystem::path{path};
+                    const auto filename = asPath.filename();
+                    std::filesystem::copy_file(path, currentDirectory / filename);
+                }
+            }
             ImGui::EndMenu();
         }
         ImGui::EndPopup();
