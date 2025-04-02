@@ -68,18 +68,18 @@ D3D11_INPUT_ELEMENT_DESC InputLayoutInstanced::CreateInputElementFromSignature(D
     constexpr auto rg_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y;
     constexpr auto rgb_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y | D3D_COMPONENT_MASK_Z;
     constexpr auto rgba_mask = D3D_COMPONENT_MASK_X | D3D_COMPONENT_MASK_Y | D3D_COMPONENT_MASK_Z | D3D_COMPONENT_MASK_W;
-    const auto one_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32_UInt);
-    const auto one_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32_SInt);
-    const auto one_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32_Float);
-    const auto two_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32_UInt);
-    const auto two_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32_SInt);
-    const auto two_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32_Float);
-    const auto three_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_UInt);
-    const auto three_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_SInt);
-    const auto three_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_Float);
-    const auto four_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_UInt);
-    const auto four_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_SInt);
-    const auto four_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_Float);
+    constexpr auto one_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32_UInt);
+    constexpr auto one_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32_SInt);
+    constexpr auto one_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32_Float);
+    constexpr auto two_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32_UInt);
+    constexpr auto two_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32_SInt);
+    constexpr auto two_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32_Float);
+    constexpr auto three_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_UInt);
+    constexpr auto three_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_SInt);
+    constexpr auto three_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32_Float);
+    constexpr auto four_channel_uint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_UInt);
+    constexpr auto four_channel_sint = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_SInt);
+    constexpr auto four_channel_float = ImageFormatToDxgiFormat(ImageFormat::R32G32B32A32_Float);
     if(input_desc.Mask == r_mask) {
         switch(input_desc.ComponentType) {
         case D3D_REGISTER_COMPONENT_UINT32: elem.Format = one_channel_uint; break;
