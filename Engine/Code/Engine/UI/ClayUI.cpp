@@ -172,7 +172,9 @@ void ClayUI::Render() const noexcept {
             const auto bottom = top + height;
             const auto right = left + width;
             const auto top_left = Vector2(left, top);
+            const auto top_right = Vector2(right, top);
             const auto bottom_right = Vector2(right, bottom);
+            const auto bottom_left = Vector2(left, bottom);
             const auto bounds = AABB2(top_left, bottom_right);
             const auto fillColor = Rgba{r, g, b, a};
             const auto tl_cr = command->renderData.rectangle.cornerRadius.topLeft;
@@ -188,7 +190,108 @@ void ClayUI::Render() const noexcept {
                 const auto M = Matrix4::MakeSRT(S, R, T);
                 renderer->DrawQuad2D(M, fillColor);
             } else {
-                renderer->DrawFilledRoundedRectangle2D(bounds, fillColor, tl_cr);
+                const auto draw_corner = [&](Vector2 center, float radius, float start_degrees, float end_degrees, Rgba color) {
+                    const auto num_sides = std::size_t{65};
+                    const auto size = num_sides + 1u;
+                    std::vector<Vector3> verts{};
+                    verts.reserve(size);
+                    verts.emplace_back(Vector2::Zero);
+                    const auto max_angle_degrees = end_degrees - start_degrees;
+                    const auto anglePerVertex = max_angle_degrees / static_cast<float>(num_sides);
+                    for(float degrees = start_degrees; degrees < end_degrees; degrees += anglePerVertex) {
+                        const auto radians = MathUtils::ConvertDegreesToRadians(degrees);
+                        const auto pX = std::cos(radians);
+                        const auto pY = std::sin(radians);
+                        verts.emplace_back(Vector2(pX, pY), 0.0f);
+                    }
+
+                    std::vector<Vertex3D> vbo;
+                    vbo.reserve(verts.size());
+                    for(const auto& vert : verts) {
+                        vbo.emplace_back(vert, color);
+                    }
+
+                    std::vector<unsigned int> ibo((num_sides - 1) * 3);
+                    unsigned int j = 1u;
+                    for(std::size_t i = 1; i < ibo.size(); i += 3) {
+                        ibo[i] = (j++) % num_sides;
+                        ibo[i + 1] = (j == num_sides ? 1 : j) % num_sides;
+                    }
+                    const auto S = Matrix4::CreateScaleMatrix(radius);
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(center);
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->SetModelMatrix(M);
+                    renderer->DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+                    };
+
+                renderer->SetMaterial(renderer->GetMaterial("__2D"));
+                {
+                    auto left_side = bounds;
+                    left_side.mins.y = bounds.mins.y + tl_cr;
+                    left_side.maxs.y = bounds.maxs.y - bl_cr;
+                    left_side.mins.x = bounds.mins.x;
+                    left_side.maxs.x = bounds.mins.x + (std::max)(tl_cr, bl_cr);
+                    const auto S = Matrix4::CreateScaleMatrix(left_side.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(left_side.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, fillColor);
+                }
+                {
+                    auto right_side = bounds;
+                    right_side.mins.y = bounds.mins.y + tr_cr;
+                    right_side.maxs.y = bounds.maxs.y - br_cr;
+                    right_side.mins.x = bounds.maxs.x - (std::max)(tr_cr, br_cr);
+                    right_side.maxs.x = bounds.maxs.x;
+                    const auto S = Matrix4::CreateScaleMatrix(right_side.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(right_side.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, fillColor);
+                }
+                {
+                    auto top_side = bounds;
+                    top_side.mins.y = bounds.mins.y;
+                    top_side.maxs.y = bounds.mins.y + (std::max)(tl_cr, tr_cr);
+                    top_side.mins.x = bounds.mins.x + tl_cr;
+                    top_side.maxs.x = bounds.maxs.x - tr_cr;
+                    const auto S = Matrix4::CreateScaleMatrix(top_side.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(top_side.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, fillColor);
+                }
+                {
+                    auto bottom_side = bounds;
+                    bottom_side.mins.y = bounds.maxs.y - (std::max)(bl_cr, br_cr);
+                    bottom_side.maxs.y = bounds.maxs.y;
+                    bottom_side.mins.x = bounds.mins.x + bl_cr;
+                    bottom_side.maxs.x = bounds.maxs.x - br_cr;
+                    const auto S = Matrix4::CreateScaleMatrix(bottom_side.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(bottom_side.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, fillColor);
+                }
+                {
+                    auto center = bounds;
+                    center.mins.y = bounds.mins.y + (std::min)(tl_cr, tr_cr);
+                    center.maxs.y = bounds.maxs.y - (std::min)(bl_cr, br_cr);
+                    center.mins.x = bounds.mins.x + (std::min)(tl_cr, bl_cr);
+                    center.maxs.x = bounds.maxs.x - (std::min)(tr_cr, br_cr);
+                    const auto S = Matrix4::CreateScaleMatrix(center.CalcDimensions());
+                    const auto R = Matrix4::I;
+                    const auto T = Matrix4::CreateTranslationMatrix(center.CalcCenter());
+                    const auto M = Matrix4::MakeSRT(S, R, T);
+                    renderer->DrawQuad2D(M, fillColor);
+                }
+
+
+                draw_corner(top_left + Vector2(tl_cr, tl_cr), tl_cr, 180.0f, 270.0f, Rgba::Red);
+                draw_corner(top_right + Vector2(-tr_cr, tr_cr), tr_cr, 270.0f, 360.0f, Rgba::Red);
+                draw_corner(bottom_left + Vector2(bl_cr, -bl_cr), bl_cr, 90.0f, 180.0f, Rgba::Red);
+                draw_corner(bottom_right + Vector2(-br_cr, -br_cr), br_cr, 0.0f, 90.0f, Rgba::Red);
             }
             break;
         }
