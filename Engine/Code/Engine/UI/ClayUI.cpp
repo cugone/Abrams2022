@@ -54,7 +54,7 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
     }
     if(KerningFont* font = static_cast<KerningFont*>(userData); font != nullptr) {
         const auto str_text = std::string(text.chars, text.length);
-        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
+        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight()};
     } else {
         return Clay_Dimensions{0.0f, 0.0f};
     }

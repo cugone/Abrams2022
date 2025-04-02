@@ -835,9 +835,10 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     {
         const auto draw_x = -view_half_extents.x;
         const auto draw_y = view_half_extents.y;
+        const auto line_height = font->CalculateTextHeight();
         auto draw_loc = m_outputStartPosition + Vector2(draw_x * 0.99f, draw_y * 0.99f);
         for(auto iter = m_output_buffer.cbegin(); iter != m_output_buffer.cend(); ++iter) {
-            draw_loc.y -= font->CalculateTextHeight(iter->str);
+            draw_loc.y -= line_height;
             renderer->AppendMultiLineTextBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
         }
     }
