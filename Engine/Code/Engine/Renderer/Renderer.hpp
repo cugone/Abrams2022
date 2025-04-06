@@ -365,6 +365,7 @@ public:
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept override;
     void DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
     void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
+    void DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent = 10.0f) noexcept override;
     void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept override;
     void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override;
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;

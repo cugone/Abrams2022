@@ -1452,6 +1452,25 @@ void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& col
     DrawQuad2D(M, color);
 }
 
+void Renderer::DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent /*= 10.0f*/) noexcept {
+    if(bounds.CalcDimensions() == Vector2::Zero) {
+        return;
+    }
+    if(const auto& cbs = GetMaterial("__roundedrec2d")->GetShader()->GetConstantBuffers(); !cbs.empty()) {
+        auto& roundedrec_cb = cbs[0].get();
+        const auto pos = bounds.CalcCenter();
+        m_roundedrec_data.fill_exp_padding2 = Vector4(1.0f, exponent, 0.0f, 0.0f);
+        roundedrec_cb.Update(*m_rhi_context, &m_roundedrec_data);
+    }
+    const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+    const auto R = Matrix4::I;
+    const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+    const auto M = Matrix4::MakeSRT(S, R, T);
+    SetModelMatrix(M);
+    SetMaterial(GetMaterial("__roundedrec2d"));
+    DrawQuad2D(M, color);
+}
+
 void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor /*= Rgba::NoAlpha*/, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
     Vector2 lt = obb.GetTopLeft();
     Vector2 lb = obb.GetBottomLeft();
