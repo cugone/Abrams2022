@@ -173,11 +173,11 @@ void ClayUI::Render() const noexcept {
             const auto bottom_left = Vector2(left, bottom);
             const auto bounds = AABB2(top_left, bottom_right);
             const auto fillColor = Clay::ClayColorToRgba(config.backgroundColor);
-            const auto tl_cr = command->renderData.rectangle.cornerRadius.topLeft;
-            const auto tr_cr = command->renderData.rectangle.cornerRadius.topRight;
-            const auto br_cr = command->renderData.rectangle.cornerRadius.bottomRight;
-            const auto bl_cr = command->renderData.rectangle.cornerRadius.bottomLeft;
-            std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
+            const auto half_extents = Vector2(bounds.CalcDimensions().x * 0.5f, bounds.CalcDimensions().y * 0.5f);
+            const auto tl_cr = std::clamp(command->renderData.rectangle.cornerRadius.topLeft, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto tr_cr = std::clamp(command->renderData.rectangle.cornerRadius.topRight, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto br_cr = std::clamp(command->renderData.rectangle.cornerRadius.bottomRight, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto bl_cr = std::clamp(command->renderData.rectangle.cornerRadius.bottomLeft, 0.0f, (std::min)(half_extents.x, half_extents.y));
             if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
                 renderer->SetMaterial(renderer->GetMaterial("__2D"));
                 const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
