@@ -70,6 +70,7 @@
 #include <sstream>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 ComputeJob::ComputeJob(std::size_t uavCount,
                        const std::vector<Texture*>& uavTextures,
@@ -1433,23 +1434,140 @@ void Renderer::DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, fl
     DrawQuad2D(M, color);
 }
 
-void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius /*= 10.0f*/) noexcept {
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius) noexcept {
+    DrawFilledRoundedRectangle2D(bounds, color, radius, radius, radius, radius);
+}
+
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) noexcept {
+    DrawFilledRoundedRectangle2D(bounds, color, Vector4(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius));
+}
+
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, const Vector4& cornerRadii /*= Vector4(10.0f, 10.0f, 10.0f, 10.0f)*/) noexcept {
     if(bounds.CalcDimensions() == Vector2::Zero) {
         return;
     }
-    if(const auto& cbs = GetMaterial("__roundedrec2d")->GetShader()->GetConstantBuffers(); !cbs.empty()) {
-        auto& roundedrec_cb = cbs[0].get();
-        const auto pos = bounds.CalcCenter();
-        m_roundedrec_data.fill_exp_padding2 = Vector4(1.0f, radius, 0.0f, 0.0f);
-        roundedrec_cb.Update(*m_rhi_context, &m_roundedrec_data);
-    }
-    const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
-    const auto R = Matrix4::I;
-    const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
-    const auto M = Matrix4::MakeSRT(S, R, T);
-    SetModelMatrix(M);
-    SetMaterial(GetMaterial("__roundedrec2d"));
-    DrawQuad2D(M, color);
+
+    const auto width = bounds.CalcDimensions().x;
+    const auto height = bounds.CalcDimensions().y;
+    const auto top = bounds.mins.y;
+    const auto left = bounds.mins.x;
+    const auto bottom = top + height;
+    const auto right = left + width;
+    const auto top_left = Vector2(left, top);
+    const auto top_right = Vector2(right, top);
+    const auto bottom_right = Vector2(right, bottom);
+    const auto bottom_left = Vector2(left, bottom);
+    const auto half_extents = Vector2(bounds.CalcDimensions()) * 0.5f;
+    const auto tl_cr = std::clamp(cornerRadii.x, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto tr_cr = std::clamp(cornerRadii.y, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto br_cr = std::clamp(cornerRadii.z, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto bl_cr = std::clamp(cornerRadii.w, 0.0f, (std::min)(half_extents.x, half_extents.y));
+
+    const auto draw_corner = [&](Vector2 center, float radius, float start_degrees, float end_degrees, Rgba color) {
+        const auto num_sides = std::size_t{64};
+        const auto size = num_sides + 1u;
+        std::vector<Vector3> verts{};
+        verts.reserve(size);
+        verts.emplace_back(Vector2::Zero);
+        const auto max_angle_degrees = end_degrees - start_degrees;
+        const auto anglePerVertex = max_angle_degrees / static_cast<float>(num_sides);
+        for(float degrees = start_degrees; degrees <= end_degrees; degrees += anglePerVertex) {
+            const auto radians = MathUtils::ConvertDegreesToRadians(degrees);
+            const auto pX = std::cos(radians);
+            const auto pY = std::sin(radians);
+            verts.emplace_back(Vector2(pX, pY), 0.0f);
+        }
+
+        std::vector<Vertex3D> vbo;
+        vbo.reserve(verts.size());
+        for(const auto& vert : verts) {
+            vbo.emplace_back(vert, color);
+        }
+
+        std::vector<unsigned int> ibo(num_sides * 3);
+        unsigned int j = 1u;
+        for(std::size_t i = 1; i < ibo.size(); i += 3) {
+            ibo[i] = (j++) % (num_sides + 1);
+            ibo[i + 1] = j % (((num_sides % 2) == 0) ? (num_sides + 2) : (num_sides + 1));
+        }
+        const auto S = Matrix4::CreateScaleMatrix(radius);
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(center);
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        SetModelMatrix(M);
+        DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    };
+
+    const auto draw_edges = [&]() {
+        {
+            auto left_side = bounds;
+            left_side.mins.y = bounds.mins.y + tl_cr;
+            left_side.maxs.y = bounds.maxs.y - bl_cr;
+            left_side.mins.x = bounds.mins.x;
+            left_side.maxs.x = bounds.mins.x + (std::max)(tl_cr, bl_cr);
+            const auto S = Matrix4::CreateScaleMatrix(left_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(left_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto right_side = bounds;
+            right_side.mins.y = bounds.mins.y + tr_cr;
+            right_side.maxs.y = bounds.maxs.y - br_cr;
+            right_side.mins.x = bounds.maxs.x - (std::max)(tr_cr, br_cr);
+            right_side.maxs.x = bounds.maxs.x;
+            const auto S = Matrix4::CreateScaleMatrix(right_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(right_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto top_side = bounds;
+            top_side.mins.y = bounds.mins.y;
+            top_side.maxs.y = bounds.mins.y + (std::max)(tl_cr, tr_cr);
+            top_side.mins.x = bounds.mins.x + tl_cr;
+            top_side.maxs.x = bounds.maxs.x - tr_cr;
+            const auto S = Matrix4::CreateScaleMatrix(top_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(top_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto bottom_side = bounds;
+            bottom_side.mins.y = bounds.maxs.y - (std::max)(bl_cr, br_cr);
+            bottom_side.maxs.y = bounds.maxs.y;
+            bottom_side.mins.x = bounds.mins.x + bl_cr;
+            bottom_side.maxs.x = bounds.maxs.x - br_cr;
+            const auto S = Matrix4::CreateScaleMatrix(bottom_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bottom_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+    };
+
+    const auto draw_center = [&]() {
+        auto center = bounds;
+        center.mins.y = bounds.mins.y + (std::max)(tl_cr, tr_cr);
+        center.maxs.y = bounds.maxs.y - (std::max)(bl_cr, br_cr);
+        center.mins.x = bounds.mins.x + (std::max)(tl_cr, bl_cr);
+        center.maxs.x = bounds.maxs.x - (std::max)(tr_cr, br_cr);
+        const auto S = Matrix4::CreateScaleMatrix(center.CalcDimensions());
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(center.CalcCenter());
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        DrawQuad2D(M, color);
+    };
+
+    draw_corner(top_left + Vector2(tl_cr, tl_cr), tl_cr, 180.0f, 270.0f, color);
+    draw_corner(top_right + Vector2(-tr_cr, tr_cr), tr_cr, 270.0f, 360.0f, color);
+    draw_corner(bottom_left + Vector2(bl_cr, -bl_cr), bl_cr, 90.0f, 180.0f, color);
+    draw_corner(bottom_right + Vector2(-br_cr, -br_cr), br_cr, 0.0f, 90.0f, color);
+    draw_edges();
+    draw_center();
 }
 
 void Renderer::DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent /*= 10.0f*/) noexcept {
