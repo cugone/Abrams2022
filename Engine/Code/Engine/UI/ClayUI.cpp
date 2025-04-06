@@ -11,6 +11,9 @@
 #include "Engine/Services/IFileLoggerService.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#include <algorithm>
+#include <utility>
+
 #ifndef UI_DEBUG
     #define CLAY_DISABLE_DEBUG_WINDOW
 #else
