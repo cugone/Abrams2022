@@ -1435,10 +1435,29 @@ void Renderer::DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, fl
 }
 
 void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius) noexcept {
+    if(MathUtils::IsEquivalentOrLessThanZero(radius)) {
+        const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        DrawQuad2D(M, color);
+        return;
+    }
     DrawFilledRoundedRectangle2D(bounds, color, radius, radius, radius, radius);
 }
 
 void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) noexcept {
+    {
+        std::array corners{topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius};
+        if(std::all_of(std::cbegin(corners), std::cend(corners), [](float radius) { return MathUtils::IsEquivalentOrLessThanZero(radius); })) {
+            const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+            return;
+        }
+    }
     DrawFilledRoundedRectangle2D(bounds, color, Vector4(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius));
 }
 
@@ -1464,6 +1483,9 @@ void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& col
     const auto bl_cr = std::clamp(cornerRadii.w, 0.0f, (std::min)(half_extents.x, half_extents.y));
 
     const auto draw_corner = [&](Vector2 center, float radius, float start_degrees, float end_degrees, Rgba color) {
+        if(MathUtils::IsEquivalentOrLessThanZero(radius)) {
+            return;
+        }
         const auto num_sides = std::size_t{64};
         const auto size = num_sides + 1u;
         std::vector<Vector3> verts{};
