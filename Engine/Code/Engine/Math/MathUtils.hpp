@@ -466,7 +466,7 @@ template<typename T>
     while(result < minValue) {
         result += range;
     }
-    while(maxValue < result) {
+    while(result > maxValue) {
         result -= range;
     }
     return result;
