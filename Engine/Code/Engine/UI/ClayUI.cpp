@@ -160,10 +160,6 @@ void ClayUI::Render() const noexcept {
         case CLAY_RENDER_COMMAND_TYPE_RECTANGLE: // The renderer should draw a solid color rectangle.
         {
             const auto& config = command->renderData.rectangle;
-            const auto r = config.backgroundColor.r / 255.0f;
-            const auto g = config.backgroundColor.g / 255.0f;
-            const auto b = config.backgroundColor.b / 255.0f;
-            const auto a = config.backgroundColor.a / 255.0f;
             const auto& bb = command->boundingBox;
             const auto width = bb.width;
             const auto height = bb.height;
@@ -176,7 +172,7 @@ void ClayUI::Render() const noexcept {
             const auto bottom_right = Vector2(right, bottom);
             const auto bottom_left = Vector2(left, bottom);
             const auto bounds = AABB2(top_left, bottom_right);
-            const auto fillColor = Rgba{r, g, b, a};
+            const auto fillColor = Clay::ClayColorToRgba(config.backgroundColor);
             const auto tl_cr = command->renderData.rectangle.cornerRadius.topLeft;
             const auto tr_cr = command->renderData.rectangle.cornerRadius.topRight;
             const auto br_cr = command->renderData.rectangle.cornerRadius.bottomRight;
