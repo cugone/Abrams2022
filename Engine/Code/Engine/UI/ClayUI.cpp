@@ -52,15 +52,20 @@ Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-    if(userData == nullptr || text.chars == nullptr) {
+    if(text.chars == nullptr) {
         return Clay_Dimensions{0.0f, 0.0f};
     }
-    if(KerningFont* font = static_cast<KerningFont*>(userData); font != nullptr) {
-        const auto str_text = std::string(text.chars, text.length);
-        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight()};
-    } else {
-        return Clay_Dimensions{0.0f, 0.0f};
+    const auto str_text = std::string(text.chars, text.length);
+    auto* font = static_cast<KerningFont*>(userData);
+    if(font == nullptr) {
+        if(config->fontId == 0) {
+            auto* renderer = ServiceLocator::get<IRendererService>();
+            font = renderer->GetFont("System32");
+        } else {
+            return Clay_Dimensions{0.0f, 0.0f};
+        }
     }
+    return {font->CalculateTextWidth(str_text), font->CalculateTextHeight()};
 }
 
 } // namespace Clay
