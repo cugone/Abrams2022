@@ -286,7 +286,7 @@ void ClayUI::Render() const noexcept {
             const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
-            auto* font = static_cast<KerningFont*>(command->userData);
+            auto* font = command->userData ? static_cast<KerningFont*>(command->userData) : renderer->GetFont("System32");
             const auto S = Matrix4::I;
             const auto R = Matrix4::I;
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
