@@ -65,7 +65,8 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
             return Clay_Dimensions{0.0f, 0.0f};
         }
     }
-    return {font->CalculateTextWidth(str_text), font->CalculateTextHeight()};
+    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font->GetInfoDef().em_size) : 1.0f;
+    return {font->CalculateTextWidth(str_text, scale), font->CalculateTextHeight(scale)};
 }
 
 } // namespace Clay
@@ -283,13 +284,16 @@ void ClayUI::Render() const noexcept {
             const auto& config = command->renderData.text;
             const auto str = std::string(config.stringContents.chars, config.stringContents.length);
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
-            const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
+            const auto extents = Vector2(command->boundingBox.width, command->boundingBox.height);
+            const auto half_extents = extents * 0.5f;
+            const auto bottom_right = top_left + extents;
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
             auto* font = command->userData ? static_cast<KerningFont*>(command->userData) : renderer->GetFont("System32");
-            const auto S = Matrix4::CreateScaleMatrix(Vector2::One * (config.fontSize / font->CalculateTextHeight()));
+            const auto scale = config.fontSize ? (config.fontSize / static_cast<float>(font->GetInfoDef().em_size)) : 1.0f;
+            const auto S = Matrix4::CreateScaleMatrix(scale);
             const auto R = Matrix4::I;
-            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x * S.GetDiagonal().x, bounds.CalcDimensions().y * S.GetDiagonal().y));
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() + Vector2(-half_extents.x, half_extents.y));
             const auto M = Matrix4::MakeSRT(S, R, T);
             renderer->DrawTextLine(M, font, str, color);
             break;
