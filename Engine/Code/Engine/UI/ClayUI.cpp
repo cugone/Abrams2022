@@ -287,9 +287,9 @@ void ClayUI::Render() const noexcept {
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
             auto* font = command->userData ? static_cast<KerningFont*>(command->userData) : renderer->GetFont("System32");
-            const auto S = Matrix4::I;
+            const auto S = Matrix4::CreateScaleMatrix(Vector2::One * (config.fontSize / font->CalculateTextHeight()));
             const auto R = Matrix4::I;
-            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x * S.GetDiagonal().x, bounds.CalcDimensions().y * S.GetDiagonal().y));
             const auto M = Matrix4::MakeSRT(S, R, T);
             renderer->DrawTextLine(M, font, str, color);
             break;
