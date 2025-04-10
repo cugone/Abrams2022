@@ -300,6 +300,7 @@ public:
 
     [[nodiscard]] KerningFont* GetFont(const std::string& nameOrFile) noexcept override;
     [[nodiscard]] KerningFont* GetFontById(uint16_t index) noexcept override;
+    [[nodiscard]] std::size_t GetFontId(const std::string& nameOrFile) noexcept override;
     void RegisterFont(std::unique_ptr<KerningFont> font) noexcept override;
     [[nodiscard]] bool RegisterFont(std::filesystem::path filepath) noexcept override;
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;

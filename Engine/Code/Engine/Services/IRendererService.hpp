@@ -253,6 +253,7 @@ public:
 
     [[nodiscard]] virtual KerningFont* GetFont(const std::string& nameOrFile) noexcept = 0;
     [[nodiscard]] virtual KerningFont* GetFontById(uint16_t index) noexcept = 0;
+    [[nodiscard]] virtual std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept = 0;
     virtual void RegisterFont(std::unique_ptr<KerningFont> font) noexcept = 0;
     [[nodiscard]] virtual bool RegisterFont(std::filesystem::path filepath) noexcept = 0;
     virtual void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept = 0;
@@ -569,6 +570,7 @@ public:
 
     [[nodiscard]] KerningFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
     [[nodiscard]] KerningFont* GetFontById([[maybe_unused]] uint16_t index) noexcept override { return nullptr; };
+    [[nodiscard]] std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept override { return 0; }
     void RegisterFont([[maybe_unused]] std::unique_ptr<KerningFont> font) noexcept override {}
     [[nodiscard]] bool RegisterFont([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterFontsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
