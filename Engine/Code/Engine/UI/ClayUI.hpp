@@ -32,7 +32,6 @@ public:
 
     
     void SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept;
-    void SetFontToMeasure(KerningFont* font) noexcept;
     [[nodiscard]] bool IsClayDebugWindowVisible() const noexcept;
     void ToggleClayDebugWindow() noexcept;
 

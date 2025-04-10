@@ -348,10 +348,6 @@ void ClayUI::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexc
     m_clayLayoutCallback = std::move(layoutCallback);
 }
 
-void ClayUI::SetFontToMeasure(KerningFont* font) noexcept {
-    Clay_SetMeasureTextFunction(Clay::MeasureText, font);
-}
-
 bool ClayUI::IsClayDebugWindowVisible() const noexcept {
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     return m_show_clay_debug_window;
