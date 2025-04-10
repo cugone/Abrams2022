@@ -33,6 +33,10 @@ public:
     
     void SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept;
     [[nodiscard]] bool IsClayDebugWindowVisible() const noexcept;
+    [[nodiscard]] bool IsClayDebuggingEnabled() const noexcept;
+    void EnableDebugging() noexcept;
+    void DisableDebugging() noexcept;
+    void ToggleDebugging() noexcept;
     void ToggleClayDebugWindow() noexcept;
 
 protected:
@@ -45,6 +49,7 @@ private:
     std::unique_ptr<char[]> m_clayMemoryBlock{};
     float m_clayScrollSpeed{10.0f};
     bool m_show_clay_debug_window{false};
+    bool m_debug{false};
 };
 
 namespace Clay {

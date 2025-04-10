@@ -296,6 +296,11 @@ void ClayUI::Render() const noexcept {
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() + Vector2(-half_extents.x, half_extents.y));
             const auto M = Matrix4::MakeSRT(S, R, T);
             renderer->DrawTextLine(M, font, str, color);
+            if(m_debug) {
+                renderer->SetModelMatrix();
+                renderer->SetMaterial("__2D");
+                renderer->DrawAABB2(bounds, Rgba::Green, Rgba::NoAlpha);
+            }
             break;
         }
         case CLAY_RENDER_COMMAND_TYPE_IMAGE: // The renderer should draw an image.
@@ -356,6 +361,32 @@ bool ClayUI::IsClayDebugWindowVisible() const noexcept {
 #endif
 }
 
+bool ClayUI::IsClayDebuggingEnabled() const noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    return Clay_IsDebugModeEnabled();
+#else
+    return false;
+#endif
+}
+
+void ClayUI::EnableDebugging() noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = true;
+#endif
+}
+
+void ClayUI::DisableDebugging() noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = false;
+#endif
+}
+
+void ClayUI::ToggleDebugging() noexcept {
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = !m_debug;
+#endif
+}
+
 void ClayUI::ToggleClayDebugWindow() noexcept {
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_show_clay_debug_window = !m_show_clay_debug_window;
@@ -364,5 +395,6 @@ void ClayUI::ToggleClayDebugWindow() noexcept {
         input->ShowMouseCursor();
     }
     Clay_SetDebugModeEnabled(m_show_clay_debug_window);
+    ToggleDebugging();
 #endif
 }
