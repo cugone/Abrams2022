@@ -4922,6 +4922,14 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
     return found_iter->second.get();
 }
 
+KerningFont* Renderer::GetFontById(uint16_t index) noexcept {
+    if(index >= m_fonts.size()) {
+        return nullptr;
+    }
+    return m_fonts[index].second.get();
+}
+
+
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
     m_matrix_data.model = mat;
     m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);

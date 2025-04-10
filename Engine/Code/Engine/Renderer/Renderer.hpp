@@ -299,7 +299,7 @@ public:
     void DispatchComputeJob(const ComputeJob& job) noexcept override;
 
     [[nodiscard]] KerningFont* GetFont(const std::string& nameOrFile) noexcept override;
-
+    [[nodiscard]] KerningFont* GetFontById(uint16_t index) noexcept override;
     void RegisterFont(std::unique_ptr<KerningFont> font) noexcept override;
     [[nodiscard]] bool RegisterFont(std::filesystem::path filepath) noexcept override;
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;
