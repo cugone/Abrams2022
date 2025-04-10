@@ -49,24 +49,24 @@ Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
     return Rgba{r, g, b, a};
 }
 
-static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept {
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, [[maybe_unused]] void* userData) noexcept {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
     if(text.chars == nullptr) {
         return Clay_Dimensions{0.0f, 0.0f};
     }
     const auto str_text = std::string(text.chars, text.length);
-    auto* font = static_cast<KerningFont*>(userData);
-    if(font == nullptr) {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    auto font_id = renderer->GetFontById(config->fontId);
+    if(font_id == nullptr) {
         if(config->fontId == 0) {
-            auto* renderer = ServiceLocator::get<IRendererService>();
-            font = renderer->GetFont("System32");
+            font_id = renderer->GetFont("System32");
         } else {
             return Clay_Dimensions{0.0f, 0.0f};
         }
     }
-    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font->GetInfoDef().em_size) : 1.0f;
-    return {font->CalculateTextWidth(str_text, scale), font->CalculateTextHeight(scale)};
+    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font_id->GetInfoDef().em_size) : 1.0f;
+    return {font_id->CalculateTextWidth(str_text, scale), font_id->CalculateTextHeight(scale)};
 }
 
 } // namespace Clay
@@ -119,7 +119,7 @@ void ClayUI::Initialize() noexcept {
 
     auto* renderer = ServiceLocator::get<IRendererService>();
     m_clayContext = Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
-    Clay_SetMeasureTextFunction(Clay::MeasureText, renderer->GetFont("System32"));
+    Clay_SetMeasureTextFunction(Clay::MeasureText, nullptr);
 }
 
 void ClayUI::BeginFrame() noexcept {
