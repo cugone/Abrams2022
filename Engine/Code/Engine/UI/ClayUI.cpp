@@ -308,7 +308,8 @@ void ClayUI::Render() const noexcept {
             const auto& config = command->renderData.image;
             auto* mat = static_cast<Material*>(config.imageData);
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
-            const auto bottom_right = top_left + Vector2(config.sourceDimensions.width, config.sourceDimensions.height);
+            const auto dims = IntVector2{mat->GetTexture(Material::TextureID::Diffuse)->GetDimensions()};
+            const auto bottom_right = top_left + Vector2(dims);
             const auto bounds = AABB2(top_left, bottom_right);
             const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
             const auto R = Matrix4::I;
