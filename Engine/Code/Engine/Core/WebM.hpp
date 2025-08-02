@@ -40,8 +40,10 @@ protected:
 private:
     std::filesystem::path m_path{};
     TimeUtils::FPSeconds m_length{};
+    TimeUtils::FPSeconds m_currentFrameLength{};
     std::vector<uint8_t> m_audioData{};
     uint64_t m_frameCount{};
+    uint64_t m_frameIndex{};
     uint64_t m_width{};
     uint64_t m_height{};
 

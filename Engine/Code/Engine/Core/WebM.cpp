@@ -255,6 +255,7 @@ void WebM::AddFrame() noexcept {
 void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noexcept {
     auto* r = ServiceLocator::get<IRendererService>();
     if(auto* renderer = dynamic_cast<Renderer*>(r); renderer != nullptr) {
+        auto* device = renderer->GetDevice();
         auto* dc = renderer->GetDeviceContext();
         auto* dx_dc = dc->GetDxContext();
         auto* dx_resource = m_decodedFrame.Get();
@@ -272,6 +273,7 @@ void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noex
 
             dx_dc->Unmap(dx_resource, dx_subresource_id);
         }
+        m_currentFrame = std::make_unique<Texture2D>(*device, m_decodedFrame);
     }
     
 
@@ -290,22 +292,25 @@ void WebM::BindEncodedBufferToGpu(const std::vector<uint8_t>& encodedFrame) noex
 }
 
 void WebM::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
-
+    //const auto seconds_per_frame = m_length / m_frameCount;
+    //do {
+    //    m_currentFrame.get() = m_decodedFrame.get();
+    //    m_currentFrameLength += deltaSeconds;
+    //} while(m_currentFrameLength < seconds_per_frame);
+    //if(m_currentFrameLength >= seconds_per_frame) {
+    //}
 }
 
 void WebM::Render([[maybe_unused]] const Matrix4& transform /*= Matrix4::I*/) const noexcept {
     auto* r = ServiceLocator::get<IRendererService>();
-    r->SetMaterial("__webm");
-
-    auto* dx_context = r->GetDeviceContext()->GetDxContext();
-
-    std::array<ID3D11ShaderResourceView * const *, 2> srvs = {m_srvY.GetAddressOf(), m_srvUV.GetAddressOf()};
-    dx_context->VSSetShaderResources(0, 2, *srvs.data());
-    dx_context->PSSetShaderResources(0, 2, *srvs.data());
-    dx_context->DSSetShaderResources(0, 2, *srvs.data());
-    dx_context->HSSetShaderResources(0, 2, *srvs.data());
-    dx_context->GSSetShaderResources(0, 2, *srvs.data());
-
+    auto* mat = r->GetMaterial("__video");
+    if(const auto& cbs = mat->GetShader()->GetConstantBuffers(); !cbs.empty()) {
+        auto& cb = cbs[0].get();
+        IntVector4 data{static_cast<int>(m_frameIndex), 0, 0, 0};
+        cb.Update(*(r->GetDeviceContext()), &data);
+    }
+    r->SetMaterial("__video");
+    r->SetTexture(m_currentFrame.get());
     r->DrawQuad2D(transform);
 }
 
