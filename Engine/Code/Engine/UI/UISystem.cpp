@@ -1,290 +1,88 @@
 #include "Engine/UI/UISystem.hpp"
 
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/KerningFont.hpp"
-
-#include "Engine/Math/Vector2.hpp"
-#include "Engine/Math/Vector3.hpp"
-#include "Engine/Math/Vector4.hpp"
-
-#include "Engine/Profiling/ProfileLogScope.hpp"
-
-#include "Engine/RHI/RHIOutput.hpp"
-#include "Engine/RHI/RHIDevice.hpp"
-#include "Engine/RHI/RHIDeviceContext.hpp"
-
-#include "Engine/Renderer/Texture.hpp"
-#include "Engine/Renderer/Window.hpp"
-
-#include "Engine/Services/IAppService.hpp"
-#include "Engine/Services/IRendererService.hpp"
-#include "Engine/Services/IInputService.hpp"
-#include "Engine/Services/ServiceLocator.hpp"
-
-#include "Engine/UI/UIWidget.hpp"
-
-#include <Thirdparty/Imgui/imgui_internal.h>
-
-#include <algorithm>
-
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-namespace ImGui {
-void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
-    if(texture) {
-        const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
-        const auto&& [br, bg, bb, ba] = border_col.GetAsFloats();
-        ImGui::Image(static_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, Vector4{tr, tg, tb, ta}, Vector4{br, bg, bb, ba});
-    }
-}
-void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
-    if(texture) {
-        const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
-        const auto&& [br, bg, bb, ba] = border_col.GetAsFloats();
-        ImGui::Image(static_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, Vector4{tr, tg, tb, ta}, Vector4{br, bg, bb, ba});
-    }
-}
-
-bool ImageButton(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept {
-    if(texture) {
-        const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
-        const auto&& [br, bg, bb, ba] = bg_col.GetAsFloats();
-        return ImGui::ImageButton(static_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, frame_padding, Vector4{br, bg, bb, ba}, Vector4{tr, tg, tb, ta});
-    }
-    return false;
-}
-bool ImageButton(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept {
-    if(texture) {
-        const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
-        const auto&& [br, bg, bb, ba] = bg_col.GetAsFloats();
-        return ImGui::ImageButton(static_cast<void*>(texture->GetShaderResourceView()), size, uv0, uv1, frame_padding, Vector4{br, bg, bb, ba}, Vector4{tr, tg, tb, ta});
-    }
-    return false;
-}
-
-
-bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
-    const auto&& [r, g, b, _] = color.GetAsFloats();
-    Vector4 colorAsFloats{r, g, b, 1.0f};
-    if(ImGui::ColorEdit3(label, colorAsFloats.GetAsFloatArray(), flags)) {
-        color.SetFromFloats({colorAsFloats.x,colorAsFloats.y,colorAsFloats.z, 1.0f});
-        return true;
-    }
-    return false;
-}
-bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
-    const auto&& [r, g, b, a] = color.GetAsFloats();
-    Vector4 colorAsFloats{r, g, b, a};
-    if(ImGui::ColorEdit4(label, colorAsFloats.GetAsFloatArray(), flags)) {
-        color.SetFromFloats({colorAsFloats.x,colorAsFloats.y,colorAsFloats.z, colorAsFloats.w});
-        return true;
-    }
-    return false;
-}
-bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
-    const auto&& [r, g, b, _] = color.GetAsFloats();
-    Vector4 colorAsFloats{r, g, b, 1.0f};
-    if(ImGui::ColorPicker3(label, colorAsFloats.GetAsFloatArray(), flags)) {
-        color.SetFromFloats({colorAsFloats.x,colorAsFloats.y,colorAsFloats.z});
-        return true;
-    }
-    return false;
-}
-bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Rgba* refColor /*= nullptr*/) noexcept {
-    Vector4 refColorAsFloats{};
-    if(refColor) {
-        const auto&& [rr, rg, rb, ra] = refColor->GetAsFloats();
-        refColorAsFloats = Vector4{rr, rg, rb, ra};
-    }
-    const auto&& [r, g, b, a] = color.GetAsFloats();
-    Vector4 colorAsFloats{r, g, b, a};
-    if(ImGui::ColorPicker4(label, colorAsFloats.GetAsFloatArray(), flags, refColor ? refColorAsFloats.GetAsFloatArray() : nullptr)) {
-        color.SetFromFloats({colorAsFloats.x,colorAsFloats.y,colorAsFloats.z, colorAsFloats.w});
-        if(refColor) {
-            refColor->SetFromFloats({refColorAsFloats.x,refColorAsFloats.y,refColorAsFloats.z, refColorAsFloats.w});
-        }
-        return true;
-    }
-    return false;
-}
-bool ColorButton(const char* desc_id, const Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Vector2 size /*= Vector2::ZERO*/) noexcept {
-    const auto&& [r, g, b, a] = color.GetAsFloats();
-    return ImGui::ColorButton(desc_id, Vector4{r, g, b, a}, flags, size);
-}
-
-void TextColored(const Rgba& color, const char* fmt, ...) noexcept {
-    auto&& [r, g, b, a] = color.GetAsFloats();
-    va_list args;
-    va_start(args, fmt);
-    ImGui::TextColoredV(Vector4{r, g, b, a}, fmt, args);
-    va_end(args);
-}
-
-} // namespace ImGui
-
 UISystem::UISystem() noexcept
 : EngineSubsystem()
-, m_context(ImGui::CreateContext()) {
-#ifdef UI_DEBUG
-    IMGUI_CHECKVERSION();
-#endif
-}
-
-UISystem::~UISystem() noexcept {
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-
-    ImGui::DestroyContext(m_context);
-    m_context = nullptr;
+{
+    /* DO NOTHING */
 }
 
 void UISystem::Initialize() noexcept {
-    namespace FS = std::filesystem;
+    m_imgui.Initialize();
+    m_clay.Initialize();
+}
 
-    auto* renderer = ServiceLocator::get<IRendererService>();
-    auto* hwnd = renderer->GetOutput()->GetWindow()->GetWindowHandle();
-    auto* dx_device = renderer->GetDevice()->GetDxDevice();
-    auto* dx_context = renderer->GetDeviceContext()->GetDxContext();
+void UISystem::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
+    m_clay.SetClayLayoutCallback(std::move(layoutCallback));
+}
 
-    const auto dims = Vector2{renderer->GetOutput()->GetDimensions()};
-    auto& io = ImGui::GetIO();
-    io.DisplaySize.x = dims.x;
-    io.DisplaySize.y = dims.y;
+bool UISystem::IsClayDebugWindowVisible() const noexcept {
+    return m_clay.IsClayDebugWindowVisible();
+}
 
-    ImGui::StyleColorsDark();
-
-    io.IniFilename = nullptr;
-    io.LogFilename = nullptr;
-
-    if(std::filesystem::exists(m_ini_filepath)) {
-        ImGui::LoadIniSettingsFromDisk(m_ini_filepath.string().c_str());
-    } else {
-        ImGui::SaveIniSettingsToDisk(m_ini_filepath.string().c_str());
-    }
-
-    m_ini_saveTimer.SetSeconds(TimeUtils::FPSeconds{io.IniSavingRate});
-
-    io.ConfigWindowsResizeFromEdges = true;
-    io.ConfigDockingWithShift = true;
-    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos | ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
-
-    ImGui_ImplWin32_Init(hwnd);
-    ImGui_ImplDX11_Init(dx_device, dx_context);
-
+void UISystem::ToggleClayDebugWindow() noexcept {
+    m_clay.ToggleClayDebugWindow();
 }
 
 void UISystem::BeginFrame() noexcept {
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    if(m_ini_saveTimer.CheckAndReset()) {
-        ImGui::SaveIniSettingsToDisk(m_ini_filepath.string().c_str());
-    }
+    m_imgui.BeginFrame();
+    m_clay.BeginFrame();
 }
 
-void UISystem::Update(TimeUtils::FPSeconds /*deltaSeconds*/) noexcept {
-    const auto* const app = ServiceLocator::get<IAppService>();
-    auto& io = ImGui::GetIO();
-    io.AddFocusEvent(app->HasFocus());
-
-#if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    if(m_show_imgui_demo_window) {
-        ImGui::ShowDemoWindow(&m_show_imgui_demo_window);
-    }
-    if(m_show_imgui_metrics_window) {
-        ImGui::ShowMetricsWindow(&m_show_imgui_metrics_window);
-    }
-#endif
+void UISystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+    m_imgui.Update();
+    m_clay.Update(deltaSeconds);
 }
 
 void UISystem::Render() const noexcept {
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    //2D View / HUD
-    auto* renderer = ServiceLocator::get<IRendererService>();
-    const float ui_view_height = renderer->GetCurrentViewport().height;
-    const float ui_view_width = ui_view_height * m_ui_camera.GetAspectRatio();
-    const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
-    const auto ui_view_half_extents = ui_view_extents * 0.5f;
-    auto ui_leftBottom = Vector2{-ui_view_half_extents.x, ui_view_half_extents.y};
-    auto ui_rightTop = Vector2{ui_view_half_extents.x, -ui_view_half_extents.y};
-    auto ui_nearFar = Vector2{0.0f, 1.0f};
-    auto ui_cam_pos = ui_view_half_extents;
-    m_ui_camera.position = ui_cam_pos;
-    m_ui_camera.orientation_degrees = 0.0f;
-    m_ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, renderer->GetCurrentViewportAspectRatio());
-    renderer->SetCamera(m_ui_camera);
-
+    m_imgui.Render();
+    m_clay.Render();
 }
 
 void UISystem::EndFrame() noexcept {
-    ImGui::EndFrame();
-    ImGui::UpdatePlatformWindows();
+    m_imgui.EndFrame();
+    m_clay.EndFrame();
 }
 
 bool UISystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
-    return ImGui_ImplWin32_WndProcHandler(static_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
+    return m_imgui.ProcessSystemMessage(msg);
 }
 
 bool UISystem::HasFocus() const noexcept {
-    auto& io = ImGui::GetIO();
-    return io.WantCaptureKeyboard || io.WantCaptureMouse;
+    return m_imgui.HasFocus();
 }
 
 bool UISystem::WantsInputCapture() const noexcept {
-    return WantsInputKeyboardCapture() || WantsInputMouseCapture();
+    return m_imgui.WantsInputKeyboardCapture() || m_imgui.WantsInputMouseCapture();
 }
 
 bool UISystem::WantsInputKeyboardCapture() const noexcept {
-    return ImGui::GetIO().WantCaptureKeyboard;
+    return m_imgui.WantsInputKeyboardCapture();
 }
 
 bool UISystem::WantsInputMouseCapture() const noexcept {
-    return ImGui::GetIO().WantCaptureMouse;
+    return m_imgui.WantsInputMouseCapture();
 }
 
 bool UISystem::IsImguiDemoWindowVisible() const noexcept {
-#if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    return m_show_imgui_demo_window;
-#else
-    return false;
-#endif
+    return m_imgui.IsImguiDemoWindowVisible();
 }
 
 void UISystem::ToggleImguiDemoWindow() noexcept {
-#if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
-    m_show_imgui_demo_window = !m_show_imgui_demo_window;
-    auto* input = ServiceLocator::get<IInputService>();
-    if(!input->IsMouseCursorVisible()) {
-        input->ShowMouseCursor();
-    }
-#endif
+    m_imgui.ToggleImguiDemoWindow();
 }
 
 bool UISystem::IsImguiMetricsWindowVisible() const noexcept {
-#if !defined(IMGUI_DISABLE_METRICS_WINDOW)
-    return m_show_imgui_metrics_window;
-#else
-    return false;
-#endif
+    return m_imgui.IsImguiMetricsWindowVisible();
 }
 
 void UISystem::ToggleImguiMetricsWindow() noexcept {
-#if !defined(IMGUI_DISABLE_METRICS_WINDOW)
-    m_show_imgui_metrics_window = !m_show_imgui_metrics_window;
-    auto* input = ServiceLocator::get<IInputService>();
-    if(!input->IsMouseCursorVisible()) {
-        input->ShowMouseCursor();
-    }
-#endif
+    m_imgui.ToggleImguiMetricsWindow();
 }
 
 bool UISystem::IsAnyImguiDebugWindowVisible() const noexcept {
-#ifdef UI_DEBUG
-    return IsImguiDemoWindowVisible() || IsImguiMetricsWindowVisible();
-#else
-    return false;
-#endif
+    return m_imgui.IsAnyImguiDebugWindowVisible();
+}
+
+bool UISystem::IsAnyDebugWindowVisible() const noexcept {
+    return IsAnyImguiDebugWindowVisible() || IsClayDebugWindowVisible();
 }

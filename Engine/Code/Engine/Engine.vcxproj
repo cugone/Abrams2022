@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Thirdparty\clay\clay.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\Thirdparty\ImGui\imgui_draw.cpp" />
@@ -187,18 +188,13 @@
     <ClCompile Include="System\Process.cpp" />
     <ClCompile Include="System\Ram.cpp" />
     <ClCompile Include="System\System.cpp" />
-    <ClCompile Include="UI\UICanvas.cpp" />
-    <ClCompile Include="UI\UIElement.cpp" />
-    <ClCompile Include="UI\UIPanelSlot.cpp" />
-    <ClCompile Include="UI\UIPictureBox.cpp" />
-    <ClCompile Include="UI\UIPanel.cpp" />
-    <ClCompile Include="UI\UILabel.cpp" />
-    <ClCompile Include="UI\UITypes.cpp" />
+    <ClCompile Include="UI\ClayUI.cpp" />
+    <ClCompile Include="UI\DearImgui.cpp" />
     <ClCompile Include="UI\UISystem.cpp" />
-    <ClCompile Include="UI\UIWidget.cpp" />
     <ClCompile Include="Video\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\clay\clay.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_api.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_block_allocator.h" />
     <ClInclude Include="..\Thirdparty\box2d\b2_body.h" />
@@ -537,18 +533,18 @@
     <ClInclude Include="System\Process.hpp" />
     <ClInclude Include="System\Ram.hpp" />
     <ClInclude Include="System\System.hpp" />
-    <ClInclude Include="UI\UICanvas.hpp" />
-    <ClInclude Include="UI\UIElement.hpp" />
-    <ClInclude Include="UI\UIPanelSlot.hpp" />
-    <ClInclude Include="UI\UIPictureBox.hpp" />
-    <ClInclude Include="UI\UIPanel.hpp" />
-    <ClInclude Include="UI\UILabel.hpp" />
-    <ClInclude Include="UI\UITypes.hpp" />
+    <ClInclude Include="UI\ClayUI.hpp" />
+    <ClInclude Include="UI\DearImgui.hpp" />
     <ClInclude Include="UI\UISystem.hpp" />
-    <ClInclude Include="UI\UIWidget.hpp" />
     <ClInclude Include="Video\VideoSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Renderer\DirectX\Shaders\roundedrectangle.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Renderer\DirectX\Shaders\webm.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">true</ExcludedFromBuild>

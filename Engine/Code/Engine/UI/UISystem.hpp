@@ -1,35 +1,11 @@
 #pragma once
 
-#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
 
-#include "Engine/Renderer/Camera2D.hpp"
+#include "Engine/UI/DearImgui.hpp"
+#include "Engine/UI/ClayUI.hpp"
 
-#ifndef UI_DEBUG
-    #define IMGUI_DISABLE_DEMO_WINDOWS
-    #define IMGUI_DISABLE_METRICS_WINDOW
-#else
-    #undef IMGUI_DISABLE_DEMO_WINDOWS
-    #undef IMGUI_DISABLE_METRICS_WINDOW
-#endif
-
-#include <Thirdparty/Imgui/imgui.h>
-#include <Thirdparty/Imgui/imgui_impl_dx11.h>
-#include <Thirdparty/Imgui/imgui_impl_win32.h>
-#include <Thirdparty/Imgui/imgui_stdlib.h>
-
-#include <filesystem>
-#include <map>
-#include <memory>
-
-#include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/Stopwatch.hpp"
-#include "Engine/Platform/Win.hpp"
-
-class UIWidget;
-class Renderer;
-class FileLogger;
-class InputSystem;
+#include <functional>
 
 //TODO: Maybe make Service
 class UISystem : public EngineSubsystem {
@@ -39,8 +15,7 @@ public:
     UISystem(UISystem&& other) = default;
     UISystem& operator=(const UISystem& other) = default;
     UISystem& operator=(UISystem&& other) = default;
-    virtual ~UISystem() noexcept;
-
+    virtual ~UISystem() noexcept = default;
     virtual void Initialize() noexcept override;
     virtual void BeginFrame() noexcept override;
     virtual void Update(TimeUtils::FPSeconds deltaSeconds) noexcept override;
@@ -60,32 +35,14 @@ public:
     void ToggleImguiMetricsWindow() noexcept;
     [[nodiscard]] bool IsAnyImguiDebugWindowVisible() const noexcept;
 
+    void SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept;
+    [[nodiscard]] bool IsClayDebugWindowVisible() const noexcept;
+    void ToggleClayDebugWindow() noexcept;
+
+    [[nodiscard]] bool IsAnyDebugWindowVisible() const noexcept;
+
 protected:
 private:
-    ImGuiContext* m_context{};
-    mutable Camera2D m_ui_camera{};
-    std::filesystem::path m_ini_filepath{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineConfig) / "ui.ini"};
-    Stopwatch m_ini_saveTimer{};
-    bool m_show_imgui_demo_window = false;
-    bool m_show_imgui_metrics_window = false;
-    bool m_save_settings_to_disk = false;
+    DearImgui m_imgui{};
+    ClayUI m_clay{};
 };
-
-class Texture;
-class Rgba;
-class Vector2;
-class Vector4;
-//Custom ImGui overloads
-namespace ImGui {
-void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept;
-void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept;
-[[nodiscard]] bool ImageButton(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept;
-[[nodiscard]] bool ImageButton(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept;
-
-[[nodiscard]] bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0) noexcept;
-[[nodiscard]] bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags = 0, Rgba* refColor = nullptr) noexcept;
-[[nodiscard]] bool ColorButton(const char* desc_id, Rgba& color, ImGuiColorEditFlags flags = 0, Vector2 size = Vector2::Zero) noexcept;
-void TextColored(const Rgba& color, const char* fmt, ...) noexcept;
-} // namespace ImGui

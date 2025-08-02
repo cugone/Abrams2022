@@ -71,12 +71,15 @@ public:
     void InvertAlpha() noexcept;
 
     void SetRGBAFromARGB(std::string name) noexcept;
+    void SetRGBAFromBGRA(std::string name) noexcept;
 
     [[nodiscard]] uint32_t GetAsRawValue() const noexcept;
     void SetFromRawValue(uint32_t value) noexcept;
     void SetARGBFromRawValue(uint32_t value) noexcept;
+    void SetBGRAFromRawValue(uint32_t value) noexcept;
     void SetRGBAFromRawValue(uint32_t value) noexcept;
     void SetRGBFromRawValue(uint32_t value) noexcept;
+    void SetBGRFromRawValue(uint32_t value) noexcept;
     void SetFromFloats(std::initializer_list<float> ilist) noexcept;
     [[nodiscard]] bool IsRgbEqual(const Rgba& rhs) const noexcept;
     [[nodiscard]] bool operator==(const Rgba& rhs) const noexcept;
@@ -137,6 +140,8 @@ public:
                 return RgbaFormatView::Decimal;
             case 'f':
                 return RgbaFormatView::Float;
+            case 'n':
+                return RgbaFormatView::Raw;
             default:
                 throw std::format_error("Rgba: invalid format specification");
             }
@@ -163,7 +168,7 @@ public:
         } else if(view == RgbaFormatView::Float) {
             return std::format_to(ctx.out(), "{},{},{},{}", std::get<0>(floats), std::get<1>(floats), std::get<2>(floats), std::get<3>(floats));
         } else if(view == RgbaFormatView::Raw) {
-            return std::format_to(ctx.out(), "", raw);
+            return std::format_to(ctx.out(), "{}", raw);
         } else {
             throw std::format_error("Rgba: Unknown Format View");
         }
