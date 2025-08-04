@@ -155,7 +155,6 @@ bool WebM::Load(std::filesystem::path filepath) noexcept {
         auto callback = MyWebMCallback(this);
         webm::WebmParser parser{};
         webm::Status status{};
-        //TODO: Start Here
         do {
             status = parser.Feed(&callback, &reader);
             if(status.is_parsing_error()) {

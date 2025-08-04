@@ -30,6 +30,7 @@
     <ClCompile Include="..\Thirdparty\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="..\Thirdparty\stb\stb.cpp" />
     <ClCompile Include="..\Thirdparty\TinyXML2\tinyxml2.cpp" />
+    <ClCompile Include="..\Thirdparty\Tracy\TracyClient.cpp" />
     <ClCompile Include="Audio\Audio3DCone.cpp" />
     <ClCompile Include="Audio\Audio3DEmitter.cpp" />
     <ClCompile Include="Audio\Audio3DListener.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="..\Thirdparty\Tracy\tracy\Tracy.hpp" />
     <ClInclude Include="..\Thirdparty\webm\common\file_util.h" />
     <ClInclude Include="..\Thirdparty\webm\common\hdr_util.h" />
     <ClInclude Include="..\Thirdparty\webm\common\indent.h" />

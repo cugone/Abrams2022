@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Vector2.hpp"
@@ -17,6 +18,10 @@
 #include "Engine/Renderer/Renderer.hpp"
 
 #include "Engine/Services/IPhysicsService.hpp"
+
+#ifdef PROFILE_BUILD
+    #include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
 
 #include <atomic>
 #include <condition_variable>
@@ -120,6 +125,9 @@ private:
 
 template<typename CollisionDetectionFunction, typename CollisionResolutionFunction>
 PhysicsSystem::CollisionDataSet PhysicsSystem::NarrowPhaseCollision(const std::vector<RigidBody*>& potential_collisions, CollisionDetectionFunction&& cd, CollisionResolutionFunction&& cr) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     CollisionDataSet result;
     if(potential_collisions.size() < 2) {
         m_contacts.clear();

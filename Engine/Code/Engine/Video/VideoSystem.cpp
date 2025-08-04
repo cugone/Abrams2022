@@ -1,5 +1,7 @@
 #include "Engine/Video/VideoSystem.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include "Engine/RHI/RHIVideoDevice.hpp"
 #include "Engine/RHI/RHIVideoContext.hpp"
 #include "Engine/RHI/RHIVideoDecoder.hpp"
@@ -8,14 +10,25 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
+
 #include <format>
 
 void VideoSystem::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_videoDevice = CreateVideoDevice();
     m_videoContext = CreateVideoContext();
 }
 
 void VideoSystem::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_playingVideo) {
         return;
     }
@@ -23,24 +36,36 @@ void VideoSystem::BeginFrame() noexcept {
 }
 
 void VideoSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_playingVideo) {
         return;
     }
 }
 
 void VideoSystem::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_playingVideo) {
         return;
     }
 }
 
 void VideoSystem::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_playingVideo) {
         return;
     }
 }
 
 void VideoSystem::Play([[maybe_unused]] const std::filesystem::path& filepath) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_playingVideo) {
         return;
     }
@@ -62,21 +87,36 @@ void VideoSystem::Play([[maybe_unused]] const std::filesystem::path& filepath) {
 }
 
 RHIVideoDevice* VideoSystem::GetVideoDevice() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_videoDevice.get();
 }
 
 RHIVideoContext* VideoSystem::GetVideoContext() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_videoContext.get();
 }
 
 RHIVideoDecoder* VideoSystem::GetVideoDecoder() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_videoDevice->GetDecoder();
 }
 
 std::unique_ptr<RHIVideoDevice> VideoSystem::CreateVideoDevice() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<RHIVideoDevice>();
 }
 
 std::unique_ptr<RHIVideoContext> VideoSystem::CreateVideoContext() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<RHIVideoContext>();
 }

@@ -1,5 +1,6 @@
 #include "Engine/UI/ClayUI.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
@@ -10,6 +11,10 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 #include "Engine/Services/IRendererService.hpp"
+
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
 
 #include <algorithm>
 #include <utility>
@@ -26,22 +31,37 @@ namespace Clay {
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept;
 
 Clay_Color RgbaToClayColor(Rgba color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, a] = color.GetAsFloats();
     return {r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f};
 }
 Clay_String StrToClayString(const std::string& str) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Clay_String{false, static_cast<int32_t>(str.size()), str.data()};
 }
 
 Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Clay_Dimensions{v.x, v.y};
 }
 
 Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Clay_Vector2{v.x, v.y};
 }
 
 Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto r = textColor.r / 255.0f;
     const auto g = textColor.g / 255.0f;
     const auto b = textColor.b / 255.0f;
@@ -50,6 +70,9 @@ Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
 }
 
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, [[maybe_unused]] void* userData) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
     if(text.chars == nullptr) {
@@ -72,6 +95,9 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
 } // namespace Clay
 
 void ClayUI::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto error_f = [](Clay_ErrorData errorData) {
         const auto str = std::string(errorData.errorText.chars, errorData.errorText.length);
         const auto msg = std::format("{:s}", errorData.errorText.chars);
@@ -123,10 +149,16 @@ void ClayUI::Initialize() noexcept {
 }
 
 void ClayUI::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void ClayUI::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     auto* input = ServiceLocator::get<IInputService>();
     Clay_SetLayoutDimensions(Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())));
@@ -138,6 +170,9 @@ void ClayUI::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void ClayUI::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //2D View / HUD
     auto* renderer = ServiceLocator::get<IRendererService>();
     const float ui_view_height = renderer->GetCurrentViewport().height;
@@ -347,14 +382,23 @@ void ClayUI::Render() const noexcept {
 }
 
 void ClayUI::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void ClayUI::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_clayLayoutCallback = std::move(layoutCallback);
 }
 
 bool ClayUI::IsClayDebugWindowVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     return m_show_clay_debug_window;
 #else
@@ -363,6 +407,9 @@ bool ClayUI::IsClayDebugWindowVisible() const noexcept {
 }
 
 bool ClayUI::IsClayDebuggingEnabled() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     return Clay_IsDebugModeEnabled();
 #else
@@ -371,24 +418,36 @@ bool ClayUI::IsClayDebuggingEnabled() const noexcept {
 }
 
 void ClayUI::EnableDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_debug = true;
 #endif
 }
 
 void ClayUI::DisableDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_debug = false;
 #endif
 }
 
 void ClayUI::ToggleDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_debug = !m_debug;
 #endif
 }
 
 void ClayUI::ToggleClayDebugWindow() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_show_clay_debug_window = !m_show_clay_debug_window;
     auto* input = ServiceLocator::get<IInputService>();

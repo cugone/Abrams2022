@@ -1,5 +1,7 @@
 #include "Engine/Input/InputSystem.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/StringUtils.hpp"
@@ -13,12 +15,19 @@
 #include "Engine/Services/IRendererService.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <algorithm>
 #include <sstream>
 
 #include <hidusage.h>
 
 Vector2 InputSystem::GetCursorWindowPosition(const Window& window_ref) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     POINT p;
     if(::GetCursorPos(&p)) {
         if(::ScreenToClient(static_cast<HWND>(window_ref.GetWindowHandle()), &p)) {
@@ -29,11 +38,17 @@ Vector2 InputSystem::GetCursorWindowPosition(const Window& window_ref) const noe
 }
 
 Vector2 InputSystem::GetCursorWindowPosition() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetCursorWindowPosition(*window);
 }
 
 Vector2 InputSystem::GetCursorScreenPosition() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     POINT p;
     if(::GetCursorPos(&p)) {
         return Vector2{static_cast<float>(p.x), static_cast<float>(p.y)};
@@ -42,6 +57,9 @@ Vector2 InputSystem::GetCursorScreenPosition() const noexcept {
 }
 
 void InputSystem::SetCursorToScreenCenter() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     HWND desktop_window = ::GetDesktopWindow();
     RECT desktop_client;
     if(::GetClientRect(desktop_window, &desktop_client)) {
@@ -52,6 +70,9 @@ void InputSystem::SetCursorToScreenCenter() noexcept {
 }
 
 void InputSystem::SetCursorToWindowCenter(const Window& window_ref) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT client_area;
     if(::GetClientRect(static_cast<HWND>(window_ref.GetWindowHandle()), &client_area)) {
         const auto center_x = client_area.left + (client_area.right - client_area.left) * 0.5f;
@@ -61,20 +82,32 @@ void InputSystem::SetCursorToWindowCenter(const Window& window_ref) noexcept {
 }
 
 void InputSystem::SetCursorToWindowCenter() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     SetCursorToWindowCenter(*window);
 }
 
 Vector2 InputSystem::GetMouseDeltaFromWindowCenter() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetMouseDeltaFromWindowCenter(*window);
 }
 
 Vector2 InputSystem::GetMouseDeltaFromWindowCenter(const Window& window_ref) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseCoords() - GetWindowCenter(window_ref);
 }
 
 void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto x = static_cast<int>(screen_pos.x);
     const auto y = static_cast<int>(screen_pos.y);
     ::SetCursorPos(x, y);
@@ -82,44 +115,71 @@ void InputSystem::SetCursorScreenPosition(const Vector2& screen_pos) noexcept {
 }
 
 void InputSystem::UpdateXboxConnectedState() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(int i = 0; i < m_max_controller_count; ++i) {
         m_xboxControllers[i].UpdateConnectedState(i);
     }
 }
 
 void InputSystem::SetMouseCoords(float newX, float newY) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetMouseCoords(Vector2{newX, newY});
 }
 
 void InputSystem::SetMouseCoords(Vector2 newCoords) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_mouseCoords = newCoords;
 }
 
 void InputSystem::UpdateMouseCoords(float newX, float newY) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateMouseCoords(Vector2{newX, newY});
 }
 
 void InputSystem::UpdateMouseCoords(Vector2 newCoords) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_mousePrevCoords = m_mouseCoords;
     m_mouseCoords = newCoords;
     m_mouseDelta = m_mouseCoords - m_mousePrevCoords;
 }
 
 void InputSystem::AdjustMouseCoords(float offsetX, float offsetY) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     AdjustMouseCoords(Vector2{offsetX, offsetY});
 }
 
 void InputSystem::AdjustMouseCoords(Vector2 offset) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_mousePrevCoords = m_mouseCoords;
     m_mouseCoords += offset;
     m_mouseDelta = m_mouseCoords - m_mousePrevCoords;
 }
 
 bool InputSystem::WasMouseWheelJustUsed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelPositionNormalized() != 0 && GetMouseWheelHorizontalPositionNormalized() != 0;
 }
 
 Vector2 InputSystem::GetScreenCenter() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT desktopRect;
     HWND desktopWindowHandle = ::GetDesktopWindow();
     if(::GetClientRect(desktopWindowHandle, &desktopRect)) {
@@ -131,11 +191,17 @@ Vector2 InputSystem::GetScreenCenter() const noexcept {
 }
 
 Vector2 InputSystem::GetWindowCenter() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     return GetWindowCenter(*window);
 }
 
 Vector2 InputSystem::GetWindowCenter(const Window& window) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT rect;
     HWND windowHandle = static_cast<HWND>(window.GetWindowHandle());
     if(::GetClientRect(windowHandle, &rect)) {
@@ -147,6 +213,9 @@ Vector2 InputSystem::GetWindowCenter(const Window& window) const noexcept {
 }
 
 bool InputSystem::WasAnyControllerJustUsed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     bool result = false;
     for(int i = 0; i < m_max_controller_count; ++i) {
         result |= m_xboxControllers[i].IsAnyButtonDown();
@@ -161,6 +230,9 @@ bool InputSystem::WasAnyControllerJustUsed() const noexcept {
 }
 
 bool InputSystem::IsMouseCursorVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     CURSORINFO info{};
     info.cbSize = sizeof(CURSORINFO);
     ::GetCursorInfo(&info);
@@ -168,22 +240,34 @@ bool InputSystem::IsMouseCursorVisible() const noexcept {
 }
 
 void InputSystem::HideMouseCursor() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     while(::ShowCursor(FALSE) >= 0)
         ;
     m_cursor_visible = IsMouseCursorVisible();
 }
 
 void InputSystem::ShowMouseCursor() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     while(::ShowCursor(TRUE) < 0)
         ;
     m_cursor_visible = IsMouseCursorVisible();
 }
 
 void InputSystem::ToggleMouseCursorVisibility() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     IsMouseCursorVisible() ? HideMouseCursor() : ShowMouseCursor();
 }
 
 void InputSystem::SetCursorWindowPosition(const Window& window, const Vector2& window_pos) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     POINT p{};
     p.x = static_cast<long>(window_pos.x);
     p.y = static_cast<long>(window_pos.y);
@@ -193,23 +277,38 @@ void InputSystem::SetCursorWindowPosition(const Window& window, const Vector2& w
 }
 
 void InputSystem::SetCursorWindowPosition(const Vector2& window_pos) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     SetCursorWindowPosition(*window, window_pos);
 }
 
 Vector2 InputSystem::GetMouseCoords() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_mouseCoords;
 }
 
 Vector2 InputSystem::GetMouseDelta() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_mouseDelta;
 }
 
 int InputSystem::GetMouseWheelPosition() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_mouseWheelPosition;
 }
 
 int InputSystem::GetMouseWheelPositionNormalized() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_mouseWheelPosition) {
         return m_mouseWheelPosition / std::abs(m_mouseWheelPosition);
     }
@@ -217,10 +316,16 @@ int InputSystem::GetMouseWheelPositionNormalized() const noexcept {
 }
 
 int InputSystem::GetMouseWheelHorizontalPosition() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_mouseWheelHPosition;
 }
 
 int InputSystem::GetMouseWheelHorizontalPositionNormalized() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_mouseWheelHPosition) {
         return m_mouseWheelHPosition / std::abs(m_mouseWheelHPosition);
     }
@@ -228,14 +333,23 @@ int InputSystem::GetMouseWheelHorizontalPositionNormalized() const noexcept {
 }
 
 IntVector2 InputSystem::GetMouseWheelPositionAsIntVector2() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return IntVector2{m_mouseWheelHPosition, m_mouseWheelPosition};
 }
 
 bool InputSystem::IsMouseLockedToViewport() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_should_clip_cursor;
 }
 
 void InputSystem::LockMouseToViewport(const Window& window) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto dims = window.GetDimensions();
     const auto pos = window.GetPosition();
     const long top = pos.x;
@@ -250,27 +364,42 @@ void InputSystem::LockMouseToViewport(const Window& window) const noexcept {
 }
 
 void InputSystem::LockMouseToWindowViewport() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const window = ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow();
     LockMouseToViewport(*window);
 }
 
 void InputSystem::UnlockMouseFromViewport() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ::ClipCursor(nullptr);
     m_should_clip_cursor = false;
     m_currentClippingArea = m_initialClippingArea;
 }
 
 void InputSystem::RegisterKeyDown(unsigned char keyIndex) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto kc = ConvertWinVKToKeyCode(keyIndex);
     m_currentKeys[(std::size_t)kc] = true;
 }
 
 void InputSystem::RegisterKeyUp(unsigned char keyIndex) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto kc = ConvertWinVKToKeyCode(keyIndex);
     m_currentKeys[(std::size_t)kc] = false;
 }
 
 bool InputSystem::ProcessSystemMessage(const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(msg.wmMessageCode) {
     case WindowsSystemMessage::App_DeviceChanged: {
         UpdateXboxConnectedState();
@@ -964,21 +1093,33 @@ InputSystem::InputSystem() noexcept
 : EngineSubsystem()
 , IInputService()
 {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT result{};
     ::GetClipCursor(&result);
     m_initialClippingArea = RectToAABB2(result);
 }
 
 InputSystem::~InputSystem() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT result = AABB2ToRect(m_initialClippingArea);
     ::ClipCursor(&result);
 }
 
 void InputSystem::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateXboxConnectedState();
 }
 
 void InputSystem::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_connection_poll.CheckAndReset()) {
         UpdateXboxConnectedState();
     }
@@ -988,14 +1129,23 @@ void InputSystem::BeginFrame() noexcept {
 }
 
 void InputSystem::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void InputSystem::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void InputSystem::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_mouseDelta = Vector2::Zero;
     m_mousePrevCoords = m_mouseCoords;
     m_previousKeys = m_currentKeys;
@@ -1004,6 +1154,9 @@ void InputSystem::EndFrame() noexcept {
 }
 
 bool InputSystem::WasAnyKeyPressed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(KeyCode k = KeyCode::First_; k < KeyCode::Last_; ++k) {
         if(WasKeyJustPressed(k)) {
             return true;
@@ -1013,6 +1166,9 @@ bool InputSystem::WasAnyKeyPressed() const noexcept {
 }
 
 bool InputSystem::WasAnyMouseButtonPressed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(KeyCode k = KeyCode::FirstMouseButton_; k < KeyCode::LastMouseButton_; ++k) {
         if(WasKeyJustPressed(k)) {
             return true;
@@ -1022,30 +1178,51 @@ bool InputSystem::WasAnyMouseButtonPressed() const noexcept {
 }
 
 bool InputSystem::WasMouseMoved() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseDelta().CalcLengthSquared() > 0.0f;
 }
 
 bool InputSystem::WasMouseJustUsed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return WasMouseMoved() || WasAnyMouseButtonPressed() || WasMouseWheelJustUsed();
 }
 
 bool InputSystem::IsKeyUp(const KeyCode& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return !m_previousKeys[(std::size_t)key] && !m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasKeyJustPressed(const KeyCode& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return !m_previousKeys[(std::size_t)key] && m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::IsKeyDown(const KeyCode& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_previousKeys[(std::size_t)key] && m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasKeyJustPressedOrIsKeyDown(const KeyCode& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return WasKeyJustPressed(key) || IsKeyDown(key);
 }
 
 bool InputSystem::IsAnyKeyDown() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(KeyCode k = KeyCode::First_; k < KeyCode::Last_; ++k) {
         if(IsKeyDown(k)) {
             return true;
@@ -1055,26 +1232,44 @@ bool InputSystem::IsAnyKeyDown() const noexcept {
 }
 
 bool InputSystem::WasKeyJustReleased(const KeyCode& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_previousKeys[(std::size_t)key] && !m_currentKeys[(std::size_t)key];
 }
 
 bool InputSystem::WasMouseWheelJustScrolledUp() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelPositionNormalized() > 0;
 }
 
 bool InputSystem::WasMouseWheelJustScrolledDown() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelPositionNormalized() < 0;
 }
 
 bool InputSystem::WasMouseWheelJustScrolledLeft() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelHorizontalPositionNormalized() < 0;
 }
 
 bool InputSystem::WasMouseWheelJustScrolledRight() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelHorizontalPositionNormalized() > 0;
 }
 
 std::size_t InputSystem::GetConnectedControllerCount() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     int connected_count = 0;
     for(const auto& controller : m_xboxControllers) {
         if(controller.IsConnected()) {
@@ -1085,6 +1280,9 @@ std::size_t InputSystem::GetConnectedControllerCount() const noexcept {
 }
 
 bool InputSystem::IsAnyControllerConnected() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     bool result = false;
     for(const auto& controller : m_xboxControllers) {
         result |= controller.IsConnected();
@@ -1093,9 +1291,15 @@ bool InputSystem::IsAnyControllerConnected() const noexcept {
 }
 
 const XboxController& InputSystem::GetXboxController(const std::size_t& controllerIndex) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_xboxControllers[controllerIndex];
 }
 
 XboxController& InputSystem::GetXboxController(const std::size_t& controllerIndex) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_xboxControllers[controllerIndex];
 }
