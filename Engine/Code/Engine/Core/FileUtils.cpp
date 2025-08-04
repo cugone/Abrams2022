@@ -621,7 +621,7 @@ std::size_t CountFilesInFolders(const std::filesystem::path& folderpath, const s
 std::vector<std::filesystem::path> GetAllPathsInFolders(const std::filesystem::path& folderpath, const std::string& validExtensionList /*= std::string{}*/, bool recursive /*= false*/) noexcept {
     return [&](){
         std::vector<std::filesystem::path> paths;
-        paths.reserve(CountFilesInFolders(folderpath));
+        paths.reserve(CountFilesInFolders(folderpath, validExtensionList, recursive));
         const auto add_path_cb = [&paths](const std::filesystem::path& p) { paths.push_back(p); };
         ForEachFileInFolder(folderpath, validExtensionList, add_path_cb, recursive);
         return paths;

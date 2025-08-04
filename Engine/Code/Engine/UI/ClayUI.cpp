@@ -1,5 +1,6 @@
 #include "Engine/UI/ClayUI.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
@@ -10,6 +11,13 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 #include "Engine/Services/IRendererService.hpp"
+
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
+#include <algorithm>
+#include <utility>
 
 #ifndef UI_DEBUG
     #define CLAY_DISABLE_DEBUG_WINDOW
@@ -23,22 +31,37 @@ namespace Clay {
 static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept;
 
 Clay_Color RgbaToClayColor(Rgba color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, a] = color.GetAsFloats();
     return {r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f};
 }
 Clay_String StrToClayString(const std::string& str) noexcept {
-    return Clay_String{static_cast<int32_t>(str.size()), str.data()};
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    return Clay_String{false, static_cast<int32_t>(str.size()), str.data()};
 }
 
 Clay_Dimensions Vector2ToClayDimensions(Vector2 v) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Clay_Dimensions{v.x, v.y};
 }
 
 Clay_Vector2 Vector2ToClayVector2(Vector2 v) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Clay_Vector2{v.x, v.y};
 }
 
 Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto r = textColor.r / 255.0f;
     const auto g = textColor.g / 255.0f;
     const auto b = textColor.b / 255.0f;
@@ -46,23 +69,35 @@ Rgba ClayColorToRgba(Clay_Color textColor) noexcept {
     return Rgba{r, g, b, a};
 }
 
-static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, void* userData) noexcept {
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]] Clay_TextElementConfig* config, [[maybe_unused]] void* userData) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-    if(userData == nullptr || text.chars == nullptr) {
+    if(text.chars == nullptr) {
         return Clay_Dimensions{0.0f, 0.0f};
     }
-    if(KerningFont* font = static_cast<KerningFont*>(userData); font != nullptr) {
-        const auto str_text = std::string(text.chars, text.length);
-        return {font->CalculateTextWidth(str_text), font->CalculateTextHeight(str_text)};
-    } else {
-        return Clay_Dimensions{0.0f, 0.0f};
+    const auto str_text = std::string(text.chars, text.length);
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    auto font_id = renderer->GetFontById(config->fontId);
+    if(font_id == nullptr) {
+        if(config->fontId == 0) {
+            font_id = renderer->GetFont("System32");
+        } else {
+            return Clay_Dimensions{0.0f, 0.0f};
+        }
     }
+    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font_id->GetInfoDef().em_size) : 1.0f;
+    return {font_id->CalculateTextWidth(str_text, scale), font_id->CalculateTextHeight(scale)};
 }
 
 } // namespace Clay
 
 void ClayUI::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto error_f = [](Clay_ErrorData errorData) {
         const auto str = std::string(errorData.errorText.chars, errorData.errorText.length);
         const auto msg = std::format("{:s}", errorData.errorText.chars);
@@ -110,14 +145,20 @@ void ClayUI::Initialize() noexcept {
 
     auto* renderer = ServiceLocator::get<IRendererService>();
     m_clayContext = Clay_Initialize(clayMemory, Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())), Clay_ErrorHandler{error_f});
-    Clay_SetMeasureTextFunction(Clay::MeasureText, renderer->GetFont("System32"));
+    Clay_SetMeasureTextFunction(Clay::MeasureText, nullptr);
 }
 
 void ClayUI::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void ClayUI::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     auto* input = ServiceLocator::get<IInputService>();
     Clay_SetLayoutDimensions(Clay::Vector2ToClayDimensions(Vector2(renderer->GetOutput()->GetDimensions())));
@@ -129,6 +170,9 @@ void ClayUI::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void ClayUI::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //2D View / HUD
     auto* renderer = ServiceLocator::get<IRendererService>();
     const float ui_view_height = renderer->GetCurrentViewport().height;
@@ -160,10 +204,6 @@ void ClayUI::Render() const noexcept {
         case CLAY_RENDER_COMMAND_TYPE_RECTANGLE: // The renderer should draw a solid color rectangle.
         {
             const auto& config = command->renderData.rectangle;
-            const auto r = config.backgroundColor.r / 255.0f;
-            const auto g = config.backgroundColor.g / 255.0f;
-            const auto b = config.backgroundColor.b / 255.0f;
-            const auto a = config.backgroundColor.a / 255.0f;
             const auto& bb = command->boundingBox;
             const auto width = bb.width;
             const auto height = bb.height;
@@ -172,24 +212,18 @@ void ClayUI::Render() const noexcept {
             const auto bottom = top + height;
             const auto right = left + width;
             const auto top_left = Vector2(left, top);
+            const auto top_right = Vector2(right, top);
             const auto bottom_right = Vector2(right, bottom);
+            const auto bottom_left = Vector2(left, bottom);
             const auto bounds = AABB2(top_left, bottom_right);
-            const auto fillColor = Rgba{r, g, b, a};
-            const auto tl_cr = command->renderData.rectangle.cornerRadius.topLeft;
-            const auto tr_cr = command->renderData.rectangle.cornerRadius.topRight;
-            const auto br_cr = command->renderData.rectangle.cornerRadius.bottomRight;
-            const auto bl_cr = command->renderData.rectangle.cornerRadius.bottomLeft;
-            std::vector corners{tl_cr, tr_cr, br_cr, bl_cr};
-            if(std::all_of(std::cbegin(corners), std::cend(corners), [](float value) { return MathUtils::IsEquivalentToZero(value); })) {
-                renderer->SetMaterial(renderer->GetMaterial("__2D"));
-                const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
-                const auto R = Matrix4::I;
-                const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
-                const auto M = Matrix4::MakeSRT(S, R, T);
-                renderer->DrawQuad2D(M, fillColor);
-            } else {
-                renderer->DrawFilledRoundedRectangle2D(bounds, fillColor, tl_cr);
-            }
+            const auto fillColor = Clay::ClayColorToRgba(config.backgroundColor);
+            const auto half_extents = Vector2(bounds.CalcDimensions().x * 0.5f, bounds.CalcDimensions().y * 0.5f);
+            const auto tl_cr = std::clamp(command->renderData.rectangle.cornerRadius.topLeft, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto tr_cr = std::clamp(command->renderData.rectangle.cornerRadius.topRight, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto br_cr = std::clamp(command->renderData.rectangle.cornerRadius.bottomRight, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            const auto bl_cr = std::clamp(command->renderData.rectangle.cornerRadius.bottomLeft, 0.0f, (std::min)(half_extents.x, half_extents.y));
+            renderer->SetMaterial(renderer->GetMaterial("__2D"));
+            renderer->DrawFilledRoundedRectangle2D(bounds, fillColor, tl_cr, tr_cr, br_cr, bl_cr);
             break;
         }
         case CLAY_RENDER_COMMAND_TYPE_BORDER: // The renderer should draw a colored border inset into the bounding box.
@@ -285,15 +319,23 @@ void ClayUI::Render() const noexcept {
             const auto& config = command->renderData.text;
             const auto str = std::string(config.stringContents.chars, config.stringContents.length);
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
-            const auto bottom_right = top_left + Vector2(command->boundingBox.width, command->boundingBox.height);
+            const auto extents = Vector2(command->boundingBox.width, command->boundingBox.height);
+            const auto half_extents = extents * 0.5f;
+            const auto bottom_right = top_left + extents;
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
-            auto* font = static_cast<KerningFont*>(command->userData);
-            const auto S = Matrix4::I;
+            auto* font = command->userData ? static_cast<KerningFont*>(command->userData) : renderer->GetFont("System32");
+            const auto scale = config.fontSize ? (config.fontSize / static_cast<float>(font->GetInfoDef().em_size)) : 1.0f;
+            const auto S = Matrix4::CreateScaleMatrix(scale);
             const auto R = Matrix4::I;
-            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() - Vector2(bounds.CalcDimensions().x, -bounds.CalcDimensions().y) * 0.5f);
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() + Vector2(-half_extents.x, half_extents.y));
             const auto M = Matrix4::MakeSRT(S, R, T);
             renderer->DrawTextLine(M, font, str, color);
+            if(m_debug) {
+                renderer->SetModelMatrix();
+                renderer->SetMaterial("__2D");
+                renderer->DrawAABB2(bounds, Rgba::Green, Rgba::NoAlpha);
+            }
             break;
         }
         case CLAY_RENDER_COMMAND_TYPE_IMAGE: // The renderer should draw an image.
@@ -301,7 +343,8 @@ void ClayUI::Render() const noexcept {
             const auto& config = command->renderData.image;
             auto* mat = static_cast<Material*>(config.imageData);
             const auto top_left = Vector2(command->boundingBox.x, command->boundingBox.y);
-            const auto bottom_right = top_left + Vector2(config.sourceDimensions.width, config.sourceDimensions.height);
+            const auto dims = IntVector2{mat->GetTexture(Material::TextureID::Diffuse)->GetDimensions()};
+            const auto bottom_right = top_left + Vector2(dims);
             const auto bounds = AABB2(top_left, bottom_right);
             const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
             const auto R = Matrix4::I;
@@ -339,14 +382,23 @@ void ClayUI::Render() const noexcept {
 }
 
 void ClayUI::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void ClayUI::SetClayLayoutCallback(std::function<void()>&& layoutCallback) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_clayLayoutCallback = std::move(layoutCallback);
 }
 
 bool ClayUI::IsClayDebugWindowVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     return m_show_clay_debug_window;
 #else
@@ -354,7 +406,48 @@ bool ClayUI::IsClayDebugWindowVisible() const noexcept {
 #endif
 }
 
+bool ClayUI::IsClayDebuggingEnabled() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    return Clay_IsDebugModeEnabled();
+#else
+    return false;
+#endif
+}
+
+void ClayUI::EnableDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = true;
+#endif
+}
+
+void ClayUI::DisableDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = false;
+#endif
+}
+
+void ClayUI::ToggleDebugging() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+#if !defined(CLAY_DISABLE_DEBUG_WINDOW)
+    m_debug = !m_debug;
+#endif
+}
+
 void ClayUI::ToggleClayDebugWindow() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(CLAY_DISABLE_DEBUG_WINDOW)
     m_show_clay_debug_window = !m_show_clay_debug_window;
     auto* input = ServiceLocator::get<IInputService>();
@@ -362,5 +455,6 @@ void ClayUI::ToggleClayDebugWindow() noexcept {
         input->ShowMouseCursor();
     }
     Clay_SetDebugModeEnabled(m_show_clay_debug_window);
+    ToggleDebugging();
 #endif
 }

@@ -1,9 +1,15 @@
 #include "Engine/Core/Config.hpp"
 
+#include "Engine/Core/BuildConfig.hpp"
+
 #include "Engine/Core/ArgumentParser.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/KeyValueParser.hpp"
 #include "Engine/Core/StringUtils.hpp"
+
+#ifdef PROFILE_BUILD
+    #include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
 
 #include <algorithm>
 #include <format>
@@ -27,6 +33,9 @@ Config& Config::operator=(Config&& rhs) noexcept {
 }
 
 bool Config::LoadFromFile(const std::filesystem::path& filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(std::filesystem::exists(filepath)) {
         KeyValueParser kvp(filepath);
         m_config = std::move(kvp.Release());
@@ -36,6 +45,9 @@ bool Config::LoadFromFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::AppendFromFile(const std::filesystem::path& filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(std::filesystem::exists(filepath)) {
         KeyValueParser kvp(filepath);
         const auto&& new_entries = std::move(kvp.Release());
@@ -56,6 +68,10 @@ bool Config::AppendFromFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::AppendToFile(const std::filesystem::path& filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(std::filesystem::exists(filepath)) {
         std::ofstream ofs;
         ofs.open(filepath, std::ios_base::app);
@@ -68,6 +84,10 @@ bool Config::AppendToFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::SaveToFile(const std::filesystem::path& filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     std::ofstream ofs;
     ofs.open(filepath);
     PrintConfigs(ofs);
@@ -77,10 +97,18 @@ bool Config::SaveToFile(const std::filesystem::path& filepath) noexcept {
 }
 
 bool Config::HasKey(const std::string& key) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     return m_config.find(key) != m_config.end();
 }
 
 void Config::GetValue(const std::string& key, bool& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         try {
             int keyAsInt = std::stoi(found->second);
@@ -99,84 +127,140 @@ void Config::GetValue(const std::string& key, bool& value) const noexcept {
 }
 
 void Config::GetValue(const std::string& key, char& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = *(found->second.begin());
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned char& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned char>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, signed char& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<signed char>(std::stoi(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned int& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned int>(std::stoul(found->second));
     }
 }
 
 void Config::GetValue(const std::string& key, int& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoi(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stol(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoul(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long long& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoll(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, unsigned long long& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoull(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, float& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stof(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, double& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stod(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, long double& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stold(found->second);
     }
 }
 
 void Config::GetValue(const std::string& key, std::string& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = found->second;
     }
 }
 
 void Config::GetValueOr(const std::string& key, bool& value, bool defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         try {
             int keyAsInt = std::stoi(found->second);
@@ -197,6 +281,10 @@ void Config::GetValueOr(const std::string& key, bool& value, bool defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, char& value, char defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = *(found->second.begin());
     } else {
@@ -205,6 +293,10 @@ void Config::GetValueOr(const std::string& key, char& value, char defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned char& value, unsigned char defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned char>(std::stoul(found->second));
     } else {
@@ -213,6 +305,10 @@ void Config::GetValueOr(const std::string& key, unsigned char& value, unsigned c
 }
 
 void Config::GetValueOr(const std::string& key, signed char& value, signed char defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<signed char>(std::stoi(found->second));
     } else {
@@ -221,6 +317,10 @@ void Config::GetValueOr(const std::string& key, signed char& value, signed char 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned int& value, unsigned int defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = static_cast<unsigned int>(std::stoul(found->second));
     } else {
@@ -229,6 +329,10 @@ void Config::GetValueOr(const std::string& key, unsigned int& value, unsigned in
 }
 
 void Config::GetValueOr(const std::string& key, int& value, int defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoi(found->second);
     } else {
@@ -237,6 +341,10 @@ void Config::GetValueOr(const std::string& key, int& value, int defaultValue) co
 }
 
 void Config::GetValueOr(const std::string& key, long& value, long defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stol(found->second);
     } else {
@@ -245,6 +353,10 @@ void Config::GetValueOr(const std::string& key, long& value, long defaultValue) 
 }
 
 void Config::GetValueOr(const std::string& key, unsigned long& value, unsigned long defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoul(found->second);
     } else {
@@ -253,6 +365,10 @@ void Config::GetValueOr(const std::string& key, unsigned long& value, unsigned l
 }
 
 void Config::GetValueOr(const std::string& key, long long& value, long long defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoll(found->second);
     } else {
@@ -261,6 +377,10 @@ void Config::GetValueOr(const std::string& key, long long& value, long long defa
 }
 
 void Config::GetValueOr(const std::string& key, unsigned long long& value, unsigned long long defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stoull(found->second);
     } else {
@@ -269,6 +389,10 @@ void Config::GetValueOr(const std::string& key, unsigned long long& value, unsig
 }
 
 void Config::GetValueOr(const std::string& key, float& value, float defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stof(found->second);
     } else {
@@ -277,6 +401,10 @@ void Config::GetValueOr(const std::string& key, float& value, float defaultValue
 }
 
 void Config::GetValueOr(const std::string& key, double& value, double defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stod(found->second);
     } else {
@@ -285,6 +413,10 @@ void Config::GetValueOr(const std::string& key, double& value, double defaultVal
 }
 
 void Config::GetValueOr(const std::string& key, long double& value, long double defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = std::stold(found->second);
     } else {
@@ -293,6 +425,10 @@ void Config::GetValueOr(const std::string& key, long double& value, long double 
 }
 
 void Config::GetValueOr(const std::string& key, std::string& value, std::string defaultValue) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(auto found = m_config.find(key); found != m_config.end()) {
         value = found->second;
     } else {
@@ -301,66 +437,130 @@ void Config::GetValueOr(const std::string& key, std::string& value, std::string 
 }
 
 void Config::SetValue(const std::string& key, const char& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const unsigned char& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const signed char& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const bool& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = value ? "true" : "false";
 }
 
 void Config::SetValue(const std::string& key, const unsigned int& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const int& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const unsigned long& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long long& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const unsigned long long& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const float& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const double& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const long double& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = std::to_string(value);
 }
 
 void Config::SetValue(const std::string& key, const std::string& value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     m_config[key] = value;
 }
 
 void Config::SetValue(const std::string& key, const char* value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     SetValue(key, value ? std::string(value) : std::string{});
 }
 
 void Config::PrintConfig(const std::string& key, std::ostream& output) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(const auto iter = m_config.find(key); iter != std::end(m_config)) {
         PrintKeyValue(output, iter->first, iter->second);
     } else {
@@ -369,12 +569,20 @@ void Config::PrintConfig(const std::string& key, std::ostream& output) const noe
 }
 
 void Config::PrintConfigs(std::ostream& output) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     for(const auto& [key, value] : m_config) {
         PrintKeyValue(output, key, value);
     }
 }
 
 void Config::PrintKeyValue(std::ostream& output, const std::string& key, const std::string& value) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(const bool value_has_space = value.find_first_of(" \r\n\t\v\f") != std::string::npos; value_has_space) {
         output << std::format("{}=\"{}\"\n", key, value);
     } else {
@@ -383,11 +591,19 @@ void Config::PrintKeyValue(std::ostream& output, const std::string& key, const s
 }
 
 std::ostream& operator<<(std::ostream& output, const Config& config) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     config.PrintConfigs(output);
     return output;
 }
 
 std::istream& operator>>(std::istream& input, Config& config) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     KeyValueParser kvp(input);
     config.m_config = std::move(kvp.Release());
     return input;

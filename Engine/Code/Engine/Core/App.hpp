@@ -45,6 +45,10 @@
 
 #include "Engine/Game/GameBase.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <algorithm>
 #include <concepts>
 #include <condition_variable>
@@ -140,6 +144,9 @@ namespace detail {
 
 template<GameType T>
 /*static*/ void App<T>::CreateApp(const std::string& title) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_theApp) {
         return;
     }
@@ -151,6 +158,9 @@ template<GameType T>
 
 template<GameType T>
 /*static*/ void App<T>::DestroyApp() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_theApp) {
         return;
     }
@@ -162,6 +172,9 @@ App<T>::App(const std::string& title, const std::string& cmdString)
 : EngineSubsystem()
 , m_title{title}
 , m_theConfig{std::make_unique<Config>(KeyValueParser{cmdString})} {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetupEngineSystemPointers();
     SetupEngineSystemChainOfResponsibility();
     LogSystemDescription();
@@ -169,6 +182,9 @@ App<T>::App(const std::string& title, const std::string& cmdString)
 
 template<GameType T>
 App<T>::~App() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(g_theApp<T>) {
         g_theSubsystemHead = g_theApp<T>;
         m_theGame.reset();
@@ -188,6 +204,9 @@ App<T>::~App() noexcept {
 
 template<GameType T>
 void App<T>::SetupEngineSystemPointers() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ServiceLocator::provide(*static_cast<IConfigService*>(m_theConfig.get()), m_nullConfig);
 
     m_theJobSystem = std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), std::move(std::make_unique<std::condition_variable>()));
@@ -234,6 +253,9 @@ void App<T>::SetupEngineSystemPointers() {
 
 template<GameType T>
 void App<T>::SetupEngineSystemChainOfResponsibility() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theConsole->SetNextHandler(g_theUISystem);
     g_theUISystem->SetNextHandler(g_theInputSystem);
     g_theInputSystem->SetNextHandler(g_thePhysicsSystem);
@@ -245,6 +267,9 @@ void App<T>::SetupEngineSystemChainOfResponsibility() {
 
 template<GameType T>
 void App<T>::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto& settings = *g_theGame->GetSettings();
 
     bool vsync = settings.DefaultVsyncEnabled();
@@ -287,11 +312,17 @@ void App<T>::Initialize() noexcept {
 
 template<GameType T>
 void App<T>::InitializeService() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Initialize();
 }
 
 template<GameType T>
 void App<T>::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theJobSystem->BeginFrame();
     g_theUISystem->BeginFrame();
     g_theInputSystem->BeginFrame();
@@ -305,6 +336,9 @@ void App<T>::BeginFrame() noexcept {
 
 template<GameType T>
 void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theUISystem->Update(deltaSeconds);
     g_theInputSystem->Update(deltaSeconds);
     g_theConsole->Update(deltaSeconds);
@@ -317,6 +351,9 @@ void App<T>::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 
 template<GameType T>
 void App<T>::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theGame->Render();
     g_theUISystem->Render();
     g_theConsole->Render();
@@ -329,6 +366,9 @@ void App<T>::Render() const noexcept {
 
 template<GameType T>
 void App<T>::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theUISystem->EndFrame();
     g_theGame->EndFrame();
     g_theConsole->EndFrame();
@@ -341,6 +381,9 @@ void App<T>::EndFrame() noexcept {
 
 template<GameType T>
 bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(msg.wmMessageCode) {
     case WindowsSystemMessage::Window_Close: {
         SetIsQuitting(true);
@@ -434,16 +477,26 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 
 template<GameType T>
 bool App<T>::IsQuitting() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_isQuitting;
 }
 
 template<GameType T>
 void App<T>::SetIsQuitting(bool value) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_isQuitting = value;
 }
 
 template<GameType T>
 void App<T>::RunFrame() {
+    #ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+    #endif
+
     RunMessagePump();
 
     BeginFrame();
@@ -463,31 +516,49 @@ void App<T>::RunFrame() {
     Render();
     EndFrame();
     AllocationTracker::tick();
+    #ifdef PROFILE_BUILD
+    FrameMark;
+    #endif
 }
 
 template<GameType T>
 void App<T>::LogSystemDescription() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto system = System::GetSystemDesc();
     g_theFileLogger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
 template<GameType T>
 bool App<T>::HasFocus() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_current_focus;
 }
 
 template<GameType T>
 bool App<T>::LostFocus() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_previous_focus && !m_current_focus;
 }
 
 template<GameType T>
 bool App<T>::GainedFocus() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return !m_previous_focus && m_current_focus;
 }
 
 template<GameType T>
 void App<T>::Minimize() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
     auto* hwnd = reinterpret_cast<HWND*>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
@@ -496,12 +567,18 @@ void App<T>::Minimize() const {
 
 template<GameType T>
 void App<T>::Restore() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
 }
 
 template<GameType T>
 void App<T>::Maximize() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetWindowedMode();
     auto* window = renderer->GetOutput()->GetWindow();
@@ -512,6 +589,9 @@ void App<T>::Maximize() const {
 
 template<GameType T>
 void App<T>::RunMessagePump() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     MSG msg{};
     for(;;) {
         const BOOL hasMsg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
@@ -531,6 +611,9 @@ void App<T>::RunMessagePump() const {
 
 template<GameType T>
 void App<T>::HandleResize(unsigned int newWidth, unsigned int newHeight) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     g_theRenderer->ResizeBuffers();
     GetGameAs<T>()->HandleWindowResize(newWidth, newHeight);
 }

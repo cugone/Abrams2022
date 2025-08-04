@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
@@ -30,6 +31,10 @@
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 
 #include "Engine/Services/IRendererService.hpp"
+
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
 
 #include <filesystem>
 #include <map>
@@ -299,7 +304,8 @@ public:
     void DispatchComputeJob(const ComputeJob& job) noexcept override;
 
     [[nodiscard]] KerningFont* GetFont(const std::string& nameOrFile) noexcept override;
-
+    [[nodiscard]] KerningFont* GetFontById(uint16_t index) noexcept override;
+    [[nodiscard]] std::size_t GetFontId(const std::string& nameOrFile) noexcept override;
     void RegisterFont(std::unique_ptr<KerningFont> font) noexcept override;
     [[nodiscard]] bool RegisterFont(std::filesystem::path filepath) noexcept override;
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;
@@ -364,7 +370,10 @@ public:
     void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents) noexcept override;
     void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept override;
     void DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
-    void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept override;
+    void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius) noexcept override;
+    void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) noexcept override;
+    void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, const Vector4& cornerRadii = Vector4(10.0f, 10.0f, 10.0f, 10.0f)) noexcept override;
+    void DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent = 10.0f) noexcept override;
     void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept override;
     void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override;
     void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept override;
@@ -431,6 +440,9 @@ private:
     template<typename ArrayBufferType>
     void Draw(const PrimitiveType& topology, ArrayBufferType* vbo, std::size_t vertex_count) noexcept {
         GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
+        #ifdef PROFILE_BUILD
+        ZoneScopedC(0xFF0000);
+        #endif
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
         m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
@@ -446,6 +458,9 @@ private:
     template<typename ArrayBufferType>
     void DrawIndexed(const PrimitiveType& topology, ArrayBufferType* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept {
         GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
+#ifdef PROFILE_BUILD
+        ZoneScopedC(0xFF0000);
+#endif
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
         m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);

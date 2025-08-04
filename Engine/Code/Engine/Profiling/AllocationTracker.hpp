@@ -53,7 +53,8 @@ public:
                 maxCount = allocCount;
             }
         }
-        return std::malloc(n);
+        auto ptr = std::malloc(n);
+        return ptr;
     }
 
     static void deallocate(void* ptr, std::size_t size) noexcept {

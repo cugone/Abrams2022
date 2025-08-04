@@ -26,6 +26,10 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <iterator>
 #include <sstream>
 #include <utility>
@@ -37,6 +41,9 @@ constexpr const uint16_t IDM_SELECTALL = 3;
 HACCEL hAcceleratorTable{};
 
 void* Console::GetAcceleratorTable() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return static_cast<void*>(hAcceleratorTable);
 }
 
@@ -52,6 +59,9 @@ Console::Console() noexcept
 , m_output_changed(false)
 
 {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ACCEL copy{};
     copy.fVirt = FCONTROL | FVIRTKEY;
     copy.key = ConvertKeyCodeToWinVK(KeyCode::C);
@@ -77,11 +87,17 @@ Console::Console() noexcept
 }
 
 Console::~Console() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ::DestroyAcceleratorTable(hAcceleratorTable);
     m_commands.clear();
 }
 
 bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     LPARAM lp = msg.lparam;
     WPARAM wp = msg.wparam;
     switch(msg.wmMessageCode) {
@@ -323,6 +339,9 @@ bool Console::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 bool Console::HandleClipboardCopy() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     bool did_copy = false;
     if(Clipboard::HasText()) {
         auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
@@ -338,6 +357,9 @@ bool Console::HandleClipboardCopy() const noexcept {
 }
 
 void Console::HandleClipboardPaste() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(Clipboard::HasText()) {
         auto hwnd = static_cast<HWND>(ServiceLocator::const_get<IRendererService>()->GetOutput()->GetWindow()->GetWindowHandle());
         Clipboard c{hwnd};
@@ -347,27 +369,42 @@ void Console::HandleClipboardPaste() noexcept {
 }
 
 void Console::HandleClipboardCut() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(HandleClipboardCopy()) {
         RemoveText(m_cursor_position, m_selection_position);
     }
 }
 
 void Console::HandleSelectAll() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_cursor_position = m_entryline.end();
     m_selection_position = m_entryline.begin();
 }
 
 bool Console::HandleEscapeKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_entryline.empty() ? Close() : ClearEntryLine();
     return true;
 }
 
 bool Console::HandleTabKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     AutoCompleteEntryline();
     return true;
 }
 
 void Console::AutoCompleteEntryline() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_entryline.empty()) {
         return;
     }
@@ -380,6 +417,9 @@ void Console::AutoCompleteEntryline() noexcept {
 }
 
 bool Console::HandleBackspaceKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_cursor_position != m_selection_position) {
         RemoveText(m_cursor_position, m_selection_position);
     } else {
@@ -389,21 +429,33 @@ bool Console::HandleBackspaceKey() noexcept {
 }
 
 bool Console::HandleUpKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     HistoryUp();
     return true;
 }
 
 bool Console::HandleDownKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     HistoryDown();
     return true;
 }
 
 bool Console::HandleReturnKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     PostEntryLine();
     return true;
 }
 
 bool Console::HandleTildeKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ToggleConsole();
     if(IsOpen()) {
         m_mouseWheelPosition = 0;
@@ -417,30 +469,48 @@ bool Console::HandleTildeKey() noexcept {
 }
 
 void Console::SetHighlightMode(bool value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_highlight_mode = value;
 }
 
 void Console::SetOutputChanged(bool value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_output_changed = value;
 }
 
 void Console::SetSkipNonWhitespaceMode(bool value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_skip_nonwhitespace_mode = value;
 }
 
 bool Console::HandleEndKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto offset = std::distance(m_cursor_position, std::cend(m_entryline));
     MoveCursorRight(offset);
     return true;
 }
 
 bool Console::HandleHomeKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
     MoveCursorLeft(offset);
     return true;
 }
 
 bool Console::HandleDelKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_cursor_position != m_selection_position) {
         RemoveText(m_cursor_position, m_selection_position);
     } else {
@@ -450,6 +520,9 @@ bool Console::HandleDelKey() noexcept {
 }
 
 bool Console::HandleRightKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
     const auto offset_from_next_space = m_entryline.find_first_of(' ', offset);
     MoveCursorRight(m_skip_nonwhitespace_mode ? offset + offset_from_next_space : 1);
@@ -457,6 +530,9 @@ bool Console::HandleRightKey() noexcept {
 }
 
 bool Console::HandleLeftKey() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto offset = std::distance(std::cbegin(m_entryline), m_cursor_position);
     const auto offset_from_previous_space = m_entryline.find_last_of(' ', offset - 1);
     MoveCursorLeft(m_skip_nonwhitespace_mode ? offset - offset_from_previous_space : 1);
@@ -464,6 +540,9 @@ bool Console::HandleLeftKey() noexcept {
 }
 
 void Console::RunCommand(const std::string& name_and_args) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(name_and_args.empty()) {
         return;
     }
@@ -479,6 +558,9 @@ void Console::RunCommand(const std::string& name_and_args) noexcept {
 }
 
 void Console::RegisterCommand(const ConsoleCommand& command) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto& asConsoleCommand = static_cast<const Console::Command&>(command);
     if(asConsoleCommand.command_name.empty()) {
         return;
@@ -495,6 +577,9 @@ void Console::RegisterCommand(const ConsoleCommand& command) noexcept {
 }
 
 void Console::UnregisterCommand(const std::string& command_name) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto iter = m_commands.find(command_name);
     if(iter != m_commands.end()) {
         m_commands.erase(command_name);
@@ -502,6 +587,9 @@ void Console::UnregisterCommand(const std::string& command_name) noexcept {
 }
 
 void Console::PushCommandList(const ConsoleCommandList& list) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto& asConsoleCommandList = static_cast<const Console::CommandList&>(list);
     for(const auto& command : asConsoleCommandList.GetCommands()) {
         RegisterCommand(command);
@@ -509,6 +597,9 @@ void Console::PushCommandList(const ConsoleCommandList& list) noexcept {
 }
 
 void Console::PopCommandList(const ConsoleCommandList& list) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto& asConsoleCommandList = static_cast<const Console::CommandList&>(list);
     for(const auto& command : asConsoleCommandList.GetCommands()) {
         UnregisterCommand(command.command_name);
@@ -516,38 +607,65 @@ void Console::PopCommandList(const ConsoleCommandList& list) noexcept {
 }
 
 void Console::UnregisterAllCommands() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_commands.clear();
 }
 
 void Console::ToggleConsole() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_is_open = !m_is_open;
 }
 
 bool Console::IsOpen() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_is_open;
 }
 
 bool Console::IsClosed() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return !m_is_open;
 }
 
 void Console::Open() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_is_open = true;
 }
 
 void Console::Close() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_is_open = false;
 }
 
 void Console::ToggleHighlightMode() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_highlight_mode = !m_highlight_mode;
 }
 
 bool Console::IsHighlighting() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_highlight_mode;
 }
 
 void Console::PostEntryLine() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_entryline.empty()) {
         return;
     }
@@ -558,10 +676,16 @@ void Console::PostEntryLine() noexcept {
 }
 
 void Console::PushEntrylineToOutputBuffer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     PrintMsg(m_entryline);
 }
 
 void Console::PushEntrylineToBuffer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto already_in_buffer = !m_entryline_buffer.empty() && m_entryline_buffer.back() == m_entryline;
     if(already_in_buffer) {
         return;
@@ -571,12 +695,18 @@ void Console::PushEntrylineToBuffer() noexcept {
 }
 
 void Console::ClearEntryLine() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_entryline.clear();
     m_cursor_position = std::begin(m_entryline);
     m_selection_position = std::begin(m_entryline);
 }
 
 void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_cursor_position != m_entryline.begin()) {
         if(!m_highlight_mode) {
             if(std::distance(std::cbegin(m_entryline), m_cursor_position) > distance) {
@@ -592,6 +722,9 @@ void Console::MoveCursorLeft(std::string::difference_type distance /*= 1*/) noex
 }
 
 void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_cursor_position != m_entryline.end()) {
         if(!m_highlight_mode) {
             if(distance < std::distance(m_cursor_position, std::cend(m_entryline))) {
@@ -607,14 +740,23 @@ void Console::MoveCursorRight(std::string::difference_type distance /*= 1*/) noe
 }
 
 void Console::MoveCursorToEnd() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     MoveCursorRight(m_entryline.size() + 1);
 }
 
 void Console::MoveCursorToFront() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     MoveCursorLeft(m_entryline.size() + 1);
 }
 
 void Console::UpdateSelectedRange(std::string::difference_type distance) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(distance > 0) {
         const auto distance_from_end = std::distance(m_cursor_position, std::cend(m_entryline));
         if(distance_from_end > std::abs(distance)) {
@@ -651,6 +793,9 @@ void Console::UpdateSelectedRange(std::string::difference_type distance) noexcep
 }
 
 void Console::RemoveTextInFrontOfCaret() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_entryline.empty()) {
         if(m_cursor_position != m_entryline.end()) {
             m_cursor_position = m_entryline.erase(m_cursor_position);
@@ -661,6 +806,9 @@ void Console::RemoveTextInFrontOfCaret() noexcept {
 }
 
 void Console::PopConsoleBuffer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_entryline.empty()) {
         if(m_cursor_position == m_entryline.end()) {
             m_entryline.pop_back();
@@ -670,6 +818,9 @@ void Console::PopConsoleBuffer() noexcept {
     }
 }
 void Console::RemoveTextBehindCaret() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_entryline.empty()) {
         if(m_cursor_position != m_entryline.end()) {
             if(m_cursor_position != m_entryline.begin()) {
@@ -684,6 +835,9 @@ void Console::RemoveTextBehindCaret() noexcept {
 }
 
 void Console::RemoveText(std::string::const_iterator start, std::string::const_iterator end) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(end < start) {
         std::swap(start, end);
     }
@@ -693,6 +847,9 @@ void Console::RemoveText(std::string::const_iterator start, std::string::const_i
 }
 
 std::string Console::CopyText(std::string::const_iterator start, std::string::const_iterator end) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(end < start) {
         std::swap(start, end);
     }
@@ -700,6 +857,9 @@ std::string Console::CopyText(std::string::const_iterator start, std::string::co
 }
 
 void Console::PasteText(const std::string& text, std::string::const_iterator loc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(text.empty()) {
         return;
     }
@@ -712,11 +872,17 @@ void Console::PasteText(const std::string& text, std::string::const_iterator loc
 }
 
 void Console::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_camera = std::make_unique<Camera2D>();
     RegisterDefaultCommands();
 }
 
 void Console::RegisterDefaultCommands() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Console::Command help{};
     help.command_name = "help";
     help.help_text_short = "Displays every command with brief description.";
@@ -773,16 +939,25 @@ void Console::RegisterDefaultCommands() noexcept {
 }
 
 void Console::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_cursor_timer.CheckAndReset()) {
         m_show_cursor = !m_show_cursor;
     }
 }
 
 void Console::Update([[maybe_unused]] TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void Console::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(IsClosed()) {
         return;
     }
@@ -799,6 +974,9 @@ void Console::Render() const noexcept {
 }
 
 void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_show_cursor) {
         return;
     }
@@ -818,6 +996,9 @@ void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
 }
 
 void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_output_buffer.empty()) {
         return;
     }
@@ -835,9 +1016,10 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     {
         const auto draw_x = -view_half_extents.x;
         const auto draw_y = view_half_extents.y;
+        const auto line_height = font->CalculateTextHeight();
         auto draw_loc = m_outputStartPosition + Vector2(draw_x * 0.99f, draw_y * 0.99f);
-        for(auto iter = m_output_buffer.cbegin(); iter != m_output_buffer.cend(); ++iter) {
-            draw_loc.y -= font->CalculateTextHeight(iter->str);
+        for(auto iter = m_output_buffer.crbegin(); iter != m_output_buffer.crend(); ++iter) {
+            draw_loc.y -= line_height;
             renderer->AppendMultiLineTextBuffer(font, iter->str, draw_loc, iter->color, vbo, ibo);
         }
     }
@@ -851,11 +1033,17 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
 }
 
 void Console::OutputMsg(const std::string& msg, const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_output_changed = true;
     m_output_buffer.push_back({msg, color});
 }
 
 void Console::HistoryUp() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_history_position == m_entryline_buffer.begin()) {
         return;
     }
@@ -865,6 +1053,9 @@ void Console::HistoryUp() noexcept {
 }
 
 void Console::HistoryDown() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_history_position != m_entryline_buffer.end()) {
         ++m_current_history_position;
         if(m_current_history_position == m_entryline_buffer.end()) {
@@ -877,6 +1068,9 @@ void Console::HistoryDown() noexcept {
 }
 
 void Console::InsertCharInEntryLine(unsigned char c) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_entryline_changed = true;
     if(!m_entryline.empty()) {
         if(m_cursor_position != m_selection_position) {
@@ -897,18 +1091,30 @@ void Console::InsertCharInEntryLine(unsigned char c) noexcept {
 }
 
 void Console::PrintMsg(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     OutputMsg(msg, Rgba::White);
 }
 
 void Console::WarnMsg(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     OutputMsg(msg, Rgba::Yellow);
 }
 
 void Console::ErrorMsg(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     OutputMsg(msg, Rgba::Red);
 }
 
 void Console::DrawBackground(const Vector2& view_half_extents) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     renderer->SetModelMatrix(Matrix4::CreateScaleMatrix(view_half_extents * 2.0f));
     renderer->SetMaterial(renderer->GetMaterial("__2D"));
@@ -916,6 +1122,9 @@ void Console::DrawBackground(const Vector2& view_half_extents) const noexcept {
 }
 
 void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     const auto font = renderer->GetFont("System32");
     const float textline_bottom = view_half_extents.y * 0.99f;
@@ -961,6 +1170,9 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
 }
 
 Vector2 Console::SetupViewFromCamera() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     const auto& window = renderer->GetOutput();
     const auto& window_dimensions = window->GetDimensions();
@@ -981,6 +1193,9 @@ Vector2 Console::SetupViewFromCamera() const noexcept {
 }
 
 int Console::GetMouseWheelPositionNormalized() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_mouseWheelPosition) {
         return m_mouseWheelPosition / std::abs(m_mouseWheelPosition);
     }
@@ -988,25 +1203,40 @@ int Console::GetMouseWheelPositionNormalized() const noexcept {
 }
 
 bool Console::WasMouseWheelJustScrolledUp() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelPositionNormalized() > 0;
 }
 
 bool Console::WasMouseWheelJustScrolledDown() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetMouseWheelPositionNormalized() < 0;
 }
 
 void Console::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_mouseWheelPosition = 0;
 }
 
 Console::CommandList::CommandList(Console* console /*= nullptr*/) noexcept
 : m_console(console) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 Console::CommandList::CommandList(Console* console, const std::vector<Command>& commands) noexcept
 : m_console(console)
 , m_commands(commands) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_console) {
         return;
     }
@@ -1016,6 +1246,9 @@ Console::CommandList::CommandList(Console* console, const std::vector<Command>& 
 }
 
 Console::CommandList::~CommandList() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_console) {
         return;
     }
@@ -1025,17 +1258,29 @@ Console::CommandList::~CommandList() noexcept {
 }
 
 void Console::CommandList::AddCommand(const Command& command) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_commands.emplace_back(command);
 }
 
 void Console::CommandList::RemoveCommand(const std::string& name) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_commands.erase(std::remove_if(std::begin(m_commands), std::end(m_commands), [&name](const Console::Command& command) { return name == command.command_name; }), std::end(m_commands));
 }
 
 void Console::CommandList::RemoveAllCommands() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_commands.clear();
 }
 
 const std::vector<Console::Command>& Console::CommandList::GetCommands() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_commands;
 }

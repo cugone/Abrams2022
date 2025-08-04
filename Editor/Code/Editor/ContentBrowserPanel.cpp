@@ -133,6 +133,28 @@ void ContentBrowserPanel::ShowContextMenuOnEmptySpace() noexcept {
                     std::filesystem::copy_file(path, currentDirectory / filename);
                 }
             }
+            if(ImGui::MenuItem("Font")) {
+                ImGui::CloseCurrentPopup();
+                static const auto opf_str = [&]() {
+                    static const auto extension_list = StringUtils::Split(".ttf,.fnt");
+                    static const auto description_list = StringUtils::Split("TIFF Font, BMFont");
+                    GUARANTEE_OR_DIE(extension_list.size() == description_list.size(), "Font import extension list and description list size mis-match!")
+                    static const auto size = extension_list.size();
+                    std::string result;
+                    for(std::size_t i = 0u; i < size;  ++i) {
+                        const auto& ext = extension_list[i];
+                        const auto& desc = description_list[i];
+                        result.append(std::format("{0} file ({1})\0*{1}\0"sv, desc, ext.substr(1), ext));
+                    }
+                    result += "All Files (*.*)\0*.*\0\0"s;
+                    return result;
+                }();
+                if(auto path = FileDialogs::OpenFile(opf_str.data()); !path.empty()) {
+                    const auto asPath = std::filesystem::path{path};
+                    const auto filename = asPath.filename();
+                    std::filesystem::copy_file(path, currentDirectory / filename);
+                }
+            }
             ImGui::EndMenu();
         }
         ImGui::EndPopup();

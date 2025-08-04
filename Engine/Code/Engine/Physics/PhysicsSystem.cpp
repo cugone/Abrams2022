@@ -6,40 +6,68 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <algorithm>
 #include <mutex>
 
 void PhysicsSystem::Enable(bool enable) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_is_running = enable;
 }
 
 void PhysicsSystem::SetGravity(const Vector2& new_gravity) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_desc.gravity = new_gravity;
     m_gravityFG.SetGravity(m_desc.gravity);
 }
 
 Vector2 PhysicsSystem::GetGravity() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_desc.gravity;
 }
 
 void PhysicsSystem::SetDragCoefficients(const Vector2& k1k2) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_desc.dragK1K2 = k1k2;
     m_dragFG.SetCoefficients(k1k2);
 }
 
 void PhysicsSystem::SetDragCoefficients(float linearCoefficient, float squareCoefficient) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetDragCoefficients(Vector2{linearCoefficient, squareCoefficient});
 }
 
 std::pair<float, float> PhysicsSystem::GetDragCoefficients() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_pair(m_desc.dragK1K2.x, m_desc.dragK1K2.y);
 }
 
 const PhysicsSystemDesc& PhysicsSystem::GetWorldDescription() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_desc;
 }
 
 void PhysicsSystem::SetWorldDescription(const PhysicsSystemDesc& new_desc) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_desc = new_desc;
     m_gravityFG.SetGravity(m_desc.gravity);
     m_dragFG.SetCoefficients(m_desc.dragK1K2);
@@ -47,26 +75,41 @@ void PhysicsSystem::SetWorldDescription(const PhysicsSystemDesc& new_desc) {
 }
 
 void PhysicsSystem::EnablePhysics(bool isPhysicsEnabled) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto* b : m_rigidBodies) {
         b->EnablePhysics(isPhysicsEnabled);
     }
 }
 
 const std::vector<std::unique_ptr<Joint>>& PhysicsSystem::Debug_GetJoints() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_joints;
 }
 
 const std::vector<RigidBody*>& PhysicsSystem::Debug_GetBodies() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rigidBodies;
 }
 
 void PhysicsSystem::EnableGravity(bool isGravityEnabled) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto* b : m_rigidBodies) {
         b->EnableGravity(isGravityEnabled);
     }
 }
 
 void PhysicsSystem::EnableDrag(bool isGravityEnabled) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto* b : m_rigidBodies) {
         b->EnableDrag(isGravityEnabled);
     }
@@ -74,20 +117,32 @@ void PhysicsSystem::EnableDrag(bool isGravityEnabled) noexcept {
 
 PhysicsSystem::PhysicsSystem(const PhysicsSystemDesc& desc /*= PhysicsSystemDesc{}*/)
 {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_desc = desc;
 }
 
 PhysicsSystem::~PhysicsSystem() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_is_running = false;
 }
 
 void PhysicsSystem::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //_is_running = true;
     //_update_thread = std::thread(&PhysicsSystem::Update_Worker, this);
     //ThreadUtils::SetThreadDescription(_update_thread, "Physics Async Update");
 }
 
 void PhysicsSystem::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_is_running) {
         return;
     }
@@ -111,6 +166,9 @@ void PhysicsSystem::BeginFrame() noexcept {
 }
 
 void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!this->m_is_running) {
         return;
     }
@@ -135,6 +193,9 @@ void PhysicsSystem::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto* body : m_rigidBodies) {
         if(!body) {
             continue;
@@ -150,6 +211,9 @@ void PhysicsSystem::UpdateBodiesInBounds(TimeUtils::FPSeconds deltaSeconds) noex
 }
 
 void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto&& fg : m_forceGenerators) {
         fg->notify(deltaSeconds);
     }
@@ -159,11 +223,17 @@ void PhysicsSystem::ApplyCustomAndJointForces(TimeUtils::FPSeconds deltaSeconds)
 }
 
 void PhysicsSystem::ApplyGravityAndDrag(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_gravityFG.notify(deltaSeconds);
     m_dragFG.notify(deltaSeconds);
 }
 
 std::vector<RigidBody*> PhysicsSystem::BroadPhaseCollision(const AABB2& /*query_area*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::vector<RigidBody*> potential_collisions{};
     for(auto iterA = std::begin(m_rigidBodies); iterA != std::end(m_rigidBodies); ++iterA) {
         for(auto iterB = iterA + 1; iterB != std::end(m_rigidBodies); ++iterB) {
@@ -191,6 +261,9 @@ std::vector<RigidBody*> PhysicsSystem::BroadPhaseCollision(const AABB2& /*query_
 }
 
 void PhysicsSystem::SolveCollision(const PhysicsSystem::CollisionDataSet& actual_collisions) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto& collision : actual_collisions) {
         auto* a = collision.a;
         auto* b = collision.b;
@@ -217,6 +290,9 @@ void PhysicsSystem::SolveCollision(const PhysicsSystem::CollisionDataSet& actual
 }
 
 void PhysicsSystem::SolveConstraints() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(int i = 0; i < m_desc.position_solver_iterations; ++i) {
         SolvePositionConstraints();
     }
@@ -226,6 +302,9 @@ void PhysicsSystem::SolveConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolvePositionConstraints() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolvePositionConstraint();
@@ -234,6 +313,9 @@ void PhysicsSystem::SolvePositionConstraints() const noexcept {
 }
 
 void PhysicsSystem::SolveVelocityConstraints() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     for(auto&& joint : m_joints) {
         if(joint->ConstraintViolated()) {
             joint->SolveVelocityConstraint();
@@ -242,6 +324,9 @@ void PhysicsSystem::SolveVelocityConstraints() const noexcept {
 }
 
 void PhysicsSystem::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     if(m_show_colliders) {
         for(const auto& body : m_rigidBodies) {
@@ -262,6 +347,9 @@ void PhysicsSystem::Render() const noexcept {
 }
 
 void PhysicsSystem::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //std::scoped_lock<std::mutex> lock(_cs);
     for(auto& body : m_rigidBodies) {
         body->Endframe();
@@ -283,32 +371,53 @@ void PhysicsSystem::EndFrame() noexcept {
 }
 
 bool PhysicsSystem::ProcessSystemMessage([[maybe_unused]] const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return false;
 }
 
 void PhysicsSystem::AddObject(RigidBody* body) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_pending_addition.push_back(body);
     //_world_partition.Add(body);
 }
 
 void PhysicsSystem::AddObjects(std::vector<RigidBody*> bodies) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_pending_addition.reserve(m_rigidBodies.size() + bodies.size());
     m_pending_addition.insert(std::cend(m_pending_addition), std::cbegin(bodies), std::cend(bodies));
 }
 
 void PhysicsSystem::RemoveObject(RigidBody* body) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_pending_removal.push_back(body);
 }
 
 void PhysicsSystem::RemoveObjects(std::vector<RigidBody*> bodies) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_pending_removal.insert(std::cend(m_pending_removal), std::cbegin(bodies), std::cend(bodies));
 }
 
 void PhysicsSystem::RemoveAllObjects() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_pending_removal.insert(std::cend(m_pending_removal), std::cbegin(m_rigidBodies), std::cend(m_rigidBodies));
 }
 
 void PhysicsSystem::RemoveAllObjectsImmediately() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rigidBodies.clear();
     m_rigidBodies.shrink_to_fit();
     m_gravityFG.detach_all();
@@ -326,17 +435,29 @@ void PhysicsSystem::RemoveAllObjectsImmediately() noexcept {
 }
 
 void PhysicsSystem::Debug_ShowCollision(bool show) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_show_colliders = show;
 }
 
 void PhysicsSystem::Debug_ShowWorldPartition(bool show) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_show_world_partition = show;
 }
 
 void PhysicsSystem::Debug_ShowContacts(bool show) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_show_contacts = show;
 }
 
 void PhysicsSystem::Debug_ShowJoints(bool show) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_show_joints = show;
 }

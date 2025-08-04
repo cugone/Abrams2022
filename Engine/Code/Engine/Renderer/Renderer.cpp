@@ -70,6 +70,7 @@
 #include <sstream>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 ComputeJob::ComputeJob(std::size_t uavCount,
                        const std::vector<Texture*>& uavTextures,
@@ -96,6 +97,9 @@ ComputeJob::~ComputeJob() noexcept {
 }
 
 Renderer::Renderer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     auto* config = ServiceLocator::get<IConfigService>();
     if(FS::path path{"Engine/Config/options.config"}; FS::exists(path)) {
@@ -148,6 +152,9 @@ Renderer::Renderer() noexcept {
 }
 
 Renderer::~Renderer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UnbindAllConstantBuffers();
     UnbindComputeConstantBuffers();
     UnbindAllShaderResources();
@@ -195,6 +202,9 @@ Renderer::~Renderer() noexcept {
 }
 
 bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(msg.wmMessageCode) {
     case WindowsSystemMessage::Menu_SysCommand: {
         WPARAM wp = msg.wparam;
@@ -316,6 +326,9 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 }
 
 void Renderer::Initialize() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_instance = std::make_unique<RHIInstance>();
     m_rhi_device = m_rhi_instance->CreateDevice();
 
@@ -361,6 +374,9 @@ void Renderer::Initialize() noexcept {
 }
 
 void Renderer::CreateDefaultConstantBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_matrix_cb = CreateConstantBuffer(&m_matrix_data, sizeof(m_matrix_data));
     m_time_cb = CreateConstantBuffer(&m_time_data, sizeof(m_time_data));
     m_lighting_cb = CreateConstantBuffer(&m_lighting_data, sizeof(m_lighting_data));
@@ -368,6 +384,9 @@ void Renderer::CreateDefaultConstantBuffers() noexcept {
 }
 
 void Renderer::CreateWorkingVboAndIbo() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     VertexBuffer::buffer_t default_vbo(1024);
     IndexBuffer::buffer_t default_ibo(1024);
     VertexCircleBuffer::buffer_t default_circle_vbo(1024);
@@ -384,6 +403,9 @@ void Renderer::CreateWorkingVboAndIbo() noexcept {
 }
 
 void Renderer::LogAvailableDisplays() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::ostringstream ss;
     ss << std::format("{:->80}", '\n');
     ss << "Available Display Dimensions:\n";
@@ -427,6 +449,9 @@ void Renderer::LogAvailableDisplays() noexcept {
 }
 
 Vector2 Renderer::GetScreenCenter() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT desktopRect;
     HWND desktopWindowHandle = ::GetDesktopWindow();
     if(::GetClientRect(desktopWindowHandle, &desktopRect)) {
@@ -438,11 +463,17 @@ Vector2 Renderer::GetScreenCenter() const noexcept {
 }
 
 Vector2 Renderer::GetWindowCenter() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto& window = *GetOutput()->GetWindow();
     return GetWindowCenter(window);
 }
 
 Vector2 Renderer::GetWindowCenter(const Window& window) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RECT rect;
     HWND windowHandle = static_cast<HWND>(window.GetWindowHandle());
     if(::GetClientRect(windowHandle, &rect)) {
@@ -454,12 +485,18 @@ Vector2 Renderer::GetWindowCenter(const Window& window) const noexcept {
 }
 
 void Renderer::UnbindWorkingVboAndIbo() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //Setting the current sizes to zero forces them to be recreated next time they are updated.
     m_current_ibo_size = 0;
     m_current_vbo_size = 0;
 }
 
 void Renderer::SetDepthComparison(ComparisonFunction cf) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -473,6 +510,9 @@ void Renderer::SetDepthComparison(ComparisonFunction cf) noexcept {
 }
 
 ComparisonFunction Renderer::GetDepthComparison() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -484,6 +524,9 @@ ComparisonFunction Renderer::GetDepthComparison() const noexcept {
 }
 
 void Renderer::SetStencilFrontComparison(ComparisonFunction cf) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -497,6 +540,9 @@ void Renderer::SetStencilFrontComparison(ComparisonFunction cf) noexcept {
 }
 
 void Renderer::SetStencilBackComparison(ComparisonFunction cf) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -510,6 +556,9 @@ void Renderer::SetStencilBackComparison(ComparisonFunction cf) noexcept {
 }
 
 void Renderer::EnableStencilWrite() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -523,6 +572,9 @@ void Renderer::EnableStencilWrite() noexcept {
 }
 
 void Renderer::DisableStencilWrite() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -536,14 +588,23 @@ void Renderer::DisableStencilWrite() noexcept {
 }
 
 void Renderer::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UnbindAllShaderResources();
 }
 
 void Renderer::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateSystemTime(deltaSeconds);
 }
 
 void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_time_data.game_time += deltaSeconds.count();
     m_time_data.game_frame_time = deltaSeconds.count();
     m_time_cb->Update(*m_rhi_context, &m_time_data);
@@ -551,6 +612,9 @@ void Renderer::UpdateGameTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_time_data.system_time += deltaSeconds.count();
     m_time_data.system_frame_time = deltaSeconds.count();
     m_time_cb->Update(*m_rhi_context, &m_time_data);
@@ -558,19 +622,31 @@ void Renderer::UpdateSystemTime(TimeUtils::FPSeconds deltaSeconds) noexcept {
 }
 
 void Renderer::UpdateConstantBuffer(ConstantBuffer& buffer, void* const& data) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     buffer.Update(*m_rhi_context, data);
 }
 
 void Renderer::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     /* DO NOTHING */
 }
 
 void Renderer::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Present();
     FulfillScreenshotRequest();
 }
 
 void Renderer::BeginRender(Texture* color_target /*= nullptr*/, const Rgba& clear_color /*= Rgba::Black*/, Texture* depthstencil_target /*= nullptr*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ResetModelViewProjection();
     SetRenderTarget(color_target, depthstencil_target);
     ClearColor(clear_color);
@@ -580,10 +656,16 @@ void Renderer::BeginRender(Texture* color_target /*= nullptr*/, const Rgba& clea
 }
 
 void Renderer::BeginRenderToBackbuffer(const Rgba& clear_color /*= Rgba::Black*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     BeginRender(nullptr, clear_color);
 }
 
 void Renderer::BeginHUDRender(Camera2D& ui_camera, const Vector2& camera_position, float window_height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const float ui_view_height = window_height;
     const float ui_view_width = ui_view_height * ui_camera.GetAspectRatio();
     const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
@@ -597,46 +679,79 @@ void Renderer::BeginHUDRender(Camera2D& ui_camera, const Vector2& camera_positio
 }
 
 TimeUtils::FPSeconds Renderer::GetGameFrameTime() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return TimeUtils::FPSeconds{m_time_data.game_frame_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetSystemFrameTime() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return TimeUtils::FPSeconds{m_time_data.system_frame_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetGameTime() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return TimeUtils::FPSeconds{m_time_data.game_time};
 }
 
 TimeUtils::FPSeconds Renderer::GetSystemTime() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return TimeUtils::FPSeconds{m_time_data.system_time};
 }
 
 std::unique_ptr<ConstantBuffer> Renderer::CreateConstantBuffer(void* const& buffer, const std::size_t& buffer_size) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateConstantBuffer(buffer, buffer_size, BufferUsage::Dynamic, BufferBindUsage::Constant_Buffer);
 }
 
 std::unique_ptr<VertexBuffer> Renderer::CreateVertexBuffer(const VertexBuffer::buffer_t& vbo) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<VertexCircleBuffer> Renderer::CreateVertexCircleBuffer(const VertexCircleBuffer::buffer_t& vbco) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<VertexBufferInstanced> Renderer::CreateVertexBufferInstanced(const VertexBufferInstanced::buffer_t& vbio) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer);
 }
 
 std::unique_ptr<IndexBuffer> Renderer::CreateIndexBuffer(const IndexBuffer::buffer_t& ibo) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer);
 }
 
 std::unique_ptr<StructuredBuffer> Renderer::CreateStructuredBuffer(const StructuredBuffer::buffer_t& sbo, std::size_t element_size, std::size_t element_count) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device->CreateStructuredBuffer(sbo, element_size, element_count, BufferUsage::Static, BufferBindUsage::Shader_Resource);
 }
 
 bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture> texture) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(texture.get() == nullptr) {
         return false;
     }
@@ -660,6 +775,9 @@ bool Renderer::RegisterTexture(const std::string& name, std::unique_ptr<Texture>
 }
 
 Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     FS::path p(nameOrFile);
     if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::exists(nameOrFile)) {
@@ -674,14 +792,23 @@ Texture* Renderer::GetTexture(const std::string& nameOrFile) noexcept {
 }
 
 void Renderer::DrawPoint(const Vertex3D& point) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawIndexed(PrimitiveType::Points, {point}, {0u});
 }
 
 void Renderer::DrawPoint(const Vector3& point, const Rgba& color /*= Rgba::WHITE*/, const Vector2& tex_coords /*= Vector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawPoint(Vertex3D(point, color, tex_coords));
 }
 
 void Renderer::DrawFrustum(const Frustum& frustum, const Rgba& color /*= Rgba::YELLOW*/, const Vector2& tex_coords /*= Vector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const Vector3& point1{frustum.GetNearBottomLeft()};
     const Vector3& point2{frustum.GetNearTopLeft()};
     const Vector3& point3{frustum.GetNearTopRight()};
@@ -709,6 +836,9 @@ void Renderer::DrawFrustum(const Frustum& frustum, const Rgba& color /*= Rgba::Y
 }
 
 void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /*= 20.0f*/, float minor_gridsize /*= 5.0f*/, const Rgba& major_color /*= Rgba::WHITE*/, const Rgba& minor_color /*= Rgba::DARK_GRAY*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const float half_length = radius;
     const float length = radius * 2.0f;
     const float space_between_majors = std::floor(length * (major_gridsize / length));
@@ -759,6 +889,9 @@ void Renderer::DrawWorldGridXZ(float radius /*= 500.0f*/, float major_gridsize /
 }
 
 void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /*= 20.0f*/, float minor_gridsize /*= 5.0f*/, const Rgba& major_color /*= Rgba::WHITE*/, const Rgba& minor_color /*= Rgba::DARK_GRAY*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const float half_length = radius;
     const float length = radius * 2.0f;
     const float space_between_majors = std::floor(length * (major_gridsize / length));
@@ -810,6 +943,9 @@ void Renderer::DrawWorldGridXY(float radius /*= 500.0f*/, float major_gridsize /
 }
 
 void Renderer::DrawWorldGrid2D(int width, int height, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto y_start = 0;
     const auto y_end = height;
     const auto x_start = 0;
@@ -839,10 +975,16 @@ void Renderer::DrawWorldGrid2D(int width, int height, const Rgba& color /*= Rgba
 }
 
 void Renderer::DrawWorldGrid2D(const IntVector2& dimensions, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawWorldGrid2D(dimensions.x, dimensions.y, color);
 }
 
 void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /*= true*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static std::vector<Vertex3D> vbo{
     Vertex3D{Vector3::Zero, Rgba::Red},
     Vertex3D{Vector3::Zero, Rgba::Green},
@@ -870,6 +1012,9 @@ void Renderer::DrawAxes(float maxlength /*= 1000.0f*/, bool disable_unit_depth /
 }
 
 void Renderer::DrawDebugSphere(const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetMaterial(GetMaterial("__unlit"));
 
     float centerX = 0.0f;
@@ -939,52 +1084,82 @@ void Renderer::DrawDebugSphere(const Rgba& color) noexcept {
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     Draw(topology, m_temp_vbo.get(), vbo.size());
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbco(vbo);
     Draw(topology, m_circle_vbo.get(), vbo.size());
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, std::size_t vertex_count) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     Draw(topology, m_temp_vbo.get(), vertex_count);
 }
 
 void Renderer::Draw(const PrimitiveType& topology, const std::vector<VertexCircle2D>& vbo, std::size_t vertex_count) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbco(vbo);
     Draw(topology, m_circle_vbo.get(), vertex_count);
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     UpdateIbo(ibo);
     DrawIndexed(topology, m_temp_vbo.get(), m_temp_ibo.get(), ibo.size());
 }
 
 void Renderer::DrawIndexed(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<unsigned int>& ibo, std::size_t index_count, std::size_t startVertex /*= 0*/, std::size_t baseVertexLocation /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     UpdateIbo(ibo);
     DrawIndexed(topology, m_temp_vbo.get(), m_temp_ibo.get(), index_count, startVertex, baseVertexLocation);
 }
 
 void Renderer::DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawInstanced(topology, vbo, vbio, instanceCount, vbo.size());
 }
 
 void Renderer::DrawInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, std::size_t instanceCount, std::size_t vertexCount) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     UpdateVbio(vbio);
     DrawInstanced(topology, m_temp_vbo.get(), m_temp_vbio.get(), vertexCount, instanceCount, std::size_t{0u}, std::size_t{0u});
 }
 
 void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, const std::vector<unsigned int>& ibo, std::size_t instanceCount) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawIndexedInstanced(topology, vbo, vbio, ibo, instanceCount, 0, 0, 0);
 }
 
 void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, const std::vector<Vertex3D>& vbo, const std::vector<Vertex3DInstanced>& vbio, const std::vector<unsigned int>& ibo, std::size_t instanceCount, std::size_t startIndexLocation, std::size_t baseVertexLocation, std::size_t startInstanceLocation) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UpdateVbo(vbo);
     UpdateVbio(vbio);
     UpdateIbo(ibo);
@@ -993,17 +1168,26 @@ void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, const std::ve
 
 
 void Renderer::SetLightingEyePosition(const Vector3& position) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_lighting_data.eye_position = Vector4(position, 1.0f);
     m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
     SetConstantBuffer(GetLightingBufferIndex(), m_lighting_cb.get());
 }
 
 void Renderer::SetAmbientLight(const Rgba& ambient) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float intensity = ambient.a / 255.0f;
     SetAmbientLight(ambient, intensity);
 }
 
 void Renderer::SetAmbientLight(const Rgba& color, float intensity) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, _] = color.GetAsFloats();
     m_lighting_data.ambient = Vector4{r, g, b, intensity};
     m_lighting_cb->Update(*m_rhi_context, &m_lighting_data);
@@ -1011,6 +1195,9 @@ void Renderer::SetAmbientLight(const Rgba& color, float intensity) noexcept {
 }
 
 void Renderer::SetSpecGlossEmitFactors(Material* mat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float spec = mat ? mat->GetSpecularIntensity() : 1.0f;
     float gloss = mat ? mat->GetGlossyFactor() : 8.0f;
     float emit = mat ? mat->GetEmissiveFactor() : 0.0f;
@@ -1020,6 +1207,9 @@ void Renderer::SetSpecGlossEmitFactors(Material* mat) noexcept {
 }
 
 void Renderer::SetUseVertexNormalsForLighting(bool value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(value) {
         m_lighting_data.useVertexNormals = 1;
     } else {
@@ -1030,10 +1220,16 @@ void Renderer::SetUseVertexNormalsForLighting(bool value) noexcept {
 }
 
 const light_t& Renderer::GetLight(unsigned int index) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_lighting_data.lights[index];
 }
 
 void Renderer::SetPointLight(unsigned int index, const PointLightDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto l = light_t{};
     l.attenuation = Vector4(desc.attenuation, 0.0f);
     l.specAttenuation = l.attenuation;
@@ -1044,6 +1240,9 @@ void Renderer::SetPointLight(unsigned int index, const PointLightDesc& desc) noe
 }
 
 void Renderer::SetDirectionalLight(unsigned int index, const DirectionalLightDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto l = light_t{};
     l.direction = Vector4(desc.direction, 0.0f);
     l.attenuation = Vector4(desc.attenuation, 1.0f);
@@ -1054,6 +1253,9 @@ void Renderer::SetDirectionalLight(unsigned int index, const DirectionalLightDes
 }
 
 void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto l = light_t{};
     l.attenuation = Vector4(desc.attenuation, 0.0f);
     l.specAttenuation = l.attenuation;
@@ -1078,6 +1280,9 @@ void Renderer::SetSpotlight(unsigned int index, const SpotLightDesc& desc) noexc
 }
 
 void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(index >= 16) {
         return;
     }
@@ -1087,18 +1292,30 @@ void Renderer::SetLightAtIndex(unsigned int index, const light_t& light) noexcep
 }
 
 void Renderer::SetPointLight(unsigned int index, const light_t& light) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetLightAtIndex(index, light);
 }
 
 void Renderer::SetDirectionalLight(unsigned int index, const light_t& light) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetLightAtIndex(index, light);
 }
 
 void Renderer::SetSpotlight(unsigned int index, const light_t& light) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetLightAtIndex(index, light);
 }
 
 std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     filepath = FS::canonical(filepath);
     filepath.make_preferred();
@@ -1112,34 +1329,58 @@ std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::filesystem::
 }
 
 std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const XMLElement& elem) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<AnimatedSprite>(sheet, elem);
 }
 
 std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const XMLElement& elem) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<AnimatedSprite>(elem);
 }
 
 std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(std::shared_ptr<SpriteSheet> sheet, const IntVector2& startSpriteCoords /* = IntVector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<AnimatedSprite>(sheet, startSpriteCoords);
 }
 
 std::unique_ptr<AnimatedSprite> Renderer::CreateAnimatedSprite(const AnimatedSpriteDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<AnimatedSprite>(desc);
 }
 
 std::unique_ptr<Flipbook> Renderer::CreateFlipbookFromFolder(std::filesystem::path folderpath, unsigned int framesPerSecond) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<Flipbook>(folderpath, framesPerSecond);
 }
 
 std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const XMLElement& elem) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_shared<SpriteSheet>(elem);
 }
 
 std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(Texture* texture, int tilesWide, int tilesHigh) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::shared_ptr<SpriteSheet>(new SpriteSheet(texture, tilesWide, tilesHigh));
 }
 
 std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const std::filesystem::path& filepath, unsigned int width /*= 1*/, unsigned int height /*= 1*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -1170,6 +1411,9 @@ std::shared_ptr<SpriteSheet> Renderer::CreateSpriteSheet(const std::filesystem::
 //}
 
 void Renderer::DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, std::size_t vertexPerInstanceCount, std::size_t instanceCount, std::size_t startVertexLocation, std::size_t startInstanceLocation) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
     m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
@@ -1197,6 +1441,9 @@ void Renderer::DrawInstanced(const PrimitiveType& topology, VertexBuffer* vbo, V
 //}
 
 void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, VertexBuffer* vbo, VertexBufferInstanced* vbio, IndexBuffer* ibo, std::size_t indexPerInstanceCount, std::size_t instanceCount, std::size_t startIndexLocation, std::size_t baseVertexLocation, std::size_t startInstanceLocation) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
     D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
     m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
@@ -1213,6 +1460,9 @@ void Renderer::DrawIndexedInstanced(const PrimitiveType& topology, VertexBuffer*
 
 
 void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::vector<Vertex3D> vbo{};
     vbo.reserve(1);
     vbo.emplace_back(Vector3(pointX, pointY, 0.0f), color);
@@ -1222,10 +1472,16 @@ void Renderer::DrawPoint2D(float pointX, float pointY, const Rgba& color /*= Rgb
     DrawIndexed(PrimitiveType::Points, vbo, ibo);
 }
 void Renderer::DrawPoint2D(const Vector2& point, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawPoint2D(point.x, point.y, color);
 }
 
 void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(bool use_thickness = thickness > 0.0f; !use_thickness) {
         Vertex3D start = Vertex3D(Vector3(Vector2(startX, startY), 0.0f), color, Vector2::Zero);
         Vertex3D end = Vertex3D(Vector3(Vector2(endX, endY), 0.0f), color, Vector2::One);
@@ -1252,10 +1508,16 @@ void Renderer::DrawLine2D(float startX, float startY, float endX, float endY, co
 }
 
 void Renderer::DrawLine2D(const Vector2& start, const Vector2& end, const Rgba& color /*= Rgba::WHITE*/, float thickness /*= 0.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawLine2D(start.x, start.y, end.x, end.y, color, thickness);
 }
 
 void Renderer::DrawQuad2D(float left, float bottom, float right, float top, const Rgba& color /*= Rgba::WHITE*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector3 v_lb = Vector3(left, bottom, 0.0f);
     Vector3 v_rt = Vector3(right, top, 0.0f);
     Vector3 v_lt = Vector3(left, top, 0.0f);
@@ -1272,10 +1534,16 @@ void Renderer::DrawQuad2D(float left, float bottom, float right, float top, cons
 }
 
 void Renderer::DrawQuad2D(const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawQuad2D(Vector2::Zero, Vector2(0.5f, 0.5f), color);
 }
 
 void Renderer::DrawQuad2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& halfExtents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float left = position.x - halfExtents.x;
     float bottom = position.y + halfExtents.y;
     float right = position.x + halfExtents.x;
@@ -1284,24 +1552,39 @@ void Renderer::DrawQuad2D(const Vector2& position /*= Vector2::ZERO*/, const Vec
 }
 
 void Renderer::DrawQuad2D(const Vector4& texCoords) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawQuad2D(Vector2::Zero, Vector2(0.5f, 0.5f), Rgba::White, texCoords);
 }
 
 void Renderer::DrawQuad2D(const Rgba& color, const Vector4& texCoords) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawQuad2D(Vector2::Zero, Vector2(0.5f, 0.5f), color, texCoords);
 }
 
 void Renderer::DrawQuad2D(const Matrix4& transform, const Rgba& color /*= Rgba::White*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetModelMatrix(transform);
     DrawQuad2D(Vector2::Zero, Vector2{0.5f, 0.5f}, color, texCoords);
 }
 
 void Renderer::DrawCircle2D(float centerX, float centerY, float radius, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //TODO: Render using GPU. See https://www.youtube.com/watch?v=xf7Y988cPRk
     DrawPolygon2D(centerX, centerY, radius, 65, color);
 }
 
 void Renderer::DrawCircle2D(const Matrix4& transform, float thickness, const Rgba& color /*= Rgba::WHITE*/, float fade /*= 0.00025f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto mat = GetMaterial("__circle2d"); mat != GetMaterial("__invalid")) {
         SetMaterial(mat);
         SetModelMatrix(transform);
@@ -1313,20 +1596,31 @@ void Renderer::DrawCircle2D(const Matrix4& transform, float thickness, const Rgb
 }
 
 void Renderer::DrawCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawCircle2D(center.x, center.y, radius, color);
 }
 
 void Renderer::DrawCircle2D(const Disc2& circle, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawCircle2D(circle.center, circle.radius, color);
 }
 
 void Renderer::DrawFilledCircle2D(const Disc2& circle, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawFilledCircle2D(circle.center, circle.radius, color);
 }
 
 void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgba& color /*= Rgba::WHITE*/) noexcept {
     //TODO: Replace with shader
-
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto num_sides = std::size_t{64};
     const auto size = num_sides + 1u;
     std::vector<Vector3> verts{};
@@ -1356,11 +1650,17 @@ void Renderer::DrawFilledCircle2D(const Vector2& center, float radius, const Rgb
 }
 
 void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto borders = Vector4{edgeHalfExtents.x, edgeHalfExtents.y, edgeHalfExtents.x, edgeHalfExtents.y};
     DrawAABB2(bounds, edgeColor, fillColor, borders);
 }
 
 void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     AABB2 bounds;
     bounds.mins = Vector2(-0.5f, -0.5f);
     bounds.maxs = Vector2(0.5f, 0.5f);
@@ -1369,6 +1669,9 @@ void Renderer::DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept 
 }
 
 void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents /*= Vector4::Zero*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const Vector2 lt_inner(bounds.mins.x, bounds.mins.y);
     const Vector2 lb_inner(bounds.mins.x, bounds.maxs.y);
     const Vector2 rt_inner(bounds.maxs.x, bounds.mins.y);
@@ -1415,6 +1718,9 @@ void Renderer::DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba&
 }
 
 void Renderer::DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius /*= 10.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(bounds.CalcDimensions() == Vector2::Zero) {
         return;
     }
@@ -1433,14 +1739,184 @@ void Renderer::DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, fl
     DrawQuad2D(M, color);
 }
 
-void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius /*= 10.0f*/) noexcept {
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    if(MathUtils::IsEquivalentOrLessThanZero(radius)) {
+        const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        DrawQuad2D(M, color);
+        return;
+    }
+    DrawFilledRoundedRectangle2D(bounds, color, radius, radius, radius, radius);
+}
+
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    {
+        std::array corners{topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius};
+        if(std::all_of(std::cbegin(corners), std::cend(corners), [](float radius) { return MathUtils::IsEquivalentOrLessThanZero(radius); })) {
+            const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+            return;
+        }
+    }
+    DrawFilledRoundedRectangle2D(bounds, color, Vector4(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius));
+}
+
+void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, const Vector4& cornerRadii /*= Vector4(10.0f, 10.0f, 10.0f, 10.0f)*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    if(bounds.CalcDimensions() == Vector2::Zero) {
+        return;
+    }
+
+    const auto width = bounds.CalcDimensions().x;
+    const auto height = bounds.CalcDimensions().y;
+    const auto top = bounds.mins.y;
+    const auto left = bounds.mins.x;
+    const auto bottom = top + height;
+    const auto right = left + width;
+    const auto top_left = Vector2(left, top);
+    const auto top_right = Vector2(right, top);
+    const auto bottom_right = Vector2(right, bottom);
+    const auto bottom_left = Vector2(left, bottom);
+    const auto half_extents = Vector2(bounds.CalcDimensions()) * 0.5f;
+    const auto tl_cr = std::clamp(cornerRadii.x, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto tr_cr = std::clamp(cornerRadii.y, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto br_cr = std::clamp(cornerRadii.z, 0.0f, (std::min)(half_extents.x, half_extents.y));
+    const auto bl_cr = std::clamp(cornerRadii.w, 0.0f, (std::min)(half_extents.x, half_extents.y));
+
+    const auto draw_corner = [&](Vector2 center, float radius, float start_degrees, float end_degrees, Rgba color) {
+        if(MathUtils::IsEquivalentOrLessThanZero(radius)) {
+            return;
+        }
+        const auto num_sides = std::size_t{64};
+        const auto size = num_sides + 1u;
+        std::vector<Vector3> verts{};
+        verts.reserve(size);
+        verts.emplace_back(Vector2::Zero);
+        const auto max_angle_degrees = end_degrees - start_degrees;
+        const auto anglePerVertex = max_angle_degrees / static_cast<float>(num_sides);
+        for(float degrees = start_degrees; degrees <= end_degrees; degrees += anglePerVertex) {
+            const auto radians = MathUtils::ConvertDegreesToRadians(degrees);
+            const auto pX = std::cos(radians);
+            const auto pY = std::sin(radians);
+            verts.emplace_back(Vector2(pX, pY), 0.0f);
+        }
+
+        std::vector<Vertex3D> vbo;
+        vbo.reserve(verts.size());
+        for(const auto& vert : verts) {
+            vbo.emplace_back(vert, color);
+        }
+
+        std::vector<unsigned int> ibo(num_sides * 3);
+        unsigned int j = 1u;
+        for(std::size_t i = 1; i < ibo.size(); i += 3) {
+            ibo[i] = (j++) % (num_sides + 1);
+            ibo[i + 1] = j % (((num_sides % 2) == 0) ? (num_sides + 2) : (num_sides + 1));
+        }
+        const auto S = Matrix4::CreateScaleMatrix(radius);
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(center);
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        SetModelMatrix(M);
+        DrawIndexed(PrimitiveType::Triangles, vbo, ibo);
+    };
+
+    const auto draw_edges = [&]() {
+        {
+            auto left_side = bounds;
+            left_side.mins.y = bounds.mins.y + tl_cr;
+            left_side.maxs.y = bounds.maxs.y - bl_cr;
+            left_side.mins.x = bounds.mins.x;
+            left_side.maxs.x = bounds.mins.x + (std::max)(tl_cr, bl_cr);
+            const auto S = Matrix4::CreateScaleMatrix(left_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(left_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto right_side = bounds;
+            right_side.mins.y = bounds.mins.y + tr_cr;
+            right_side.maxs.y = bounds.maxs.y - br_cr;
+            right_side.mins.x = bounds.maxs.x - (std::max)(tr_cr, br_cr);
+            right_side.maxs.x = bounds.maxs.x;
+            const auto S = Matrix4::CreateScaleMatrix(right_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(right_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto top_side = bounds;
+            top_side.mins.y = bounds.mins.y;
+            top_side.maxs.y = bounds.mins.y + (std::max)(tl_cr, tr_cr);
+            top_side.mins.x = bounds.mins.x + tl_cr;
+            top_side.maxs.x = bounds.maxs.x - tr_cr;
+            const auto S = Matrix4::CreateScaleMatrix(top_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(top_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+        {
+            auto bottom_side = bounds;
+            bottom_side.mins.y = bounds.maxs.y - (std::max)(bl_cr, br_cr);
+            bottom_side.maxs.y = bounds.maxs.y;
+            bottom_side.mins.x = bounds.mins.x + bl_cr;
+            bottom_side.maxs.x = bounds.maxs.x - br_cr;
+            const auto S = Matrix4::CreateScaleMatrix(bottom_side.CalcDimensions());
+            const auto R = Matrix4::I;
+            const auto T = Matrix4::CreateTranslationMatrix(bottom_side.CalcCenter());
+            const auto M = Matrix4::MakeSRT(S, R, T);
+            DrawQuad2D(M, color);
+        }
+    };
+
+    const auto draw_center = [&]() {
+        auto center = bounds;
+        center.mins.y = bounds.mins.y + (std::max)(tl_cr, tr_cr);
+        center.maxs.y = bounds.maxs.y - (std::max)(bl_cr, br_cr);
+        center.mins.x = bounds.mins.x + (std::max)(tl_cr, bl_cr);
+        center.maxs.x = bounds.maxs.x - (std::max)(tr_cr, br_cr);
+        const auto S = Matrix4::CreateScaleMatrix(center.CalcDimensions());
+        const auto R = Matrix4::I;
+        const auto T = Matrix4::CreateTranslationMatrix(center.CalcCenter());
+        const auto M = Matrix4::MakeSRT(S, R, T);
+        DrawQuad2D(M, color);
+    };
+
+    draw_corner(top_left + Vector2(tl_cr, tl_cr), tl_cr, 180.0f, 270.0f, color);
+    draw_corner(top_right + Vector2(-tr_cr, tr_cr), tr_cr, 270.0f, 360.0f, color);
+    draw_corner(bottom_left + Vector2(bl_cr, -bl_cr), bl_cr, 90.0f, 180.0f, color);
+    draw_corner(bottom_right + Vector2(-br_cr, -br_cr), br_cr, 0.0f, 90.0f, color);
+    draw_edges();
+    draw_center();
+}
+
+void Renderer::DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent /*= 10.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(bounds.CalcDimensions() == Vector2::Zero) {
         return;
     }
     if(const auto& cbs = GetMaterial("__roundedrec2d")->GetShader()->GetConstantBuffers(); !cbs.empty()) {
         auto& roundedrec_cb = cbs[0].get();
         const auto pos = bounds.CalcCenter();
-        m_roundedrec_data.fill_exp_padding2 = Vector4(1.0f, radius, 0.0f, 0.0f);
+        m_roundedrec_data.fill_exp_padding2 = Vector4(1.0f, exponent, 0.0f, 0.0f);
         roundedrec_cb.Update(*m_rhi_context, &m_roundedrec_data);
     }
     const auto S = Matrix4::CreateScaleMatrix(bounds.CalcDimensions());
@@ -1453,6 +1929,9 @@ void Renderer::DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& col
 }
 
 void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor /*= Rgba::NoAlpha*/, const Vector2& edgeHalfExtents /*= Vector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector2 lt = obb.GetTopLeft();
     Vector2 lb = obb.GetBottomLeft();
     Vector2 rt = obb.GetTopRight();
@@ -1501,6 +1980,9 @@ void Renderer::DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fill
 }
 
 void Renderer::DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor /*= Rgba::NoAlpha*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     OBB2 obb;
     obb.half_extents = Vector2(0.5f, 0.5f);
     obb.orientationDegrees = orientationDegrees;
@@ -1509,6 +1991,9 @@ void Renderer::DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const R
 }
 
 void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector2& half_extents /*= Vector2(0.5f, 0.5f)*/, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float left = position.x - half_extents.x;
     float top = position.y - half_extents.y;
     float right = position.x + half_extents.x;
@@ -1531,10 +2016,16 @@ void Renderer::DrawX2D(const Vector2& position /*= Vector2::ZERO*/, const Vector
 }
 
 void Renderer::DrawX2D(const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawX2D(Vector2::Zero, Vector2(0.5f, 0.5f), color);
 }
 
 void Renderer::DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize /*= 0.1f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     arrowHeadSize = std::clamp(arrowHeadSize, 0.0f, 1.0f);
     const auto n = direction.GetNormalize();
     const auto bottom = position + (-n * tailLength * 0.5f);
@@ -1556,6 +2047,9 @@ void Renderer::DrawArrow2D(const Vector2& position, const Rgba& color, const Vec
 }
 
 void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto num_sides_as_float = static_cast<float>(numSides);
     std::vector<Vector3> verts;
     verts.reserve(numSides);
@@ -1582,10 +2076,16 @@ void Renderer::DrawPolygon2D(float centerX, float centerY, float radius, std::si
 }
 
 void Renderer::DrawPolygon2D(const Vector2& center, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
 void Renderer::DrawPolygon2D(const Polygon2& polygon, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const std::vector<Vertex3D> vbo = [&polygon, &color]() {
         std::vector<Vertex3D> buffer;
         buffer.reserve(polygon.GetVerts().size());
@@ -1605,6 +2105,9 @@ void Renderer::DrawPolygon2D(const Polygon2& polygon, const Rgba& color /*= Rgba
 }
 
 void Renderer::DrawFilledPolygon2D(float centerX, float centerY, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto num_sides_as_float = static_cast<float>(numSides);
     std::vector<Vector3> verts;
     verts.reserve(numSides);
@@ -1631,10 +2134,16 @@ void Renderer::DrawFilledPolygon2D(float centerX, float centerY, float radius, s
 }
 
 void Renderer::DrawFilledPolygon2D(const Vector2& center, float radius, std::size_t numSides /*= 3*/, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DrawFilledPolygon2D(center.x, center.y, radius, numSides, color);
 }
 
 void Renderer::DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color /*= Rgba::White*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const std::vector<Vertex3D> vbo = [&polygon, &color]() {
         std::vector<Vertex3D> buffer;
         const auto size = polygon.GetVerts().size();
@@ -1684,6 +2193,9 @@ void Renderer::DrawFilledPolygon2D(const Polygon2& polygon, const Rgba& color /*
 }
 
 void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return;
     }
@@ -1747,6 +2259,9 @@ void Renderer::DrawTextLine(const KerningFont* font, const std::string& text, co
 }
 
 void Renderer::DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return;
     }
@@ -1811,6 +2326,9 @@ void Renderer::DrawTextLine(const Matrix4& transform, const KerningFont* font, c
 }
 
 void Renderer::DrawMultilineText(const KerningFont* font, const std::string& text, const Rgba& color /*= Rgba::WHITE*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float y = font->GetLineHeight();
     float draw_loc_y = 0.0f;
     float draw_loc_x = 0.0f;
@@ -1833,6 +2351,9 @@ void Renderer::DrawMultilineText(const KerningFont* font, const std::string& tex
 }
 
 void Renderer::AppendMultiLineTextBuffer(const KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return;
     }
@@ -1882,6 +2403,9 @@ void Renderer::AppendMultiLineTextBuffer(const KerningFont* font, const std::str
 }
 
 std::vector<std::unique_ptr<ConstantBuffer>> Renderer::CreateConstantBuffersFromShaderProgram(RHIDevice& device, const ShaderProgram* _shader_program) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto vs_cbuffers = RHIDevice::CreateConstantBuffersFromByteCode(device, _shader_program->GetVSByteCode());
     auto hs_cbuffers = RHIDevice::CreateConstantBuffersFromByteCode(device, _shader_program->GetHSByteCode());
     auto ds_cbuffers = RHIDevice::CreateConstantBuffersFromByteCode(device, _shader_program->GetDSByteCode());
@@ -1907,6 +2431,9 @@ std::vector<std::unique_ptr<ConstantBuffer>> Renderer::CreateConstantBuffersFrom
 }
 
 std::vector<std::unique_ptr<ConstantBuffer>> Renderer::CreateComputeConstantBuffersFromShaderProgram(RHIDevice& device, const ShaderProgram* shaderProgram) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto&& cs_cbuffers = std::move(RHIDevice::CreateConstantBuffersFromByteCode(device, shaderProgram->GetCSByteCode()));
     const auto sizes = std::vector<std::size_t>{cs_cbuffers.size()};
     auto cbuffer_count = std::accumulate(std::begin(sizes), std::end(sizes), static_cast<std::size_t>(0u));
@@ -1919,6 +2446,9 @@ std::vector<std::unique_ptr<ConstantBuffer>> Renderer::CreateComputeConstantBuff
 }
 
 void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>& windowProcedure) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             window->custom_message_handler = windowProcedure;
@@ -1927,6 +2457,9 @@ void Renderer::SetWinProc(const std::function<bool(HWND hwnd, UINT msg, WPARAM w
 }
 
 void Renderer::CopyTexture(const Texture* src, Texture* dst) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if((src && dst) && src != dst) {
         auto* dc = GetDeviceContext();
         auto* dx_dc = dc->GetDxContext();
@@ -1935,10 +2468,16 @@ void Renderer::CopyTexture(const Texture* src, Texture* dst) const noexcept {
 }
 
 void Renderer::ResizeBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     GetOutput()->ResetBackbuffer();
 }
 
 void Renderer::ClearState() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_current_material = nullptr;
     m_rhi_context->GetDxContext()->OMSetRenderTargets(0, nullptr, nullptr);
     m_rhi_context->ClearState();
@@ -1946,6 +2485,9 @@ void Renderer::ClearState() noexcept {
 }
 
 void Renderer::RequestScreenShot(std::filesystem::path saveLocation) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     const auto folderLocation = saveLocation.parent_path();
     if(!FS::exists(folderLocation)) {
@@ -1957,6 +2499,9 @@ void Renderer::RequestScreenShot(std::filesystem::path saveLocation) {
 }
 
 void Renderer::RequestScreenShot() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_last_screenshot_location.empty()) {
         const auto folder = screenshot_job_t{FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineData) / std::filesystem::path{"Screenshots"}};
         TimeUtils::DateTimeStampOptions options{};
@@ -1996,10 +2541,16 @@ constexpr unsigned int Renderer::GetMaxLightCount() const noexcept {
 }
 
 Image Renderer::GetBackbufferAsImage() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Image{GetOutput()->GetBackBuffer(), this};
 }
 
 void Renderer::FulfillScreenshotRequest() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_screenshot && !m_last_screenshot_location.empty()) {
         //TODO: Make this a job so game doesn't lag
         //const auto cb = [this](void*) {
@@ -2016,6 +2567,9 @@ void Renderer::FulfillScreenshotRequest() noexcept {
 }
 
 void Renderer::DispatchComputeJob(const ComputeJob& job) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetComputeShader(job.computeShader);
     auto* dc = GetDeviceContext();
     auto* dx_dc = dc->GetDxContext();
@@ -2026,10 +2580,16 @@ void Renderer::DispatchComputeJob(const ComputeJob& job) noexcept {
 }
 
 Texture* Renderer::GetDefaultDepthStencil() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_default_depthstencil;
 }
 
 void Renderer::SetFullscreen(bool isFullscreen) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(isFullscreen) {
         SetFullscreenMode();
     } else {
@@ -2038,6 +2598,9 @@ void Renderer::SetFullscreen(bool isFullscreen) noexcept {
 }
 
 void Renderer::SetFullscreenMode() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             window->SetDisplayMode(RHIOutputMode::Borderless_Fullscreen);
@@ -2046,6 +2609,9 @@ void Renderer::SetFullscreenMode() noexcept {
 }
 
 void Renderer::SetWindowedMode() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             window->SetDisplayMode(RHIOutputMode::Windowed);
@@ -2054,12 +2620,18 @@ void Renderer::SetWindowedMode() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultEngineFonts() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::filesystem::path p = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::EngineFonts);
     (void)FileUtils::CreateFolders(p); //If the directory wasn't created, they either already exist or the install was corrupted.
     RegisterFontsFromFolder(p);
 }
 
 void Renderer::CreateAndRegisterDefaultShaderPrograms() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_sp = CreateDefaultShaderProgram();
     std::string name = default_sp->GetName();
     RegisterShaderProgram(name, std::move(default_sp));
@@ -2094,6 +2666,9 @@ void Renderer::CreateAndRegisterDefaultShaderPrograms() noexcept {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
     R"(
@@ -2301,6 +2876,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultUnlitShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
     R"(
@@ -2395,6 +2973,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultNormalShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
     R"(
@@ -2532,6 +3113,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultNormalMapShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
 std::string program =
     R"(
@@ -2669,6 +3253,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultFontShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
     R"(
@@ -2776,6 +3363,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultCircle2DShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
         R"(
@@ -2872,6 +3462,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0{
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultRoundedRectangle2DShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if 0
     std::string program =
         R"(
@@ -3229,6 +3822,9 @@ float4 PixelFunction(ps_in_t input_pixel) : SV_Target0 {
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateDefaultUnlit2DSpriteShaderProgram() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #pragma region g_VertexFunction Byte Code
     static constexpr const std::array<uint8_t, 1388> g_VertexFunction{0x44, 0x58, 0x42, 0x43, 0xF7, 0xF5, 0xFB, 0x51, 0x08, 0x08, 0xDE, 0x8C, 0xFB, 0xAC, 0x4C, 0xE4, 0x24, 0x2F, 0xD3, 0x56, 0x01, 0x00, 0x00, 0x00, 0x6C, 0x05, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0xA8, 0x01, 0x00, 0x00, 0x14, 0x02, 0x00, 0x00, 0x84, 0x02, 0x00, 0x00, 0xD0, 0x04, 0x00, 0x00, 0x52, 0x44, 0x45, 0x46, 0x6C, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x68, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x05, 0xFE, 0xFF, 0x12, 0x81, 0x04, 0x00, 0x44, 0x01, 0x00, 0x00, 0x52, 0x44, 0x31, 0x31, 0x3C, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x74, 0x72, 0x69, 0x78, 0x5F, 0x63, 0x62, 0x00, 0xAB, 0xAB, 0x5C, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x30, 0x01, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x37, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x67, 0x5F, 0x4D, 0x4F, 0x44, 0x45, 0x4C, 0x00, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0x34, 0x78, 0x34, 0x00, 0xAB, 0xAB, 0xAB, 0x03, 0x00, 0x03, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x67, 0x5F, 0x56, 0x49, 0x45, 0x57, 0x00, 0x67, 0x5F, 0x50, 0x52, 0x4F, 0x4A, 0x45, 0x43, 0x54, 0x49, 0x4F, 0x4E, 0x00, 0x4D, 0x69, 0x63, 0x72, 0x6F, 0x73, 0x6F, 0x66, 0x74, 0x20, 0x28, 0x52, 0x29, 0x20, 0x48, 0x4C, 0x53, 0x4C, 0x20, 0x53, 0x68, 0x61, 0x64, 0x65, 0x72, 0x20, 0x43, 0x6F, 0x6D, 0x70, 0x69, 0x6C, 0x65, 0x72, 0x20, 0x31, 0x30, 0x2E, 0x31, 0x00, 0x49, 0x53, 0x47, 0x4E, 0x64, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x07, 0x00, 0x00, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x00, 0x00, 0x5F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x50, 0x4F, 0x53, 0x49, 0x54, 0x49, 0x4F, 0x4E, 0x00, 0x43, 0x4F, 0x4C, 0x4F, 0x52, 0x00, 0x55, 0x56, 0x00, 0xAB, 0xAB, 0x4F, 0x53, 0x47, 0x4E, 0x68, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x5C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x0C, 0x00, 0x00, 0x53, 0x56, 0x5F, 0x50, 0x4F, 0x53, 0x49, 0x54, 0x49, 0x4F, 0x4E, 0x00, 0x43, 0x4F, 0x4C, 0x4F, 0x52, 0x00, 0x55, 0x56, 0x00, 0xAB, 0xAB, 0xAB, 0x53, 0x48, 0x45, 0x58, 0x44, 0x02, 0x00, 0x00, 0x50, 0x00, 0x01, 0x00, 0x91, 0x00, 0x00, 0x00, 0x6A, 0x08, 0x00, 0x01, 0x59, 0x00, 0x00, 0x04, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x5F, 0x00, 0x00, 0x03, 0x72, 0x10, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5F, 0x00, 0x00, 0x03, 0xF2, 0x10, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x5F, 0x00, 0x00, 0x03, 0x32, 0x10, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x67, 0x00, 0x00, 0x04, 0xF2, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x65, 0x00, 0x00, 0x03, 0xF2, 0x20, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x65, 0x00, 0x00, 0x03, 0x32, 0x20, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x68, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x05, 0x72, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x12, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x05, 0x82, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x40, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x11, 0x00, 0x00, 0x08, 0x12, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x22, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x42, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x82, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x12, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x22, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x42, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x82, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x12, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x22, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x42, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x08, 0x82, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x0E, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x8E, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x05, 0xF2, 0x20, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x46, 0x1E, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x05, 0x32, 0x20, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x46, 0x10, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x3E, 0x00, 0x00, 0x01, 0x53, 0x54, 0x41, 0x54, 0x94, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 #pragma endregion
@@ -3261,6 +3857,9 @@ std::unique_ptr<ShaderProgram> Renderer::CreateDefaultUnlit2DSpriteShaderProgram
 }
 
 void Renderer::CreateAndRegisterDefaultMaterials() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_mat = CreateDefaultMaterial();
     auto name = default_mat->GetName();
     RegisterMaterial(name, std::move(default_mat));
@@ -3299,6 +3898,9 @@ void Renderer::CreateAndRegisterDefaultMaterials() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__default">
@@ -3315,6 +3917,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultUnlitMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__unlit">
@@ -3331,6 +3936,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultUnlitMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefault2DMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__2D">
@@ -3347,6 +3955,9 @@ std::unique_ptr<Material> Renderer::CreateDefault2DMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultNormalMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__normal">
@@ -3363,6 +3974,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultNormalMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultNormalMapMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__normalmap">
@@ -3379,6 +3993,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultNormalMapMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultInvalidMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__invalid">
@@ -3398,6 +4015,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultInvalidMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultCircle2DMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__circle2d">
@@ -3416,6 +4036,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultCircle2DMaterial() noexcept {
 }
 
 std::unique_ptr<Material> Renderer::CreateDefaultRoundedRectangle2DMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__roundedrec2d">
@@ -3433,6 +4056,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultRoundedRectangle2DMaterial() no
 }
 
 [[nodiscard]] std::unique_ptr<Material> Renderer::CreateDefaultUnlit2DSpriteMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string material =
     R"(
 <material name="__unlit2DSprite">
@@ -3451,6 +4077,9 @@ std::unique_ptr<Material> Renderer::CreateDefaultRoundedRectangle2DMaterial() no
 }
 
 std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return nullptr;
     }
@@ -3500,6 +4129,9 @@ std::unique_ptr<Material> Renderer::CreateMaterialFromFont(KerningFont* font) no
 }
 
 void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_sampler = CreateDefaultSampler();
     auto name = "__default";
     default_sampler->SetDebugName("__default_sampler");
@@ -3522,10 +4154,16 @@ void Renderer::CreateAndRegisterDefaultSamplers() noexcept {
 }
 
 std::unique_ptr<Sampler> Renderer::CreateDefaultSampler() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<Sampler>(m_rhi_device.get(), SamplerDesc{});
 }
 
 std::unique_ptr<Sampler> Renderer::CreateLinearSampler() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Linear;
     desc.min_filter = FilterMode::Linear;
@@ -3534,6 +4172,9 @@ std::unique_ptr<Sampler> Renderer::CreateLinearSampler() noexcept {
 }
 
 std::unique_ptr<Sampler> Renderer::CreatePointSampler() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
@@ -3542,6 +4183,9 @@ std::unique_ptr<Sampler> Renderer::CreatePointSampler() noexcept {
 }
 
 std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SamplerDesc desc{};
     desc.mag_filter = FilterMode::Point;
     desc.min_filter = FilterMode::Point;
@@ -3553,6 +4197,9 @@ std::unique_ptr<Sampler> Renderer::CreateInvalidSampler() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_raster = CreateDefaultRaster();
     auto name = "__default";
     default_raster->SetDebugName("__default_raster");
@@ -3600,23 +4247,35 @@ void Renderer::CreateAndRegisterDefaultRasterStates() noexcept {
 }
 
 std::unique_ptr<RasterState> Renderer::CreateDefaultRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc default_raster{};
     return std::make_unique<RasterState>(m_rhi_device.get(), default_raster);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateScissorEnableRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc scissorenable{};
     scissorenable.scissorEnable = true;
     return std::make_unique<RasterState>(m_rhi_device.get(), scissorenable);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateScissorDisableRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc scissordisable{};
     scissordisable.scissorEnable = false;
     return std::make_unique<RasterState>(m_rhi_device.get(), scissordisable);
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Back;
@@ -3625,6 +4284,9 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeRaster() noexcept {
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Back;
@@ -3633,6 +4295,9 @@ std::unique_ptr<RasterState> Renderer::CreateSolidRaster() noexcept {
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeNoCullingRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::None;
@@ -3641,6 +4306,9 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeNoCullingRaster() noexcept
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidNoCullingRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::None;
@@ -3649,6 +4317,9 @@ std::unique_ptr<RasterState> Renderer::CreateSolidNoCullingRaster() noexcept {
 }
 
 std::unique_ptr<RasterState> Renderer::CreateWireframeFrontCullingRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc wireframe{};
     wireframe.fillmode = FillMode::Wireframe;
     wireframe.cullmode = CullMode::Front;
@@ -3657,6 +4328,9 @@ std::unique_ptr<RasterState> Renderer::CreateWireframeFrontCullingRaster() noexc
 }
 
 std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RasterDesc solid{};
     solid.fillmode = FillMode::Solid;
     solid.cullmode = CullMode::Front;
@@ -3665,6 +4339,9 @@ std::unique_ptr<RasterState> Renderer::CreateSolidFrontCullingRaster() noexcept 
 }
 
 void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_state = CreateDefaultDepthStencilState();
     auto name = "__default";
     default_state->SetDebugName("__default_depthstencilstate");
@@ -3692,11 +4369,17 @@ void Renderer::CreateAndRegisterDefaultDepthStencilStates() noexcept {
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDefaultDepthStencilState() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DepthStencilDesc desc{};
     return std::make_unique<DepthStencilState>(m_rhi_device.get(), desc);
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDisabledDepth() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DepthStencilDesc desc{};
     desc.depth_enabled = false;
     desc.depth_comparison = ComparisonFunction::Always;
@@ -3704,6 +4387,9 @@ std::unique_ptr<DepthStencilState> Renderer::CreateDisabledDepth() noexcept {
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateEnabledDepth() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DepthStencilDesc desc{};
     desc.depth_enabled = true;
     desc.depth_comparison = ComparisonFunction::Less;
@@ -3711,6 +4397,9 @@ std::unique_ptr<DepthStencilState> Renderer::CreateEnabledDepth() noexcept {
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateDisabledStencil() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DepthStencilDesc desc{};
     desc.stencil_enabled = false;
     desc.stencil_read = false;
@@ -3719,6 +4408,9 @@ std::unique_ptr<DepthStencilState> Renderer::CreateDisabledStencil() noexcept {
 }
 
 std::unique_ptr<DepthStencilState> Renderer::CreateEnabledStencil() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DepthStencilDesc desc{};
     desc.stencil_enabled = true;
     desc.stencil_read = true;
@@ -3727,6 +4419,9 @@ std::unique_ptr<DepthStencilState> Renderer::CreateEnabledStencil() noexcept {
 }
 
 void Renderer::CreateAndRegisterDefaultFonts() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto font_system32 = CreateDefaultSystem32Font();
     const std::string name = font_system32->GetName();
     RegisterFont(name, std::move(font_system32));
@@ -3735,6 +4430,9 @@ void Renderer::CreateAndRegisterDefaultFonts() noexcept {
 }
 
 std::unique_ptr<KerningFont> Renderer::CreateDefaultSystem32Font() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #pragma region system32_font_data
     //TURN OFF WORD WRAP AND DO NOT SCROLL TO THE RIGHT!
     const std::vector<unsigned char> raw_system32_font = {0x42, 0x4d, 0x46, 0x03, 0x01, 0x15, 0x00, 0x00, 0x00, 0x20, 0x00, 0xc0, 0x00, 0x64, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x00, 0x02, 0x0f, 0x00, 0x00, 0x00, 0x20, 0x00, 0x1a, 0x00, 0x00, 0x01, 0xc0, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x04, 0x04, 0x03, 0x0f, 0x00, 0x00, 0x00, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x33, 0x32, 0x5f, 0x30, 0x2e, 0x70, 0x6e, 0x67, 0x00, 0x04, 0x78, 0x0f, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x52, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x20, 0x00, 0x00, 0x00, 0x98, 0x00, 0xb2, 0x00, 0x18, 0x00, 0x01, 0x00, 0xf8, 0xff, 0x1f, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x21, 0x00, 0x00, 0x00, 0x08, 0x00, 0x9c, 0x00, 0x04, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x22, 0x00, 0x00, 0x00, 0xb4, 0x00, 0xa8, 0x00, 0x0c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0c, 0x00, 0x00, 0x0f, 0x23, 0x00, 0x00, 0x00, 0x30, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x24, 0x00, 0x00, 0x00, 0x32, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x25, 0x00, 0x00, 0x00, 0xea, 0x00, 0x34, 0x00, 0x16, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x16, 0x00, 0x00, 0x0f, 0x26, 0x00, 0x00, 0x00, 0x48, 0x00, 0x72, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x27, 0x00, 0x00, 0x00, 0xd2, 0x00, 0xa8, 0x00, 0x04, 0x00, 0x08, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x28, 0x00, 0x00, 0x00, 0xce, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x29, 0x00, 0x00, 0x00, 0xd4, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x2a, 0x00, 0x00, 0x00, 0x92, 0x00, 0xa8, 0x00, 0x0c, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0c, 0x00, 0x00, 0x0f, 0x2b, 0x00, 0x00, 0x00, 0x18, 0x00, 0xae, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x2c, 0x00, 0x00, 0x00, 0x44, 0x00, 0xba, 0x00, 0x06, 0x00, 0x06, 0x00, 0x00, 0x00, 0x16, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x2d, 0x00, 0x00, 0x00, 0x10, 0x00, 0x34, 0x00, 0x08, 0x00, 0x02, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x2e, 0x00, 0x00, 0x00, 0xfc, 0x00, 0xa6, 0x00, 0x04, 0x00, 0x04, 0x00, 0x02, 0x00, 0x16, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x2f, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x18, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x30, 0x00, 0x00, 0x00, 0xd0, 0x00, 0x70, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x31, 0x00, 0x00, 0x00, 0xe2, 0x00, 0x84, 0x00, 0x08, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x32, 0x00, 0x00, 0x00, 0xe8, 0x00, 0x70, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x33, 0x00, 0x00, 0x00, 0xf4, 0x00, 0x70, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x34, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x88, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x35, 0x00, 0x00, 0x00, 0x18, 0x00, 0x88, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x36, 0x00, 0x00, 0x00, 0x24, 0x00, 0x88, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x37, 0x00, 0x00, 0x00, 0x48, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x38, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x39, 0x00, 0x00, 0x00, 0x54, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x3a, 0x00, 0x00, 0x00, 0x5e, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x10, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x3b, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x9a, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x3c, 0x00, 0x00, 0x00, 0x28, 0x00, 0x9c, 0x00, 0x0c, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x3d, 0x00, 0x00, 0x00, 0xc0, 0x00, 0xa8, 0x00, 0x0c, 0x00, 0x08, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x3e, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x9c, 0x00, 0x0c, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x3f, 0x00, 0x00, 0x00, 0x60, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x40, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x18, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x04, 0x00, 0x1c, 0x00, 0x00, 0x0f, 0x41, 0x00, 0x00, 0x00, 0x10, 0x00, 0x60, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x43, 0x00, 0x00, 0x00, 0x10, 0x00, 0x74, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x44, 0x00, 0x00, 0x00, 0x70, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x45, 0x00, 0x00, 0x00, 0x56, 0x00, 0x72, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x46, 0x00, 0x00, 0x00, 0xf2, 0x00, 0x48, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x47, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x5c, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x48, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x5c, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x49, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x9c, 0x00, 0x04, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x4a, 0x00, 0x00, 0x00, 0x84, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0x4b, 0x00, 0x00, 0x00, 0xd0, 0x00, 0x5c, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x4c, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x74, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x4d, 0x00, 0x00, 0x00, 0x82, 0x00, 0x4a, 0x00, 0x14, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x18, 0x00, 0x00, 0x0f, 0x4e, 0x00, 0x00, 0x00, 0x80, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x4f, 0x00, 0x00, 0x00, 0x60, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x50, 0x00, 0x00, 0x00, 0x40, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x51, 0x00, 0x00, 0x00, 0x90, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x52, 0x00, 0x00, 0x00, 0xbc, 0x00, 0x4a, 0x00, 0x12, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x53, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x74, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x54, 0x00, 0x00, 0x00, 0xa0, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x55, 0x00, 0x00, 0x00, 0xb0, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x56, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x57, 0x00, 0x00, 0x00, 0xce, 0x00, 0x34, 0x00, 0x1c, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x1c, 0x00, 0x00, 0x0f, 0x58, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x48, 0x00, 0x12, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x59, 0x00, 0x00, 0x00, 0x96, 0x00, 0x4a, 0x00, 0x14, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x5a, 0x00, 0x00, 0x00, 0xaa, 0x00, 0x4a, 0x00, 0x12, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0x5b, 0x00, 0x00, 0x00, 0xc8, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x5c, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x18, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x5d, 0x00, 0x00, 0x00, 0xda, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x5e, 0x00, 0x00, 0x00, 0xe2, 0x00, 0xa6, 0x00, 0x0a, 0x00, 0x06, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x5f, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x32, 0x00, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x60, 0x00, 0x00, 0x00, 0xec, 0x00, 0xa6, 0x00, 0x08, 0x00, 0x06, 0x00, 0x02, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x61, 0x00, 0x00, 0x00, 0x0c, 0x00, 0xb0, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x62, 0x00, 0x00, 0x00, 0x90, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb0, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0x64, 0x00, 0x00, 0x00, 0x9c, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x65, 0x00, 0x00, 0x00, 0x24, 0x00, 0xae, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x66, 0x00, 0x00, 0x00, 0xea, 0x00, 0x84, 0x00, 0x08, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x67, 0x00, 0x00, 0x00, 0xb4, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x68, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x69, 0x00, 0x00, 0x00, 0x04, 0x00, 0x9c, 0x00, 0x04, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x6a, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x6b, 0x00, 0x00, 0x00, 0xcc, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9c, 0x00, 0x04, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x6d, 0x00, 0x00, 0x00, 0x8a, 0x00, 0x9a, 0x00, 0x14, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x18, 0x00, 0x00, 0x0f, 0x6e, 0x00, 0x00, 0x00, 0xee, 0x00, 0x98, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x6f, 0x00, 0x00, 0x00, 0xe2, 0x00, 0x98, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x70, 0x00, 0x00, 0x00, 0x64, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x71, 0x00, 0x00, 0x00, 0x70, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x72, 0x00, 0x00, 0x00, 0x50, 0x00, 0xac, 0x00, 0x08, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x73, 0x00, 0x00, 0x00, 0xbe, 0x00, 0x9a, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x74, 0x00, 0x00, 0x00, 0x34, 0x00, 0x9c, 0x00, 0x08, 0x00, 0x12, 0x00, 0x00, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x75, 0x00, 0x00, 0x00, 0xd6, 0x00, 0x9a, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x76, 0x00, 0x00, 0x00, 0xae, 0x00, 0x9a, 0x00, 0x10, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x77, 0x00, 0x00, 0x00, 0x62, 0x00, 0x9a, 0x00, 0x14, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x00, 0x0f, 0x78, 0x00, 0x00, 0x00, 0x9e, 0x00, 0x9a, 0x00, 0x10, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x7a, 0x00, 0x00, 0x00, 0xca, 0x00, 0x9a, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0x7b, 0x00, 0x00, 0x00, 0xa2, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x7c, 0x00, 0x00, 0x00, 0xec, 0x00, 0x1a, 0x00, 0x04, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x7d, 0x00, 0x00, 0x00, 0xba, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x7e, 0x00, 0x00, 0x00, 0x54, 0x00, 0xba, 0x00, 0x0a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0x7f, 0x00, 0x00, 0x00, 0x4e, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x81, 0x00, 0x00, 0x00, 0x56, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x8d, 0x00, 0x00, 0x00, 0x5a, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x8f, 0x00, 0x00, 0x00, 0x42, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x90, 0x00, 0x00, 0x00, 0x46, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0x9d, 0x00, 0x00, 0x00, 0x4a, 0x00, 0x9a, 0x00, 0x04, 0x00, 0x12, 0x00, 0x02, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x62, 0x00, 0xb6, 0x00, 0x36, 0x00, 0x01, 0x00, 0xee, 0xff, 0x1f, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xa1, 0x00, 0x00, 0x00, 0xfa, 0x00, 0x84, 0x00, 0x04, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xa2, 0x00, 0x00, 0x00, 0x10, 0x00, 0x9c, 0x00, 0x0c, 0x00, 0x12, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xa3, 0x00, 0x00, 0x00, 0x88, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xa4, 0x00, 0x00, 0x00, 0x5e, 0x00, 0xaa, 0x00, 0x0c, 0x00, 0x0c, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xa5, 0x00, 0x00, 0x00, 0x50, 0x00, 0x5e, 0x00, 0x10, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xa6, 0x00, 0x00, 0x00, 0xfc, 0x00, 0x00, 0x00, 0x04, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xa7, 0x00, 0x00, 0x00, 0x94, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xa8, 0x00, 0x00, 0x00, 0x4a, 0x00, 0xba, 0x00, 0x0a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xa9, 0x00, 0x00, 0x00, 0x6e, 0x00, 0x4a, 0x00, 0x14, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xaa, 0x00, 0x00, 0x00, 0xfa, 0x00, 0x98, 0x00, 0x06, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xab, 0x00, 0x00, 0x00, 0x6a, 0x00, 0xa8, 0x00, 0x0e, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0xac, 0x00, 0x00, 0x00, 0xd6, 0x00, 0xa8, 0x00, 0x0c, 0x00, 0x06, 0x00, 0x02, 0x00, 0x0e, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xad, 0x00, 0x00, 0x00, 0x30, 0x00, 0x72, 0x00, 0x08, 0x00, 0x02, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xae, 0x00, 0x00, 0x00, 0x5a, 0x00, 0x4a, 0x00, 0x14, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xaf, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x4a, 0x00, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xb0, 0x00, 0x00, 0x00, 0xcc, 0x00, 0xa8, 0x00, 0x06, 0x00, 0x08, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xb1, 0x00, 0x00, 0x00, 0x30, 0x00, 0xae, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xb2, 0x00, 0x00, 0x00, 0x9e, 0x00, 0xa8, 0x00, 0x08, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xb3, 0x00, 0x00, 0x00, 0xa6, 0x00, 0xa8, 0x00, 0x08, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xb4, 0x00, 0x00, 0x00, 0xf4, 0x00, 0xa6, 0x00, 0x08, 0x00, 0x06, 0x00, 0x02, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xb5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x0e, 0x00, 0x16, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xb6, 0x00, 0x00, 0x00, 0xd8, 0x00, 0x84, 0x00, 0x0a, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0xb7, 0x00, 0x00, 0x00, 0x5e, 0x00, 0xb6, 0x00, 0x04, 0x00, 0x04, 0x00, 0x02, 0x00, 0x0e, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xb8, 0x00, 0x00, 0x00, 0x3c, 0x00, 0xba, 0x00, 0x08, 0x00, 0x06, 0x00, 0x02, 0x00, 0x1a, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xb9, 0x00, 0x00, 0x00, 0xae, 0x00, 0xa8, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xba, 0x00, 0x00, 0x00, 0x58, 0x00, 0xac, 0x00, 0x06, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x06, 0x00, 0x0a, 0x00, 0x00, 0x0f, 0xbb, 0x00, 0x00, 0x00, 0x78, 0x00, 0xa8, 0x00, 0x0e, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0xbc, 0x00, 0x00, 0x00, 0x18, 0x00, 0x4c, 0x00, 0x16, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x16, 0x00, 0x00, 0x0f, 0xbd, 0x00, 0x00, 0x00, 0x44, 0x00, 0x4a, 0x00, 0x16, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x16, 0x00, 0x00, 0x0f, 0xbe, 0x00, 0x00, 0x00, 0x2e, 0x00, 0x4a, 0x00, 0x16, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x16, 0x00, 0x00, 0x0f, 0xbf, 0x00, 0x00, 0x00, 0xa0, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc0, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc1, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc2, 0x00, 0x00, 0x00, 0x40, 0x00, 0x1a, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc3, 0x00, 0x00, 0x00, 0x30, 0x00, 0x1a, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc4, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc5, 0x00, 0x00, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xc6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x18, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x0f, 0xc7, 0x00, 0x00, 0x00, 0x50, 0x00, 0x1a, 0x00, 0x0e, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xc8, 0x00, 0x00, 0x00, 0x6c, 0x00, 0x1a, 0x00, 0x0e, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xc9, 0x00, 0x00, 0x00, 0x88, 0x00, 0x1a, 0x00, 0x0e, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xca, 0x00, 0x00, 0x00, 0x5e, 0x00, 0x1a, 0x00, 0x0e, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xcb, 0x00, 0x00, 0x00, 0x7a, 0x00, 0x1a, 0x00, 0x0e, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xcc, 0x00, 0x00, 0x00, 0xe6, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xcd, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x1a, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xce, 0x00, 0x00, 0x00, 0xaa, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xcf, 0x00, 0x00, 0x00, 0xb2, 0x00, 0x1a, 0x00, 0x08, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xd0, 0x00, 0x00, 0x00, 0xce, 0x00, 0x48, 0x00, 0x12, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd1, 0x00, 0x00, 0x00, 0xbc, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd2, 0x00, 0x00, 0x00, 0xdc, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd3, 0x00, 0x00, 0x00, 0xac, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd4, 0x00, 0x00, 0x00, 0x9c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd5, 0x00, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd6, 0x00, 0x00, 0x00, 0x6c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd7, 0x00, 0x00, 0x00, 0x86, 0x00, 0xa8, 0x00, 0x0c, 0x00, 0x0a, 0x00, 0x02, 0x00, 0x0e, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xd8, 0x00, 0x00, 0x00, 0x20, 0x00, 0x60, 0x00, 0x10, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xd9, 0x00, 0x00, 0x00, 0x20, 0x00, 0x1a, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xda, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xdb, 0x00, 0x00, 0x00, 0xec, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xdc, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xdd, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x14, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x0f, 0xde, 0x00, 0x00, 0x00, 0x3a, 0x00, 0x72, 0x00, 0x0e, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x12, 0x00, 0x00, 0x0f, 0xdf, 0x00, 0x00, 0x00, 0xac, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe0, 0x00, 0x00, 0x00, 0x4a, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe1, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe2, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x36, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe3, 0x00, 0x00, 0x00, 0xb8, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe4, 0x00, 0x00, 0x00, 0xc4, 0x00, 0x72, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe5, 0x00, 0x00, 0x00, 0x6e, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe6, 0x00, 0x00, 0x00, 0x76, 0x00, 0x9a, 0x00, 0x14, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x18, 0x00, 0x00, 0x0f, 0xe7, 0x00, 0x00, 0x00, 0xdc, 0x00, 0x70, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0xe8, 0x00, 0x00, 0x00, 0x62, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xe9, 0x00, 0x00, 0x00, 0x7a, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xea, 0x00, 0x00, 0x00, 0x56, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xeb, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xec, 0x00, 0x00, 0x00, 0xb6, 0x00, 0x34, 0x00, 0x08, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xed, 0x00, 0x00, 0x00, 0xbe, 0x00, 0x34, 0x00, 0x08, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xee, 0x00, 0x00, 0x00, 0xc6, 0x00, 0x34, 0x00, 0x08, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xef, 0x00, 0x00, 0x00, 0xf2, 0x00, 0x84, 0x00, 0x08, 0x00, 0x14, 0x00, 0x00, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x0f, 0xf0, 0x00, 0x00, 0x00, 0x30, 0x00, 0x88, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf1, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf2, 0x00, 0x00, 0x00, 0x86, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf3, 0x00, 0x00, 0x00, 0x92, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf4, 0x00, 0x00, 0x00, 0x9e, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf5, 0x00, 0x00, 0x00, 0x6c, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf6, 0x00, 0x00, 0x00, 0x78, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf7, 0x00, 0x00, 0x00, 0x48, 0x00, 0xac, 0x00, 0x08, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x0c, 0x00, 0x00, 0x0f, 0xf8, 0x00, 0x00, 0x00, 0x3c, 0x00, 0xac, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xf9, 0x00, 0x00, 0x00, 0xaa, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xfa, 0x00, 0x00, 0x00, 0x26, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xfb, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x34, 0x00, 0x0c, 0x00, 0x16, 0x00, 0x02, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xfc, 0x00, 0x00, 0x00, 0xa8, 0x00, 0x86, 0x00, 0x0c, 0x00, 0x14, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xfe, 0x00, 0x00, 0x00, 0x96, 0x00, 0x1a, 0x00, 0x0c, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f, 0xff, 0x00, 0x00, 0x00, 0xcc, 0x00, 0x00, 0x00, 0x10, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x0f};
@@ -3780,22 +4478,34 @@ std::unique_ptr<KerningFont> Renderer::CreateDefaultSystem32Font() noexcept {
 }
 
 void Renderer::UnbindAllResourcesAndBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UnbindAllResources();
     UnbindAllBuffers();
 }
 
 void Renderer::UnbindAllResources() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UnbindAllShaderResources();
     UnbindComputeShaderResources();
 }
 
 void Renderer::UnbindAllBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     UnbindWorkingVboAndIbo();
     UnbindAllConstantBuffers();
     UnbindComputeConstantBuffers();
 }
 
 void Renderer::UnbindAllShaderResources() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_rhi_context) {
         m_materials_need_updating = true;
         m_rhi_context->UnbindAllShaderResources();
@@ -3803,6 +4513,9 @@ void Renderer::UnbindAllShaderResources() noexcept {
 }
 
 void Renderer::UnbindAllConstantBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_rhi_context) {
         m_materials_need_updating = true;
         m_rhi_context->UnbindAllConstantBuffers();
@@ -3810,18 +4523,27 @@ void Renderer::UnbindAllConstantBuffers() noexcept {
 }
 
 void Renderer::UnbindComputeShaderResources() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_rhi_context) {
         m_rhi_context->UnbindAllShaderResources();
     }
 }
 
 void Renderer::UnbindComputeConstantBuffers() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_rhi_context) {
         m_rhi_context->UnbindAllConstantBuffers();
     }
 }
 
 void Renderer::SetWindowIcon(void* /*iconResource*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     //if(auto* output = GetOutput()) {
         //if(auto* window = output->GetWindow()) {
             //window->SetIcon(iconResource);
@@ -3830,6 +4552,9 @@ void Renderer::SetWindowIcon(void* /*iconResource*/) noexcept {
 }
 
 void Renderer::SetWindowTitle(const std::string& newTitle) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             window->SetTitle(newTitle);
@@ -3838,6 +4563,9 @@ void Renderer::SetWindowTitle(const std::string& newTitle) const noexcept {
 }
 
 std::string Renderer::GetWindowTitle() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto* output = GetOutput()) {
         if(auto* window = output->GetWindow()) {
             return window->GetTitle();
@@ -3847,6 +4575,9 @@ std::string Renderer::GetWindowTitle() const noexcept {
 }
 
 void Renderer::RegisterDepthStencilState(const std::string& name, std::unique_ptr<DepthStencilState> depthstencil) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(depthstencil == nullptr) {
         return;
     }
@@ -3859,6 +4590,9 @@ void Renderer::RegisterDepthStencilState(const std::string& name, std::unique_pt
 }
 
 RasterState* Renderer::GetRasterState(const std::string& name) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto found_iter = std::find_if(std::cbegin(m_rasters), std::cend(m_rasters), [&name](const auto& s) { return s.first == name; });
     if(found_iter == m_rasters.end()) {
         return nullptr;
@@ -3867,10 +4601,16 @@ RasterState* Renderer::GetRasterState(const std::string& name) noexcept {
 }
 
 void Renderer::CreateAndRegisterSamplerFromSamplerDescription(const std::string& name, const SamplerDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RegisterSampler(name, std::make_unique<Sampler>(m_rhi_device.get(), desc));
 }
 
 Sampler* Renderer::GetSampler(const std::string& name) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto found_iter = std::find_if(std::cbegin(m_samplers), std::cend(m_samplers), [&name](const auto& s) { return s.first == name; });
     if(found_iter == m_samplers.end()) {
         return nullptr;
@@ -3879,6 +4619,9 @@ Sampler* Renderer::GetSampler(const std::string& name) noexcept {
 }
 
 void Renderer::SetSampler(Sampler* sampler) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(sampler == m_current_sampler) {
         return;
     }
@@ -3887,6 +4630,9 @@ void Renderer::SetSampler(Sampler* sampler) noexcept {
 }
 
 void Renderer::RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(raster == nullptr) {
         return;
     }
@@ -3899,6 +4645,9 @@ void Renderer::RegisterRasterState(const std::string& name, std::unique_ptr<Rast
 }
 
 void Renderer::RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(sampler == nullptr) {
         return;
     }
@@ -3911,6 +4660,9 @@ void Renderer::RegisterSampler(const std::string& name, std::unique_ptr<Sampler>
 }
 
 void Renderer::RegisterShader(const std::string& name, std::unique_ptr<Shader> shader) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!shader) {
         return;
     }
@@ -3923,6 +4675,9 @@ void Renderer::RegisterShader(const std::string& name, std::unique_ptr<Shader> s
 }
 
 bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     tinyxml2::XMLDocument doc;
     bool path_exists = FS::exists(filepath);
@@ -3951,6 +4706,9 @@ bool Renderer::RegisterShader(std::filesystem::path filepath) noexcept {
 }
 
 void Renderer::RegisterShader(std::unique_ptr<Shader> shader) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!shader) {
         return;
     }
@@ -3965,6 +4723,9 @@ void Renderer::RegisterShader(std::unique_ptr<Shader> shader) noexcept {
 }
 
 void Renderer::RegisterFont(const std::string& name, std::unique_ptr<KerningFont> font) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return;
     }
@@ -3977,6 +4738,9 @@ void Renderer::RegisterFont(const std::string& name, std::unique_ptr<KerningFont
 }
 
 void Renderer::RegisterFont(std::unique_ptr<KerningFont> font) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(font == nullptr) {
         return;
     }
@@ -3990,6 +4754,9 @@ void Renderer::RegisterFont(std::unique_ptr<KerningFont> font) noexcept {
 }
 
 bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     auto font = std::make_unique<KerningFont>();
     filepath = FS::canonical(filepath);
@@ -4019,6 +4786,9 @@ bool Renderer::RegisterFont(std::filesystem::path filepath) noexcept {
 }
 
 void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         DebuggerPrintf(std::format("Attempting to Register Fonts from unknown path: {}\n", FS::absolute(folderpath)));
@@ -4036,6 +4806,9 @@ void Renderer::RegisterFontsFromFolder(std::filesystem::path folderpath, bool re
 }
 
 void Renderer::CreateAndRegisterDefaultTextures() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_texture = CreateDefaultTexture();
     auto name = "__default";
     default_texture->SetDebugName(name);
@@ -4080,12 +4853,18 @@ void Renderer::CreateAndRegisterDefaultTextures() noexcept {
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::White};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateInvalidTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::Magenta,
     Rgba::Black,
@@ -4096,47 +4875,71 @@ std::unique_ptr<Texture> Renderer::CreateInvalidTexture() noexcept {
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultDiffuseTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::White};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultNormalTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::NormalZ};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultDisplacementTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::Gray};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultSpecularTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::Black};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultOcclusionTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::White};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultEmissiveTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> data = {
     Rgba::Black};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultFullscreenTexture() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const IntVector3 dims = GetOutput()->GetBackBuffer()->GetDimensions();
     auto data = std::vector<Rgba>(static_cast<std::size_t>(dims.x) * static_cast<std::size_t>(dims.y), Rgba::Magenta);
     return Create2DTextureFromMemory(data, dims.x, dims.y, BufferUsage::Gpu, BufferBindUsage::Render_Target | BufferBindUsage::Shader_Resource);
 }
 void Renderer::CreateDefaultColorTextures() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     static const std::vector<Rgba> colors = {
     Rgba::White, Rgba::Black, Rgba::Red, Rgba::Pink, Rgba::Green, Rgba::ForestGreen, Rgba::Blue, Rgba::NavyBlue, Rgba::Cyan, Rgba::Yellow, Rgba::Magenta, Rgba::Orange, Rgba::Violet, Rgba::LightGrey, Rgba::LightGray, Rgba::Grey, Rgba::Gray, Rgba::DarkGrey, Rgba::DarkGray, Rgba::Olive, Rgba::SkyBlue, Rgba::Lime, Rgba::Teal, Rgba::Turquoise, Rgba::Periwinkle, Rgba::NormalZ};
     static const std::vector<std::string> names = {
@@ -4153,12 +4956,18 @@ void Renderer::CreateDefaultColorTextures() noexcept {
 }
 
 std::unique_ptr<Texture> Renderer::CreateDefaultColorTexture(const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::vector<Rgba> data = {
     color};
     return Create2DTextureFromMemory(data, 1, 1);
 }
 
 void Renderer::CreateAndRegisterDefaultShaders() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto default_shader = CreateDefaultShader();
     std::string name = default_shader->GetName();
     RegisterShader(name, std::move(default_shader));
@@ -4201,6 +5010,9 @@ void Renderer::CreateAndRegisterDefaultShaders() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__default">
@@ -4224,6 +5036,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultUnlitShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__unlit">
@@ -4247,6 +5062,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultUnlitShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefault2DShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name = "__2D">
@@ -4278,6 +5096,9 @@ std::unique_ptr<Shader> Renderer::CreateDefault2DShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultCircle2DShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__circle2d">
@@ -4303,6 +5124,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultCircle2DShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultRoundedRectangle2DShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__roundedrec2d">
@@ -4328,6 +5152,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultRoundedRectangle2DShader() noexce
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultUnlit2DSpriteShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__unlit2DSprite">
@@ -4353,6 +5180,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultUnlit2DSpriteShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultNormalShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__normal">
@@ -4376,6 +5206,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultNormalShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultNormalMapShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__normalmap">
@@ -4398,6 +5231,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultNormalMapShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultInvalidShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__invalid">
@@ -4421,6 +5257,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultInvalidShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateDefaultFontShader() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::string shader =
     R"(
 <shader name="__font">
@@ -4449,6 +5288,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultFontShader() noexcept {
 }
 
 std::unique_ptr<Shader> Renderer::CreateShaderFromFile(std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(auto buffer = FileUtils::ReadStringBufferFromFile(filepath)) {
         tinyxml2::XMLDocument doc;
         auto parse_result = doc.Parse(buffer->c_str(), buffer->size());
@@ -4461,6 +5303,9 @@ std::unique_ptr<Shader> Renderer::CreateShaderFromFile(std::filesystem::path fil
 }
 
 void Renderer::RegisterMaterial(const std::string& name, std::unique_ptr<Material> mat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(mat == nullptr) {
         return;
     }
@@ -4474,6 +5319,9 @@ void Renderer::RegisterMaterial(const std::string& name, std::unique_ptr<Materia
 }
 
 void Renderer::RegisterMaterial(std::unique_ptr<Material> mat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(mat == nullptr) {
         return;
     }
@@ -4488,6 +5336,9 @@ void Renderer::RegisterMaterial(std::unique_ptr<Material> mat) noexcept {
 }
 
 bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     tinyxml2::XMLDocument doc;
     if(filepath.has_extension() && StringUtils::ToLowerCase(filepath.extension().string()) == ".material") {
@@ -4506,6 +5357,9 @@ bool Renderer::RegisterMaterial(std::filesystem::path filepath) noexcept {
 }
 
 void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         DebuggerPrintf(std::format("Attempting to Register Materials from unknown path: {}\n", FS::absolute(folderpath)));
@@ -4523,6 +5377,9 @@ void Renderer::RegisterMaterialsFromFolder(std::filesystem::path folderpath, boo
 }
 
 void Renderer::ReloadMaterials() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_textures.clear();
 
     CreateAndRegisterDefaultTextures();
@@ -4539,6 +5396,9 @@ void Renderer::ReloadMaterials() noexcept {
 }
 
 void Renderer::RegisterShaderProgram(const std::string& name, std::unique_ptr<ShaderProgram> sp) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!sp) {
         return;
     }
@@ -4552,6 +5412,9 @@ void Renderer::RegisterShaderProgram(const std::string& name, std::unique_ptr<Sh
 }
 
 void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_vbo_size < vbo.size()) {
         m_temp_vbo = std::move(m_rhi_device->CreateVertexBuffer<VertexBuffer>(vbo, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
         m_current_vbo_size = vbo.size();
@@ -4560,6 +5423,9 @@ void Renderer::UpdateVbo(const VertexBuffer::buffer_t& vbo) noexcept {
 }
 
 void Renderer::UpdateVbco(const VertexCircleBuffer::buffer_t& vbco) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_vbco_size < vbco.size()) {
         m_circle_vbo = std::move(m_rhi_device->CreateVertexBuffer<VertexCircleBuffer>(vbco, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
         m_current_vbco_size = vbco.size();
@@ -4568,6 +5434,9 @@ void Renderer::UpdateVbco(const VertexCircleBuffer::buffer_t& vbco) noexcept {
 }
 
 void Renderer::UpdateVbio(const VertexBufferInstanced::buffer_t& vbio) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_vbio_size < vbio.size()) {
         m_temp_vbio = std::move(m_rhi_device->CreateVertexBufferInstanced(vbio, BufferUsage::Dynamic, BufferBindUsage::Vertex_Buffer));
         m_current_vbio_size = vbio.size();
@@ -4576,6 +5445,9 @@ void Renderer::UpdateVbio(const VertexBufferInstanced::buffer_t& vbio) noexcept 
 }
 
 void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(m_current_ibo_size < ibo.size()) {
         m_temp_ibo = std::move(m_rhi_device->CreateIndexBuffer(ibo, BufferUsage::Dynamic, BufferBindUsage::Index_Buffer));
         m_current_ibo_size = ibo.size();
@@ -4584,22 +5456,37 @@ void Renderer::UpdateIbo(const IndexBuffer::buffer_t& ibo) noexcept {
 }
 
 RHIDeviceContext* Renderer::GetDeviceContext() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_context.get();
 }
 
 RHIDevice* Renderer::GetDevice() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_device.get();
 }
 
 RHIOutput* Renderer::GetOutput() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_output.get();
 }
 
 RHIInstance* Renderer::GetInstance() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_rhi_instance.get();
 }
 
 ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     FS::path p{nameOrFile};
     if(!StringUtils::StartsWith(p.string(), "__")) {
@@ -4614,6 +5501,9 @@ ShaderProgram* Renderer::GetShaderProgram(const std::string& nameOrFile) noexcep
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromCsoFile(std::filesystem::path filepath, const PipelineStage& target) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     bool requested_retry = false;
     std::unique_ptr<ShaderProgram> sp = nullptr;
     do {
@@ -4636,10 +5526,16 @@ std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromCsoFile(std::fil
 }
 
 std::unique_ptr<ShaderProgram> Renderer::CreateShaderProgramFromDesc(ShaderProgramDesc&& desc) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return std::make_unique<ShaderProgram>(std::move(desc));
 }
 
 void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path filepath, const PipelineStage& target) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto sp = CreateShaderProgramFromCsoFile(filepath, target);
     const auto error_msg = std::format("{} is not a valid compiled shader program.", filepath);
     GUARANTEE_OR_DIE(sp, error_msg.c_str());
@@ -4647,10 +5543,16 @@ void Renderer::CreateAndRegisterShaderProgramFromCsoFile(std::filesystem::path f
 }
 
 void Renderer::CreateAndRegisterRasterStateFromRasterDescription(const std::string& name, const RasterDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RegisterRasterState(name, std::make_unique<RasterState>(m_rhi_device.get(), desc));
 }
 
 void Renderer::SetRasterState(RasterState* raster) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(raster == m_current_raster_state) {
         return;
     }
@@ -4659,6 +5561,9 @@ void Renderer::SetRasterState(RasterState* raster) noexcept {
 }
 
 void Renderer::SetRasterState(FillMode fillmode, CullMode cullmode) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(fillmode) {
     case FillMode::Solid:
         SetSolidRaster(cullmode);
@@ -4672,10 +5577,16 @@ void Renderer::SetRasterState(FillMode fillmode, CullMode cullmode) noexcept {
 }
 
 void Renderer::SetVSync(bool value) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_vsync = value;
 }
 
 Material* Renderer::GetMaterial(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto found_iter = std::find_if(std::cbegin(m_materials), std::cend(m_materials), [&nameOrFile](const auto& m) { return m.first == nameOrFile; });
     if(found_iter == m_materials.end()) {
         return GetMaterial("__invalid");
@@ -4684,6 +5595,9 @@ Material* Renderer::GetMaterial(const std::string& nameOrFile) noexcept {
 }
 
 void Renderer::SetMaterial(Material* material) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(material == nullptr) {
         material = GetMaterial("__invalid");
     }
@@ -4697,10 +5611,16 @@ void Renderer::SetMaterial(Material* material) noexcept {
 }
 
 void Renderer::SetMaterial(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetMaterial(GetMaterial(nameOrFile));
 }
 
 void Renderer::ResetMaterial() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->UnbindAllShaderResources();
     m_rhi_context->SetShader(nullptr);
     m_current_material = nullptr;
@@ -4711,6 +5631,9 @@ void Renderer::ResetMaterial() noexcept {
 }
 
 bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     FS::path p{nameOrFile};
     if(!StringUtils::StartsWith(p.string(), "__") && std::filesystem::is_regular_file(p)) {
@@ -4725,10 +5648,16 @@ bool Renderer::IsTextureLoaded(const std::string& nameOrFile) const noexcept {
 }
 
 bool Renderer::IsTextureNotLoaded(const std::string& nameOrFile) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return !IsTextureLoaded(nameOrFile);
 }
 
 Shader* Renderer::GetShader(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto found_iter = std::find_if(std::cbegin(m_shaders), std::cend(m_shaders), [&nameOrFile](const auto& s) { return s.first == nameOrFile; });
     if(found_iter == m_shaders.end()) {
         return nullptr;
@@ -4737,6 +5666,9 @@ Shader* Renderer::GetShader(const std::string& nameOrFile) noexcept {
 }
 
 std::string Renderer::GetShaderName(const std::filesystem::path filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     tinyxml2::XMLDocument doc;
     if(auto load_result = doc.LoadFile(filepath.string().c_str()); load_result == tinyxml2::XML_SUCCESS) {
@@ -4748,6 +5680,9 @@ std::string Renderer::GetShaderName(const std::filesystem::path filepath) noexce
 }
 
 void Renderer::SetComputeShader(Shader* shader) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(shader == nullptr) {
         m_rhi_context->SetComputeShaderProgram(nullptr);
     } else {
@@ -4756,6 +5691,9 @@ void Renderer::SetComputeShader(Shader* shader) noexcept {
 }
 
 KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto found_iter = std::find_if(std::cbegin(m_fonts), std::cend(m_fonts), [&nameOrFile](const auto& f) { return f.first == nameOrFile; });
     if(found_iter == m_fonts.end()) {
         return nullptr;
@@ -4763,42 +5701,86 @@ KerningFont* Renderer::GetFont(const std::string& nameOrFile) noexcept {
     return found_iter->second.get();
 }
 
+KerningFont* Renderer::GetFontById(uint16_t index) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    if(index >= m_fonts.size()) {
+        return nullptr;
+    }
+    return m_fonts[index].second.get();
+}
+
+std::size_t Renderer::GetFontId(const std::string& nameOrFile) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    const auto size = m_fonts.size();
+    for(std::size_t i = 0u; i < size; ++i) {
+        if(m_fonts[i].first == nameOrFile) {
+            return i;
+        }
+    }
+    return size;
+}
+
 void Renderer::SetModelMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_matrix_data.model = mat;
     m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
     SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetViewMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_matrix_data.view = mat;
     m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
     SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetProjectionMatrix(const Matrix4& mat /*= Matrix4::I*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_matrix_data.projection = mat;
     m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
     SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::ResetModelViewProjection() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetModelMatrix(Matrix4::I);
     SetViewMatrix(Matrix4::I);
     SetProjectionMatrix(Matrix4::I);
 }
 
 void Renderer::AppendModelMatrix(const Matrix4& modelMatrix) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_matrix_data.model = Matrix4::MakeRT(modelMatrix, m_matrix_data.model);
     m_matrix_cb->Update(*m_rhi_context, &m_matrix_data);
     SetConstantBuffer(GetMatrixBufferIndex(), m_matrix_cb.get());
 }
 
 void Renderer::SetOrthoProjection(const Vector2& leftBottom, const Vector2& rightTop, const Vector2& near_far) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Matrix4 proj = Matrix4::CreateDXOrthographicProjection(leftBottom.x, rightTop.x, leftBottom.y, rightTop.y, near_far.x, near_far.y);
     SetProjectionMatrix(proj);
 }
 
 void Renderer::SetOrthoProjection(const Vector2& dimensions, const Vector2& origin, float nearz, float farz) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector2 half_extents = dimensions * 0.5f;
     Vector2 leftBottom = Vector2(origin.x - half_extents.x, origin.y - half_extents.y);
     Vector2 rightTop = Vector2(origin.x + half_extents.x, origin.y + half_extents.y);
@@ -4806,6 +5788,9 @@ void Renderer::SetOrthoProjection(const Vector2& dimensions, const Vector2& orig
 }
 
 void Renderer::SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRatio, float nearz, float farz) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float view_height = viewHeight;
     float view_width = view_height * aspectRatio;
     Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
@@ -4815,6 +5800,9 @@ void Renderer::SetOrthoProjectionFromViewHeight(float viewHeight, float aspectRa
 }
 
 void Renderer::SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRatio, float nearz, float farz) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float inv_aspect_ratio = 1.0f / aspectRatio;
     float view_width = viewWidth;
     float view_height = view_width * inv_aspect_ratio;
@@ -4825,6 +5813,9 @@ void Renderer::SetOrthoProjectionFromViewWidth(float viewWidth, float aspectRati
 }
 
 void Renderer::SetOrthoProjectionFromCamera(const Camera3D& camera) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     float view_height = camera.CalcNearViewHeight();
     float view_width = view_height * camera.GetAspectRatio();
     Vector2 view_half_extents = Vector2(view_width, view_height) * 0.50f;
@@ -4834,43 +5825,70 @@ void Renderer::SetOrthoProjectionFromCamera(const Camera3D& camera) noexcept {
 }
 
 void Renderer::SetPerspectiveProjection(const Vector2& vfovDegrees_aspect, const Vector2& nz_fz) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Matrix4 proj = Matrix4::CreateDXPerspectiveProjection(vfovDegrees_aspect.x, vfovDegrees_aspect.y, nz_fz.x, nz_fz.y);
     SetProjectionMatrix(proj);
 }
 
 void Renderer::SetPerspectiveProjectionFromCamera(const Camera3D& camera) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetPerspectiveProjection(Vector2{camera.CalcFovYDegrees(), camera.GetAspectRatio()}, Vector2{camera.GetNearDistance(), camera.GetFarDistance()});
 }
 
 void Renderer::SetCamera(const Camera3D& camera) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_camera = camera;
     SetViewMatrix(camera.GetViewMatrix());
     SetProjectionMatrix(camera.GetProjectionMatrix());
 }
 
 void Renderer::SetCamera(const Camera2D& camera) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_camera = camera;
     SetViewMatrix(camera.GetViewMatrix());
     SetProjectionMatrix(camera.GetProjectionMatrix());
 }
 
 Camera3D Renderer::GetCamera() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_camera;
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Vector3& worldCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ConvertWorldToScreenCoords(m_camera, worldCoords);
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Vector2& worldCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ConvertWorldToScreenCoords(m_camera, Vector3{worldCoords, 0.0f});
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Camera2D& camera, const Vector2& worldCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ConvertWorldToScreenCoords(Camera3D{camera}, Vector3{worldCoords, 0.0f});
 }
 
 Vector2 Renderer::ConvertWorldToScreenCoords(const Camera3D& camera, const Vector3& worldCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto& WtoS = camera.GetViewProjectionMatrix();
     const auto clipSpace = Vector4::CalcHomogeneous(WtoS * Vector4{worldCoords, 1.0f});
     const auto ndc = Vector2{clipSpace.x, -clipSpace.y};
@@ -4880,10 +5898,16 @@ Vector2 Renderer::ConvertWorldToScreenCoords(const Camera3D& camera, const Vecto
 }
 
 Vector3 Renderer::ConvertScreenToWorldCoords(const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ConvertScreenToWorldCoords(m_camera, mouseCoords);
 }
 
 Vector3 Renderer::ConvertScreenToWorldCoords(const Camera3D& camera, const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::One;
     const auto screenCoords4 = Vector4(ndc.x, -ndc.y, 1.0f, 1.0f);
     const auto& sToW = camera.GetInverseViewProjectionMatrix();
@@ -4893,40 +5917,67 @@ Vector3 Renderer::ConvertScreenToWorldCoords(const Camera3D& camera, const Vecto
 }
 
 Vector2 Renderer::ConvertScreenToWorldCoords(const Camera2D& camera, const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Vector2{ConvertScreenToWorldCoords(Camera3D{camera}, mouseCoords)};
 }
 
 Vector3 Renderer::ConvertScreenToNdcCoords(const Camera3D& /*camera*/, const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto ndc = 2.0f * mouseCoords / Vector2(GetOutput()->GetDimensions()) - Vector2::One;
     const auto ndc3 = Vector3(ndc.x, -ndc.y, 1.0f);
     return ndc3;
 }
 
 Vector2 Renderer::ConvertScreenToNdcCoords(const Camera2D& camera, const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return Vector2{ConvertScreenToNdcCoords(Camera3D{camera}, mouseCoords)};
 }
 
 Vector3 Renderer::ConvertScreenToNdcCoords(const Vector2& mouseCoords) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ConvertScreenToNdcCoords(m_camera, mouseCoords);
 }
 
 void Renderer::SetConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->SetConstantBuffer(index, buffer);
 }
 
 void Renderer::SetComputeConstantBuffer(unsigned int index, ConstantBuffer* buffer) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->SetComputeConstantBuffer(index, buffer);
 }
 
 void Renderer::SetStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->SetStructuredBuffer(index, buffer);
 }
 
 void Renderer::SetComputeStructuredBuffer(unsigned int index, StructuredBuffer* buffer) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->SetComputeStructuredBuffer(index, buffer);
 }
 
 void Renderer::DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Rgba& color /*= Rgba::WHite*/, std::size_t resolution /*= 64*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector2 prevPointOnCurve = p0;
 
     std::vector<Vector3> verts;
@@ -4953,6 +6004,9 @@ void Renderer::DrawBezier(const Vector2& p0, const Vector2& p1, const Vector2& p
 }
 
 void Renderer::DrawCube(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::ONE * 0.5f*/, const Rgba& color /*= Rgba::White*/) {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto left = Vector3{-halfExtents.x, 0.0f, 0.0f};
     const auto right = Vector3{halfExtents.x, 0.0f, 0.0f};
     const auto up = Vector3{0.0f, halfExtents.y, 0.0f};
@@ -4991,6 +6045,9 @@ void Renderer::DrawCube(const Vector3& position /*= Vector3::ZERO*/, const Vecto
 }
 
 void Renderer::DrawQuad(const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::XY_AXIS * 0.5f*/, const Rgba& color /*= Rgba::WHITE*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/, const Vector3& normalFront /*= Vector3::Z_AXIS*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector3 right = MathUtils::CrossProduct(worldUp, normalFront).GetNormalize();
     Vector3 up = MathUtils::CrossProduct(normalFront, right).GetNormalize();
     Vector3 left = -right;
@@ -5014,6 +6071,9 @@ void Renderer::DrawQuad(const Vector3& position /*= Vector3::ZERO*/, const Vecto
 }
 
 void Renderer::DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vector3& position /*= Vector3::ZERO*/, const Vector3& halfExtents /*= Vector3::XY_AXIS * 0.5f*/, const Vector4& texCoords /*= Vector4::ZW_AXIS*/, const Vector3& normalFront /*= Vector3::Z_AXIS*/, const Vector3& worldUp /*= Vector3::Y_AXIS*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector3 right = MathUtils::CrossProduct(worldUp, normalFront).GetNormalize();
     Vector3 up = MathUtils::CrossProduct(normalFront, right).GetNormalize();
     Vector3 left = -right;
@@ -5037,6 +6097,9 @@ void Renderer::DrawQuad(const Rgba& frontColor, const Rgba& backColor, const Vec
 }
 
 void Renderer::ClearRenderTargets(const RenderTargetType& rtt) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ID3D11DepthStencilView* dsv = m_current_depthstencil ? m_current_depthstencil->GetDepthStencilView() : nullptr;
     ID3D11RenderTargetView* rtv = m_current_target ? m_current_target->GetRenderTargetView() : nullptr;
     switch(rtt) {
@@ -5060,10 +6123,16 @@ void Renderer::ClearRenderTargets(const RenderTargetType& rtt) noexcept {
 }
 
 void Renderer::SetRenderTarget(FrameBuffer& frameBuffer) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     frameBuffer.Bind();
 }
 
 void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* depthstencil_target /*= nullptr*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(color_target != nullptr) {
         m_current_target = color_target;
     } else {
@@ -5081,14 +6150,23 @@ void Renderer::SetRenderTarget(Texture* color_target /*= nullptr*/, Texture* dep
 }
 
 void Renderer::SetRenderTargetsToBackBuffer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetRenderTarget();
 }
 
 ViewportDesc Renderer::GetCurrentViewport() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return GetViewport(std::size_t{0u});
 }
 
 float Renderer::GetCurrentViewportAspectRatio() const {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto desc = GetCurrentViewport();
     const auto width = desc.width;
     const auto height = desc.height;
@@ -5096,12 +6174,18 @@ float Renderer::GetCurrentViewportAspectRatio() const {
 }
 
 [[nodiscard]] unsigned int Renderer::GetViewportCount() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     unsigned int viewportsCount = 1u;
     m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, nullptr);
     return viewportsCount;
 }
 
 ViewportDesc Renderer::GetViewport(std::size_t index) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto viewportsCount = GetViewportCount();
     std::vector<D3D11_VIEWPORT> viewports(viewportsCount, D3D11_VIEWPORT{});
     m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
@@ -5113,6 +6197,9 @@ ViewportDesc Renderer::GetViewport(std::size_t index) const noexcept {
 }
 
 std::vector<ViewportDesc> Renderer::GetAllViewports() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto viewportsCount = GetViewportCount();
     std::vector<D3D11_VIEWPORT> viewports(viewportsCount, D3D11_VIEWPORT{});
     m_rhi_context->GetDxContext()->RSGetViewports(&viewportsCount, viewports.data());
@@ -5132,6 +6219,9 @@ std::vector<ViewportDesc> Renderer::GetAllViewports() const noexcept {
 }
 
 void Renderer::SetViewport(const ViewportDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewport(desc.x,
                 desc.y,
                 desc.width,
@@ -5139,6 +6229,9 @@ void Renderer::SetViewport(const ViewportDesc& desc) noexcept {
 }
 
 void Renderer::SetViewport(float x, float y, float width, float height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_VIEWPORT viewport;
     memset(&viewport, 0, sizeof(viewport));
 
@@ -5153,18 +6246,30 @@ void Renderer::SetViewport(float x, float y, float width, float height) noexcept
 }
 
 void Renderer::SetViewport(const AABB2& viewport) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewport(viewport.mins.x, viewport.mins.y, viewport.maxs.x - viewport.mins.x, viewport.maxs.y - viewport.mins.y);
 }
 
 void Renderer::SetViewportAndScissor(float x, float y, float width, float height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetScissorAndViewport(x, y, width, height);
 }
 
 void Renderer::SetViewportAndScissor(const AABB2& viewport_and_scissor) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewportAndScissor(viewport_and_scissor.mins.x, viewport_and_scissor.mins.y, viewport_and_scissor.maxs.x - viewport_and_scissor.mins.x, viewport_and_scissor.maxs.y - viewport_and_scissor.mins.y);
 }
 
 void Renderer::SetViewports(const std::vector<AABB3>& viewports) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::vector<D3D11_VIEWPORT> dxViewports{};
     dxViewports.resize(viewports.size());
 
@@ -5180,6 +6285,9 @@ void Renderer::SetViewports(const std::vector<AABB3>& viewports) noexcept {
 }
 
 void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, unsigned int height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_RECT scissor{};
     scissor.left = x;
     scissor.right = x + width;
@@ -5189,10 +6297,16 @@ void Renderer::SetScissor(unsigned int x, unsigned int y, unsigned int width, un
 }
 
 void Renderer::SetScissor(const AABB2& scissor) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetScissor(static_cast<unsigned int>(std::floor(scissor.mins.x)), static_cast<unsigned int>(std::floor(scissor.mins.y)), static_cast<unsigned int>(std::floor(scissor.maxs.x - scissor.mins.x)), static_cast<unsigned int>(std::floor(scissor.maxs.y - scissor.mins.y)));
 }
 
 void Renderer::SetScissorAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 1.0f*/, float h /*= 1.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto window_dimensions = GetOutput()->GetDimensions();
     auto window_width = window_dimensions.x;
     auto window_height = window_dimensions.y;
@@ -5207,19 +6321,31 @@ void Renderer::SetScissorAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float
 }
 
 void Renderer::SetScissorAndViewport(float x, float y, float width, float height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewport(x, y, width, height);
     SetScissor(static_cast<unsigned int>(std::floor(x)), static_cast<unsigned int>(std::floor(y)), static_cast<unsigned int>(std::floor(width)), static_cast<unsigned int>(std::floor(height)));
 }
 
 void Renderer::SetScissorAndViewport(const AABB2& scissor_and_viewport) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetScissorAndViewport(scissor_and_viewport.mins.x, scissor_and_viewport.mins.y, scissor_and_viewport.maxs.x - scissor_and_viewport.mins.x, scissor_and_viewport.maxs.y - scissor_and_viewport.mins.y);
 }
 
 void Renderer::SetScissorAndViewportAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 1.0f*/, float h /*= 1.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewportAndScissorAsPercent(x, y, w, h);
 }
 
 void Renderer::SetScissors(const std::vector<AABB2>& scissors) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::vector<D3D11_RECT> dxScissors{};
     dxScissors.resize(scissors.size());
 
@@ -5233,6 +6359,9 @@ void Renderer::SetScissors(const std::vector<AABB2>& scissors) noexcept {
 }
 
 void Renderer::SetViewportAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 1.0f*/, float h /*= 1.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto window_dimensions = GetOutput()->GetDimensions();
     auto window_width = window_dimensions.x;
     auto window_height = window_dimensions.y;
@@ -5247,11 +6376,17 @@ void Renderer::SetViewportAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, floa
 }
 
 void Renderer::SetViewportAndScissorAsPercent(float x /*= 0.0f*/, float y /*= 0.0f*/, float w /*= 1.0f*/, float h /*= 1.0f*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     SetViewportAsPercent(x, y, w, h);
     SetScissorAsPercent(x, y, w, h);
 }
 
 void Renderer::EnableScissorTest() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> state{};
     auto* dc = GetDeviceContext();
     auto* dx_dc = dc->GetDxContext();
@@ -5270,6 +6405,9 @@ void Renderer::EnableScissorTest() {
 }
 
 void Renderer::DisableScissorTest() {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> state{};
     auto* dc = GetDeviceContext();
     auto* dx_dc = dc->GetDxContext();
@@ -5286,26 +6424,44 @@ void Renderer::DisableScissorTest() {
 }
 
 void Renderer::ClearColor(const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->ClearColorTarget(m_current_target, color);
 }
 
 void Renderer::ClearTargetColor(Texture* target, const Rgba& color) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->ClearColorTarget(target, color);
 }
 
 void Renderer::ClearDepthStencilBuffer() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->ClearDepthStencilTarget(m_current_depthstencil);
 }
 
 void Renderer::ClearTargetDepthStencilBuffer(Texture* target, bool depth /*= true*/, bool stencil /*= true*/, float depthValue /*= 1.0f*/, unsigned char stencilValue /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_context->ClearDepthStencilTarget(target, depth, stencil, depthValue, stencilValue);
 }
 
 void Renderer::Present() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_rhi_output->Present(m_vsync);
 }
 
 Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, const IntVector3& dimensions) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     FS::path p(filepath);
     p = FS::canonical(p);
@@ -5319,6 +6475,9 @@ Texture* Renderer::CreateOrGetTexture(const std::filesystem::path& filepath, con
 }
 
 void Renderer::RegisterTexturesFromFolder(std::filesystem::path folderpath, bool recursive /*= false*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(folderpath)) {
         DebuggerPrintf(std::format("Attempting to Register Textures from unknown path: {}\n", FS::absolute(folderpath)));
@@ -5336,6 +6495,9 @@ void Renderer::RegisterTexturesFromFolder(std::filesystem::path folderpath, bool
 }
 
 bool Renderer::RegisterTexture(const std::filesystem::path& filepath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Texture* tex = CreateTexture(filepath, IntVector3::XY_Axis);
     if(tex) {
         return true;
@@ -5348,6 +6510,9 @@ Texture* Renderer::CreateTexture(std::filesystem::path filepath,
                                  const BufferUsage& bufferUsage /*= BufferUsage::Static*/,
                                  const BufferBindUsage& bindUsage /*= BufferBindUsage::Shader_Resource*/,
                                  const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(dimensions.y == 0 && dimensions.z == 0) {
         return Create1DTexture(filepath, bufferUsage, bindUsage, imageFormat);
     } else if(dimensions.z == 0) {
@@ -5358,11 +6523,17 @@ Texture* Renderer::CreateTexture(std::filesystem::path filepath,
 }
 
 void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_current_target = texture;
     m_rhi_context->SetTexture(registerIndex, m_current_target);
 }
 
 std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_resource{};
 
     D3D11_TEXTURE2D_DESC descDepth{};
@@ -5385,6 +6556,9 @@ std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice& owner, co
 }
 
 std::unique_ptr<Texture> Renderer::CreateRenderableDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ID3D11Texture2D* dx_resource = nullptr;
 
     D3D11_TEXTURE2D_DESC descDepth{};
@@ -5408,6 +6582,9 @@ std::unique_ptr<Texture> Renderer::CreateRenderableDepthStencil(const RHIDevice&
 }
 
 void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(depthstencil == m_current_depthstencil_state) {
         return;
     }
@@ -5416,6 +6593,9 @@ void Renderer::SetDepthStencilState(DepthStencilState* depthstencil) noexcept {
 }
 
 DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto found_iter = std::find_if(std::cbegin(m_depthstencils), std::cend(m_depthstencils), [&name](const auto& ds) { return ds.first == name; });
     if(found_iter == m_depthstencils.end()) {
         return nullptr;
@@ -5424,14 +6604,23 @@ DepthStencilState* Renderer::GetDepthStencilState(const std::string& name) noexc
 }
 
 void Renderer::CreateAndRegisterDepthStencilStateFromDepthStencilDescription(const std::string& name, const DepthStencilDesc& desc) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     RegisterDepthStencilState(name, std::make_unique<DepthStencilState>(m_rhi_device.get(), desc));
 }
 
 void Renderer::EnableDepth(bool isDepthEnabled) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     isDepthEnabled ? EnableDepth() : DisableDepth();
 }
 
 void Renderer::EnableDepth() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -5446,6 +6635,9 @@ void Renderer::EnableDepth() noexcept {
 }
 
 void Renderer::DisableDepth() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -5460,10 +6652,16 @@ void Renderer::DisableDepth() noexcept {
 }
 
 void Renderer::EnableDepthWrite(bool isDepthWriteEnabled) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     isDepthWriteEnabled ? EnableDepthWrite() : DisableDepthWrite();
 }
 
 void Renderer::EnableDepthWrite() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -5477,6 +6675,9 @@ void Renderer::EnableDepthWrite() noexcept {
 }
 
 void Renderer::DisableDepthWrite() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* dx = GetDeviceContext();
     auto* dx_dc = dx->GetDxContext();
     unsigned int stencil_value = 0;
@@ -5490,6 +6691,9 @@ void Renderer::DisableDepthWrite() noexcept {
 }
 
 void Renderer::SetWireframeRaster(CullMode cullmode /* = CullMode::Back */) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(cullmode) {
     case CullMode::None:
         SetRasterState(GetRasterState("__wireframenc"));
@@ -5506,6 +6710,9 @@ void Renderer::SetWireframeRaster(CullMode cullmode /* = CullMode::Back */) noex
 }
 
 void Renderer::SetSolidRaster(CullMode cullmode /* = CullMode::Back */) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(cullmode) {
     case CullMode::None:
         SetRasterState(GetRasterState("__solidnc"));
@@ -5522,6 +6729,9 @@ void Renderer::SetSolidRaster(CullMode cullmode /* = CullMode::Back */) noexcept
 }
 
 Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         return GetTexture("__invalid");
@@ -5578,6 +6788,9 @@ Texture* Renderer::Create1DTexture(std::filesystem::path filepath, const BufferU
 }
 
 std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE1D_DESC tex_desc{};
     tex_desc.Width = width;
     tex_desc.MipLevels = 1;
@@ -5619,6 +6832,9 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const unsigned char
 }
 
 std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE1D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -5662,6 +6878,9 @@ std::unique_ptr<Texture> Renderer::Create1DTextureFromMemory(const std::vector<R
 }
 
 Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         return GetTexture("__invalid");
@@ -5735,6 +6954,9 @@ Texture* Renderer::Create2DTexture(std::filesystem::path filepath, const BufferU
 }
 
 std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE2D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -5781,6 +7003,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const unsigned char
 }
 
 std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, std::size_t elementSize, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE2D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -5826,6 +7051,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const void* data, s
 }
 
 std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE2D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -5872,6 +7100,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureFromMemory(const std::vector<R
 }
 
 std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE2D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -5924,6 +7155,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromMemory(const unsigned
 }
 
 std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::filesystem::path folderpath) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 
     const auto files = FileUtils::GetAllPathsInFolders(folderpath, Image::GetSupportedExtensionsList());
     if(files.empty()) {
@@ -6007,6 +7241,9 @@ std::unique_ptr<Texture> Renderer::Create2DTextureArrayFromFolder(const std::fil
 }
 
 Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVector3& dimensions, const BufferUsage& bufferUsage, const BufferBindUsage& bindUsage, const ImageFormat& imageFormat) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     namespace FS = std::filesystem;
     if(!FS::exists(filepath)) {
         return GetTexture("__invalid");
@@ -6068,6 +7305,9 @@ Texture* Renderer::Create3DTexture(std::filesystem::path filepath, const IntVect
 }
 
 std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char* data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE3D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -6112,6 +7352,9 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const unsigned char
 }
 
 std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<Rgba>& data, unsigned int width /*= 1*/, unsigned int height /*= 1*/, unsigned int depth /*= 1*/, const BufferUsage& bufferUsage /*= BufferUsage::STATIC*/, const BufferBindUsage& bindUsage /*= BufferBindUsage::SHADER_RESOURCE*/, const ImageFormat& imageFormat /*= ImageFormat::R8G8B8A8_UNORM*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     D3D11_TEXTURE3D_DESC tex_desc{};
 
     tex_desc.Width = width;
@@ -6158,6 +7401,9 @@ std::unique_ptr<Texture> Renderer::Create3DTextureFromMemory(const std::vector<R
 std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
     GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
     GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(imageFormat) {
     case ImageFormat::Ayuv: break;
     case ImageFormat::Y410: break;
@@ -6186,6 +7432,9 @@ std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]]
 std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const std::vector<Rgba>& data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
     GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
     GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(imageFormat) {
     case ImageFormat::Ayuv: break;
     case ImageFormat::Y410: break;
@@ -6214,6 +7463,9 @@ std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]]
 std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]] const void* data, [[maybe_unused]] std::size_t elementSize, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) const noexcept {
     GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
     GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(imageFormat) {
     case ImageFormat::Ayuv: break;
     case ImageFormat::Y410: break;
@@ -6242,6 +7494,9 @@ std::unique_ptr<Texture> Renderer::CreateVideoTextureFromMemory([[maybe_unused]]
 std::unique_ptr<Texture> Renderer::CreateVideoTextureArrayFromMemory([[maybe_unused]] const unsigned char* data, [[maybe_unused]] unsigned int width /* = 1*/, [[maybe_unused]] unsigned int height /* = 1*/, [[maybe_unused]] unsigned int depth /* = 1*/, [[maybe_unused]] const BufferUsage& bufferUsage /* = BufferUsage::Static*/, [[maybe_unused]] const BufferBindUsage& bindUsage /* = BufferBindUsage::Shader_Resource*/, [[maybe_unused]] const ImageFormat& imageFormat /*= ImageFormat::Ayuv*/, [[maybe_unused]] const ImageFormat& viewFormat /*= ImageFormat::R8G8B8A8_UNorm*/) noexcept {
     GUARANTEE_OR_DIE(ValidateImageFormatForVideo(imageFormat), "Image format is not supported for video.");
     GUARANTEE_OR_DIE(ValidateViewFormatForVideo(imageFormat, viewFormat, bindUsage), "View format is not supported for selected image format.");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     switch(imageFormat) {
     case ImageFormat::Ayuv: break;
     case ImageFormat::Y410: break;

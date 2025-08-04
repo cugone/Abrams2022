@@ -466,21 +466,21 @@ template<typename T>
     while(result < minValue) {
         result += range;
     }
-    while(maxValue < result) {
+    while(result > maxValue) {
         result -= range;
     }
     return result;
 }
 
-[[nodiscard]] constexpr auto CalcShortestPeriodicDistance(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
-    const auto a = Wrap(rhs - lhs, minValue, maxValue);
-    const auto b = Wrap(lhs - rhs, minValue, maxValue);
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistance(const auto& startValue, const auto& endValue, const auto& minValue = 0.0f, const auto& maxValue = 360.0f) {
+    const auto a = Wrap(endValue - startValue, minValue, maxValue);
+    const auto b = Wrap(startValue - endValue, minValue, maxValue);
     return (std::min)(a, b);
 }
 
-[[nodiscard]] constexpr auto CalcShortestPeriodicDistanceSigned(const auto& lhs, const auto& rhs, const auto& minValue, const auto& maxValue) {
-    const auto a = Wrap(rhs - lhs, minValue, maxValue);
-    const auto b = Wrap(lhs - rhs, minValue, maxValue);
+[[nodiscard]] constexpr auto CalcShortestPeriodicDistanceSigned(const auto& startValue, const auto& endValue, const auto& minValue = 0.0f, const auto& maxValue = 360.0f) {
+    const auto a = Wrap(endValue - startValue, minValue, maxValue);
+    const auto b = Wrap(startValue - endValue, minValue, maxValue);
     if(b > a) {
         return a;
     } else {

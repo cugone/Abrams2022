@@ -85,13 +85,13 @@ public:
     ~KerningFont() = default;
 
     [[nodiscard]] static float CalculateTextWidth(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
-    [[nodiscard]] static float CalculateTextHeight(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
+    [[nodiscard]] static float CalculateTextHeight(const KerningFont& font, float scale = 1.0f) noexcept;
 
     [[nodiscard]] static Vector2 CalculateTextDimensions(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
     [[nodiscard]] static AABB2 CalculateTextArea(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
 
     [[nodiscard]] float CalculateTextWidth(const std::string& text, float scale = 1.0f) const noexcept;
-    [[nodiscard]] float CalculateTextHeight(const std::string& text, float scale = 1.0f) const noexcept;
+    [[nodiscard]] float CalculateTextHeight(float scale = 1.0f) const noexcept;
 
     [[nodiscard]] Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) const noexcept;
     [[nodiscard]] AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) const noexcept;
@@ -116,9 +116,6 @@ public:
 
 protected:
 private:
-    [[nodiscard]] static float CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
-    [[nodiscard]] float CalculateLongestMultiline(const std::string& text, float scale = 1.0f) const noexcept;
-
     [[nodiscard]] bool LoadFromText(std::vector<unsigned char>& buffer) noexcept;
     [[nodiscard]] bool LoadFromXml(std::vector<unsigned char>& buffer) noexcept;
     [[nodiscard]] bool LoadFromBinary(std::vector<unsigned char>& buffer) noexcept;

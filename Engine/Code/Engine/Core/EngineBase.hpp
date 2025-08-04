@@ -12,6 +12,11 @@
 #include "Engine/Services/ServiceLocator.hpp"
 #include "Engine/Services/IAppService.hpp"
 
+
+#ifdef PROFILE_BUILD
+    #include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <concepts>
 #include <string>
 #include <type_traits>
@@ -32,12 +37,18 @@ private:
 template<GameType T>
 /*static*/
 const bool Engine<T>::Available() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return m_initCalled && !m_shutdownCalled;
 }
 
 template<GameType T>
 /*static*/
 void Engine<T>::Initialize(const std::string& title) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(!m_initCalled) {
         m_shutdownCalled = false;
         m_initCalled = true;
@@ -52,6 +63,10 @@ template<GameType T>
 void Engine<T>::Run() noexcept {
     GUARANTEE_OR_DIE(!m_shutdownCalled, "Engine::Shutdown called before Run!");
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Run");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     auto* app = ServiceLocator::get<IAppService>();
     while(!app->IsQuitting()) {
         app->RunFrame();
@@ -62,6 +77,10 @@ template<GameType T>
 /*static*/
 void Engine<T>::Shutdown() noexcept {
     GUARANTEE_OR_DIE(m_initCalled, "Engine::Initialize not called before Shutdown");
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(!m_shutdownCalled) {
         m_shutdownCalled = true;
         m_initCalled = false;

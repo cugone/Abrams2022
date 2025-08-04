@@ -13,10 +13,6 @@
 #include <sstream>
 
 float KerningFont::CalculateTextWidth(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
-    if(text.find('\n') != std::string::npos) {
-        return CalculateLongestMultiline(font, text, scale);
-    }
-
     auto cursor_x = 0.0f;
 
     for(auto char_iter = text.begin(); char_iter != text.end(); /* DO NOTHING */) {
@@ -41,16 +37,16 @@ float KerningFont::CalculateTextWidth(const std::string& text, float scale /*= 1
     return CalculateTextWidth(*this, text, scale);
 }
 
-float KerningFont::CalculateTextHeight(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
-    return (1.0f + static_cast<float>(std::count(text.begin(), text.end(), '\n'))) * font.GetLineHeight() * scale;
+float KerningFont::CalculateTextHeight(const KerningFont& font, float scale /*= 1.0f*/) noexcept {
+    return font.GetLineHeight() * scale;
 }
 
-float KerningFont::CalculateTextHeight(const std::string& text, float scale /*= 1.0f*/) const noexcept {
-    return CalculateTextHeight(*this, text, scale);
+float KerningFont::CalculateTextHeight(float scale /*= 1.0f*/) const noexcept {
+    return CalculateTextHeight(*this, scale);
 }
 
 Vector2 KerningFont::CalculateTextDimensions(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
-    return Vector2{CalculateTextWidth(font, text, scale), CalculateTextHeight(font, text, scale)};
+    return Vector2{CalculateTextWidth(font, text, scale), CalculateTextHeight(font, scale)};
 }
 
 Vector2 KerningFont::CalculateTextDimensions(const std::string& text, float scale /*= 1.0f*/) const noexcept {
@@ -175,17 +171,6 @@ int KerningFont::GetKerningValue(int first, int second) const noexcept {
     } else {
         return 0;
     }
-}
-
-float KerningFont::CalculateLongestMultiline(const KerningFont& font, const std::string& text, float scale /*= 1.0f*/) noexcept {
-    const auto lines = StringUtils::Split(text, '\n', false);
-    const auto max_iter = std::max_element(std::begin(lines), std::end(lines), [](const std::string& a, const std::string& b) { return a.size() < b.size(); });
-    const auto length = CalculateTextWidth(font, *max_iter, scale);
-    return length;
-}
-
-float KerningFont::CalculateLongestMultiline(const std::string& text, float scale /*= 1.0f*/) const noexcept {
-    return CalculateLongestMultiline(*this, text, scale);
 }
 
 bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) noexcept {

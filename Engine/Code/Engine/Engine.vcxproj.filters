@@ -131,6 +131,21 @@
     <Filter Include="Thirdparty\clay">
       <UniqueIdentifier>{35110bb2-c07c-4cb6-9014-f03efffeed61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Thirdparty\Tracy">
+      <UniqueIdentifier>{6bac5d2a-472d-4183-971c-900f1592aa7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Tracy\client">
+      <UniqueIdentifier>{62c1e832-4295-4b6a-b57c-e2a46d29b9d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Tracy\common">
+      <UniqueIdentifier>{0b72fdf2-f424-4b04-874a-9ae4edc8d1fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Tracy\tracy">
+      <UniqueIdentifier>{dffbd592-48c9-4a99-8657-1dc31fd950c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Tracy\libbacktrace">
+      <UniqueIdentifier>{516014aa-3251-4a1c-a522-416ef82ea996}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -651,6 +666,9 @@
     </ClCompile>
     <ClCompile Include="UI\ClayUI.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\Tracy\TracyClient.cpp">
+      <Filter>Thirdparty\Tracy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1682,6 +1700,9 @@
     </ClInclude>
     <ClInclude Include="UI\ClayUI.hpp">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\Tracy\tracy\Tracy.hpp">
+      <Filter>Thirdparty\Tracy\tracy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

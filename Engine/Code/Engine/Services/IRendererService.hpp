@@ -252,7 +252,8 @@ public:
     virtual void DispatchComputeJob(const ComputeJob& job) noexcept = 0;
 
     [[nodiscard]] virtual KerningFont* GetFont(const std::string& nameOrFile) noexcept = 0;
-
+    [[nodiscard]] virtual KerningFont* GetFontById(uint16_t index) noexcept = 0;
+    [[nodiscard]] virtual std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept = 0;
     virtual void RegisterFont(std::unique_ptr<KerningFont> font) noexcept = 0;
     [[nodiscard]] virtual bool RegisterFont(std::filesystem::path filepath) noexcept = 0;
     virtual void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept = 0;
@@ -317,7 +318,10 @@ public:
     virtual void DrawAABB2(const AABB2& bounds, const Rgba& edgeColor, const Rgba& fillColor, const Vector4& edgeHalfExtents) noexcept = 0;
     virtual void DrawAABB2(const Rgba& edgeColor, const Rgba& fillColor) noexcept = 0;
     virtual void DrawRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept = 0;
-    virtual void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius = 10.0f) noexcept = 0;
+    virtual void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float radius) noexcept = 0;
+    virtual void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) noexcept = 0;
+    virtual void DrawFilledRoundedRectangle2D(const AABB2& bounds, const Rgba& color, const Vector4& cornerRadii = Vector4(10.0f, 10.0f, 10.0f, 10.0f)) noexcept = 0;
+    virtual void DrawFilledSquircle2D(const AABB2& bounds, const Rgba& color, float exponent = 10.0f) noexcept = 0;
     virtual void DrawOBB2(float orientationDegrees, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha) noexcept = 0;
     virtual void DrawOBB2(const OBB2& obb, const Rgba& edgeColor, const Rgba& fillColor = Rgba::NoAlpha, const Vector2& edgeHalfExtents = Vector2::Zero) noexcept = 0;
     virtual void DrawPolygon2D(float centerX, float centerY, float radius, std::size_t numSides = 3, const Rgba& color = Rgba::White) noexcept = 0;
@@ -565,7 +569,8 @@ public:
     void DispatchComputeJob([[maybe_unused]] const ComputeJob& job) noexcept override {}
 
     [[nodiscard]] KerningFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
-
+    [[nodiscard]] KerningFont* GetFontById([[maybe_unused]] uint16_t index) noexcept override { return nullptr; };
+    [[nodiscard]] std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept override { return 0; }
     void RegisterFont([[maybe_unused]] std::unique_ptr<KerningFont> font) noexcept override {}
     [[nodiscard]] bool RegisterFont([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterFontsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
@@ -628,8 +633,11 @@ public:
     void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}
     void DrawAABB2([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor, [[maybe_unused]] const Vector4& edgeHalfExtents) noexcept override {}
     void DrawAABB2([[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor) noexcept override {}
-    void DrawRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]]float radius) noexcept override {};
-    void DrawFilledRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] float radius) noexcept override {};
+    void DrawRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]]float radius) noexcept override {}
+    void DrawFilledRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] float radius) noexcept override {}
+    void DrawFilledRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] float topLeftRadiusf, [[maybe_unused]] float topRightRadius, [[maybe_unused]] float bottomLeftRadius, [[maybe_unused]] float bottomRightRadius) noexcept override {}
+    void DrawFilledRoundedRectangle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] const Vector4& cornerRadii = Vector4(10.0f, 10.0f, 10.0f, 10.0f)) noexcept override {}
+    void DrawFilledSquircle2D([[maybe_unused]] const AABB2& bounds, [[maybe_unused]] const Rgba& color, [[maybe_unused]] float exponent = 10.0f) noexcept override {};
     void DrawOBB2([[maybe_unused]] float orientationDegrees, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha) noexcept override {}
     void DrawOBB2([[maybe_unused]] const OBB2& obb, [[maybe_unused]] const Rgba& edgeColor, [[maybe_unused]] const Rgba& fillColor = Rgba::NoAlpha, [[maybe_unused]] const Vector2& edgeHalfExtents = Vector2::Zero) noexcept override {}
     void DrawPolygon2D([[maybe_unused]] float centerX, [[maybe_unused]] float centerY, [[maybe_unused]] float radius, [[maybe_unused]] std::size_t numSides = 3, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
