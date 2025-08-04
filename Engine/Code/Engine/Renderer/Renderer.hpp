@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/BuildConfig.hpp"
 #include "Engine/Core/Config.hpp"
 #include "Engine/Core/DataUtils.hpp"
 #include "Engine/Core/EngineSubsystem.hpp"
@@ -30,6 +31,10 @@
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 
 #include "Engine/Services/IRendererService.hpp"
+
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
 
 #include <filesystem>
 #include <map>
@@ -435,6 +440,9 @@ private:
     template<typename ArrayBufferType>
     void Draw(const PrimitiveType& topology, ArrayBufferType* vbo, std::size_t vertex_count) noexcept {
         GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
+        #ifdef PROFILE_BUILD
+        ZoneScopedC(0xFF0000);
+        #endif
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
         m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);
@@ -450,6 +458,9 @@ private:
     template<typename ArrayBufferType>
     void DrawIndexed(const PrimitiveType& topology, ArrayBufferType* vbo, IndexBuffer* ibo, std::size_t index_count, std::size_t startVertex = 0, std::size_t baseVertexLocation = 0) noexcept {
         GUARANTEE_OR_DIE(m_current_material, "Attempting to call Draw function without a material set!\n");
+#ifdef PROFILE_BUILD
+        ZoneScopedC(0xFF0000);
+#endif
         D3D11_PRIMITIVE_TOPOLOGY d3d_prim = PrimitiveTypeToD3dTopology(topology);
         m_rhi_context->GetDxContext()->IASetPrimitiveTopology(d3d_prim);
         unsigned int stride = sizeof(typename ArrayBufferType::arraybuffer_t);

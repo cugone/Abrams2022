@@ -8,6 +8,10 @@
 #include "Engine/Services/IAppService.hpp"
 #include "Engine/Services/IRendererService.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <Thirdparty/Imgui/imgui_internal.h>
 
 #ifndef UI_DEBUG
@@ -23,12 +27,18 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARA
 DearImgui::DearImgui() noexcept
 : m_imguiContext(ImGui::CreateContext())
 {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #ifdef UI_DEBUG
     IMGUI_CHECKVERSION();
 #endif
 }
 
 DearImgui::~DearImgui() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
@@ -37,7 +47,9 @@ DearImgui::~DearImgui() noexcept {
 }
 
 void DearImgui::Initialize() noexcept {
-
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto* renderer = ServiceLocator::get<IRendererService>();
     const auto dims = Vector2{renderer->GetOutput()->GetDimensions()};
     auto& io = ImGui::GetIO();
@@ -71,6 +83,9 @@ void DearImgui::Initialize() noexcept {
 }
 
 void DearImgui::BeginFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -80,6 +95,9 @@ void DearImgui::BeginFrame() noexcept {
 }
 
 void DearImgui::Update() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto* const app = ServiceLocator::get<IAppService>();
     auto& io = ImGui::GetIO();
     io.AddFocusEvent(app->HasFocus());
@@ -95,32 +113,53 @@ void DearImgui::Update() noexcept {
 }
 
 void DearImgui::Render() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void DearImgui::EndFrame() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     ImGui::EndFrame();
     ImGui::UpdatePlatformWindows();
 }
 
 bool DearImgui::HasFocus() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return WantsInputCapture();
 }
 
 bool DearImgui::WantsInputCapture() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return WantsInputKeyboardCapture() || WantsInputMouseCapture();
 }
 
 bool DearImgui::WantsInputKeyboardCapture() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ImGui::GetIO().WantCaptureKeyboard;
 }
 
 bool DearImgui::WantsInputMouseCapture() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ImGui::GetIO().WantCaptureMouse;
 }
 
 bool DearImgui::IsImguiDemoWindowVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     return m_show_imgui_demo_window;
 #else
@@ -129,6 +168,9 @@ bool DearImgui::IsImguiDemoWindowVisible() const noexcept {
 }
 
 void DearImgui::ToggleImguiDemoWindow() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     m_show_imgui_demo_window = !m_show_imgui_demo_window;
     auto* input = ServiceLocator::get<IInputService>();
@@ -139,6 +181,9 @@ void DearImgui::ToggleImguiDemoWindow() noexcept {
 }
 
 bool DearImgui::IsImguiMetricsWindowVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
     return m_show_imgui_metrics_window;
 #else
@@ -147,6 +192,9 @@ bool DearImgui::IsImguiMetricsWindowVisible() const noexcept {
 }
 
 void DearImgui::ToggleImguiMetricsWindow() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #if !defined(IMGUI_DISABLE_METRICS_WINDOW)
     m_show_imgui_metrics_window = !m_show_imgui_metrics_window;
     auto* input = ServiceLocator::get<IInputService>();
@@ -157,6 +205,9 @@ void DearImgui::ToggleImguiMetricsWindow() noexcept {
 }
 
 bool DearImgui::IsAnyImguiDebugWindowVisible() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
 #ifdef UI_DEBUG
     return IsImguiDemoWindowVisible() || IsImguiMetricsWindowVisible();
 #else
@@ -165,11 +216,17 @@ bool DearImgui::IsAnyImguiDebugWindowVisible() const noexcept {
 }
 
 bool DearImgui::ProcessSystemMessage(const EngineMessage& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     return ImGui_ImplWin32_WndProcHandler(static_cast<HWND>(msg.hWnd), msg.nativeMessage, msg.wparam, msg.lparam);
 }
 
 namespace ImGui {
 void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(texture) {
         const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
         const auto&& [br, bg, bb, ba] = border_col.GetAsFloats();
@@ -177,6 +234,9 @@ void Image(const Texture* texture, const Vector2& size, const Vector2& uv0, cons
     }
 }
 void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Rgba& tint_col, const Rgba& border_col) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(texture) {
         const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
         const auto&& [br, bg, bb, ba] = border_col.GetAsFloats();
@@ -185,6 +245,9 @@ void Image(Texture* texture, const Vector2& size, const Vector2& uv0, const Vect
 }
 
 bool ImageButton(const Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(texture) {
         const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
         const auto&& [br, bg, bb, ba] = bg_col.GetAsFloats();
@@ -193,6 +256,9 @@ bool ImageButton(const Texture* texture, const Vector2& size, const Vector2& uv0
     return false;
 }
 bool ImageButton(Texture* texture, const Vector2& size, const Vector2& uv0, const Vector2& uv1, int frame_padding, const Rgba& bg_col, const Rgba& tint_col) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     if(texture) {
         const auto&& [tr, tg, tb, ta] = tint_col.GetAsFloats();
         const auto&& [br, bg, bb, ba] = bg_col.GetAsFloats();
@@ -202,6 +268,9 @@ bool ImageButton(Texture* texture, const Vector2& size, const Vector2& uv0, cons
 }
 
 bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, _] = color.GetAsFloats();
     Vector4 colorAsFloats{r, g, b, 1.0f};
     if(ImGui::ColorEdit3(label, colorAsFloats.GetAsFloatArray(), flags)) {
@@ -211,6 +280,9 @@ bool ColorEdit3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*
     return false;
 }
 bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, a] = color.GetAsFloats();
     Vector4 colorAsFloats{r, g, b, a};
     if(ImGui::ColorEdit4(label, colorAsFloats.GetAsFloatArray(), flags)) {
@@ -220,6 +292,9 @@ bool ColorEdit4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*
     return false;
 }
 bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, _] = color.GetAsFloats();
     Vector4 colorAsFloats{r, g, b, 1.0f};
     if(ImGui::ColorPicker3(label, colorAsFloats.GetAsFloatArray(), flags)) {
@@ -229,6 +304,9 @@ bool ColorPicker3(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 
     return false;
 }
 bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Rgba* refColor /*= nullptr*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     Vector4 refColorAsFloats{};
     if(refColor) {
         const auto&& [rr, rg, rb, ra] = refColor->GetAsFloats();
@@ -246,11 +324,17 @@ bool ColorPicker4(const char* label, Rgba& color, ImGuiColorEditFlags flags /*= 
     return false;
 }
 bool ColorButton(const char* desc_id, const Rgba& color, ImGuiColorEditFlags flags /*= 0*/, Vector2 size /*= Vector2::ZERO*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     const auto&& [r, g, b, a] = color.GetAsFloats();
     return ImGui::ColorButton(desc_id, Vector4{r, g, b, a}, flags, size);
 }
 
 void TextColored(const Rgba& color, const char* fmt, ...) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     auto&& [r, g, b, a] = color.GetAsFloats();
     va_list args;
     va_start(args, fmt);

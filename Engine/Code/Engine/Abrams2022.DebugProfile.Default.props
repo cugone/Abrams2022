@@ -11,6 +11,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PreprocessorDefinitions>TRACY_ENABLE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

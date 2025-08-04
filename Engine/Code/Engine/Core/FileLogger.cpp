@@ -14,6 +14,10 @@
 #include "Engine/Services/IJobSystemService.hpp"
 #include "Engine/Services/ServiceLocator.hpp"
 
+#ifdef PROFILE_BUILD
+#include <Thirdparty/Tracy/tracy/Tracy.hpp>
+#endif
+
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
@@ -25,14 +29,25 @@ namespace FS = std::filesystem;
 FileLogger::FileLogger(const std::string& logName) noexcept
 : IFileLoggerService()
 {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     Initialize(logName);
 }
 
 FileLogger::~FileLogger() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     Shutdown();
 }
 
 void FileLogger::Log_worker() noexcept {
+#ifdef PROFILE_BUILD
+    FrameMarkStart("FileLogger worker");
+#endif
     JobConsumer jc;
     jc.AddCategory(JobType::Logging);
     auto* js = ServiceLocator::get<IJobSystemService>();
@@ -50,9 +65,16 @@ void FileLogger::Log_worker() noexcept {
             jc.ConsumeAll();
         }
     }
+#ifdef PROFILE_BUILD
+    FrameMarkEnd("FileLogger worker");
+#endif
 }
 
 void FileLogger::RequestFlush() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(m_requesting_flush) {
         m_stream.flush();
         m_requesting_flush = false;
@@ -60,6 +82,10 @@ void FileLogger::RequestFlush() noexcept {
 }
 
 bool FileLogger::IsRunning() const noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     bool running = false;
     {
         std::scoped_lock<std::mutex> lock(m_cs);
@@ -74,6 +100,10 @@ struct copy_log_job_t {
 };
 
 void FileLogger::DoCopyLog() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(IsRunning()) {
         auto* job_data = new copy_log_job_t;
         std::filesystem::path from_p = m_current_log_path;
@@ -91,6 +121,10 @@ void FileLogger::DoCopyLog() noexcept {
 }
 
 void FileLogger::CopyLog(void* user_data) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(IsRunning()) {
         auto* job_data = static_cast<copy_log_job_t*>(user_data);
         std::filesystem::path from = job_data->from;
@@ -106,6 +140,10 @@ void FileLogger::CopyLog(void* user_data) noexcept {
 }
 
 void FileLogger::FinalizeLog() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     std::filesystem::path from_p = m_current_log_path;
     from_p = FS::canonical(from_p);
     from_p.make_preferred();
@@ -128,6 +166,10 @@ void FileLogger::FinalizeLog() noexcept {
 }
 
 void FileLogger::Initialize(const std::string& log_name) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(IsRunning()) {
         LogLine("FileLogger already running.");
         return;
@@ -167,6 +209,10 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
 }
 
 void FileLogger::Shutdown() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     if(IsRunning()) {
         {
             auto ss = std::ostringstream{};
@@ -187,6 +233,10 @@ void FileLogger::Shutdown() noexcept {
 }
 
 void FileLogger::Log(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     {
         std::scoped_lock<std::mutex> lock(m_cs);
         m_queue.push(msg);
@@ -195,32 +245,60 @@ void FileLogger::Log(const std::string& msg) noexcept {
 }
 
 void FileLogger::LogLine(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     Log(msg + '\n');
 }
 
 void FileLogger::LogAndFlush(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     Log(msg);
     Flush();
 }
 
 void FileLogger::LogLineAndFlush(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogLine(msg);
     Flush();
 }
 
 void FileLogger::LogPrint(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogTag("log", msg);
 }
 
 void FileLogger::LogWarn(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogTag("warning", msg);
 }
 
 void FileLogger::LogError(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogTag("error", msg);
 }
 
 void FileLogger::LogTag(const std::string& tag, const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     TimeUtils::DateTimeStampOptions opts;
     opts.use_separator = true;
     const auto str = std::format("[{}][{}] {}", TimeUtils::GetDateTimeStampFromNow(opts), tag, msg);
@@ -228,22 +306,39 @@ void FileLogger::LogTag(const std::string& tag, const std::string& msg) noexcept
 }
 
 void FileLogger::LogPrintLine(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogTagLine("log", msg);
 }
 
 void FileLogger::LogWarnLine(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+
     LogTagLine("warning", msg);
 }
 
 void FileLogger::LogErrorLine(const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     LogTagLine("error", msg);
 }
 
 void FileLogger::LogTagLine(const std::string& tag, const std::string& msg) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     LogTag(tag, msg + '\n');
 }
 
 void FileLogger::Flush() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     m_requesting_flush = true;
     while(m_requesting_flush) {
         std::this_thread::yield();
@@ -251,10 +346,16 @@ void FileLogger::Flush() noexcept {
 }
 
 void FileLogger::SetIsRunning(bool value /*= true*/) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     std::scoped_lock<std::mutex> lock(m_cs);
     m_is_running = value;
 }
 
 void FileLogger::SaveLog() noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
     DoCopyLog();
 }
