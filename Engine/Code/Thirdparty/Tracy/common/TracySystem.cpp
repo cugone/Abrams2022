@@ -134,7 +134,7 @@ TRACY_API void SetThreadName( const char* name )
     SetThreadNameWithHint( name, 0 );
 }
 
-TRACY_API void SetThreadNameWithHint( const char* name, int32_t groupHint )
+TRACY_API void SetThreadNameWithHint( const char* name, [[maybe_unused]] int32_t groupHint )
 {
 #if defined _WIN32
 #  ifdef TRACY_UWP
