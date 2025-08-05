@@ -14,7 +14,7 @@
         #define RENDER_DEBUG
         #define PHYSICS_DEBUG
         #define UI_DEBUG
-        #define PROFILE_BUILD
+        #undef PROFILE_BUILD
         #undef DISABLE_ASSERTS
     #elif defined(FINAL_BUILD)
         #ifndef DISABLE_ASSERTS
