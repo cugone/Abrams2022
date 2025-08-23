@@ -83,7 +83,7 @@ std::string FileDialogs::SaveFile(const char* filter = "All Files (*.*)\0*.*\0\0
         const auto err = ::GetLastError();
         return StringUtils::FormatWindowsMessage(err);
     };
-    GUARANTEE_OR_DIE(!::GetClientRect(desktop, &desktop_rect), error_msg().c_str());
+    GUARANTEE_OR_DIE(!!::GetClientRect(desktop, &desktop_rect), error_msg().c_str());
     return IntVector2{desktop_rect.right - desktop_rect.left, desktop_rect.bottom - desktop_rect.top};
 }
 
