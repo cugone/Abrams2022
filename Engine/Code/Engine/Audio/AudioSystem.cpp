@@ -561,6 +561,8 @@ void AudioSystem::Channel::Play(Sound& snd) noexcept {
             m_buffer.LoopBegin = m_desc.loop_beginSamples;
             m_buffer.LoopLength = m_desc.loop_endSamples - m_desc.loop_beginSamples;
         }
+        m_voice->Stop();
+        m_voice->FlushSourceBuffers();
         m_voice->SubmitSourceBuffer(&m_buffer, nullptr);
         m_voice->SetVolume(m_desc.volume);
         m_voice->SetFrequencyRatio(m_desc.frequency);
@@ -581,6 +583,8 @@ void AudioSystem::Channel::Play(Sound& snd, uint32_t operationSetId) noexcept {
             m_buffer.LoopBegin = m_desc.loop_beginSamples;
             m_buffer.LoopLength = m_desc.loop_endSamples - m_desc.loop_beginSamples;
         }
+        m_voice->Stop();
+        m_voice->FlushSourceBuffers();
         m_voice->SubmitSourceBuffer(&m_buffer, nullptr);
         m_voice->SetVolume(m_desc.volume, operationSetId);
         m_voice->SetFrequencyRatio(m_desc.frequency, operationSetId);
