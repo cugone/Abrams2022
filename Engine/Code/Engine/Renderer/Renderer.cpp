@@ -284,6 +284,9 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         return false;
     }
     case WindowsSystemMessage::Window_Size: {
+        if(m_enteredSizeMove && !m_doneSizeMove) {
+            return false;
+        }
         LPARAM lp = msg.lparam;
         m_is_minimized = false;
         const auto resize_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
@@ -299,8 +302,11 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                     const auto h = HIWORD(lp);
                     const auto new_size = IntVector2{w, h};
                     const auto new_position = IntVector2{GetScreenCenter()} - new_size / 2;
+                    window->SetDimensionsAndPosition(new_position, new_size);
                     window->SetDisplayMode(RHIOutputMode::Windowed);
-                } else {
+                    ResizeBuffers();
+                    return true;
+                } else if(prev_displaymode == RHIOutputMode::Windowed) {
                     if(m_enteredSizeMove && m_doneSizeMove) {
                         m_enteredSizeMove = false;
                         m_doneSizeMove = false;
@@ -308,6 +314,14 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                         const auto h = HIWORD(lp);
                         const auto new_size = IntVector2{w, h};
                         window->SetDimensions(new_size);
+                        ResizeBuffers();
+                        return false;
+                    } else {
+                        const auto desktop_resolution = window->GetDesktopResolution();
+                        window->SetDimensions(desktop_resolution);
+                        window->SetDisplayMode(RHIOutputMode::Borderless_Fullscreen);
+                        ResizeBuffers();
+                        return true;
                     }
                 }
                 break;
@@ -317,7 +331,6 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
                 return false; //App must be able to respond.
             }
             }
-            ResizeBuffers();
         }
         return false; //App must be able to respond.
     }
@@ -2471,6 +2484,7 @@ void Renderer::ResizeBuffers() noexcept {
 #ifdef PROFILE_BUILD
     ZoneScopedC(0xFF0000);
 #endif
+    ClearState();
     GetOutput()->ResetBackbuffer();
 }
 
