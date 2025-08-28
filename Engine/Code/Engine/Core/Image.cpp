@@ -19,6 +19,9 @@
 #include <Thirdparty/stb/stb_image_write.h>
 #include <Thirdparty/webp/decode.h>
 #include <Thirdparty/webp/demux.h>
+#include <Thirdparty/webp/encode.h>
+#include <Thirdparty/webp/mux.h>
+#include <Thirdparty/webp/mux_types.h>
 
 #include <algorithm>
 #include <format>
@@ -294,7 +297,17 @@ bool Image::Export(std::filesystem::path filepath, int bytes_per_pixel /*= 4*/, 
         const auto error_msg = std::format("Attempting to export {} to an unsupported type: {}\nHigh Dynamic Range output is not supported.", filepath, extension);
         ERROR_RECOVERABLE(error_msg.c_str());
     } else if(extension == ".webp") {
-        //TODO: Write Muxer for .webp
+        std::scoped_lock<std::mutex> lock(m_cs);
+        uint8_t* output = nullptr;
+        if(const auto output_size = WebPEncodeRGBA(m_texelBytes.data(), w, h, stride, static_cast<float>(quality), &output); output_size == 0u || output == nullptr) {
+            DebuggerPrintf(std::format("Export to {} filetype from file {} failed.", filepath, extension));
+        } else {
+            if(!FileUtils::WriteBufferToFile(output, output_size, filepath)) {
+                const auto error_msg = std::format("Attempting to export {} failed.", filepath);
+                ERROR_RECOVERABLE(error_msg.c_str());
+            }
+            WebPFree(output);
+        }
     }
     return 0 != result;
 }
