@@ -1035,6 +1035,23 @@ AABB2 ScaleToFit(const AABB2& a, const AABB2& b) noexcept {
     return AABB2{Vector2::Zero, scaled_dims};
 }
 
+AABB2 StretchToFit(const AABB2& a, const AABB2& b) noexcept {
+    const auto [aw, ah] = a.CalcDimensions();
+    const auto [bw, bh] = b.CalcDimensions();
+    auto stretched_dims = Vector2{aw, ah};
+    if(bw > aw || bh > ah) {
+        if(bw > aw) {
+            stretched_dims.x = bw;
+            stretched_dims.y = (stretched_dims.x * ah) / aw;
+        }
+        if(stretched_dims.y > bh) {
+            stretched_dims.y = bh;
+            stretched_dims.x = (stretched_dims.y * aw) / ah;
+        }
+    }
+    return AABB2{Vector2::Zero, stretched_dims};
+}
+
 bool DoDiscsOverlap(const Disc2& a, const Disc2& b) noexcept {
     return DoDiscsOverlap(a.center, a.radius, b.center, b.radius);
 }

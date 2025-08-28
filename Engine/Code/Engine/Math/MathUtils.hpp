@@ -369,6 +369,7 @@ requires(N <= 20 && K <= 20 && (K <= N) && (N - K) <= 20)
 [[nodiscard]] Vector2 CalcNormalizedHalfExtentsFromPoint(const Vector2& pos, const AABB2& bounds) noexcept;
 [[nodiscard]] Vector2 CalcPointFromNormalizedHalfExtents(const Vector2& uv, const AABB2& bounds) noexcept;
 [[nodiscard]] AABB2 ScaleToFit(const AABB2& a, const AABB2& b) noexcept;
+[[nodiscard]] AABB2 StretchToFit(const AABB2& a, const AABB2& b) noexcept;
 
 [[nodiscard]] bool DoDiscsOverlap(const Disc2& a, const Disc2& b) noexcept;
 [[nodiscard]] bool DoDiscsOverlap(const Vector2& centerA, float radiusA, const Vector2& centerB, float radiusB) noexcept;
