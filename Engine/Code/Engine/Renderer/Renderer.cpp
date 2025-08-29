@@ -207,7 +207,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
 #endif
     switch(msg.wmMessageCode) {
     case WindowsSystemMessage::Menu_SysCommand: {
-        WPARAM wp = msg.wparam;
+        WPARAM wp = 0xFFF0 & msg.wparam; //API-Required bit-mask. See https://learn.microsoft.com/en-us/windows/win32/menurc/wm-syscommand#remarks
         switch(wp) {
         case SC_CLOSE: {
             return false; //App needs to respond
