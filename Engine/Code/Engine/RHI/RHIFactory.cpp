@@ -23,7 +23,7 @@ void RHIFactory::RestrictAltEnterToggle(const RHIDevice& device) noexcept {
     MWRL::ComPtr<IDXGIFactory6> factory{};
     auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
     GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory for restricting Alt+Enter usage.");
-    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
     GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
 }
 
