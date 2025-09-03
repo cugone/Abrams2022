@@ -27,6 +27,18 @@ void RHIFactory::RestrictAltEnterToggle(const RHIDevice& device) noexcept {
     GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
 }
 
+void RHIFactory::RestrictPrintScreen(const RHIDevice& device) noexcept {
+    namespace MWRL = Microsoft::WRL;
+    HWND hwnd{};
+    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
+    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting Print-Screen usage.");
+    MWRL::ComPtr<IDXGIFactory6> factory{};
+    auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
+    GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory for restricting Print-Screen usage.");
+    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_PRINT_SCREEN);
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Print-Screen usage.");
+}
+
 Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIFactory::CreateSwapChainForHwnd(const RHIDevice& device, const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept {
     namespace MWRL = Microsoft::WRL;
     MWRL::ComPtr<IDXGISwapChain1> swap_chain1{};

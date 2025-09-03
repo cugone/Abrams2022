@@ -13,6 +13,8 @@ public:
     ~RHIFactory() = default;
 
     void RestrictAltEnterToggle(const RHIDevice& device) noexcept;
+    void RestrictPrintScreen(const RHIDevice& device) noexcept;
+
     [[nodiscard]] Microsoft::WRL::ComPtr<IDXGISwapChain4> CreateSwapChainForHwnd(const RHIDevice& device, const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept;
 
     [[nodiscard]] bool QueryForAllowTearingSupport(const RHIDevice& device) const noexcept;
