@@ -17,6 +17,23 @@ template<typename Clock = std::chrono::steady_clock>
     return Clock::now();
 }
 
+//See https://www.youtube.com/watch?v=HTiNq95S3TM&t=1h15m36s
+class ProgramClock {
+public:
+    using innerClock = typename std::chrono::steady_clock;
+
+    using duration = std::chrono::nanoseconds;
+    using rep = duration::rep;
+    using period = duration::period;
+    using time_point = std::chrono::time_point<ProgramClock>;
+    static inline const bool is_steady = innerClock::is_steady;
+
+    static innerClock::time_point programStart;
+    static time_point now() noexcept {
+        return time_point(std::chrono::duration_cast<duration>(innerClock::now() - programStart));
+    }
+};
+
 [[nodiscard]] std::chrono::nanoseconds GetCurrentTimeElapsed() noexcept;
 
 struct DateTimeStampOptions {
