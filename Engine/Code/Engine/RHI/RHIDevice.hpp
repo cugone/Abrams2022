@@ -13,10 +13,16 @@
 #include "Engine/Renderer/VertexBuffer.hpp"
 #include "Engine/Renderer/VertexBufferInstanced.hpp"
 
+#include <atomic>
+#include <condition_variable>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 #include <set>
+#include <thread>
 #include <vector>
+
+
 
 class RHIDeviceContext;
 class RHIFactory;
@@ -94,6 +100,8 @@ public:
     void RestrictAllWindowModeChanges(const RHIDevice& device) noexcept;
 
 private:
+    void DeviceRemoved_worker(std::stop_token stop_token = std::stop_token{}) noexcept;
+
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(std::unique_ptr<Window> window) noexcept;
 
     [[nodiscard]] DeviceInfo CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo>& adapters) noexcept;
@@ -111,6 +119,11 @@ private:
     RHIFactory m_rhi_factory{};
     Microsoft::WRL::ComPtr<ID3D11Device5> m_dx_device{};
     Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgi_swapchain{};
+    mutable std::mutex m_cs{};
+    std::jthread m_worker{};
+    mutable std::condition_variable m_signal{};
+    unsigned long m_deviceRemovedCookie{};
+    mutable bool m_deviceremoved{false};
     bool m_allow_tearing_supported = false;
 
     void SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityOrLower = true) noexcept;
