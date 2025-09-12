@@ -31,10 +31,15 @@
 #include <sstream>
 #include <numeric>
 
+RHIDevice::~RHIDevice() noexcept {
+    m_dxgi_swapchain->SetFullscreenState(false, nullptr);
+}
+
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition /*= IntVector2::ZERO*/) noexcept {
     WindowDesc desc{};
     desc.dimensions = clientSize;
     desc.position = clientPosition;
+    desc.mode = RHIOutputMode::Windowed;
     return CreateOutputAndContext(desc);
 }
 
@@ -120,6 +125,7 @@ void RHIDevice::CreateComputeShader(ShaderProgramDesc& desc) const noexcept {
 }
 
 std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevice::CreateOutputAndContextFromWindow(std::unique_ptr<Window> window) noexcept {
+    namespace MWRL = Microsoft::WRL;
     window->Open();
 
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> context{};
@@ -138,11 +144,8 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
         m_dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
         context = device_info.dx_context;
     }
-    
     m_dxgi_swapchain = CreateSwapChain(*window);
-    m_allow_tearing_supported = m_rhi_factory.QueryForAllowTearingSupport(*this);
-    //TODO(casey): Allow Alt+Enter until resizing is stable
-    //_rhi_factory.RestrictAltEnterToggle(*this);
+    m_allow_tearing_supported = m_rhi_factory.QueryForAllowTearingSupport();
 
     SetupDebuggingInfo();
 
@@ -152,6 +155,8 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
 }
 
 DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo>& adapters) noexcept {
+    namespace MWRL = Microsoft::WRL;
+
     GUARANTEE_OR_DIE(!adapters.empty(), "CreateDeviceFromFirstAdapter: adapters argument is empty.");
     DeviceInfo info{};
 
@@ -178,17 +183,19 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
 
     const auto& first_adapter = first_adapter_info->adapter;
     const auto has_adapter = first_adapter != nullptr;
-    Microsoft::WRL::ComPtr<ID3D11Device> temp_device{};
-    const auto hr_device = ::D3D11CreateDevice(has_adapter ? first_adapter.Get() : nullptr, has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr, device_flags, feature_levels.data(), static_cast<unsigned int>(feature_levels.size()), D3D11_SDK_VERSION, temp_device.GetAddressOf(), &info.highest_supported_feature_level, info.dx_context.GetAddressOf());
+
+    {
+        Microsoft::WRL::ComPtr<ID3D11Device> temp_device{};
+        const auto hr_device = ::D3D11CreateDevice(has_adapter ? first_adapter.Get() : nullptr, has_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr, device_flags, feature_levels.data(), static_cast<unsigned int>(feature_levels.size()), D3D11_SDK_VERSION, temp_device.ReleaseAndGetAddressOf(), &info.highest_supported_feature_level, info.dx_context.GetAddressOf());
+        const auto hr_fail_str = StringUtils::FormatWindowsMessage(hr_device);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_device), hr_fail_str.c_str());
+
+        const auto hr_dxdevice5i = temp_device.As(&info.dx_device);
+        const auto hrdx5i_fail_str = StringUtils::FormatWindowsMessage(hr_dxdevice5i);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_dxdevice5i), hrdx5i_fail_str.c_str());
+    }
 
     GUARANTEE_OR_DIE(info.highest_supported_feature_level >= D3D_FEATURE_LEVEL_11_0, "Your graphics card does not support at least DirectX 11.0. Please update your drivers or hardware.");
-
-    const auto hr_fail_str = StringUtils::FormatWindowsMessage(hr_device);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_device), hr_fail_str.c_str());
-
-    const auto hr_dxdevice5i = temp_device.As(&info.dx_device);
-    const auto hrdx5i_fail_str = StringUtils::FormatWindowsMessage(hr_dxdevice5i);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_dxdevice5i), hrdx5i_fail_str.c_str());
 
     return info;
 }
@@ -235,7 +242,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::CreateSwapChain(const Window&
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    return m_rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
+    return CreateSwapChainForHwnd(window, swap_chain_desc);
 }
 
 Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::RecreateSwapChain(const Window& window) noexcept {
@@ -256,7 +263,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::RecreateSwapChain(const Windo
     swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    return m_rhi_factory.CreateSwapChainForHwnd(*this, window, swap_chain_desc);
+    return CreateSwapChainForHwnd(window, swap_chain_desc);
 }
 
 std::vector<OutputInfo> RHIDevice::GetOutputsFromAdapter(const AdapterInfo& a) const noexcept {
@@ -319,6 +326,48 @@ DisplayDesc RHIDevice::GetDisplayModeMatchingDimensions(const std::vector<Displa
         }
     }
     return {};
+}
+
+Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIDevice::CreateSwapChainForHwnd(const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept {
+    namespace MWRL = Microsoft::WRL;
+    MWRL::ComPtr<IDXGISwapChain1> swap_chain1{};
+    MWRL::ComPtr<IDXGISwapChain4> swap_chain4{};
+    {
+        auto hr_createsc4hwnd = m_rhi_factory.GetDxFactory()->CreateSwapChainForHwnd(GetDxDevice(), static_cast<HWND>(window.GetWindowHandle()), &swapchain_desc, nullptr, nullptr, &swap_chain1);
+        const auto hr_create = StringUtils::FormatWindowsMessage(hr_createsc4hwnd);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), hr_create.c_str());
+    }
+    auto hr_dxgisc4 = swap_chain1.As(&swap_chain4);
+    const auto hr_error = StringUtils::FormatWindowsMessage(hr_dxgisc4);
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_dxgisc4), hr_error.c_str());
+    return swap_chain4;
+}
+
+void RHIDevice::RestrictAltEnterToggle() noexcept {
+    namespace MWRL = Microsoft::WRL;
+    HWND hwnd{};
+    auto got_hwnd = GetDxSwapChain()->GetHwnd(&hwnd);
+    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting Alt+Enter usage.");
+    auto hr_mwa = m_rhi_factory.GetDxFactory()->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
+}
+
+void RHIDevice::RestrictPrintScreen(const RHIDevice& device) noexcept {
+    namespace MWRL = Microsoft::WRL;
+    HWND hwnd{};
+    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
+    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting Print-Screen usage.");
+    auto hr_mwa = m_rhi_factory.GetDxFactory()->MakeWindowAssociation(hwnd, DXGI_MWA_NO_PRINT_SCREEN);
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Print-Screen usage.");
+}
+
+void RHIDevice::RestrictAllWindowModeChanges(const RHIDevice& device) noexcept {
+    namespace MWRL = Microsoft::WRL;
+    HWND hwnd{};
+    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
+    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting window mode changes.");
+    auto hr_mwa = m_rhi_factory.GetDxFactory()->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict window mode changes.");
 }
 
 void RHIDevice::SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityOrLower /*= true*/) noexcept {
@@ -398,7 +447,7 @@ std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersFro
 }
 
 void RHIDevice::ResetSwapChainForHWnd() const noexcept {
-    const auto hr = m_dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, m_rhi_factory.QueryForAllowTearingSupport(*this) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
+    const auto hr = m_dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, m_rhi_factory.QueryForAllowTearingSupport() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
     GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr).c_str());
 }
 
