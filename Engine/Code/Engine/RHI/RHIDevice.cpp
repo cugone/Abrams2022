@@ -5,8 +5,9 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/FileUtils.hpp"
-#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/ThreadUtils.hpp"
 
 #include "Engine/Platform/Windows/WindowsWindow.hpp"
 
@@ -31,7 +32,29 @@
 #include <sstream>
 #include <numeric>
 
+void RHIDevice::DeviceRemoved_worker(std::stop_token stop_token /*= {}*/) noexcept {
+    HRESULT reason{};
+    while(!stop_token.stop_requested()) {
+        std::unique_lock<std::mutex> lock(m_cs);
+        m_signal.wait(lock, [&]() -> bool { return stop_token.stop_requested() || m_deviceremoved; });
+        reason = m_dx_device->GetDeviceRemovedReason();
+        if(m_deviceremoved || FAILED(reason)) {
+            break;
+        }
+    }
+    m_dx_device->UnregisterDeviceRemoved(m_deviceRemovedCookie);
+    const auto err_str = std::format("Your GPU device has been lost. Please restart the application. The returned error message follows:\n{}", StringUtils::FormatWindowsMessage(reason));
+    auto* logger = ServiceLocator::get<IFileLoggerService>();
+    logger->LogErrorLine(err_str);
+}
+
 RHIDevice::~RHIDevice() noexcept {
+    m_worker.request_stop();
+    m_signal.notify_all();
+    if(m_worker.joinable()) {
+        m_worker.request_stop();
+        m_worker.join();
+    }
     m_dxgi_swapchain->SetFullscreenState(false, nullptr);
 }
 
@@ -144,6 +167,15 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
         m_dx_highestSupportedFeatureLevel = device_info.highest_supported_feature_level;
         context = device_info.dx_context;
     }
+
+    m_worker = std::jthread(&RHIDevice::DeviceRemoved_worker, this, m_worker.get_stop_token());
+    ThreadUtils::SetThreadDescription(m_worker, L"RegisterDeviceRemoved Worker");
+    if(const auto hr = m_dx_device->RegisterDeviceRemovedEvent(m_worker.native_handle(), &m_deviceRemovedCookie); FAILED(hr)) {
+        m_worker.request_stop();
+        m_deviceremoved = false;
+        m_signal.notify_all();
+    }
+
     m_dxgi_swapchain = CreateSwapChain(*window);
     m_allow_tearing_supported = m_rhi_factory.QueryForAllowTearingSupport();
 
@@ -193,6 +225,7 @@ DeviceInfo RHIDevice::CreateDeviceFromFirstAdapter(const std::vector<AdapterInfo
         const auto hr_dxdevice5i = temp_device.As(&info.dx_device);
         const auto hrdx5i_fail_str = StringUtils::FormatWindowsMessage(hr_dxdevice5i);
         GUARANTEE_OR_DIE(SUCCEEDED(hr_dxdevice5i), hrdx5i_fail_str.c_str());
+
     }
 
     GUARANTEE_OR_DIE(info.highest_supported_feature_level >= D3D_FEATURE_LEVEL_11_0, "Your graphics card does not support at least DirectX 11.0. Please update your drivers or hardware.");
@@ -395,7 +428,8 @@ void RHIDevice::SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityO
 }
 
 void RHIDevice::HandleDeviceLost() const noexcept {
-    /* DO NOTHING */
+    m_deviceremoved = true;
+    m_signal.notify_all();
 }
 
 std::vector<std::unique_ptr<ConstantBuffer>> RHIDevice::CreateConstantBuffersFromShaderProgram(RHIDevice& device, const ShaderProgram* shaderProgram) noexcept {
