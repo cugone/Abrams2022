@@ -14,8 +14,9 @@ public:
     [[nodiscard]] virtual bool GainedFocus() const = 0;
 
     virtual void Minimize() const = 0;
-    virtual void Restore() const = 0;
+    virtual void Restore(int x, int y) const = 0;
     virtual void Maximize() const = 0;
+    virtual void HandleResize() = 0;
 
 protected:
 private:
@@ -34,8 +35,9 @@ public:
     [[nodiscard]] virtual bool LostFocus() const override { return false; };
     [[nodiscard]] virtual bool GainedFocus() const   override { return false; };
     virtual void Minimize() const override {};
-    virtual void Restore() const override {};
+    virtual void Restore([[maybe_unused]] int x, [[maybe_unused]] int y) const override {};
     virtual void Maximize() const override {};
+    virtual void HandleResize() override {};
 
 protected:
 private:

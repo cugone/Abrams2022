@@ -51,6 +51,7 @@
 #include "Engine/Renderer/Window.hpp"
 
 #include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IAppService.hpp"
 #include "Engine/Services/IConfigService.hpp"
 #include "Engine/Services/IFileLoggerService.hpp"
 #include "Engine/Services/IJobSystemService.hpp"
@@ -219,6 +220,7 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case SCF_ISSECURE: break;
         case SC_KEYMENU: break;
         case SC_MAXIMIZE: {
+            m_is_maximized = true;
             return false; //App needs to respond
         }
         case SC_MINIMIZE: {
@@ -233,6 +235,9 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
         case SC_RESTORE: {
             if(m_is_minimized) {
                 m_is_minimized = false;
+            }
+            if(m_is_maximized) {
+                m_is_maximized = false;
             }
             return false; //UI needs to respond
         }
@@ -288,51 +293,90 @@ bool Renderer::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             return false;
         }
         LPARAM lp = msg.lparam;
-        m_is_minimized = false;
+
+        const auto w = LOWORD(lp);
+        const auto h = HIWORD(lp);
+
+        const auto old_dims = GetOutput()->GetDimensions();
         const auto resize_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
+        const auto is_same_resize_type = [&]() {
+            const auto cur_display_mode = GetOutput()->GetWindow()->GetDisplayMode();
+            if(resize_type == WindowResizeType::Maximized && cur_display_mode == RHIOutputMode::Borderless_Fullscreen) {
+                return true;
+            }
+            if(resize_type == WindowResizeType::Restored && cur_display_mode == RHIOutputMode::Windowed) {
+                return true;
+            }
+            return false;
+        }();
+
+        if(is_same_resize_type && old_dims == IntVector2(w, h)) {
+            return true;
+        }
+
+        if(m_is_minimized) {
+            return true;
+        }
+
+        DXGI_MODE_DESC newParams{};
+        newParams.Width = w;
+        newParams.Height = h;
+        newParams.RefreshRate.Numerator = 0;
+        newParams.RefreshRate.Denominator = 0;
+        newParams.Format = DXGI_FORMAT_UNKNOWN;
+        Microsoft::WRL::ComPtr<IDXGIOutput> output{nullptr};
         if(auto* window = GetOutput()->GetWindow(); window != nullptr) {
             switch(resize_type) {
             case WindowResizeType::Maximized: {
-                window->SetDisplayMode(RHIOutputMode::Borderless_Fullscreen);
+                if(const auto hr_resize = GetDevice()->GetDxSwapChain()->ResizeTarget(&newParams); FAILED(hr_resize)) {
+                    DebuggerPrintf("ResizeTarget failed.");
+                    return false;
+                }
+                if(const auto hr_gco = GetDevice()->GetDxSwapChain()->GetContainingOutput(output.GetAddressOf()); FAILED(hr_gco)) {
+                    output = nullptr;
+                    DebuggerPrintf("GetContiningOutput failed.");
+                    return false;
+                }
+                if(const auto hr_sfs = GetDevice()->GetDxSwapChain()->SetFullscreenState(true, output.Get()); FAILED(hr_sfs)) {
+                    output = nullptr;
+                    DebuggerPrintf("SetFullscreenState failed.");
+                    return false;
+                } else {
+                    m_is_maximized = msg.wparam == SIZE_MAXIMIZED;
+                    output = nullptr;
+                    window->SetDimensions(IntVector2{w, h});
+                    window->SetDisplayMode(RHIOutputMode::Borderless_Fullscreen);
+                    ResizeBuffers();
+                    SetScissorAndViewportAsPercent();
+                    return true;
+                }
                 break;
             }
             case WindowResizeType::Restored: {
-                if(const auto prev_displaymode = window->GetDisplayMode(); prev_displaymode == RHIOutputMode::Borderless_Fullscreen) {
-                    const auto w = LOWORD(lp);
-                    const auto h = HIWORD(lp);
-                    const auto new_size = IntVector2{w, h};
-                    const auto new_position = IntVector2{GetScreenCenter()} - new_size / 2;
-                    window->SetDimensionsAndPosition(new_position, new_size);
+                if(const auto hr_resize = GetDevice()->GetDxSwapChain()->ResizeTarget(&newParams); FAILED(hr_resize)) {
+                    DebuggerPrintf("ResizeTarget failed.");
+                    return false;
+                }
+                output = nullptr;
+                if(const auto hr_sfs = GetDevice()->GetDxSwapChain()->SetFullscreenState(false, nullptr); FAILED(hr_sfs)) {
+                    DebuggerPrintf("SetFullscreenState failed.");
+                    return false;
+                } else {
+                    window->SetDimensions(IntVector2{w, h});
                     window->SetDisplayMode(RHIOutputMode::Windowed);
                     ResizeBuffers();
+                    SetScissorAndViewportAsPercent();
                     return true;
-                } else if(prev_displaymode == RHIOutputMode::Windowed) {
-                    if(m_enteredSizeMove && m_doneSizeMove) {
-                        m_enteredSizeMove = false;
-                        m_doneSizeMove = false;
-                        const auto w = LOWORD(lp);
-                        const auto h = HIWORD(lp);
-                        const auto new_size = IntVector2{w, h};
-                        window->SetDimensions(new_size);
-                        ResizeBuffers();
-                        return false;
-                    } else {
-                        const auto desktop_resolution = window->GetDesktopResolution();
-                        window->SetDimensions(desktop_resolution);
-                        window->SetDisplayMode(RHIOutputMode::Borderless_Fullscreen);
-                        ResizeBuffers();
-                        return true;
-                    }
                 }
                 break;
             }
             case WindowResizeType::Minimized: {
-                m_is_minimized = true;
-                return false; //App must be able to respond.
+                m_is_minimized = msg.wparam == SIZE_MINIMIZED;
+                break;
             }
             }
+            return true;
         }
-        return false; //App must be able to respond.
     }
     }
     return false;
@@ -343,7 +387,6 @@ void Renderer::Initialize() noexcept {
     ZoneScopedC(0xFF0000);
 #endif
     m_rhi_instance = std::make_unique<RHIInstance>();
-    m_rhi_device = m_rhi_instance->CreateDevice();
 
     WindowDesc windowDesc{};
     auto* config = ServiceLocator::get<IConfigService>();
@@ -360,6 +403,8 @@ void Renderer::Initialize() noexcept {
         auto& height = windowDesc.dimensions.y;
         config->GetValue("height", height);
     }
+    m_rhi_device = m_rhi_instance->CreateDevice();
+
     std::tie(m_rhi_output, m_rhi_context) = m_rhi_device->CreateOutputAndContext(windowDesc);
 
     GetOutput()->GetWindow()->SetDisplayMode(windowDesc.mode);
@@ -2493,9 +2538,7 @@ void Renderer::ClearState() noexcept {
     ZoneScopedC(0xFF0000);
 #endif
     m_current_material = nullptr;
-    m_rhi_context->GetDxContext()->OMSetRenderTargets(0, nullptr, nullptr);
-    m_rhi_context->ClearState();
-    m_rhi_context->Flush();
+    GetDeviceContext()->ClearState();
 }
 
 void Renderer::RequestScreenShot(std::filesystem::path saveLocation) {

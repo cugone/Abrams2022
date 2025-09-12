@@ -20,6 +20,11 @@ public:
 
     [[nodiscard]] float GetVerticalFov() const noexcept;
 
+    bool IsWindowed() const noexcept;
+    bool IsFullscreen() const noexcept;
+    void SetWindowedMode() noexcept;
+    void SetFullscreenMode() noexcept;
+
     void SetWindowResolution(const IntVector2& newResolution) noexcept;
     void SetWindowWidth(int newWidth) noexcept;
     void SetWindowHeight(int newHeight) noexcept;
@@ -31,6 +36,8 @@ public:
     [[nodiscard]] bool IsMouseInvertedX() const noexcept;
     [[nodiscard]] bool IsMouseInvertedY() const noexcept;
     [[nodiscard]] bool IsVsyncEnabled() const noexcept;
+
+    [[nodiscard]] bool DefaultWindowedMode() const noexcept;
 
     [[nodiscard]] int DefaultWindowWidth() const noexcept;
     [[nodiscard]] int DefaultWindowHeight() const noexcept;
@@ -51,6 +58,8 @@ protected:
     int m_defaultWindowHeight = 900;
     float m_fov = 70.0f;
     float m_defaultFov = 70.0f;
+    bool m_windowed = true;
+    bool m_defaultWindowed = true;
     bool m_invertMouseY = false;
     bool m_defaultInvertMouseY = false;
     bool m_invertMouseX = false;

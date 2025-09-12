@@ -28,6 +28,8 @@ RHIDeviceContext::RHIDeviceContext(const RHIDevice& parentDevice, const Microsof
 
 void RHIDeviceContext::ClearState() noexcept {
     m_dx_context->ClearState();
+    m_dx_context->OMSetRenderTargets(0, nullptr, nullptr);
+    m_dx_context->Flush();
 }
 
 void RHIDeviceContext::Flush() noexcept {

@@ -622,6 +622,7 @@ private:
     bool m_enteredSizeMove = false;
     bool m_doneSizeMove = false;
     bool m_is_minimized = false;
+    bool m_is_maximized = false;
 
     friend class Shader;
     friend class AnimatedSprite;

@@ -9,6 +9,7 @@ class RHIOutput;
 class IntVector2;
 class RHIDevice;
 class Renderer;
+struct WindowDesc;
 
 class RHIInstance {
 public:

@@ -317,45 +317,50 @@ void WindowsWindow::SetDisplayMode(const RHIOutputMode& display_mode) noexcept {
 
     m_currentDisplayMode = display_mode;
     switch(m_currentDisplayMode) {
-    case RHIOutputMode::Windowed: {
-        ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-        ::SetWindowPlacement(m_hWnd, &g_wpPrev);
-        ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
-                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+        case RHIOutputMode::Windowed:
+        {
+            ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+            ::SetWindowPlacement(m_hWnd, &g_wpPrev);
+            ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
+                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+            break;
+        }
+        case RHIOutputMode::Borderless_Fullscreen:
+        {
+        #ifdef IN_EDITOR
+            ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+            ::SetWindowPlacement(m_hWnd, &g_wpPrev);
+            ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
+                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+        #else
+            MONITORINFO mi = {sizeof(mi)};
+            if(::GetWindowPlacement(m_hWnd, &g_wpPrev) && ::GetMonitorInfo(::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+                ::SetWindowLongPtr(m_hWnd, GWL_STYLE,
+                                   (dwStyle & ~WS_OVERLAPPEDWINDOW) | WS_POPUP);
+            #ifdef RENDER_DEBUG
+                ::SetWindowPos(m_hWnd, HWND_TOPMOST,
+                               mi.rcMonitor.left, mi.rcMonitor.top,
+                               mi.rcMonitor.right - mi.rcMonitor.left,
+                               mi.rcMonitor.bottom - mi.rcMonitor.top,
+                               SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+            #else
+                ::SetWindowPos(m_hWnd, HWND_TOPMOST,
+                               mi.rcMonitor.left, mi.rcMonitor.top,
+                               mi.rcMonitor.right - mi.rcMonitor.left,
+                               mi.rcMonitor.bottom - mi.rcMonitor.top,
+                               SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+            #endif
+        #endif
+            }
+            break;
+        }
+    default:
         break;
     }
-    case RHIOutputMode::Borderless_Fullscreen: {
-#ifdef IN_EDITOR
-        ::SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-        ::SetWindowPlacement(m_hWnd, &g_wpPrev);
-        ::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
-                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-#else
-        MONITORINFO mi = {sizeof(mi)};
-        if(::GetWindowPlacement(m_hWnd, &g_wpPrev) && ::GetMonitorInfo(::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-            ::SetWindowLongPtr(m_hWnd, GWL_STYLE,
-                               dwStyle & ~WS_OVERLAPPEDWINDOW);
-    #ifdef RENDER_DEBUG
-            ::SetWindowPos(m_hWnd, HWND_NOTOPMOST,
-                           mi.rcMonitor.left, mi.rcMonitor.top,
-                           mi.rcMonitor.right - mi.rcMonitor.left,
-                           mi.rcMonitor.bottom - mi.rcMonitor.top,
-                           SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-    #else
-            ::SetWindowPos(m_hWnd, HWND_TOP,
-                           mi.rcMonitor.left, mi.rcMonitor.top,
-                           mi.rcMonitor.right - mi.rcMonitor.left,
-                           mi.rcMonitor.bottom - mi.rcMonitor.top,
-                           SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-    #endif
-#endif
-    } break;
+    Show();
+    SetForegroundWindow();
+    SetFocus();
     }
-default:
-    break;
-}
-Show();
-}
 
 void WindowsWindow::SetTitle(const std::string& title) noexcept {
     m_title = title;

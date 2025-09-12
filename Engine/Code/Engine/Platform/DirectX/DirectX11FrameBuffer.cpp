@@ -47,7 +47,10 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
         Microsoft::WRL::ComPtr<ID3D11Texture2D> bb{};
         renderer->GetDevice()->GetDxSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&bb));
         m_Texture = std::make_unique<Texture2D>(*renderer->GetDevice(), bb);
-        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{static_cast<int>(m_Desc.width), static_cast<int>(m_Desc.height)});
+        const auto bb_dims = m_Texture->GetDimensions();
+        m_DepthStencil = renderer->CreateDepthStencil(*renderer->GetDevice(), IntVector2{bb_dims});
+        m_Desc.width = bb_dims.x;
+        m_Desc.height = bb_dims.y;
     } else {
         auto* renderer = ServiceLocator::get<IRendererService>();
         const auto data = std::vector<Rgba>(m_Desc.width * m_Desc.height, Rgba::Periwinkle);
@@ -59,7 +62,7 @@ void DirectX11FrameBuffer::Invalidate() noexcept {
 
 void DirectX11FrameBuffer::Bind() noexcept {
     if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
-        renderer->BeginRender(m_Texture.get(), Rgba::Black, m_DepthStencil.get());
+        renderer->BeginRender(m_Texture.get(), Rgba::Magenta, m_DepthStencil.get());
     }
 }
 

@@ -18,6 +18,23 @@ float GameSettings::GetVerticalFov() const noexcept {
     return m_fov;
 }
 
+bool GameSettings::IsWindowed() const noexcept {
+    return m_windowed;
+}
+
+
+bool GameSettings::IsFullscreen() const noexcept {
+    return !IsWindowed();
+}
+
+void GameSettings::SetWindowedMode() noexcept {
+    m_windowed = true;
+}
+
+void GameSettings::SetFullscreenMode() noexcept {
+    m_windowed = false;
+}
+
 void GameSettings::SetWindowResolution(const IntVector2& newResolution) noexcept {
     SetWindowWidth(newResolution.x);
     SetWindowHeight(newResolution.y);
@@ -51,6 +68,10 @@ bool GameSettings::IsVsyncEnabled() const noexcept {
     return m_vsync;
 }
 
+bool GameSettings::DefaultWindowedMode() const noexcept {
+    return m_defaultWindowed;
+}
+
 int GameSettings::DefaultWindowWidth() const noexcept {
     return m_defaultWindowWidth;
 }
@@ -82,6 +103,7 @@ void GameSettings::SaveToConfig(Config& config) noexcept {
     config.SetValue("invertY", m_invertMouseY);
     config.SetValue("invertY", m_invertMouseX);
     config.SetValue("vsync", m_vsync);
+    config.SetValue("windowed", m_windowed);
 }
 
 void GameSettings::SetToDefault() noexcept {
@@ -91,4 +113,5 @@ void GameSettings::SetToDefault() noexcept {
     m_invertMouseY = m_defaultInvertMouseY;
     m_invertMouseX = m_defaultInvertMouseX;
     m_vsync = m_defaultvsync;
+    m_windowed = m_defaultWindowed;
 }

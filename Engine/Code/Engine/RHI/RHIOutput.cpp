@@ -70,6 +70,17 @@ float RHIOutput::GetAspectRatio() const noexcept {
 }
 
 void RHIOutput::SetDisplayMode(const RHIOutputMode& newMode) noexcept {
+
+    switch(newMode) {
+    case RHIOutputMode::Windowed:
+        m_parent_device.GetDxSwapChain()->SetFullscreenState(false, nullptr);
+        break;
+    case RHIOutputMode::Borderless_Fullscreen:
+        m_parent_device.GetDxSwapChain()->SetFullscreenState(true, nullptr);
+        break;
+    default:
+        break;
+    }
     m_window->SetDisplayMode(newMode);
 }
 
@@ -138,9 +149,6 @@ void RHIOutput::SetTitle(const std::string& newTitle) const noexcept {
 }
 
 void RHIOutput::ResetBackbuffer() noexcept {
-    if(auto* renderer = ServiceLocator::get<IRendererService>(); renderer) {
-        renderer->GetDeviceContext()->ClearState();
-    }
     m_backbuffer->Resize(0u, 0u);
     m_parent_device.ResetSwapChainForHWnd();
     const auto [w, h] = m_window->GetClientDimensions();
