@@ -8,70 +8,17 @@
 
 RHIFactory::RHIFactory() noexcept {
 #ifdef RENDER_DEBUG
-    auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory7), &m_dxgi_factory);
+    const auto hr_factory = ::CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&m_factory));
 #else
-    auto hr_factory = ::CreateDXGIFactory2(0, __uuidof(IDXGIFactory7), &m_dxgi_factory);
+    const auto hr_factory = ::CreateDXGIFactory2(0, IID_PPV_ARGS(&m_factory));
 #endif
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create DXGIFactory6 from CreateDXGIFactory2.");
+    GUARANTEE_OR_DIE(SUCCEEDED(hr_factory), "Failed to create factory for adapters.");
 }
 
-void RHIFactory::RestrictAltEnterToggle(const RHIDevice& device) noexcept {
+bool RHIFactory::QueryForAllowTearingSupport() const noexcept {
     namespace MWRL = Microsoft::WRL;
-    HWND hwnd{};
-    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting Alt+Enter usage.");
-    MWRL::ComPtr<IDXGIFactory6> factory{};
-    auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory for restricting Alt+Enter usage.");
-    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Alt+Enter usage.");
-}
-
-void RHIFactory::RestrictPrintScreen(const RHIDevice& device) noexcept {
-    namespace MWRL = Microsoft::WRL;
-    HWND hwnd{};
-    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting Print-Screen usage.");
-    MWRL::ComPtr<IDXGIFactory6> factory{};
-    auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory for restricting Print-Screen usage.");
-    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_PRINT_SCREEN);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict Print-Screen usage.");
-}
-
-void RHIFactory::RestrictAllWindowModeChanges(const RHIDevice& device) noexcept {
-    namespace MWRL = Microsoft::WRL;
-    HWND hwnd{};
-    auto got_hwnd = device.GetDxSwapChain()->GetHwnd(&hwnd);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_hwnd), "Failed to get Hwnd for restricting window mode changes.");
-    MWRL::ComPtr<IDXGIFactory6> factory{};
-    auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory for restricting window mode changes.");
-    auto hr_mwa = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_mwa), "Failed to restrict window mode changes.");
-}
-
-Microsoft::WRL::ComPtr<IDXGISwapChain4> RHIFactory::CreateSwapChainForHwnd(const RHIDevice& device, const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept {
-    namespace MWRL = Microsoft::WRL;
-    MWRL::ComPtr<IDXGISwapChain1> swap_chain1{};
-    MWRL::ComPtr<IDXGISwapChain4> swap_chain4{};
-    auto hr_createsc4hwnd = m_dxgi_factory->CreateSwapChainForHwnd(device.GetDxDevice(), static_cast<HWND>(window.GetWindowHandle()), &swapchain_desc, nullptr, nullptr, &swap_chain1);
-    const auto hr_create = StringUtils::FormatWindowsMessage(hr_createsc4hwnd);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_createsc4hwnd), hr_create.c_str());
-    auto hr_dxgisc4 = swap_chain1.As(&swap_chain4);
-    const auto hr_error = StringUtils::FormatWindowsMessage(hr_dxgisc4);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr_dxgisc4), hr_error.c_str());
-    return swap_chain4;
-}
-
-bool RHIFactory::QueryForAllowTearingSupport(const RHIDevice& device) const noexcept {
-    BOOL allow_tearing = {};
-    Microsoft::WRL::ComPtr<IDXGIFactory6> factory{};
-    auto got_parent = device.GetDxSwapChain()->GetParent(__uuidof(IDXGIFactory6), &factory);
-    GUARANTEE_OR_DIE(SUCCEEDED(got_parent), "Failed to get parent factory when querying for AllowTearingSupport.");
-    HRESULT hr_cfs = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
-    factory.Reset();
-    if(FAILED(hr_cfs)) {
+    BOOL allow_tearing{};
+    if(auto hr_cfs = m_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing)); FAILED(hr_cfs)) {
         DebuggerPrintf(StringUtils::FormatWindowsMessage(hr_cfs));
         return false;
     }
@@ -79,11 +26,12 @@ bool RHIFactory::QueryForAllowTearingSupport(const RHIDevice& device) const noex
 }
 
 std::vector<AdapterInfo> RHIFactory::GetAdaptersByPreference(const AdapterPreference& preference) const noexcept {
+    namespace MWRL = Microsoft::WRL;
     const auto dx_preference = AdapterPreferenceToDxgiGpuPreference(preference);
     std::vector<AdapterInfo> adapters{};
     Microsoft::WRL::ComPtr<IDXGIAdapter4> cur_adapter{};
     for(unsigned int i = 0u;
-        SUCCEEDED(m_dxgi_factory->EnumAdapterByGpuPreference(
+        SUCCEEDED(m_factory->EnumAdapterByGpuPreference(
         i,
         dx_preference,
         __uuidof(IDXGIAdapter4),
@@ -107,4 +55,12 @@ std::vector<AdapterInfo> RHIFactory::GetAdaptersByMinimumPowerPreference() const
 
 std::vector<AdapterInfo> RHIFactory::GetAdaptersByUnspecifiedPreference() const noexcept {
     return GetAdaptersByPreference(AdapterPreference::Unspecified);
+}
+
+const IDXGIFactory7 * const RHIFactory::GetDxFactory() const noexcept {
+    return m_factory.Get();
+}
+
+IDXGIFactory7* RHIFactory::GetDxFactory() noexcept {
+    return m_factory.Get();
 }
