@@ -15,6 +15,8 @@ enum class FormatType {
     Both
 };
 
+ProgramClock::innerClock::time_point ProgramClock::programStart = ProgramClock::innerClock::now();
+
 std::string_view GetFormatStringFromOptions(const DateTimeStampOptions& options, FormatType format_type);
 void AppendStamp(std::ostringstream& msg, const DateTimeStampOptions& options, FormatType format_type);
 
@@ -25,9 +27,7 @@ std::string GetDateTimeStampFromNow(const DateTimeStampOptions& options /*= Date
 }
 
 std::chrono::nanoseconds GetCurrentTimeElapsed() noexcept {
-    static auto initial_now = Now<std::chrono::steady_clock>();
-    auto now = Now<std::chrono::steady_clock>();
-    return (now - initial_now);
+    return TimeUtils::Now<ProgramClock>().time_since_epoch();
 }
 
 std::string GetTimeStampFromNow(const DateTimeStampOptions& options /*= DateTimeStampOptions{}*/) noexcept {

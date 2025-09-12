@@ -12,6 +12,8 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Renderer/Texture2D.hpp"
 #include "Engine/Renderer/Window.hpp"
+#include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IRendererService.hpp"
 
 #include <sstream>
 
@@ -68,6 +70,17 @@ float RHIOutput::GetAspectRatio() const noexcept {
 }
 
 void RHIOutput::SetDisplayMode(const RHIOutputMode& newMode) noexcept {
+
+    switch(newMode) {
+    case RHIOutputMode::Windowed:
+        m_parent_device.GetDxSwapChain()->SetFullscreenState(false, nullptr);
+        break;
+    case RHIOutputMode::Borderless_Fullscreen:
+        m_parent_device.GetDxSwapChain()->SetFullscreenState(true, nullptr);
+        break;
+    default:
+        break;
+    }
     m_window->SetDisplayMode(newMode);
 }
 
@@ -82,11 +95,14 @@ void RHIOutput::Present(bool vsync) noexcept {
     present_params.pDirtyRects = nullptr;
     present_params.pScrollOffset = nullptr;
     present_params.pScrollRect = nullptr;
-    const auto should_tear = m_parent_device.IsAllowTearingSupported();
+    const auto allowed_to_tear = m_parent_device.IsAllowTearingSupported();
     const auto is_vsync_off = !vsync;
-    const auto use_no_sync_interval = should_tear && is_vsync_off;
+    const auto is_fullscreen = m_window->IsFullscreen();
+    const auto is_not_fullscreen = !is_fullscreen;
+    const auto use_no_sync_interval = allowed_to_tear && is_vsync_off;
     const auto sync_interval = use_no_sync_interval ? 0u : 1u;
-    const auto present_flags = use_no_sync_interval ? DXGI_PRESENT_ALLOW_TEARING : 0ul;
+    const auto can_tear = use_no_sync_interval && is_not_fullscreen;
+    const auto present_flags = can_tear ? DXGI_PRESENT_ALLOW_TEARING : 0ul;
     if(const auto hr_present = m_parent_device.GetDxSwapChain()->Present1(sync_interval, present_flags, &present_params); FAILED(hr_present)) {
         switch(hr_present) {
         case DXGI_ERROR_DEVICE_REMOVED:
@@ -133,6 +149,8 @@ void RHIOutput::SetTitle(const std::string& newTitle) const noexcept {
 }
 
 void RHIOutput::ResetBackbuffer() noexcept {
-    m_backbuffer->Invalidate();
+    m_backbuffer->Resize(0u, 0u);
     m_parent_device.ResetSwapChainForHWnd();
+    const auto [w, h] = m_window->GetClientDimensions();
+    m_backbuffer->Resize(w, h);
 }

@@ -83,8 +83,10 @@ public:
 
 
     void Minimize() const override;
-    void Restore() const override;
+    void Restore(int x, int y) const override;
     void Maximize() const override;
+
+    void HandleResize() override;
 
 protected:
 private:
@@ -106,8 +108,6 @@ private:
     bool m_isQuitting = false;
     bool m_current_focus = false;
     bool m_previous_focus = false;
-    bool m_enteredSizeMove = false;
-    bool m_doneSizeMove = false;
 
     std::string m_title{"UNTITLED GAME"};
 
@@ -429,45 +429,20 @@ bool App<T>::ProcessSystemMessage(const EngineMessage& msg) noexcept {
             return false;
         }
     }
+    case WindowsSystemMessage::Window_WindowPosChanging:
+    {
+        return false;
+    }
+    case WindowsSystemMessage::Window_WindowPosChanged:
+    {
+        return false;
+    }
     case WindowsSystemMessage::Window_EnterSizeMove:
     {
-        m_enteredSizeMove = true;
         return false;
     }
     case WindowsSystemMessage::Window_ExitSizeMove:
     {
-        if(m_enteredSizeMove) {
-            m_doneSizeMove = true;
-            return false;
-        }
-        return false;
-    }
-    case WindowsSystemMessage::Window_Size:
-    {
-        const auto size_type = EngineSubsystem::GetResizeTypeFromWmSize(msg);
-        switch(size_type) {
-        case WindowResizeType::Maximized:
-            return true;
-        case WindowResizeType::Minimized:
-            return true;
-        case WindowResizeType::Restored:
-            if(m_enteredSizeMove && m_doneSizeMove) {
-                m_enteredSizeMove = false;
-                m_doneSizeMove = false;
-                LPARAM lp = msg.lparam;
-                const auto w = HIWORD(lp);
-                const auto h = LOWORD(lp);
-                HandleResize(w, h);
-                return true;
-            }
-            break;
-        case WindowResizeType::MaxHide:
-            return false;
-        case WindowResizeType::MaxShow:
-            return false;
-        default:
-            break;
-        }
         return false;
     }
     default:
@@ -560,18 +535,20 @@ void App<T>::Minimize() const {
     ZoneScopedC(0xFF0000);
 #endif
     auto* renderer = ServiceLocator::get<IRendererService>();
-    renderer->SetWindowedMode();
-    auto* hwnd = reinterpret_cast<HWND*>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
-    ::SendMessageA(*hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
+    auto* hwnd = static_cast<HWND>(renderer->GetOutput()->GetWindow()->GetWindowHandle());
+    ::SendMessageA(hwnd, WM_SIZE, SIZE_MINIMIZED, MAKELPARAM(0, 0) );
 }
 
 template<GameType T>
-void App<T>::Restore() const {
+void App<T>::Restore(int x, int y) const {
 #ifdef PROFILE_BUILD
     ZoneScopedC(0xFF0000);
 #endif
     auto* renderer = ServiceLocator::get<IRendererService>();
-    renderer->SetWindowedMode();
+    auto* window = renderer->GetOutput()->GetWindow();
+    auto hwnd = static_cast<HWND>(window->GetWindowHandle());
+    const auto requested_resolution = IntVector2{x, y};
+    ::SendMessageA(hwnd, WM_SIZE, SIZE_RESTORED, MAKELPARAM(requested_resolution.x, requested_resolution.y));
 }
 
 template<GameType T>
@@ -580,11 +557,10 @@ void App<T>::Maximize() const {
     ZoneScopedC(0xFF0000);
 #endif
     auto* renderer = ServiceLocator::get<IRendererService>();
-    renderer->SetWindowedMode();
     auto* window = renderer->GetOutput()->GetWindow();
-    auto* hwnd = reinterpret_cast<HWND*>(window->GetWindowHandle());
-    const auto desktop_resolution = window->GetDesktopResolution();
-    ::SendMessageA(*hwnd, WM_SIZE, SIZE_MAXIMIZED, MAKELPARAM(desktop_resolution.x, desktop_resolution.y));
+    auto* hwnd = static_cast<HWND>(window->GetWindowHandle());
+    const auto requested_resolution = window->GetDesktopResolution();
+    ::SendMessageA(hwnd, WM_SIZE, SIZE_MAXIMIZED, MAKELPARAM(requested_resolution.x, requested_resolution.y));
 }
 
 template<GameType T>
@@ -609,12 +585,21 @@ void App<T>::RunMessagePump() const {
     }
 }
 
+
+template<GameType T>
+void App<T>::HandleResize() {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    auto* window = renderer->GetOutput()->GetWindow();
+    const auto&& [newWidth, newHeight] = window->GetClientDimensions();
+    this->HandleResize(newWidth, newHeight);
+}
+
+
 template<GameType T>
 void App<T>::HandleResize(unsigned int newWidth, unsigned int newHeight) noexcept {
 #ifdef PROFILE_BUILD
     ZoneScopedC(0xFF0000);
 #endif
-    g_theRenderer->ResizeBuffers();
     GetGameAs<T>()->HandleWindowResize(newWidth, newHeight);
 }
 
