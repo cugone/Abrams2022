@@ -324,7 +324,7 @@ void ClayUI::Render() const noexcept {
             const auto bottom_right = top_left + extents;
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
-            auto* font = command->userData ? static_cast<KerningFont*>(command->userData) : renderer->GetFont("System32");
+            auto* font = renderer->GetFontById(config.fontId);
             const auto scale = config.fontSize ? (config.fontSize / static_cast<float>(font->GetInfoDef().em_size)) : 1.0f;
             const auto S = Matrix4::CreateScaleMatrix(scale);
             const auto R = Matrix4::I;
