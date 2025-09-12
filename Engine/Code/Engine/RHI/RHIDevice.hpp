@@ -36,8 +36,7 @@ class RHIVideoDevice;
 
 class RHIDevice {
 public:
-    RHIDevice() noexcept = default;
-    ~RHIDevice() = default;
+    ~RHIDevice() noexcept;
 
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const IntVector2& clientSize, const IntVector2& clientPosition = IntVector2::Zero) noexcept;
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContext(const WindowDesc& desc) noexcept;
@@ -86,6 +85,14 @@ public:
     [[nodiscard]] static std::vector<std::unique_ptr<ConstantBuffer>> CreateConstantBuffersUsingReflection(RHIDevice& device, ID3D11ShaderReflection& cbufferReflection) noexcept;
     [[nodiscard]] static std::unique_ptr<InputLayoutInstanced> CreateInputLayoutInstancedFromByteCode(RHIDevice& device, ID3DBlob* vs_bytecode) noexcept;
 
+    [[nodiscard]] DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) noexcept;
+    
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> CreateSwapChainForHwnd(const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept;
+
+    void RestrictAltEnterToggle() noexcept;
+    void RestrictPrintScreen(const RHIDevice& device) noexcept;
+    void RestrictAllWindowModeChanges(const RHIDevice& device) noexcept;
+
 private:
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(std::unique_ptr<Window> window) noexcept;
 
@@ -99,12 +106,11 @@ private:
     [[nodiscard]] std::vector<OutputInfo> GetOutputsFromAdapter(const AdapterInfo& a) const noexcept;
     void GetPrimaryDisplayModeDescriptions(const AdapterInfo& adapter, decltype(displayModes)& descriptions) const noexcept;
     void GetDisplayModeDescriptions(const AdapterInfo& adapter, const OutputInfo& output, decltype(displayModes)& descriptions) const noexcept;
-    [[nodiscard]] DisplayDesc GetDisplayModeMatchingDimensions(const std::vector<DisplayDesc>& descriptions, unsigned int w, unsigned int h) noexcept;
 
-    RHIFactory m_rhi_factory{};
     D3D_FEATURE_LEVEL m_dx_highestSupportedFeatureLevel{};
-    Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgi_swapchain{};
+    RHIFactory m_rhi_factory{};
     Microsoft::WRL::ComPtr<ID3D11Device5> m_dx_device{};
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgi_swapchain{};
     bool m_allow_tearing_supported = false;
 
     void SetupDebuggingInfo([[maybe_unused]] bool breakOnWarningSeverityOrLower = true) noexcept;

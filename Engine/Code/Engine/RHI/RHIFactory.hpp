@@ -10,19 +10,20 @@ class RHIDevice;
 class RHIFactory {
 public:
     RHIFactory() noexcept;
-    ~RHIFactory() = default;
+    ~RHIFactory() noexcept = default;
 
-    void RestrictAltEnterToggle(const RHIDevice& device) noexcept;
-    [[nodiscard]] Microsoft::WRL::ComPtr<IDXGISwapChain4> CreateSwapChainForHwnd(const RHIDevice& device, const Window& window, const DXGI_SWAP_CHAIN_DESC1& swapchain_desc) noexcept;
+    [[nodiscard]] bool QueryForAllowTearingSupport() const noexcept;
 
-    [[nodiscard]] bool QueryForAllowTearingSupport(const RHIDevice& device) const noexcept;
-
-    [[nodiscard]] std::vector<AdapterInfo> GetAdaptersByPreference(const AdapterPreference& preference) const noexcept;
     [[nodiscard]] std::vector<AdapterInfo> GetAdaptersByHighPerformancePreference() const noexcept;
     [[nodiscard]] std::vector<AdapterInfo> GetAdaptersByMinimumPowerPreference() const noexcept;
     [[nodiscard]] std::vector<AdapterInfo> GetAdaptersByUnspecifiedPreference() const noexcept;
 
+    const IDXGIFactory7 * const GetDxFactory() const noexcept;
+    IDXGIFactory7* GetDxFactory() noexcept;
+
 protected:
+    [[nodiscard]] std::vector<AdapterInfo> GetAdaptersByPreference(const AdapterPreference& preference) const noexcept;
+
 private:
-    Microsoft::WRL::ComPtr<IDXGIFactory7> m_dxgi_factory{};
+    Microsoft::WRL::ComPtr<IDXGIFactory7> m_factory{};
 };
