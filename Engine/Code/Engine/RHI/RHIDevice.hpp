@@ -20,6 +20,7 @@
 #include <mutex>
 #include <set>
 #include <thread>
+#include <stop_token>
 #include <vector>
 
 
@@ -100,7 +101,7 @@ public:
     void RestrictAllWindowModeChanges(const RHIDevice& device) noexcept;
 
 private:
-    void DeviceRemoved_worker(std::stop_token stop_token = std::stop_token{}) noexcept;
+    void DeviceRemoved_worker(std::stop_token st) noexcept;
 
     [[nodiscard]] std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> CreateOutputAndContextFromWindow(std::unique_ptr<Window> window) noexcept;
 
