@@ -43,6 +43,7 @@
     <ClCompile Include="Core\BuildConfig.hpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
     <ClCompile Include="Core\EngineConfig.cpp" />
+    <ClCompile Include="Core\Font.cpp" />
     <ClCompile Include="Core\Gif.cpp" />
     <ClCompile Include="Core\JobTypes.cpp" />
     <ClCompile Include="Core\MtlReader.cpp" />
@@ -467,6 +468,7 @@
     <ClInclude Include="Core\Base64.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
     <ClInclude Include="Core\EngineConfig.hpp" />
+    <ClInclude Include="Core\Font.hpp" />
     <ClInclude Include="Core\Gif.hpp" />
     <ClInclude Include="Core\JobTypes.hpp" />
     <ClInclude Include="Core\MtlReader.hpp" />

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Thirdparty">
@@ -684,6 +684,9 @@
     </ClCompile>
     <ClCompile Include="..\Thirdparty\Tracy\TracyClient.cpp">
       <Filter>Thirdparty\Tracy</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Font.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2018,6 +2021,9 @@
     </ClInclude>
     <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svwinfnt.h">
       <Filter>Thirdparty\freetype\freetype\internal\services</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Font.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
