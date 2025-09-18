@@ -350,6 +350,7 @@
     <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp" />
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
+    <ClInclude Include="..\Thirdparty\stb\stb_rect_pack.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="..\Thirdparty\Tracy\tracy\Tracy.hpp" />
     <ClInclude Include="..\Thirdparty\webm\common\file_util.h" />

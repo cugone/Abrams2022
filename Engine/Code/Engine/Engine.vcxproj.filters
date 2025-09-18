@@ -2025,6 +2025,9 @@
     <ClInclude Include="Core\Font.hpp">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Thirdparty\stb\stb_rect_pack.h">
+      <Filter>Thirdparty\STB</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">
