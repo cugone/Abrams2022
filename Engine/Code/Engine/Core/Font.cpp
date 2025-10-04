@@ -180,6 +180,7 @@ std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyp
         auto& glyph = glyphs[i];
         const auto& r = rects[i];
         glyph.uvs = AABB2(r.x / static_cast<float>(target_width), r.y / static_cast<float>(target_height), (r.x + r.w) / static_cast<float>(target_width), (r.y + r.h) / static_cast<float>(target_height));
+        glyph.offsets = IntVector2(r.x, r.y);
     }
     return rects;
 }

@@ -31,6 +31,7 @@ public:
         long width{0ul};
         long height{0ul};
         AABB2 uvs{};
+        IntVector2 offsets{};
         unsigned long charCode{};
         signed long advance{};
     };
