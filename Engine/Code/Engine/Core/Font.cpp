@@ -8,6 +8,7 @@
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
 
+#include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
 
 #include "Engine/Services/ServiceLocator.hpp"
@@ -182,8 +183,7 @@ void GenerateFontAtlas(FT_Face face, const std::vector<stbrp_rect>& rects, unsig
     auto* renderer = ServiceLocator::get<IRendererService>();
     std::vector<Rgba> data = std::vector<Rgba>(target_width * target_height, Rgba::Black);
     if(const auto texture_atlas = renderer->Create2DTextureFromMemory(data, target_width, target_height, BufferUsage::Default, BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target); texture_atlas != nullptr) {
-        std::vector<Rgba> data_ds(target_width * target_height, Rgba::Black);
-        if(const auto texture_ds = renderer->Create2DTextureFromMemory(data_ds, target_width, target_height, BufferUsage::Default, BufferBindUsage::Depth_Stencil, ImageFormat::D24_UNorm_S8_UInt); texture_ds != nullptr) {
+        if(const auto texture_ds = renderer->CreateDepthStencil(*renderer->GetDevice(), target_width, target_height); texture_ds != nullptr) {
             renderer->SetRenderTarget(texture_atlas.get(), texture_ds.get());
             for(auto i = std::size_t{0u}; i < rects.size(); ++i) {
                 auto& r = rects[i];
