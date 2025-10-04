@@ -55,32 +55,12 @@ bool Font::LoadFont(std::filesystem::path path, const IntVector2& pixelDimension
     }
     m_data.face = face;
     m_data.pixelDimensions = pixelDimensions;
-    if(m_hasKerning = FT_HAS_KERNING(face); !m_hasKerning) {
+    m_data.hasKerning = FT_HAS_KERNING(face);
+    if(!m_data.hasKerning) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}{}\".", path.stem(), pixelDimensions.y));
     }
-    auto glyphs = LoadGlyphData(face);
-
-    std::sort(std::begin(glyphs), std::end(glyphs), [](const GlyphData& a, const GlyphData& b) { 
-        if(b.height < a.height) {
-            return true;
-        } else if(b.height == a.height) {
-            if(b.width < a.width) {
-                return true;
-            } else if(b.width == a.width) {
-                if(b.glyph_index < a.glyph_index) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    });
-
-    const auto target_size = 128u;
-    auto actual_texture_size = target_size;
-    const auto rects = CalculateGlyphPacking(glyphs, target_size, actual_texture_size);
-    GenerateFontAtlas(face, rects, actual_texture_size, actual_texture_size);
-
+    LoadCommonData();
     FT_Done_Face(face);
     FT_Done_FreeType(library);
     m_loaded = true;
@@ -105,7 +85,7 @@ bool Font::LoadFont(std::span<unsigned char> buffer, const IntVector2& pixelDime
         FT_Done_FreeType(library);
         return false;
     }
-    m_hasKerning = FT_HAS_KERNING(face);
+    LoadCommonData();
     FT_Done_Face(face);
     FT_Done_FreeType(library);
     m_loaded = true;
@@ -117,7 +97,7 @@ std::vector<Font::GlyphData> Font::LoadGlyphData(FT_Face face) noexcept {
     std::vector<GlyphData> glyphs;
     glyphs.reserve(face->num_glyphs);
     unsigned int glyph_index{0ul};
-    //Load glyph data
+
     for(auto charcode = FT_Get_First_Char(face, &glyph_index); glyph_index != 0; charcode = FT_Get_Next_Char(face, charcode, &glyph_index)) {
         if(const auto ft_glyph_error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT); ft_glyph_error != FT_Err_Ok) {
             continue;
@@ -139,6 +119,31 @@ std::vector<Font::GlyphData> Font::LoadGlyphData(FT_Face face) noexcept {
         glyphs.push_back(Font::GlyphData{glyph_index, width, height, AABB2{}, charcode, advance});
     }
     return glyphs;
+}
+
+void Font::LoadCommonData() noexcept {
+    auto face = m_data.face;
+    auto glyphs = LoadGlyphData(face);
+
+    std::sort(std::begin(glyphs), std::end(glyphs), [](const GlyphData& a, const GlyphData& b) {
+        if(b.height < a.height) {
+            return true;
+        } else if(b.height == a.height) {
+            if(b.width < a.width) {
+                return true;
+            } else if(b.width == a.width) {
+                if(b.glyph_index < a.glyph_index) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    });
+
+    const auto target_size = 128u;
+    auto actual_texture_size = target_size;
+    const auto rects = CalculateGlyphPacking(glyphs, target_size, actual_texture_size);
+    GenerateFontAtlas(face, rects, actual_texture_size, actual_texture_size);
 }
 
 std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyphs, unsigned int target_texture_size, unsigned int& actual_texture_size) noexcept {

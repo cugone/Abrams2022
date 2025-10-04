@@ -24,6 +24,7 @@ public:
     struct FontData {
         FT_Face face{nullptr};
         IntVector2 pixelDimensions{};
+        bool hasKerning{false};
     };
     struct GlyphData {
         unsigned int glyph_index{0u};
@@ -33,13 +34,19 @@ public:
         unsigned long charCode{};
         signed long advance{};
     };
+    struct KerningData {
+        std::pair<unsigned long, unsigned long> glyphs{};
+        signed long advance{};
+    };
 
 protected:
 private:
 
     std::vector<Font::GlyphData> LoadGlyphData(FT_Face face) noexcept;
+    void LoadCommonData() noexcept;
 
     FontData m_data{};
-    bool m_hasKerning{false};
+    std::vector<GlyphData> m_glyphs{};
+    std::vector<KerningData> m_kerning{};
     bool m_loaded{false};
 };
