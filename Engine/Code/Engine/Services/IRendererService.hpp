@@ -87,7 +87,7 @@ public:
 
     [[nodiscard]] virtual Texture* GetTexture(const std::string& nameOrFile) noexcept = 0;
 
-    //TODO: [[nodiscard]] virtual std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, uint32_t width, uint32_t height) noexcept = 0;
+    [[nodiscard]] virtual std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, uint32_t width, uint32_t height) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept = 0;
     [[nodiscard]] virtual std::unique_ptr<Texture> CreateRenderableDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept = 0;
 
@@ -401,6 +401,7 @@ public:
 
     [[nodiscard]] Texture* GetTexture([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
 
+    [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height) noexcept override { return {}; }
     [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override { return {};}
     [[nodiscard]] std::unique_ptr<Texture> CreateRenderableDepthStencil([[maybe_unused]] const RHIDevice& owner, [[maybe_unused]] const IntVector2& dimensions) noexcept override { return {}; }
 

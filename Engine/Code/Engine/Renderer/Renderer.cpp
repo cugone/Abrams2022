@@ -6586,6 +6586,30 @@ void Renderer::SetTexture(Texture* texture, unsigned int registerIndex /*= 0*/) 
     m_current_target = texture;
     m_rhi_context->SetTexture(registerIndex, m_current_target);
 }
+std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice& owner, uint32_t width, uint32_t height) noexcept {
+#ifdef PROFILE_BUILD
+    ZoneScopedC(0xFF0000);
+#endif
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> dx_resource{};
+
+    D3D11_TEXTURE2D_DESC descDepth{};
+    descDepth.Width = width;
+    descDepth.Height = height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = ImageFormatToDxgiFormat(ImageFormat::D24_UNorm_S8_UInt);
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = BufferUsageToD3DUsage(BufferUsage::Default);
+    descDepth.BindFlags = BufferBindUsageToD3DBindFlags(BufferBindUsage::Depth_Stencil);
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    auto hr_texture = owner.GetDxDevice()->CreateTexture2D(&descDepth, nullptr, &dx_resource);
+    if(SUCCEEDED(hr_texture)) {
+        return std::make_unique<Texture2D>(owner, dx_resource);
+    }
+    return nullptr;
+}
 
 std::unique_ptr<Texture> Renderer::CreateDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept {
 #ifdef PROFILE_BUILD
