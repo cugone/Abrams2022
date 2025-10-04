@@ -732,7 +732,7 @@ void Renderer::BeginHUDRender(Camera2D& ui_camera, const Vector2& camera_positio
     const auto ui_rightTop = Vector2{ui_view_half_extents.x, -ui_view_half_extents.y};
     const auto ui_nearFar = Vector2{0.0f, 1.0f};
     ui_camera.SetPosition(camera_position);
-    ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, MathUtils::M_16_BY_9_RATIO);
+    ui_camera.SetupView(ui_leftBottom, ui_rightTop, ui_nearFar, ui_camera.GetAspectRatio());
     SetCamera(ui_camera);
 }
 
