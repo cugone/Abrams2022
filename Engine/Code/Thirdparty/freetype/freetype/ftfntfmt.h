@@ -19,7 +19,7 @@
 #ifndef FTFNTFMT_H_
 #define FTFNTFMT_H_
 
-#include "freetype/freetype.h"
+#include "freetype.h"
 
 #ifdef FREETYPE_H
 #error "freetype.h of FreeType 1 has been loaded!"
