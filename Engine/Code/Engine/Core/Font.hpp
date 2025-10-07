@@ -24,22 +24,23 @@ public:
     using KerningMap = std::map<std::pair<unsigned long, unsigned long>, signed long>;
 
     struct FontData {
-        FT_Face face{nullptr};
-        IntVector2 pixelDimensions{};
-        bool hasKerning{false};
+        FT_Face face{nullptr};         //Font face
+        IntVector2 pixelDimensions{};  //Pixel size of font.
+        bool hasKerning{false};        //Font face has kerning
     };
     struct GlyphData {
-        unsigned int glyph_index{0u};
-        long width{0ul};
-        long height{0ul};
-        AABB2 uvs{};
-        IntVector2 offsets{};
-        unsigned long charCode{};
-        signed long advance{};
+        unsigned int glyph_index{0u};  //Glyph Id.
+        long width{0ul};               //Glyph texture width.
+        long height{0ul};              //Glyph texture height.
+        AABB2 uvs{};                   //UVs for glyph in texture atlas.
+        IntVector2 offsets{};          //Absolute top-left of glyph in atlas.
+        unsigned long charCode{};      //Char code of glyph.
+        signed long advance{};         //Horizontal advance to next character.
     };
     struct KerningData {
-        std::pair<unsigned long, unsigned long> glyphs{};
-        signed long advance{};
+        unsigned long first{};         //First character code in kerning pair.
+        unsigned long second{};        //Second character code in kerning pair.
+        signed long amount{};          //Kerning amount. Usually negative.
     };
 
 protected:
