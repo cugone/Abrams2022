@@ -116,7 +116,7 @@ std::vector<Font::GlyphData> Font::LoadGlyphData(FT_Face face) noexcept {
             const auto isNarrow = heightAsPixels == 0;
             return isNarrow ? advancev : heightAsPixels;
             }();
-        glyphs.push_back(Font::GlyphData{glyph_index, width, height, AABB2{}, charcode, advance});
+        glyphs.push_back(Font::GlyphData{glyph_index, width, height, AABB2{}, IntVector2::Zero, charcode, advance});
     }
     return glyphs;
 }
