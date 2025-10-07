@@ -21,6 +21,8 @@ public:
     [[nodiscard]] bool LoadFont(std::filesystem::path path, const IntVector2& pixelDimensions) noexcept;
     [[nodiscard]] bool LoadFont(std::span<unsigned char> buffer, const IntVector2& pixelDimensions) noexcept;
 
+    using KerningMap = std::map<std::pair<unsigned long, unsigned long>, signed long>;
+
     struct FontData {
         FT_Face face{nullptr};
         IntVector2 pixelDimensions{};
@@ -48,6 +50,6 @@ private:
 
     FontData m_data{};
     std::vector<GlyphData> m_glyphs{};
-    std::vector<KerningData> m_kerning{};
+    KerningMap m_kerning{};
     bool m_loaded{false};
 };
