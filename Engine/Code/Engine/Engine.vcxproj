@@ -471,6 +471,7 @@
     <ClInclude Include="Core\EngineConfig.hpp" />
     <ClInclude Include="Core\Font.hpp" />
     <ClInclude Include="Core\Gif.hpp" />
+    <ClInclude Include="Core\IFont.hpp" />
     <ClInclude Include="Core\JobTypes.hpp" />
     <ClInclude Include="Core\MtlReader.hpp" />
     <ClInclude Include="Core\OrthographicCameraController.hpp" />

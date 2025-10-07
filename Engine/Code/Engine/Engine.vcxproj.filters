@@ -2028,6 +2028,9 @@
     <ClInclude Include="..\Thirdparty\stb\stb_rect_pack.h">
       <Filter>Thirdparty\STB</Filter>
     </ClInclude>
+    <ClInclude Include="Core\IFont.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderer\DirectX\Shaders\webp.hlsl">
