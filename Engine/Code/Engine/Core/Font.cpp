@@ -22,7 +22,6 @@
 #include <bit>
 #include <format>
 #include <memory>
-#include <vector>
 
 std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyphs, unsigned int target_texture_size, unsigned int& actual_texture_size) noexcept;
 void GenerateFontAtlas(FT_Face face, const std::vector<stbrp_rect>& rects, unsigned int target_width, unsigned int target_height) noexcept;
@@ -32,17 +31,22 @@ Font::Font(std::filesystem::path path, const IntVector2& pixelDimensions) noexce
 }
 
 bool Font::LoadFont(std::filesystem::path path, const IntVector2& pixelDimensions) noexcept {
+    if(auto file_contents = FileUtils::ReadBinaryBufferFromFile(path); !file_contents.has_value()) {
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogLineAndFlush(std::format("Failed to read file contents from {}", path));
+    } else {
+        return LoadFont(*file_contents, pixelDimensions);
+    }
+    return m_loaded;
+}
+
+bool Font::LoadFont(const std::vector<uint8_t>& buffer, const IntVector2& pixelDimensions) noexcept {
     FT_Library library{nullptr};
     if(const auto ft_init_error = FT_Init_FreeType(&library); ft_init_error != FT_Err_Ok) {
-        auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogLineAndFlush("Failed to initialize FreeType Library.");
         return false;
     }
-
     FT_Face face{nullptr};
-    if(const auto ft_face_error = FT_New_Face(library, path.string().c_str(), 0, &face); ft_face_error != FT_Err_Ok) {
-        auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogLineAndFlush("Failed to create new freetype face object.");
+    if(const auto ft_face_error = FT_New_Memory_Face(library, buffer.data(), static_cast<long>(buffer.size()), 0, &face); ft_face_error != FT_Err_Ok) {
         FT_Done_FreeType(library);
         return false;
     }
@@ -58,32 +62,8 @@ bool Font::LoadFont(std::filesystem::path path, const IntVector2& pixelDimension
     m_data.hasKerning = FT_HAS_KERNING(face);
     if(!m_data.hasKerning) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}{}\".", path.stem(), pixelDimensions.y));
-    }
-    LoadCommonData();
-    FT_Done_Face(face);
-    FT_Done_FreeType(library);
-    m_loaded = true;
-    return m_loaded;
-}
-
-bool Font::LoadFont(std::span<unsigned char> buffer, const IntVector2& pixelDimensions) noexcept {
-    FT_Library library{nullptr};
-    if(const auto ft_init_error = FT_Init_FreeType(&library); ft_init_error != FT_Err_Ok) {
-        return false;
-    }
-    FT_Face face{nullptr};
-    if(const auto ft_face_error = FT_New_Memory_Face(library, buffer.data(), static_cast<long>(buffer.size()), 0, &face); ft_face_error != FT_Err_Ok) {
-        FT_Done_FreeType(library);
-        library = nullptr;
-        return false;
-    }
-    if(const auto ft_size_error = FT_Set_Pixel_Sizes(face, pixelDimensions.x, pixelDimensions.y); ft_size_error != FT_Err_Ok) {
-        auto* logger = ServiceLocator::get<IFileLoggerService>();
-        logger->LogLineAndFlush(std::format("Failed to set font size to {}.", pixelDimensions));
-        FT_Done_Face(face);
-        FT_Done_FreeType(library);
-        return false;
+        const auto family_name = std::string(face->family_name ? face->family_name : "");
+        logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}{}\".", family_name, pixelDimensions.y));
     }
     LoadCommonData();
     FT_Done_Face(face);

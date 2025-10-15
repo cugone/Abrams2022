@@ -10,7 +10,7 @@
 
 #include <filesystem>
 #include <memory>
-#include <span>
+#include <vector>
 
 class Font {
 public:
@@ -19,7 +19,7 @@ public:
     ~Font() noexcept = default;
 
     [[nodiscard]] bool LoadFont(std::filesystem::path path, const IntVector2& pixelDimensions) noexcept;
-    [[nodiscard]] bool LoadFont(std::span<unsigned char> buffer, const IntVector2& pixelDimensions) noexcept;
+    [[nodiscard]] bool LoadFont(const std::vector<uint8_t>& buffer, const IntVector2& pixelDimensions) noexcept;
 
     using KerningMap = std::map<std::pair<unsigned long, unsigned long>, signed long>;
 
