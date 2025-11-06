@@ -3,7 +3,7 @@
 #include "Engine/Services/IService.hpp"
 
 #include "Engine/Core/Gif.hpp"
-#include "Engine/Core/KerningFont.hpp"
+#include "Engine/Core/IFont.hpp"
 
 #include "Engine/Renderer/AnimatedSprite.hpp"
 #include "Engine/Renderer/Camera3D.hpp"
@@ -40,7 +40,6 @@ class RHIOutput;
 class RHIInstance;
 
 class DepthStencilState;
-class KerningFont;
 
 struct AnimatedSpriteDesc;
 struct DepthStencilDesc;
@@ -228,7 +227,6 @@ public:
 
     virtual void SetVSync(bool value) noexcept = 0;
 
-    [[nodiscard]] virtual std::unique_ptr<Material> CreateMaterialFromFont(KerningFont* font) noexcept = 0;
     [[nodiscard]] virtual bool RegisterMaterial(std::filesystem::path filepath) noexcept = 0;
     virtual void RegisterMaterial(std::unique_ptr<Material> mat) noexcept = 0;
     virtual void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept = 0;
@@ -251,10 +249,12 @@ public:
     virtual void SetComputeShader(Shader* shader) noexcept = 0;
     virtual void DispatchComputeJob(const ComputeJob& job) noexcept = 0;
 
-    [[nodiscard]] virtual KerningFont* GetFont(const std::string& nameOrFile) noexcept = 0;
-    [[nodiscard]] virtual KerningFont* GetFontById(uint16_t index) noexcept = 0;
+    [[nodiscard]] virtual a2de::IFont* GetDefaultFont() noexcept = 0;
+    [[nodiscard]] virtual a2de::IFont* GetFont(const std::string& nameOrFile) noexcept = 0;
+    [[nodiscard]] virtual a2de::IFont* GetFontById(uint16_t index) noexcept = 0;
     [[nodiscard]] virtual std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept = 0;
-    virtual void RegisterFont(std::unique_ptr<KerningFont> font) noexcept = 0;
+    virtual void RegisterFont(std::unique_ptr<a2de::IFont> font) noexcept = 0;
+    
     [[nodiscard]] virtual bool RegisterFont(std::filesystem::path filepath) noexcept = 0;
     virtual void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept = 0;
 
@@ -333,10 +333,10 @@ public:
     virtual void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept = 0;
     virtual void DrawX2D(const Rgba& color) noexcept = 0;
     virtual void DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize = 0.1f) noexcept = 0;
-    virtual void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void DrawMultilineText(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
-    virtual void AppendMultiLineTextBuffer(const KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept = 0;
+    virtual void DrawTextLine(const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void DrawTextLine(const Matrix4& transform, const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void DrawMultilineText(const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept = 0;
+    virtual void AppendMultiLineTextBuffer(const a2de::IFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept = 0;
 
     virtual void CopyTexture(const Texture* src, Texture* dst) const noexcept = 0;
     virtual void ResizeBuffers() noexcept = 0;
@@ -360,7 +360,7 @@ private:
     virtual void RegisterRasterState(const std::string& name, std::unique_ptr<class RasterState> raster) noexcept = 0;
     virtual void RegisterDepthStencilState(const std::string& name, std::unique_ptr<class DepthStencilState> depthstencil) noexcept = 0;
     virtual void RegisterSampler(const std::string& name, std::unique_ptr<class Sampler> sampler) noexcept = 0;
-    virtual void RegisterFont(const std::string& name, std::unique_ptr<class KerningFont> font) noexcept = 0;
+    virtual void RegisterFont(const std::string& name, std::unique_ptr<class a2de::IFont> font) noexcept = 0;
 
     friend class Shader;
 
@@ -546,7 +546,6 @@ public:
 
     void SetVSync([[maybe_unused]] bool value) noexcept override {}
 
-    [[nodiscard]] std::unique_ptr<Material> CreateMaterialFromFont([[maybe_unused]] KerningFont* font) noexcept override { return {}; }
     [[nodiscard]] bool RegisterMaterial([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterMaterial([[maybe_unused]] std::unique_ptr<Material> mat) noexcept override {}
     void RegisterMaterialsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
@@ -569,10 +568,11 @@ public:
     void SetComputeShader([[maybe_unused]] Shader* shader) noexcept override {}
     void DispatchComputeJob([[maybe_unused]] const ComputeJob& job) noexcept override {}
 
-    [[nodiscard]] KerningFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
-    [[nodiscard]] KerningFont* GetFontById([[maybe_unused]] uint16_t index) noexcept override { return nullptr; };
+    [[nodiscard]] a2de::IFont* GetDefaultFont() noexcept override { return nullptr; }
+    [[nodiscard]] a2de::IFont* GetFont([[maybe_unused]] const std::string& nameOrFile) noexcept override { return nullptr; }
+    [[nodiscard]] a2de::IFont* GetFontById([[maybe_unused]] uint16_t index) noexcept override { return nullptr; };
     [[nodiscard]] std::size_t GetFontId([[maybe_unused]] const std::string& nameOrFile) noexcept override { return 0; }
-    void RegisterFont([[maybe_unused]] std::unique_ptr<KerningFont> font) noexcept override {}
+    void RegisterFont([[maybe_unused]] std::unique_ptr<a2de::IFont> font) noexcept override {}
     [[nodiscard]] bool RegisterFont([[maybe_unused]] std::filesystem::path filepath) noexcept override { return false; }
     void RegisterFontsFromFolder([[maybe_unused]] std::filesystem::path folderpath, [[maybe_unused]] bool recursive = false) noexcept override {}
 
@@ -651,10 +651,10 @@ public:
     void DrawX2D([[maybe_unused]] const Rgba& color) noexcept override {}
     void DrawArrow2D([[maybe_unused]] const Vector2& position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] const Vector2& direction, [[maybe_unused]] float tailLength, [[maybe_unused]] float arrowHeadSize = 0.1f) noexcept override {}
 
-    void DrawTextLine([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void DrawTextLine([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void DrawMultilineText([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
-    void AppendMultiLineTextBuffer([[maybe_unused]] const KerningFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Vector2& start_position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] std::vector<Vertex3D>& vbo, [[maybe_unused]] std::vector<unsigned int>& ibo) noexcept override {}
+    void DrawTextLine([[maybe_unused]] const a2de::IFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void DrawTextLine([[maybe_unused]] const Matrix4& transform, [[maybe_unused]] const a2de::IFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void DrawMultilineText([[maybe_unused]] const a2de::IFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Rgba& color = Rgba::White) noexcept override {}
+    void AppendMultiLineTextBuffer([[maybe_unused]] const a2de::IFont* font, [[maybe_unused]] const std::string& text, [[maybe_unused]] const Vector2& start_position, [[maybe_unused]] const Rgba& color, [[maybe_unused]] std::vector<Vertex3D>& vbo, [[maybe_unused]] std::vector<unsigned int>& ibo) noexcept override {}
 
     void CopyTexture([[maybe_unused]] const Texture* src, [[maybe_unused]] Texture* dst) const noexcept override {}
     void ResizeBuffers() noexcept override {}
@@ -672,12 +672,12 @@ public:
 
 protected:
 private:
-    virtual void RegisterShaderProgram([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class ShaderProgram> sp) noexcept {}
-    virtual void RegisterShader([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Shader> shader) noexcept {}
-    virtual void RegisterMaterial([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Material> mat) noexcept {}
-    virtual void RegisterRasterState([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class RasterState> raster) noexcept {}
-    virtual void RegisterDepthStencilState([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class DepthStencilState> depthstencil) noexcept {}
-    virtual void RegisterSampler([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Sampler> sampler) noexcept {}
-    virtual void RegisterFont([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class KerningFont> font) noexcept {}
+    void RegisterShaderProgram([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class ShaderProgram> sp) noexcept override {}
+    void RegisterShader([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Shader> shader) noexcept override {}
+    void RegisterMaterial([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Material> mat) noexcept override {}
+    void RegisterRasterState([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class RasterState> raster) noexcept override {}
+    void RegisterDepthStencilState([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class DepthStencilState> depthstencil) noexcept override {}
+    void RegisterSampler([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class Sampler> sampler) noexcept override {}
+    void RegisterFont([[maybe_unused]] const std::string& name, [[maybe_unused]] std::unique_ptr<class a2de::IFont> font) noexcept override {}
 
 };

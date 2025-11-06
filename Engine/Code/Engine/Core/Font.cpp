@@ -7,6 +7,7 @@
 
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
+#include "Engine/Renderer/Material.hpp"
 
 #include "Engine/RHI/RHIDevice.hpp"
 #include "Engine/RHI/RHIDeviceContext.hpp"
@@ -24,7 +25,7 @@
 #include <memory>
 
 std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyphs, unsigned int target_texture_size, unsigned int& actual_texture_size) noexcept;
-void GenerateFontAtlas(FT_Face face, const std::vector<stbrp_rect>& rects, unsigned int target_width, unsigned int target_height) noexcept;
+void GenerateFontAtlas(FT_Face face, int font_height, const std::vector<stbrp_rect>& rects, unsigned int target_width, unsigned int target_height) noexcept;
 
 Font::Font(std::filesystem::path path, const IntVector2& pixelDimensions) noexcept {
     GUARANTEE_OR_DIE(LoadFont(path, pixelDimensions), "Could not load Font.");
@@ -35,6 +36,7 @@ bool Font::LoadFont(std::filesystem::path path, const IntVector2& pixelDimension
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogLineAndFlush(std::format("Failed to read file contents from {}", path));
     } else {
+        m_filepath = path;
         return LoadFont(*file_contents, pixelDimensions);
     }
     return m_loaded;
@@ -57,55 +59,146 @@ bool Font::LoadFont(const std::vector<uint8_t>& buffer, const IntVector2& pixelD
         FT_Done_FreeType(library);
         return false;
     }
-    m_data.face = face;
     m_data.pixelDimensions = pixelDimensions;
     m_data.hasKerning = FT_HAS_KERNING(face);
+    m_data.ascender = face->ascender >> 6;
+    m_data.descender = face->descender >> 6;
+    m_data.em_units = face->units_per_EM >> 6;
+    m_data.base = face->height >> 6;
+    const auto family_name = std::string(face->family_name ? face->family_name : "");
+    m_name = std::format("{}{}", family_name, pixelDimensions.y);
     if(!m_data.hasKerning) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
-        const auto family_name = std::string(face->family_name ? face->family_name : "");
-        logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}{}\".", family_name, pixelDimensions.y));
+        logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}\".", m_name));
     }
-    LoadCommonData();
+    LoadCommonData(face);
     FT_Done_Face(face);
     FT_Done_FreeType(library);
     m_loaded = true;
     return m_loaded;
 }
 
-std::vector<Font::GlyphData> Font::LoadGlyphData(FT_Face face) noexcept {
-    FT_GlyphSlot slot{face->glyph};
-    std::vector<GlyphData> glyphs;
-    glyphs.reserve(face->num_glyphs);
-    unsigned int glyph_index{0ul};
-
-    for(auto charcode = FT_Get_First_Char(face, &glyph_index); glyph_index != 0; charcode = FT_Get_Next_Char(face, charcode, &glyph_index)) {
-        if(const auto ft_glyph_error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT); ft_glyph_error != FT_Err_Ok) {
-            continue;
-        }
-        const auto metrics = slot->metrics;
-        const auto advance = slot->advance.x >> 6;
-        const auto advancev = slot->advance.y >> 6;
-        const auto width = [&]() {
-            const auto widthAsPixels = metrics.width >> 6;
-            const auto isSpace = charcode == ' ';
-            const auto isNarrow = widthAsPixels == 0;
-            return isNarrow || isSpace ? advance : widthAsPixels;
-        }();
-        const auto height = [&]() {
-            const auto heightAsPixels = metrics.height >> 6;
-            const auto isNarrow = heightAsPixels == 0;
-            return isNarrow ? advancev : heightAsPixels;
-            }();
-        glyphs.push_back(Font::GlyphData{glyph_index, width, height, AABB2{}, IntVector2::Zero, charcode, advance});
-    }
-    return glyphs;
+bool Font::IsLoaded() const noexcept {
+    return m_loaded;
 }
 
-void Font::LoadCommonData() noexcept {
-    auto face = m_data.face;
-    auto glyphs = LoadGlyphData(face);
+const std::string& Font::GetName() const noexcept {
+    return m_name;
+}
 
-    std::sort(std::begin(glyphs), std::end(glyphs), [](const GlyphData& a, const GlyphData& b) {
+const std::filesystem::path& Font::GetFilePath() const noexcept {
+    return m_filepath;
+}
+
+float Font::CalculateTextWidth(const std::string& text, float scale /*= 1.0f*/) const noexcept {
+    auto cursor_x = 0.0f;
+
+    for(auto char_iter = text.begin(); char_iter != text.end(); /* DO NOTHING */) {
+        const auto current_char_def = GetCharDef(*char_iter);
+        const auto previous_char = char_iter++;
+        if(char_iter != text.end()) {
+            auto kern_value = 0.0f;
+            if(m_data.hasKerning) {
+                if(const auto kern_iter = m_kerning.find(std::make_pair(*previous_char, *char_iter)); kern_iter != std::cend(m_kerning)) {
+                    kern_value = static_cast<float>(kern_iter->second);
+                }
+            }
+            cursor_x += current_char_def.advance + kern_value;
+        } else {
+            const auto previous_char_def = GetCharDef(*previous_char);
+            cursor_x += previous_char_def.advance;
+        }
+    }
+
+    return cursor_x * scale;
+}
+
+Font::GlyphData Font::GetCharDef(int c) const noexcept {
+    const auto iter = std::find_if(std::cbegin(m_glyphs), std::cend(m_glyphs), [&c](const GlyphData& glyph) { return glyph.charCode == static_cast<unsigned long>(c); });
+    if(iter == std::cend(m_glyphs)) {
+        return {};
+    }
+    return *iter;
+}
+
+float Font::CalculateTextHeight(float scale /*= 1.0f*/) const noexcept {
+    return GetLineHeight() * scale;
+}
+
+Vector2 Font::CalculateTextDimensions(const std::string& text, float scale /*= 1.0f*/) const noexcept {
+    return Vector2{CalculateTextWidth(text, scale), CalculateTextHeight(scale)};
+}
+
+AABB2 Font::CalculateTextArea(const std::string& text, float scale /*= 1.0f*/) const noexcept {
+    AABB2 result{};
+    result.StretchToIncludePoint(CalculateTextDimensions(text, scale));
+    return result;
+}
+
+float Font::GetLineHeight() const noexcept {
+    return static_cast<float>(m_data.ascender - m_data.descender);
+}
+
+float Font::GetLineHeightAsUV() const noexcept {
+    return GetLineHeight() / m_data.texture_size;
+}
+
+bool Font::LoadFromFile(std::filesystem::path filepath) noexcept {
+    return LoadFont(filepath, IntVector2{32,32});
+}
+
+bool Font::LoadFromBuffer(const std::vector<uint8_t>& buffer) noexcept {
+    return LoadFont(buffer, IntVector2{32,32});
+}
+
+Material* Font::GetMaterial() const noexcept {
+    return m_material;
+}
+
+void Font::SetMaterial(Material* mat) noexcept {
+    m_material = mat;
+}
+
+int Font::GetKerningValue(unsigned long first, unsigned long second) const noexcept {
+    if(m_kerning.empty()) {
+        return 0;
+    }
+    if(const auto iter = m_kerning.find(std::make_pair(first, second)); iter != std::cend(m_kerning)) {
+        return static_cast<int>(iter->second);
+    } else {
+        return 0;
+    }
+
+}
+
+AABB2 Font::GetGlyphUVs(int c) const noexcept {
+    const auto& glyph = GetCharDef(c);
+    return glyph.uvs;
+}
+
+Vector2 Font::GetGlyphOffsets(int c) const noexcept {
+    const auto& glyph = GetCharDef(c);
+    return Vector2(glyph.offsets);
+}
+
+Vector2 Font::GetGlyphDimensions(int c) const noexcept {
+    const auto& glyph = GetCharDef(c);
+    return Vector2(static_cast<float>(glyph.width), static_cast<float>(glyph.height));
+}
+
+int Font::GetGlyphAdvance(int c) const noexcept {
+    const auto& glyph = GetCharDef(c);
+    return glyph.advance;
+}
+
+int Font::GetEmSize() const noexcept {
+    return m_data.em_units;
+}
+
+void Font::LoadCommonData(FT_Face face) noexcept {
+    m_glyphs = LoadGlyphData(face);
+    
+    std::sort(std::begin(m_glyphs), std::end(m_glyphs), [](const GlyphData& a, const GlyphData& b) {
         if(b.height < a.height) {
             return true;
         } else if(b.height == a.height) {
@@ -122,8 +215,40 @@ void Font::LoadCommonData() noexcept {
 
     const auto target_size = 128u;
     auto actual_texture_size = target_size;
-    const auto rects = CalculateGlyphPacking(glyphs, target_size, actual_texture_size);
-    GenerateFontAtlas(face, rects, actual_texture_size, actual_texture_size);
+    const auto rects = CalculateGlyphPacking(m_glyphs, target_size, actual_texture_size);
+    m_data.texture_size = actual_texture_size;
+    GenerateFontAtlas(face, m_data.pixelDimensions.y, rects, actual_texture_size, actual_texture_size);
+    CreateMaterial();
+}
+
+std::vector<Font::GlyphData> Font::LoadGlyphData(FT_Face face) noexcept {
+    FT_GlyphSlot slot{face->glyph};
+    std::vector<GlyphData> glyphs;
+    glyphs.reserve(face->num_glyphs);
+    unsigned int glyph_index{0ul};
+
+    for(auto charcode = FT_Get_First_Char(face, &glyph_index); glyph_index != 0; charcode = FT_Get_Next_Char(face, charcode, &glyph_index)) {
+        if(const auto ft_glyph_error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT); ft_glyph_error != FT_Err_Ok) {
+            continue;
+        }
+        const auto metrics = slot->metrics;
+        const auto advance = slot->advance.x >> 6;
+        const auto offsets = IntVector2{metrics.horiBearingX >> 6, metrics.horiBearingY >> 6};
+        const auto width = [&]() {
+            const auto widthAsPixels = metrics.width >> 6;
+            const auto isSpace = charcode == ' ';
+            const auto isNarrow = widthAsPixels == 0;
+            return isNarrow || isSpace ? advance : widthAsPixels;
+        }();
+        const auto height = [&]() {
+            const auto heightAsPixels = metrics.height >> 6;
+            const auto isNarrow = heightAsPixels == 0;
+            const auto isSpace = charcode == ' ';
+            return isNarrow || isSpace ? static_cast<long>(GetLineHeight()) : heightAsPixels;
+        }();
+        glyphs.push_back(Font::GlyphData{glyph_index, width, height, AABB2{}, offsets, charcode, advance});
+    }
+    return glyphs;
 }
 
 std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyphs, unsigned int target_texture_size, unsigned int& actual_texture_size) noexcept {
@@ -160,16 +285,15 @@ std::vector<stbrp_rect> CalculateGlyphPacking(std::vector<Font::GlyphData>& glyp
         auto& glyph = glyphs[i];
         const auto& r = rects[i];
         glyph.uvs = AABB2(r.x / static_cast<float>(target_width), r.y / static_cast<float>(target_height), (r.x + r.w) / static_cast<float>(target_width), (r.y + r.h) / static_cast<float>(target_height));
-        glyph.offsets = IntVector2(r.x, r.y);
     }
     return rects;
 }
 
-void GenerateFontAtlas(FT_Face face, const std::vector<stbrp_rect>& rects, unsigned int target_width, unsigned int target_height) noexcept {
+void GenerateFontAtlas(FT_Face face, int font_height, const std::vector<stbrp_rect>& rects, unsigned int target_width, unsigned int target_height) noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
-    std::vector<Rgba> data = std::vector<Rgba>(target_width * target_height, Rgba::Black);
-    if(const auto texture_atlas = renderer->Create2DTextureFromMemory(data, target_width, target_height, BufferUsage::Default, BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target); texture_atlas != nullptr) {
-        if(const auto texture_ds = renderer->CreateDepthStencil(*renderer->GetDevice(), target_width, target_height); texture_ds != nullptr) {
+    std::vector<Rgba> data = std::vector<Rgba>(target_width * target_height, Rgba::NoAlpha);
+    if(auto texture_atlas = renderer->Create2DTextureFromMemory(data, target_width, target_height, BufferUsage::Default, BufferBindUsage::Shader_Resource | BufferBindUsage::Render_Target); texture_atlas != nullptr) {
+        if(auto texture_ds = renderer->CreateDepthStencil(*renderer->GetDevice(), target_width, target_height); texture_ds != nullptr) {
             renderer->SetRenderTarget(texture_atlas.get(), texture_ds.get());
             for(auto i = std::size_t{0u}; i < rects.size(); ++i) {
                 auto& r = rects[i];
@@ -200,12 +324,43 @@ void GenerateFontAtlas(FT_Face face, const std::vector<stbrp_rect>& rects, unsig
                     }
                 }
             }
-            const auto path = FileUtils::GetKnownFolderPath(FileUtils::KnownPathID::GameData) / "Images" / std::format("{}", "dolphin_atlas.png");
-            auto img = Image(texture_atlas.get());
-            if(const auto exported = img.Export(path); !exported) {
-                auto* logger = ServiceLocator::get<IFileLoggerService>();
-                logger->LogLine(std::format("Font Atlas creation failed for atlas {}\n", "dolphin"));
-            }
+            const auto style_name_sv = std::string_view(face->style_name ? face->style_name : "");
+            const auto family_name_sv = std::string_view(face->family_name ? face->family_name : "");
+            const auto size = font_height;
+            const auto font_name = std::format("{}{}", family_name_sv, size);
+            const auto register_err = std::format("Failed to register texture for font \"{}\"", font_name);
+            const auto material_name = std::format("__Font_{}", font_name);
+            texture_atlas->SetDebugName(material_name);
+            GUARANTEE_OR_DIE(renderer->RegisterTexture(material_name, std::move(texture_atlas)), register_err);
+            renderer->SetRenderTargetsToBackBuffer();
         }
     }
+}
+
+void Font::CreateMaterial() noexcept {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    const std::string name = GetName();
+    const std::string shader = "__font";
+    const std::string material_name = std::format("__Font_{}", name);
+    const std::string& tex_name = material_name;
+    std::ostringstream material_stream;
+    std::string material_string = std::format(
+R"(
+<material name="{}">
+    <shader src="{}" />
+    <textures>
+        <diffuse src="{}" />
+    </textures>
+</material>
+)",material_name, shader, tex_name);
+    tinyxml2::XMLDocument doc;
+    const auto result = doc.Parse(material_string.c_str(), material_string.size());
+    GUARANTEE_OR_DIE(result == tinyxml2::XML_SUCCESS, "Failed to create default system32 font: Invalid XML file.\n");
+    const auto* xml_root = doc.RootElement();
+    {
+        auto mat = std::make_unique<Material>(*xml_root);
+        renderer->RegisterMaterial(std::move(mat));
+    }
+    auto mat = renderer->GetMaterial(material_name);
+    SetMaterial(mat);
 }

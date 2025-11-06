@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/IFont.hpp"
+
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/IntVector2.hpp"
 #include "Engine/Math/IntVector4.hpp"
@@ -13,7 +15,7 @@
 class Material;
 class Renderer;
 
-class KerningFont {
+class KerningFont : public a2de::IFont {
 public:
     struct KerningFontInfoDef {
         std::string face{};     //name of true type font
@@ -90,32 +92,45 @@ public:
     [[nodiscard]] static Vector2 CalculateTextDimensions(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
     [[nodiscard]] static AABB2 CalculateTextArea(const KerningFont& font, const std::string& text, float scale = 1.0f) noexcept;
 
-    [[nodiscard]] float CalculateTextWidth(const std::string& text, float scale = 1.0f) const noexcept;
-    [[nodiscard]] float CalculateTextHeight(float scale = 1.0f) const noexcept;
+    [[nodiscard]] float CalculateTextWidth(const std::string& text, float scale = 1.0f) const noexcept override;
+    [[nodiscard]] float CalculateTextHeight(float scale = 1.0f) const noexcept override;
 
-    [[nodiscard]] Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) const noexcept;
-    [[nodiscard]] AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) const noexcept;
+    [[nodiscard]] Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) const noexcept override;
+    [[nodiscard]] AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) const noexcept override;
 
-    [[nodiscard]] float GetLineHeight() const noexcept;
-    [[nodiscard]] float GetLineHeightAsUV() const noexcept;
+    [[nodiscard]] float GetLineHeight() const noexcept override;
+    [[nodiscard]] float GetLineHeightAsUV() const noexcept override;
 
-    [[nodiscard]] const std::string& GetName() const noexcept;
+    [[nodiscard]] const std::string& GetName() const noexcept override;
     [[nodiscard]] KerningFont::CharDef GetCharDef(int ch) const noexcept;
     [[nodiscard]] const KerningFont::CommonDef& GetCommonDef() const noexcept;
     [[nodiscard]] const KerningFont::InfoDef& GetInfoDef() const noexcept;
 
     [[nodiscard]] const std::vector<std::string>& GetImagePaths() const noexcept;
-    [[nodiscard]] const std::filesystem::path& GetFilePath() const noexcept;
-    [[nodiscard]] bool LoadFromFile(std::filesystem::path filepath) noexcept;
-    [[nodiscard]] bool LoadFromBuffer(const std::vector<uint8_t>& buffer) noexcept;
+    [[nodiscard]] const std::filesystem::path& GetFilePath() const noexcept override;
+    [[nodiscard]] bool LoadFromFile(std::filesystem::path filepath) noexcept override;
+    [[nodiscard]] bool LoadFromBuffer(const std::vector<uint8_t>& buffer) noexcept override;
 
-    [[nodiscard]] Material* GetMaterial() const noexcept;
-    void SetMaterial(Material* mat) noexcept;
+    [[nodiscard]] Material* GetMaterial() const noexcept override;
+    void SetMaterial(Material* mat) noexcept override;
 
+    [[nodiscard]] int GetKerningValue(unsigned long first, unsigned long second) const noexcept override;
     [[nodiscard]] int GetKerningValue(int first, int second) const noexcept;
+
+    [[nodiscard]] bool IsLoaded() const noexcept override;
+    [[nodiscard]] AABB2 GetGlyphUVs(int c) const noexcept override;
+    [[nodiscard]] Vector2 GetGlyphOffsets(int c) const noexcept override;
+    [[nodiscard]] Vector2 GetGlyphDimensions(int c) const noexcept override;
+    [[nodiscard]] int GetGlyphAdvance(int c) const noexcept override;
+
+    [[nodiscard]] int GetEmSize() const noexcept override;
 
 protected:
 private:
+
+    void CreateMaterial() noexcept;
+    void CreateTextures() noexcept;
+
     [[nodiscard]] bool LoadFromText(std::vector<unsigned char>& buffer) noexcept;
     [[nodiscard]] bool LoadFromXml(std::vector<unsigned char>& buffer) noexcept;
     [[nodiscard]] bool LoadFromBinary(std::vector<unsigned char>& buffer) noexcept;

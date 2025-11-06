@@ -4,7 +4,12 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
+
 #include "Engine/Renderer/Material.hpp"
+
+#include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IService.hpp"
+#include "Engine/Services/IRendererService.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -154,6 +159,8 @@ bool KerningFont::LoadFromBuffer(const std::vector<uint8_t>& buffer) noexcept {
     } else {
         m_is_loaded = LoadFromXml(out_buffer);
     }
+    CreateTextures();
+    CreateMaterial();
     return m_is_loaded;
 }
 
@@ -165,12 +172,53 @@ void KerningFont::SetMaterial(Material* mat) noexcept {
     m_material = mat;
 }
 
+int KerningFont::GetKerningValue(unsigned long first, unsigned long second) const noexcept {
+    const auto firstAsInt = static_cast<int>(first);
+    const auto secondAsInt = static_cast<int>(second);
+    return GetKerningValue(firstAsInt, secondAsInt);
+}
+
 int KerningFont::GetKerningValue(int first, int second) const noexcept {
     if(const auto iter = m_kernmap.find(std::make_pair(first, second)); iter != m_kernmap.end()) {
         return (*iter).second;
     } else {
         return 0;
     }
+}
+
+bool KerningFont::IsLoaded() const noexcept {
+    return m_is_loaded;
+}
+
+AABB2 KerningFont::GetGlyphUVs(int c) const noexcept {
+    const auto current_def = GetCharDef(c);
+    auto texture_w = static_cast<float>(GetCommonDef().scale.x);
+    auto texture_h = static_cast<float>(GetCommonDef().scale.y);
+
+    float char_uvl = current_def.position.x / texture_w;
+    float char_uvt = current_def.position.y / texture_h;
+    float char_uvr = char_uvl + (current_def.dimensions.x / texture_w);
+    float char_uvb = char_uvt + (current_def.dimensions.y / texture_h);
+    return AABB2{char_uvl, char_uvt, char_uvr, char_uvb};
+}
+
+Vector2 KerningFont::GetGlyphOffsets(int c) const noexcept {
+    const auto current_def = GetCharDef(c);
+    return Vector2(current_def.offsets);
+}
+
+Vector2 KerningFont::GetGlyphDimensions(int c) const noexcept {
+    const auto current_def = GetCharDef(c);
+    return Vector2(current_def.dimensions);
+}
+
+int KerningFont::GetGlyphAdvance(int c) const noexcept {
+    const auto current_def = GetCharDef(c);
+    return current_def.xadvance;
+}
+
+int KerningFont::GetEmSize() const noexcept {
+    return GetInfoDef().em_size;
 }
 
 bool KerningFont::LoadFromText(std::vector<unsigned char>& buffer) noexcept {
@@ -522,6 +570,36 @@ bool KerningFont::ParseKerningLine(const std::string& kerningLine) noexcept {
         m_kernmap.insert_or_assign(std::make_pair(def.first, def.second), def.amount);
     }
     return true;
+}
+
+void KerningFont::CreateMaterial() noexcept {
+    auto* renderer = ServiceLocator::get<IRendererService>();
+    const std::string name = GetName();
+    const std::string shader = "__2D";
+    const std::string material_name = std::format("__Font_{}", name);
+    const std::string& tex_name = material_name;
+    std::ostringstream material_stream;
+    material_stream << "<material name=\"{}" << material_name << "\">";
+    material_stream << "<shader src=\"" << shader << "\" />";
+    material_stream << "<textures>";
+    material_stream << "<diffuse src=\"" << tex_name << "\" />";
+    material_stream << "</textures>";
+    material_stream << "</material>";
+    tinyxml2::XMLDocument doc;
+    std::string material_string = material_stream.str();
+    const auto result = doc.Parse(material_string.c_str(), material_string.size());
+    GUARANTEE_OR_DIE(result == tinyxml2::XML_SUCCESS, "Failed to create default system32 font: Invalid XML file.\n");
+    const auto* xml_root = doc.RootElement();
+    {
+        auto mat = std::make_unique<Material>(*xml_root);
+        renderer->RegisterMaterial(std::move(mat));
+    }
+    auto mat = renderer->GetMaterial(material_name);
+    SetMaterial(mat);
+}
+
+void KerningFont::CreateTextures() noexcept {
+
 }
 
 bool KerningFont::LoadFromXml(std::vector<unsigned char>& buffer) noexcept {

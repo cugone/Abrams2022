@@ -7,7 +7,6 @@
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
-#include "Engine/Core/KerningFont.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Platform/Win.hpp"
 #include "Engine/Input/KeyCode.hpp"
@@ -983,7 +982,7 @@ void Console::DrawCursor(const Vector2& view_half_extents) const noexcept {
     auto* renderer = ServiceLocator::get<IRendererService>();
     const auto textline_bottom = view_half_extents.y * 0.99f;
     const auto textline_left = -view_half_extents.x * 0.99f;
-    const auto font = renderer->GetFont("System32");
+    const auto font = renderer->GetDefaultFont();
     const auto first = m_entryline.begin();
     const auto has_text = !m_entryline.empty();
     const auto text_left_of_cursor = has_text ? std::string(first, m_cursor_position) : std::string("");
@@ -1005,7 +1004,7 @@ void Console::DrawOutput(const Vector2& view_half_extents) const noexcept {
     std::vector<Vertex3D> vbo{};
     std::vector<unsigned int> ibo{};
     auto* renderer = ServiceLocator::get<IRendererService>();
-    auto* font = renderer->GetFont("System32");
+    auto* font = renderer->GetDefaultFont();
     const auto max_vertical_start_position = (m_output_buffer.size() * (1 + font->GetLineHeight()) - view_half_extents.y * 2.0f);
     if(m_outputStartPosition.y <= max_vertical_start_position && WasMouseWheelJustScrolledUp()) {
         m_outputStartPosition.y += font->GetLineHeight();
@@ -1126,7 +1125,7 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
     ZoneScopedC(0xFF0000);
 #endif
     auto* renderer = ServiceLocator::get<IRendererService>();
-    const auto font = renderer->GetFont("System32");
+    const auto font = renderer->GetDefaultFont();
     const float textline_bottom = view_half_extents.y * 0.99f;
     const float textline_left = -view_half_extents.x * 0.99f;
 
@@ -1153,19 +1152,15 @@ void Console::DrawEntryLine(const Vector2& view_half_extents) const noexcept {
         renderer->DrawTextLine(font, std::string(m_entryline, 0, std::distance(std::cbegin(m_entryline), rangeStart)), Rgba::White);
         auto rightside_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToSelect, 0.0f, 0.0f));
         rightside_t = Matrix4::MakeRT(model_entryline_mat, rightside_t);
-        renderer->SetModelMatrix(rightside_t);
-        renderer->DrawTextLine(font, std::string(m_entryline, std::distance(std::cbegin(m_entryline), rangeEnd), std::distance(rangeEnd, std::cend(m_entryline))), Rgba::White);
+        renderer->DrawTextLine(rightside_t, font, std::string(m_entryline, std::distance(std::cbegin(m_entryline), rangeEnd), std::distance(rangeEnd, std::cend(m_entryline))), Rgba::White);
 
         const auto xPosOffsetToStart = font->CalculateTextWidth(std::string(std::begin(m_entryline), rangeStart));
         const auto blacktext_t = Matrix4::CreateTranslationMatrix(Vector3(xPosOffsetToStart, 0.0f, 0.0f));
         auto model_mat_blacktext = Matrix4::MakeRT(model_entryline_mat, blacktext_t);
-        renderer->SetModelMatrix(model_mat_blacktext);
-        renderer->DrawTextLine(font, std::string(rangeStart, rangeEnd), Rgba::Black);
+        renderer->DrawTextLine(model_mat_blacktext, font, std::string(rangeStart, rangeEnd), Rgba::Black);
 
     } else {
-        renderer->SetModelMatrix(model_entryline_mat);
-        renderer->SetMaterial(font->GetMaterial());
-        renderer->DrawTextLine(font, m_entryline, Rgba::White);
+        renderer->DrawTextLine(model_entryline_mat, font, m_entryline, Rgba::White);
     }
 }
 

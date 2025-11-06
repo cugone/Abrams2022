@@ -16,11 +16,11 @@ class IFont {
 public:
     virtual ~IFont() noexcept = default;
 
-    [[nodiscard]] virtual float CalculateTextWidth(const std::string& text, float scale = 1.0f) noexcept = 0;
-    [[nodiscard]] virtual float CalculateTextHeight(float scale = 1.0f) noexcept = 0;
+    [[nodiscard]] virtual float CalculateTextWidth(const std::string& text, float scale = 1.0f) const noexcept = 0;
+    [[nodiscard]] virtual float CalculateTextHeight(float scale = 1.0f) const noexcept = 0;
 
-    [[nodiscard]] virtual Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) noexcept = 0;
-    [[nodiscard]] virtual AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) noexcept = 0;
+    [[nodiscard]] virtual Vector2 CalculateTextDimensions(const std::string& text, float scale = 1.0f) const noexcept = 0;
+    [[nodiscard]] virtual AABB2 CalculateTextArea(const std::string& text, float scale = 1.0f) const noexcept = 0;
 
     [[nodiscard]] virtual float GetLineHeight() const noexcept = 0;
     [[nodiscard]] virtual float GetLineHeightAsUV() const noexcept = 0;
@@ -31,30 +31,19 @@ public:
     [[nodiscard]] virtual Material* GetMaterial() const noexcept = 0;
     virtual void SetMaterial(Material* mat) noexcept = 0;
 
+    [[nodiscard]] virtual const std::string& GetName() const noexcept = 0;
+    [[nodiscard]] virtual const std::filesystem::path& GetFilePath() const noexcept = 0;
+
     [[nodiscard]] virtual int GetKerningValue(unsigned long first, unsigned long second) const noexcept = 0;
+
+    [[nodiscard]] virtual AABB2 GetGlyphUVs(int c) const noexcept = 0;
+    [[nodiscard]] virtual Vector2 GetGlyphOffsets(int c) const noexcept = 0;
+    [[nodiscard]] virtual Vector2 GetGlyphDimensions(int c) const noexcept = 0;
+    [[nodiscard]] virtual int GetGlyphAdvance(int c) const noexcept = 0;
+
+    [[nodiscard]] virtual int GetEmSize() const noexcept = 0;
+
+    [[nodiscard]] virtual bool IsLoaded() const noexcept = 0;
 };
 
 } // namespace a2de
-
-template<typename T>
-concept FontHasStaticCreate = requires(T t) {
-    {
-        T::Create()
-    } -> std::convertible_to<a2de::IFont>;
-};
-
-template<typename T>
-concept FontHasMemberCreate = requires(T t) {
-    {
-        t.Create()
-    } -> std::convertible_to<a2de::IFont>;
-};
-
-template<typename TFontClass, typename TFontInterface>
-requires FontHasMemberCreate<TFontClass>
-class FontFactory {
-public:
-    TFontInterface* Create(TFontClass* font) noexcept {
-        return font->Create();
-    }
-};

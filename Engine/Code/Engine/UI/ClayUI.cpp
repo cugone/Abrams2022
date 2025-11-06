@@ -83,12 +83,12 @@ static inline Clay_Dimensions MeasureText(Clay_StringSlice text, [[maybe_unused]
     auto font_id = renderer->GetFontById(config->fontId);
     if(font_id == nullptr) {
         if(config->fontId == 0) {
-            font_id = renderer->GetFont("System32");
+            font_id = renderer->GetDefaultFont();
         } else {
             return Clay_Dimensions{0.0f, 0.0f};
         }
     }
-    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font_id->GetInfoDef().em_size) : 1.0f;
+    const auto scale = config->fontSize ? config->fontSize / static_cast<float>(font_id->GetEmSize()) : 1.0f;
     return {font_id->CalculateTextWidth(str_text, scale), font_id->CalculateTextHeight(scale)};
 }
 
@@ -325,7 +325,7 @@ void ClayUI::Render() const noexcept {
             const auto bounds = AABB2(top_left, bottom_right);
             auto color = Clay::ClayColorToRgba(config.textColor);
             auto* font = renderer->GetFontById(config.fontId);
-            const auto scale = config.fontSize ? (config.fontSize / static_cast<float>(font->GetInfoDef().em_size)) : 1.0f;
+            const auto scale = config.fontSize ? (config.fontSize / static_cast<float>(font->GetEmSize())) : 1.0f;
             const auto S = Matrix4::CreateScaleMatrix(scale);
             const auto R = Matrix4::I;
             const auto T = Matrix4::CreateTranslationMatrix(bounds.CalcCenter() + Vector2(-half_extents.x, half_extents.y));
