@@ -66,7 +66,9 @@ bool Font::LoadFont(const std::vector<uint8_t>& buffer, const IntVector2& pixelD
     m_data.em_units = face->units_per_EM >> 6;
     m_data.base = face->height >> 6;
     const auto family_name = std::string(face->family_name ? face->family_name : "");
-    m_name = std::format("{}{}", family_name, pixelDimensions.y);
+    const auto style_name = std::string(face->style_name ? face->style_name : "");
+    const auto size = pixelDimensions.y;
+    m_name = std::format("{}{}{}", family_name, style_name, size);
     if(!m_data.hasKerning) {
         auto* logger = ServiceLocator::get<IFileLoggerService>();
         logger->LogLineAndFlush(std::format("No kerning pairs found in font \"{}\".", m_name));
@@ -327,11 +329,11 @@ void GenerateFontAtlas(FT_Face face, int font_height, const std::vector<stbrp_re
             const auto style_name_sv = std::string_view(face->style_name ? face->style_name : "");
             const auto family_name_sv = std::string_view(face->family_name ? face->family_name : "");
             const auto size = font_height;
-            const auto font_name = std::format("{}{}", family_name_sv, size);
+            const auto font_name = std::format("{}{}{}", family_name_sv, style_name_sv, size);
             const auto register_err = std::format("Failed to register texture for font \"{}\"", font_name);
-            const auto material_name = std::format("__Font_{}", font_name);
-            texture_atlas->SetDebugName(material_name);
-            GUARANTEE_OR_DIE(renderer->RegisterTexture(material_name, std::move(texture_atlas)), register_err);
+            const auto texture_name = std::format("__Font_{}", font_name);
+            texture_atlas->SetDebugName(texture_name);
+            GUARANTEE_OR_DIE(renderer->RegisterTexture(texture_name, std::move(texture_atlas)), register_err);
             renderer->SetRenderTargetsToBackBuffer();
         }
     }
