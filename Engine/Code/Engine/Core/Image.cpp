@@ -171,7 +171,13 @@ Image::Image(const Texture* tex, const Renderer* /*renderer*/) noexcept
 }
 
 Image::Image(const Texture* tex) noexcept {
-    auto* tex2d = tex->GetDxResourceAs<ID3D11Texture2D>();
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> tex2d{};
+    {
+        Microsoft::WRL::ComPtr<ID3D11Resource> texDx{tex->GetDxResource()};
+        const auto hr = texDx.As(&tex2d);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr));
+    }
+
     D3D11_TEXTURE2D_DESC desc{};
     tex2d->GetDesc(&desc);
 
@@ -181,13 +187,15 @@ Image::Image(const Texture* tex) noexcept {
     m_texelBytes.resize(size);
     const auto* const renderer = ServiceLocator::const_get<IRendererService>();
     auto stage = renderer->Create2DTextureFromMemory(m_texelBytes.data(), desc.Width, desc.Height, BufferUsage::Staging);
-    renderer->CopyTexture(tex, stage.get());
+    auto* dc = renderer->GetDeviceContext();
+    auto* dx_dc = dc->GetDxContext();
+    dx_dc->CopyResource(stage->GetDxResource(), tex2d.Get());
 
     D3D11_MAPPED_SUBRESOURCE resource{};
-    auto* dc = renderer->GetDeviceContext();
-    auto* dc_dx = dc->GetDxContext();
-    auto hr = dc_dx->Map(stage->GetDxResource(), 0u, D3D11_MAP_READ, 0u, &resource);
-    GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr));
+    {
+        auto hr = dx_dc->Map(stage->GetDxResource(), 0u, D3D11_MAP_READ, 0u, &resource);
+        GUARANTEE_OR_DIE(SUCCEEDED(hr), StringUtils::FormatWindowsMessage(hr));
+    }
 
     auto* src = reinterpret_cast<unsigned int*>(resource.pData);
     auto* dst = reinterpret_cast<unsigned int*>(m_texelBytes.data());
@@ -197,7 +205,8 @@ Image::Image(const Texture* tex) noexcept {
         dst += resource.RowPitch >> 2;
         src += desc.Width;
     }
-    dc_dx->Unmap(stage->GetDxResource(), 0u);
+    dx_dc->Unmap(stage->GetDxResource(), 0u);
+    stage.reset(nullptr);
 }
 
 Image& Image::operator=(Image&& rhs) noexcept {

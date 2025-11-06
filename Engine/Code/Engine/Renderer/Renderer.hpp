@@ -8,6 +8,7 @@
 #include "Engine/Core/FileLogger.hpp"
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/Image.hpp"
+#include "Engine/Core/IFont.hpp"
 #include "Engine/Core/JobSystem.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
@@ -136,7 +137,7 @@ public:
 
     [[nodiscard]] Texture* GetTexture(const std::string& nameOrFile) noexcept override;
 
-    //TODO: [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, uint32_t width, uint32_t height) noexcept override;
+    [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, uint32_t width, uint32_t height) noexcept override;
     [[nodiscard]] std::unique_ptr<Texture> CreateDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept override;
     [[nodiscard]] std::unique_ptr<Texture> CreateRenderableDepthStencil(const RHIDevice& owner, const IntVector2& dimensions) noexcept override;
 
@@ -280,7 +281,6 @@ public:
 
     void SetVSync(bool value) noexcept override;
 
-    [[nodiscard]] std::unique_ptr<Material> CreateMaterialFromFont(KerningFont* font) noexcept override;
     [[nodiscard]] bool RegisterMaterial(std::filesystem::path filepath) noexcept override;
     void RegisterMaterial(std::unique_ptr<Material> mat) noexcept override;
     void RegisterMaterialsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;
@@ -303,10 +303,11 @@ public:
     void SetComputeShader(Shader* shader) noexcept override;
     void DispatchComputeJob(const ComputeJob& job) noexcept override;
 
-    [[nodiscard]] KerningFont* GetFont(const std::string& nameOrFile) noexcept override;
-    [[nodiscard]] KerningFont* GetFontById(uint16_t index) noexcept override;
+    [[nodiscard]] a2de::IFont* GetDefaultFont() noexcept override;
+    [[nodiscard]] a2de::IFont* GetFont(const std::string& nameOrFile) noexcept override;
+    [[nodiscard]] a2de::IFont* GetFontById(uint16_t index) noexcept override;
     [[nodiscard]] std::size_t GetFontId(const std::string& nameOrFile) noexcept override;
-    void RegisterFont(std::unique_ptr<KerningFont> font) noexcept override;
+    void RegisterFont(std::unique_ptr<a2de::IFont> font) noexcept override;
     [[nodiscard]] bool RegisterFont(std::filesystem::path filepath) noexcept override;
     void RegisterFontsFromFolder(std::filesystem::path folderpath, bool recursive = false) noexcept override;
 
@@ -385,10 +386,10 @@ public:
     void DrawX2D(const Vector2& position = Vector2::Zero, const Vector2& half_extents = Vector2(0.5f, 0.5f), const Rgba& color = Rgba::White) noexcept override;
     void DrawX2D(const Rgba& color) noexcept override;
     void DrawArrow2D(const Vector2& position, const Rgba& color, const Vector2& direction, float tailLength, float arrowHeadSize = 0.1f) noexcept override;
-    void DrawTextLine(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
-    void DrawTextLine(const Matrix4& transform, const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
-    void DrawMultilineText(const KerningFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
-    void AppendMultiLineTextBuffer(const KerningFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept override;
+    void DrawTextLine(const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
+    void DrawTextLine(const Matrix4& transform, const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
+    void DrawMultilineText(const a2de::IFont* font, const std::string& text, const Rgba& color = Rgba::White) noexcept override;
+    void AppendMultiLineTextBuffer(const a2de::IFont* font, const std::string& text, const Vector2& start_position, const Rgba& color, std::vector<Vertex3D>& vbo, std::vector<unsigned int>& ibo) noexcept override;
 
     void CopyTexture(const Texture* src, Texture* dst) const noexcept override;
     void ResizeBuffers() noexcept override;
@@ -426,7 +427,7 @@ private:
     void RegisterRasterState(const std::string& name, std::unique_ptr<RasterState> raster) noexcept override;
     void RegisterDepthStencilState(const std::string& name, std::unique_ptr<DepthStencilState> depthstencil) noexcept override;
     void RegisterSampler(const std::string& name, std::unique_ptr<Sampler> sampler) noexcept override;
-    void RegisterFont(const std::string& name, std::unique_ptr<KerningFont> font) noexcept override;
+    void RegisterFont(const std::string& name, std::unique_ptr<a2de::IFont> font) noexcept override;
 
     void CreateDefaultConstantBuffers() noexcept;
     void CreateWorkingVboAndIbo() noexcept;
@@ -556,7 +557,7 @@ private:
     [[nodiscard]] std::unique_ptr<DepthStencilState> CreateEnabledStencil() noexcept;
 
     void CreateAndRegisterDefaultFonts() noexcept;
-    [[nodiscard]] std::unique_ptr<KerningFont> CreateDefaultSystem32Font() noexcept;
+    [[nodiscard]] std::unique_ptr<a2de::IFont> CreateDefaultSystem32Font() noexcept;
 
     void UnbindAllResourcesAndBuffers() noexcept;
     void UnbindAllResources() noexcept;
@@ -613,7 +614,7 @@ private:
     std::vector<std::pair<std::string, std::unique_ptr<Sampler>>> m_samplers;
     std::vector<std::pair<std::string, std::unique_ptr<RasterState>>> m_rasters;
     std::vector<std::pair<std::string, std::unique_ptr<DepthStencilState>>> m_depthstencils;
-    std::vector<std::pair<std::string, std::unique_ptr<KerningFont>>> m_fonts;
+    std::vector<std::pair<std::string, std::unique_ptr<a2de::IFont>>> m_fonts;
     mutable std::mutex m_cs{};
     screenshot_job_t m_screenshot{};
     std::filesystem::path m_last_screenshot_location{};

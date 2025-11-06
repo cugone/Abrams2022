@@ -32,27 +32,25 @@
 #include <sstream>
 #include <numeric>
 
-void RHIDevice::DeviceRemoved_worker(std::stop_token stop_token /*= {}*/) noexcept {
-    HRESULT reason{};
-    while(!stop_token.stop_requested()) {
+void RHIDevice::DeviceRemoved_worker(std::stop_token st) noexcept {
+    HRESULT reason{S_OK};
+    while(st.stop_requested()) {
         std::unique_lock<std::mutex> lock(m_cs);
-        m_signal.wait(lock, [&]() -> bool { return stop_token.stop_requested() || m_deviceremoved; });
+        m_signal.wait(lock, [&]() -> bool { return st.stop_requested() || m_deviceremoved; });
         reason = m_dx_device->GetDeviceRemovedReason();
-        if(m_deviceremoved || FAILED(reason)) {
-            break;
-        }
     }
-    m_dx_device->UnregisterDeviceRemoved(m_deviceRemovedCookie);
-    const auto err_str = std::format("Your GPU device has been lost. Please restart the application. The returned error message follows:\n{}", StringUtils::FormatWindowsMessage(reason));
-    auto* logger = ServiceLocator::get<IFileLoggerService>();
-    logger->LogErrorLine(err_str);
+    if(m_deviceremoved || FAILED(reason)) {
+        m_dx_device->UnregisterDeviceRemoved(m_deviceRemovedCookie);
+        const auto err_str = std::format("Your GPU device has been lost. Please restart the application. The returned error message follows:\n{}", StringUtils::FormatWindowsMessage(reason));
+        auto* logger = ServiceLocator::get<IFileLoggerService>();
+        logger->LogErrorLine(err_str);
+    }
 }
 
 RHIDevice::~RHIDevice() noexcept {
     m_worker.request_stop();
     m_signal.notify_all();
     if(m_worker.joinable()) {
-        m_worker.request_stop();
         m_worker.join();
     }
     m_dxgi_swapchain->SetFullscreenState(false, nullptr);
@@ -168,7 +166,7 @@ std::pair<std::unique_ptr<RHIOutput>, std::unique_ptr<RHIDeviceContext>> RHIDevi
         context = device_info.dx_context;
     }
 
-    m_worker = std::jthread(&RHIDevice::DeviceRemoved_worker, this, m_worker.get_stop_token());
+    m_worker = std::jthread([this](std::stop_token st) { this->DeviceRemoved_worker(st); });
     ThreadUtils::SetThreadDescription(m_worker, L"RegisterDeviceRemoved Worker");
     if(const auto hr = m_dx_device->RegisterDeviceRemovedEvent(m_worker.native_handle(), &m_deviceRemovedCookie); FAILED(hr)) {
         m_worker.request_stop();

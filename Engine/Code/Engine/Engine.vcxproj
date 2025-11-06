@@ -43,6 +43,7 @@
     <ClCompile Include="Core\BuildConfig.hpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
     <ClCompile Include="Core\EngineConfig.cpp" />
+    <ClCompile Include="Core\Font.cpp" />
     <ClCompile Include="Core\Gif.cpp" />
     <ClCompile Include="Core\JobTypes.cpp" />
     <ClCompile Include="Core\MtlReader.cpp" />
@@ -237,6 +238,106 @@
     <ClInclude Include="..\Thirdparty\box2d\b2_world_callbacks.h" />
     <ClInclude Include="..\Thirdparty\box2d\box2d.h" />
     <ClInclude Include="..\Thirdparty\EnTT\EnTT.hpp" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\ftconfig.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\ftheader.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\ftmodule.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\ftoption.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\ftstdlib.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\integer-types.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\mac-support.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\config\public-macros.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\freetype.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftadvanc.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftbbox.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftbdf.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftbitmap.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftbzip2.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftcache.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftchapters.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftcid.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftcolor.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftdriver.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\fterrdef.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\fterrors.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftfntfmt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftgasp.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftglyph.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftgxval.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftgzip.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftimage.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftincrem.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftlcdfil.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftlist.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftlogging.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftlzw.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftmac.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftmm.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftmodapi.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftmoderr.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftotval.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftoutln.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftparams.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftpfr.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftrender.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftsizes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftsnames.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftstroke.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftsynth.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftsystem.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\fttrigon.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\fttypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ftwinfnt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\autohint.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\cffotypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\cfftypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\compiler-macros.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftcalc.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftdebug.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftdrv.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftgloadr.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\fthash.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftmemory.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftmmtypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftobjs.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftpsprop.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftrfork.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftserv.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftstream.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\fttrace.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\ftvalid.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\psaux.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\pshints.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svbdf.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svcfftl.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svcid.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svfntfmt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svgldict.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svgxval.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svkern.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svmetric.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svmm.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svotval.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svpfr.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svpostnm.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svprop.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svpscmap.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svpsinfo.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svsfnt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svttcmap.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svtteng.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svttglyf.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\services\svwinfnt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\sfnt.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\svginterface.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\t1types.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\tttypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\internal\wofftypes.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\otsvg.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\t1tables.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\ttnameid.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\tttables.h" />
+    <ClInclude Include="..\Thirdparty\freetype\freetype\tttags.h" />
+    <ClInclude Include="..\Thirdparty\freetype\ft2build.h" />
     <ClInclude Include="..\Thirdparty\ImGui\imconfig.h" />
     <ClInclude Include="..\Thirdparty\ImGui\imgui.h" />
     <ClInclude Include="..\Thirdparty\Imgui\imgui_impl_dx11.h" />
@@ -249,6 +350,7 @@
     <ClInclude Include="..\Thirdparty\nlohmann\json\json.hpp" />
     <ClInclude Include="..\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="..\Thirdparty\stb\stb_image_write.h" />
+    <ClInclude Include="..\Thirdparty\stb\stb_rect_pack.h" />
     <ClInclude Include="..\Thirdparty\TinyXML2\tinyxml2.h" />
     <ClInclude Include="..\Thirdparty\Tracy\tracy\Tracy.hpp" />
     <ClInclude Include="..\Thirdparty\webm\common\file_util.h" />
@@ -367,7 +469,9 @@
     <ClInclude Include="Core\Base64.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
     <ClInclude Include="Core\EngineConfig.hpp" />
+    <ClInclude Include="Core\Font.hpp" />
     <ClInclude Include="Core\Gif.hpp" />
+    <ClInclude Include="Core\IFont.hpp" />
     <ClInclude Include="Core\JobTypes.hpp" />
     <ClInclude Include="Core\MtlReader.hpp" />
     <ClInclude Include="Core\OrthographicCameraController.hpp" />
@@ -652,10 +756,7 @@
       <AdditionalOptions>/we4242 /we4254 /we4263 /we4265 /we4287 /we4289 /we4296 /we4311 /we4545 /we4546 /we4547 /we4549 /we4555 /we4619 /we4640 /we4826 /we4905 /we4906 /we4928 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib />
-    <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/debug;$(ProjectDir)../Thirdparty/box2d/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libwebp_debug.lib;libwebpdemux_debug.lib;libwebpmux_debug.lib;libwebm_debug.lib;box2d_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -670,10 +771,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm_release.lib;box2d_rd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/release;$(ProjectDir)../Thirdparty/box2d/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FinalBuild|x64'">
     <ClCompile>
@@ -689,10 +787,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/final;$(ProjectDir)../Thirdparty/box2d/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugProfile|x64'">
     <ClCompile>
@@ -708,10 +803,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <Lib>
-      <AdditionalDependencies>libwebp.lib;libwebpdemux.lib;libwebpmux.lib;libwebm_release.lib;box2d_rd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)../Thirdparty/webp/lib;$(ProjectDir)../Thirdparty/webm/lib/release;$(ProjectDir)../Thirdparty/box2d/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

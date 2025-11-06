@@ -502,7 +502,8 @@ void App<T>::LogSystemDescription() const {
     ZoneScopedC(0xFF0000);
 #endif
     const auto system = System::GetSystemDesc();
-    g_theFileLogger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
+    auto* logger = ServiceLocator::get<IFileLoggerService>();
+    logger->Log(std::format("{:->80}{}{:->80}", '\n', StringUtils::to_string(system), '\n'));
 }
 
 template<GameType T>
