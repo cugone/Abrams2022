@@ -6191,8 +6191,9 @@ std::unique_ptr<Shader> Renderer::CreateDefaultFontShader() noexcept {
     <raster>
         <fill>solid</fill>
         <cull>none</cull>
-        <antialiasing>false</antialiasing>
+        <antialiasing>true</antialiasing>
     </raster>
+    <sampler src="__point" />
     <blends>
         <blend enable="true">
             <color src="src_alpha" dest="inv_src_alpha" op="add" />
