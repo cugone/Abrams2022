@@ -53,7 +53,7 @@ public:
         }
         {
             std::scoped_lock lock(m_cs);
-            auto provided_typeindex = std::type_index(typeid(NullService));
+            auto provided_typeindex = std::type_index(typeid(ServiceInterface));
             if(auto [it, inserted] = m_NullServices.try_emplace(provided_typeindex, &null_service); !inserted) {
                 m_NullServices.erase(it);
                 m_NullServices.try_emplace(provided_typeindex, &null_service);
@@ -100,20 +100,20 @@ public:
 protected:
 private:
 
-    template<typename NullServiceInterface>
-    static NullServiceInterface* GetNullService() noexcept {
-        const auto requested_typeindex = std::type_index(typeid(NullServiceInterface));
+    template<typename ServiceInterface>
+    static ServiceInterface* GetNullService() noexcept {
+        const auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(const auto found = m_NullServices.find(requested_typeindex); found != std::end(m_NullServices)) {
-            return dynamic_cast<NullServiceInterface*>(found->second);
+            return dynamic_cast<ServiceInterface*>(found->second);
         }
         return nullptr;
     }
 
-    template<typename NullServiceInterface>
-    static const NullServiceInterface* GetNullService_const() noexcept {
-        const auto requested_typeindex = std::type_index(typeid(NullServiceInterface));
+    template<typename ServiceInterface>
+    static const ServiceInterface* GetNullService_const() noexcept {
+        const auto requested_typeindex = std::type_index(typeid(ServiceInterface));
         if(const auto found = m_NullServices.find(requested_typeindex); found != std::end(m_NullServices)) {
-            return dynamic_cast<const NullServiceInterface*>(found->second);
+            return dynamic_cast<const ServiceInterface*>(found->second);
         }
         return nullptr;
     }
