@@ -111,9 +111,9 @@ private:
 
     std::string m_title{"UNTITLED GAME"};
 
+    std::unique_ptr<Config> m_theConfig{};
     std::unique_ptr<JobSystem> m_theJobSystem{};
     std::unique_ptr<FileLogger> m_theFileLogger{};
-    std::unique_ptr<Config> m_theConfig{};
     std::unique_ptr<Renderer> m_theRenderer{};
     std::unique_ptr<VideoSystem> m_theVideoSystem{};
     std::unique_ptr<Console> m_theConsole{};
@@ -195,9 +195,9 @@ App<T>::~App() noexcept {
         m_theConsole.reset();
         m_theVideoSystem.reset();
         m_theRenderer.reset();
-        m_theConfig.reset();
         m_theFileLogger.reset();
         m_theJobSystem.reset();
+        m_theConfig.reset();
     }
     ServiceLocator::remove_all();
 }
