@@ -110,7 +110,7 @@ void FileLogger::DoCopyLog() noexcept {
         from_p = FS::canonical(from_p);
         from_p.make_preferred();
         auto to_p = from_p.parent_path();
-        to_p = to_p / std::filesystem::path{m_logName + "_" + TimeUtils::GetDateTimeStampFromNow({true})}.replace_extension(".log");
+        to_p = to_p / std::filesystem::path{std::format("{}_{}", m_logName, TimeUtils::GetDateTimeStampFromNow({true}))}.replace_extension(".log");
         to_p = FS::absolute(to_p);
         to_p.make_preferred();
         job_data->to = to_p;
@@ -154,11 +154,11 @@ void FileLogger::FinalizeLog() noexcept {
     opts.is_filename = true;
     opts.use_24_hour_clock = true;
     opts.include_milliseconds = true;
-    to_p.replace_filename(logname + "_" + TimeUtils::GetDateTimeStampFromNow(opts));
+    to_p.replace_filename(std::format("{}_{}", logname, TimeUtils::GetDateTimeStampFromNow(opts)));
     to_p.replace_extension(".log");
     //Canonicalizing output file that doesn't already exist is an error.
     to_p.make_preferred();
-    m_stream << "Copied log to: " << to_p << "...\n";
+    m_stream << std::format("Copied log to: {}\n", to_p);
     m_stream.flush();
     m_stream.close();
     std::cout.rdbuf(m_old_cout);
@@ -204,8 +204,7 @@ void FileLogger::Initialize(const std::string& log_name) noexcept {
     m_old_cout = std::cout.rdbuf(m_stream.rdbuf());
     m_worker = std::jthread(&FileLogger::Log_worker, this);
     ThreadUtils::SetThreadDescription(m_worker, L"FileLogger");
-    const auto ss = std::string{"Initializing Logger: "} + m_current_log_path.string() + "...";
-    LogLine(ss.c_str());
+    LogLine(std::format("Initializing Logger: {}...", m_current_log_path));
 }
 
 void FileLogger::Shutdown() noexcept {
@@ -219,8 +218,8 @@ void FileLogger::Shutdown() noexcept {
             if(AllocationTracker::is_enabled()) {
                 ss << AllocationTracker::status() << "\n";
             }
-            ss << std::string{"Shutting down Logger: "} << m_current_log_path.string() << "...";
-            LogLine(ss.str().c_str());
+            ss << std::string{} << m_current_log_path.string() << "...";
+            LogLine(std::format("Shutting down Logger: {}...", m_current_log_path));
         }
         SetIsRunning(false);
         m_signal.notify_all();
