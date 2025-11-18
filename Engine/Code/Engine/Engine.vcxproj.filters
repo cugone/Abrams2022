@@ -2042,12 +2042,27 @@
     <FxCompile Include="Renderer\DirectX\Shaders\roundedrectangle.hlsl">
       <Filter>Renderer\DirectX\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Renderer\DirectX\Shaders\font.hlsl">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Renderer\DirectX\Shaders\webp_PS.cso">
       <Filter>Renderer\DirectX\Shaders</Filter>
     </None>
     <None Include="Renderer\DirectX\Shaders\webp_VS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+    <None Include="Renderer\DirectX\Shaders\Font_PS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+    <None Include="Renderer\DirectX\Shaders\Font_VS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+    <None Include="Renderer\DirectX\Shaders\roundedrectangle_PS.cso">
+      <Filter>Renderer\DirectX\Shaders</Filter>
+    </None>
+    <None Include="Renderer\DirectX\Shaders\roundedrectangle_VS.cso">
       <Filter>Renderer\DirectX\Shaders</Filter>
     </None>
   </ItemGroup>
