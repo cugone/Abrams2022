@@ -1,6 +1,7 @@
 #include "Engine/UI/DearImgui.hpp"
 
 #include "Engine/Core/BuildConfig.hpp"
+#include "Engine/Core/TimeUtils.hpp"
 
 #include "Engine/Renderer/Renderer.hpp"
 
@@ -12,7 +13,9 @@
 #include <Thirdparty/Tracy/tracy/Tracy.hpp>
 #endif
 
-#include <Thirdparty/Imgui/imgui_internal.h>
+#include <Thirdparty/Imgui/imgui_impl_dx11.h>
+#include <Thirdparty/Imgui/imgui_impl_win32.h>
+
 
 #ifndef UI_DEBUG
     #define IMGUI_DISABLE_DEMO_WINDOWS
