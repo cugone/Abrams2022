@@ -1,3 +1,5 @@
+## This repo has been archived in favor of the most recent version. Please fork or contribute to that version instead.
+
 # Abrams2022
 
 Version 2022 Abrams Game Engine for VS2022
